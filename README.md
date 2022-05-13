@@ -1,5 +1,7 @@
 # Fetch Client
 
+<img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/icons/fetch-client.png?raw=true" width="120" height="120">
+
 ## What is Fetch Client ?
 
 `"Don't leave from VSCode, Stay in it` - For Rest API testing. 😎
@@ -31,6 +33,15 @@ Fetch Client is Visual Studio Code extension which is used to test the Rest API.
     * Select the `Fetch Client` and install the extension.
 
 ## 💡 How to use ?
+
+* Click the `Fetch Client` icon on the activity bar (left side of the VSCode) or use the `Ctl+Alt+N` shortcut.
+* On the Fetch Client `Quick Access` bar, click the `New Request` button to test the Rest API.
+* Select the `Http method` and enter the `URL` and other parameters such as query parameters, headers, auth details, request body (if required) and click the `Send` button.
+* The response data will be displayed in the `Response` section. We can view the response data in the Tree view format for `JSON` and `XML` responses and HTML preview for `HTML` responses.
+* All existing requests are available in the `History` section in the Quick Access Bar.
+
+## 🔗 Features
+
 * [UI Customization](#uicustomization)
 * [HTTP Methods](#httpmethods)
 * [Query Parameter](#queryparams)
@@ -59,6 +70,18 @@ We can customize the UI in different modes.
   * Vertical mode
       * Split View
 
+| ![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/Horizonal_Accordian_Split.gif?raw=true) | 
+|:--:| 
+| *Horizontal mode - Accordian View* |
+
+| ![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/Horizonal_Split.gif?raw=true) | 
+|:--:| 
+| *Horizontal mode - Split View* |
+
+| ![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/Vertical_Split.gif?raw=true) | 
+|:--:| 
+| *Vertical mode - Split View* |
+
 <a name="httpmethods"></a>
 ### 2) Different HTTP Methods
 
@@ -81,6 +104,11 @@ Fetch client supports below authorization methods for Rest API testing.
 
 We can add the headers for API testing. Fetch Client gives the suggestion on various headers and corressponding values in the header section.
 
+![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/header-suggestion.png?raw=true)
+
+![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/header-value-suggestion.png?raw=true)
+
+
 <a name="reqbody"></a>
 ### 6) Request Body
 
@@ -91,6 +119,8 @@ We can add the headers for API testing. Fetch Client gives the suggestion on var
     * Binary File
     * GraphQL
   * `Content-Type` header will be automatically added based on binary file type.
+
+![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/raw-content-type-suggestion.png?raw=true)  
 
 <a name="test"></a>
 ### 7) Test
@@ -105,6 +135,10 @@ We can add the headers for API testing. Fetch Client gives the suggestion on var
     * Content-Encoding
     * Specific Response Header value
     * Specific JSON property value in the JSON response
+
+| ![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/Test.gif?raw=true) | 
+|:--:| 
+| *Fetch Client - Test Case/Test Results* |
 
 <a name="resdata"></a>
 ### 8) Response Data

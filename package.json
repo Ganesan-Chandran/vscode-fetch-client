@@ -9,6 +9,11 @@
   "engines": {
     "vscode": "^1.65.0"
   },
+  "icon": "icons/fetch-client.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ganesan-Chandran/vscode-fetch-client.git"
+  },
   "categories": [
     "Other",
     "Programming Languages",
@@ -24,8 +29,15 @@
     "rest",
     "postman",
     "graphql",
-    "testing"
+    "testing",
+    "api testing",
+    "rest testing"
   ],
+  "license": "MIT",
+  "homepage": "https://github.com/Ganesan-Chandran/vscode-json-utility",
+  "bugs": {
+    "url": "https://github.com/Ganesan-Chandran/vscode-json-utility/issues"
+  },
   "activationEvents": [
     "onCommand:fetch-client.newRequest",
     "onCommand:fetch-client.addToCol",
