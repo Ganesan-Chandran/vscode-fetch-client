@@ -1,0 +1,49 @@
+.notes-editor-panel {
+    height: calc(100% - 50px);
+    padding: 10px;
+}
+
+.rsw-editor {
+    height: 100% !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.rsw-toolbar {
+    background-color: var(--background-color) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+.rsw-separator {
+    border-right: 1px solid var(--border-color) !important;
+}
+
+.rsw-btn {
+    color: var(--text-color) !important;
+    height: 35px !important;
+    width: 35px !important;
+    font-size: 15px !important;
+}
+
+.rsw-btn:hover {
+    background-color: var(--button-hover-color) !important;
+    color: var(--button-text-color) !important;
+}
+
+.rsw-dd {
+    margin-left: 10px !important;
+}
+
+.rsw-btn[data-active=true] {
+    background-color: var(--button-hover-color) !important;
+    color: var(--button-text-color) !important;
+}
+
+.rsw-ce {
+    font-size: 15px !important;
+    color: var(--text-color) !important;
+}
+
+.notes-text {
+    padding-top: 5px;
+    font-size: initial;
+}

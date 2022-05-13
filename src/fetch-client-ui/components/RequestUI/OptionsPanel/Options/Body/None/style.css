@@ -1,0 +1,13 @@
+.none-panel {
+  width: 100%;
+}
+
+.hr-container {
+  width: 100%;
+}
+
+.none-text {
+  width: 100%;
+  font-size: var(--font-size);
+  margin-top: 20px;
+}

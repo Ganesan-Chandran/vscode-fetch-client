@@ -1,0 +1,147 @@
+.auth-panel {
+  padding: 7px 10px 5px;
+}
+
+.auth-type-panel {
+  display      : flex;
+  padding-right: 20px;
+}
+
+.auth-type-select {
+  height          : 30px;
+  outline         : none;
+  margin          : 5px 10px;
+  border-radius   : 3px;
+  background-color: var(--background-color);
+  color           : var(--text-color);
+  display         : inline-block;
+  font-weight     : 600;
+}
+
+.auth-type-select option {
+  color           : var(--text-color);
+  background-color: var(--background-color);
+}
+
+.auth-type-select:focus,
+.auth-type-select:hover {
+  outline: none;
+}
+
+.auth-token-text-panel {
+  width    : 100%;
+  flex-grow: 1;
+}
+
+.auth-type-label {
+  padding: 7px 10px 5px 0;
+}
+
+.auth-token-text {
+  width        : calc(100% - 105px);
+  height       : 250px;
+  outline      : none;
+  margin       : 10px;
+  padding      : 10px;
+  border-radius: 3px;
+  resize       : none;
+  font-size    : var(--vscode-editor-font-size) !important;
+  font-family  : var(--vscode-editor-font-family) !important;
+  font-weight  : var(--vscode-font-weight);
+}
+
+.auth-token-prefix-text {
+  width        : calc(100% - 105px);
+  height       : 25px;
+  outline      : none;
+  margin       : 10px;
+  padding      : 0 10px;
+  border-radius: 3px;
+}
+
+.auth-token-text:focus,
+.auth-token-prefix-text:focus,
+.basic-auth-username:focus,
+.basic-auth-password:focus {
+  outline: none;
+}
+
+.auth-token-label {
+  display: block;
+  float  : left;
+  height : 30px;
+  width  : 50px;
+  padding: 15px 10px 10px 0;
+}
+
+label {
+  font-size: var(--font-size);
+}
+
+.basic-auth-username,
+.basic-auth-password {
+  width        : calc(100% - 110px);
+  height       : 25px;
+  outline      : none;
+  padding      : 0 10px;
+  border-radius: 3px;
+}
+
+.basic-auth-username:focus,
+.basic-auth-username:hover,
+.basic-auth-password:focus,
+.basic-auth-password:hover,
+.auth-token-text:focus,
+.auth-token-text:hover {
+  outline: none;
+}
+
+.basic-auth-label {
+  display: block;
+  float  : left;
+  width  : 80px;
+  padding: 5px 0 0;
+}
+
+.basic-auth-text-panel {
+  padding: 10px 10px 10px 0;
+}
+
+.apikey-add-select {
+  height          : 30px;
+  outline         : none;
+  border-radius   : 3px;
+  background-color: var(--background-color);
+  color           : var(--text-color);
+}
+
+.apikey-add-select option {
+  background-color: var(--background-color);
+  color           : var(--text-color);
+}
+
+.apikey-add-select:focus,
+.apikey-add-select:hover {
+  outline: none;
+}
+
+.basic-auth-check {
+  padding-top  : 10px;
+  margin-left  : 96px;
+  border-radius: 3px;
+}
+
+.basic-auth-check-box {
+  margin-right: 10px;
+}
+
+.basic-auth-check-box:focus,
+.basic-auth-check-box.hover {
+  outline: none;
+}
+
+.auth-text {
+  background: var(--background-color);
+  border    : 0.25px solid var(--border-color);
+  color     : var(--text-color);
+}

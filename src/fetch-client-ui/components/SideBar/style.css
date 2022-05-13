@@ -1,0 +1,264 @@
+.sidebar-tab-menu {
+  float: left;
+  padding: 10px;
+  background-color: transparent;
+  color: var(--text-color);
+  border: 0;
+  cursor: pointer;
+}
+
+.selected {
+  border-bottom: 2.5px solid var(--button-background-color);
+}
+
+.sidebar-panel-tabs {
+  display: flex;
+  justify-content: space-around;
+  border-bottom: 1px solid #555;
+}
+
+.sidebar-panel {
+  height: calc(100vh - 130px);
+  width: 100%;
+  display: block;
+  padding: 0;
+}
+
+.sidebar-body {
+  font-size: smaller;
+  height: 100%;
+}
+
+.activity-items-panel {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  cursor: pointer;
+}
+
+.activity-items {
+  padding: 0 5px 5px;
+  border-bottom: 0.25px solid #343434;
+  cursor: pointer;
+}
+
+.activity-items:hover {
+  background-color: var(--list-hover-background-color);
+}
+
+.activity-method {
+  display: block;
+  width: fit-content;
+  padding: 2px 5px 0;
+  border-radius: 5px;
+  height: 15px;
+  text-align: center;
+  font-weight: bold;
+  font-size: smaller;
+  cursor: pointer;
+  color: var(--button-text-color);
+}
+
+.pass {
+  background-color: rgb(2, 151, 2);
+}
+
+.get-mtd {
+  background-color: rgb(2, 151, 2);
+}
+
+.post-mtd {
+  background-color: #c5830b;
+}
+
+.put-mtd {
+  background-color: #247bc1;
+}
+
+.patch-mtd {
+  background-color: #767676;
+}
+
+.delete-mtd {
+  background-color: #bd2b2b;
+}
+
+.other-mtd {
+  background-color: #404040;
+}
+
+.activity-item-row-1 {
+  padding: 10px 10px 5px;
+  display: flex;
+  cursor: pointer;
+}
+
+.activity-url {
+  padding-left: 6px;
+  cursor: pointer;
+  word-break: break-word;
+}
+
+.activity-item-row-2 {
+  padding: 0 5px 2px 10px;
+  color: gray;
+  cursor: pointer;
+}
+
+.activity-item-row-2 label {
+  cursor: pointer;
+}
+
+.activity-search {
+  background-color: transparent;
+  color: var(--text-color);
+  border: 1px solid gray;
+  outline: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  margin: 10px 2px 5px 10px;
+  width: 80%;
+}
+
+.activity-search:focus {
+  outline: none;
+}
+
+.activity-filter {
+  display: flex;
+}
+
+.hamburger-menu-panel {
+  padding: 15px 5px 0;
+}
+
+.hamburger-menu {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.hamburger-menu path {
+  fill: var(--text-color);
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  width: 125px;
+  overflow: auto;
+  box-shadow: 10px 8px 16px 0 rgba(0, 0, 0, 0.4);
+  right: 0;
+  z-index: 1;
+  /* border-radius: 5px; */
+  color: var(--text-color);
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  top: 32px;
+}
+
+.dropdown-content button,
+.dropdown-more button {
+  padding: 5px 10px;
+  text-decoration: none;
+  width: 100%;
+  cursor: pointer;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  outline: none;
+  border: 3px solid transparent;
+  border-radius: 0;
+  text-align: left;
+}
+
+.dropdown-content button:hover,
+.dropdown button:hover,
+.dropdown-more button:hover {
+  background-color: var(--button-hover-color);
+  color: var(--button-text-color);
+}
+
+.show {
+  display: block;
+}
+
+.more-icon {
+  float: right;
+  padding-right: 5px;
+  font-size: large;
+  display: none;
+}
+
+.activity-items:hover .more-icon {
+  display: block;
+}
+
+.display-block {
+  position: relative;
+  display: inline-block;
+}
+
+.dd-input {
+  display: none;
+}
+
+.dropdown-more {
+  position: absolute;
+  width: 150px;
+  box-shadow: 10px 8px 16px 0px rgba(0, 0, 0, 0.4);
+  z-index: 1;
+  /* border-radius: 5px; */
+  color: var(--text-color);
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  text-align: left;
+  right: 0;
+}
+
+.dd-input+.dropdown-more {
+  display: none;
+}
+
+.dd-input:checked+.dropdown-more {
+  display: block;
+}
+
+.new-request-button {
+  border: 0;
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  padding: 4px;
+  text-align: center;
+  cursor: pointer;
+  justify-content: center;
+  align-items: center;
+  max-width: 300px;
+  color: var(--button-text-color);
+  background-color: var(--button-background-color);
+  height: 26px;
+}
+
+.new-request-button:hover {
+  background-color: var(--button-hover-color);
+}
+
+.new-request-panel {
+  margin: 0 auto;
+  max-width: 300px;
+  transition: max-width .2s ease-out;
+  padding: 10px 20px 1em;
+}
+
+.sidebar-panel-body {
+  height: 100%;
+}
+
+.selected-item {
+  border-left: 3px solid var(--button-background-color);
+}

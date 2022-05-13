@@ -1,0 +1,42 @@
+.code-snippet-editor-panel {
+  height: calc(100% - 50px);
+}
+
+.code-snippet-panel {
+  height: calc(100% - 15px);
+}
+
+.code-snippet-select-panel {
+  display: flex;
+  padding: 10px;
+}
+
+.code-snippet-lang-panel {
+  margin-right: 10px;
+}
+
+.code-snippet-lang-label,
+.code-snippet-opt-label {
+  margin-right: 10px;
+}
+
+.code-snippet-lang-select,
+.code-snippet-opt-select {
+  height: 30px;
+  width: 150px;
+  outline: none;
+  border-radius: 3px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.code-snippet-lang-select:focus,
+.code-snippet-opt-select:focus {
+  outline: none;
+}
+
+.code-snippet-lang-select option,
+.code-snippet-opt-select option {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}

@@ -1,0 +1,61 @@
+.test-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 10px;
+  table-layout: fixed;
+}
+
+.test-table thead {
+  background-color: var(--list-hover-background-color);
+}
+
+.test-table,
+.test-table thead,
+.test-table tbody,
+.test-table td,
+.test-table th,
+.test-table tr {
+  border: var(--border-size) solid var(--border-color) !important;
+}
+
+.testvalue-text,
+.test-parameter-select,
+.test-action-select,
+.parameter-value-text {
+  background-color: transparent;
+  border: 0;
+  box-sizing: border-box;
+  color: var(--text-color);
+  font-size: var(--font-size);
+  outline: none;
+  padding: 10px;
+  width: 100%;
+}
+
+.testvalue-text:focus,
+.test-parameter-select:focus,
+.test-action-select:focus,
+.parameter-value-text:focus,
+.testvalue-text:hover,
+.test-parameter-select:hover,
+.test-action-select:hover,
+.parameter-value-text:hover {
+  outline: none;
+}
+
+.test-parameter-select option,
+.test-action-select option {
+  color: black;
+}
+
+select:required:invalid {
+  color: gray;
+}
+
+option[value=""][disabled] {
+  display: none;
+}
+
+.test-action-cell {
+  text-align: center;
+}

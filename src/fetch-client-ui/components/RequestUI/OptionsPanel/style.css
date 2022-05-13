@@ -1,0 +1,61 @@
+.options-panel {
+  margin: 5px;
+  padding: 0 0 0 10px;
+  height: calc(100% - 60px);
+}
+
+.options-container {
+  overflow-x: auto;
+  width: 100%;
+  height: 100%;
+}
+
+.tab-options {
+  display: flex;
+}
+
+.option {
+  cursor: pointer;
+  background-color: transparent;
+  color: var(--text-color);
+  outline: none;
+  border: 3px solid transparent;
+  border-radius: 0;
+  padding-bottom: 5px;
+}
+
+.option-selected {
+  border-bottom: 2px solid var(--button-background-color);
+}
+
+.options-tab-panel {
+  height: calc(100% - 30px);
+  overflow-x: hidden;
+  padding: 1px 10px 5px 0;
+  box-sizing: border-box;
+}
+
+.header-count {
+  margin-left: 4px;
+  color: #f05348;
+}
+
+.settings-menu-panel {
+  margin-left: auto;
+  padding-right: 5px;
+  margin-top: 2px;
+}
+
+.settings-menu {
+  height: 19px;
+  width: 19px;
+  cursor: pointer;
+}
+
+.settings-menu path {
+  fill: var(--text-color);
+}
+
+.settings-menu-clicked  path {
+  fill: var(--button-background-color);
+}

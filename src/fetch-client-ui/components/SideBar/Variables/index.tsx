@@ -1,0 +1,176 @@
+import React, { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
+import { v4 as uuidv4 } from 'uuid';
+import { IRootState } from "../../../reducer/combineReducer";
+import { ReactComponent as DotsLogo } from '../../../../../icons/dots.svg';
+import { IVariable } from "../redux/types";
+import vscode from "../../Common/vscodeAPI";
+import { requestTypes } from "../../../../utils/configuration";
+import "./style.css";
+import { formatDate } from "../../../../utils/helper";
+
+export interface IVariableProps {
+  filterCondition: string;
+  isLoading: boolean;
+}
+
+export const VariableSection = (props: IVariableProps) => {
+
+  const { variable } = useSelector((state: IRootState) => state.sideBarData);
+
+  const [ddPosition, setPosition] = useState("");
+
+  const [selectedItem, setSelectedItem] = useState("");
+
+  const [currentIndex, _setCurrentIndex] = useState(-1);
+
+  const refIndex = useRef(currentIndex);
+  const setCurrentIndex = (data: number) => {
+    refIndex.current = data;
+    _setCurrentIndex(refIndex.current);
+  };
+
+  const moreMenuWrapperRef = useRef([]);
+
+  const styles = {
+    bottomStyle: {
+      bottom: ddPosition
+    } as React.CSSProperties,
+  };
+
+  function openMoreMenu(evt: any, index: number) {
+    evt.preventDefault();
+    evt.stopPropagation();
+
+    if (currentIndex === index) {
+      setCurrentIndex(-1);
+      return;
+    }
+
+    let element = document.getElementById("three-dots-" + index);
+    if (element) {
+      let rect = element.getBoundingClientRect();
+      let viewportHeight = window.innerHeight;
+      let total = rect.top + 100;
+      if (total > viewportHeight) {
+        setPosition("100%");
+      } else {
+        setPosition("");
+      }
+    }
+    setCurrentIndex(index);
+  }
+
+  function onRename(evt: React.MouseEvent<HTMLElement>, id: string) {
+    performOperation(evt, requestTypes.renameVariableRequest, id);
+  }
+
+  function onDelete(evt: React.MouseEvent<HTMLElement>, id: string) {
+    performOperation(evt, requestTypes.deleteVariableRequest, id);
+  }
+
+  function onExport(evt: React.MouseEvent<HTMLElement>, vars: IVariable) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    vscode.postMessage({ type: requestTypes.exportVariableRequest, vars: vars });
+    setCurrentIndex(-1);
+  }
+
+  function onClickItem(evt: React.MouseEvent<HTMLElement>, id: string) {
+    setSelectedItem(id);
+    performOperation(evt, requestTypes.openVariableItemRequest, id);
+  }
+
+  function performOperation(evt: React.MouseEvent<HTMLElement>, types: string, id: string) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    vscode.postMessage({ type: types, data: id });
+    setCurrentIndex(-1);
+  }
+
+  function onActive(evt: React.MouseEvent<HTMLElement>, id: string, status: boolean) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    vscode.postMessage({ type: requestTypes.activeVariableRequest, data: { id: id, status: status } });
+    setCurrentIndex(-1);
+  }
+
+  function onDuplicate(evt: React.MouseEvent<HTMLElement>, id: string) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    vscode.postMessage({ type: requestTypes.duplicateVariableRequest, id: id });
+    setCurrentIndex(-1);
+  }
+
+  function handleClickOutside(evt: any) {
+    if (moreMenuWrapperRef.current && moreMenuWrapperRef.current[refIndex.current] && !moreMenuWrapperRef.current[refIndex.current].contains(evt.target)) {
+      setCurrentIndex(-1);
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside, false);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside, false);
+    };
+  }, []);
+
+  function getVariableItems(item: IVariable, index: number) {
+    return (
+      <div key={"variable_" + item.id} className={selectedItem === item.id ? "activity-items selected-item" : "activity-items"} onClick={(e) => onClickItem(e, item.id)}>
+        <div className="activity-item-row-1 variable-row">
+          <label className="var-item-name">{item.name}</label>
+          {index === 0 && <label className="var-item-name">{item.isActive ? "  ✔️" : "  ❌"}</label>}
+          <div className={index === currentIndex ? "more-icon display-block" : "more-icon"} ref={el => moreMenuWrapperRef.current[index] = el}>
+            <DotsLogo id={"three-dots-" + item.id} onClick={(e) => openMoreMenu(e, index)} />
+            <input type="checkbox" className="dd-input" checked={index === currentIndex} readOnly={true} />
+            <div id={"drop-down-menu-" + item.id} className="dropdown-more" style={styles.bottomStyle}>
+              {index !== 0 && <><button onClick={(e) => onRename(e, item.id)}>Rename</button>
+                <button onClick={(e) => onDelete(e, item.id)}>Delete</button></>}
+              <button onClick={(e) => onDuplicate(e, item.id)}>Duplicate</button>
+              <div className="divider"></div>
+              {index === 0 && <button onClick={(e) => onActive(e, item.id, !item.isActive)}>{item.isActive ? "Set Inactive" : "Set Active"}</button>}
+              <button onClick={(e) => onExport(e, item)}>Export</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function getVariableBody() {
+    if (props.filterCondition) {
+      return (
+        variable
+          .filter(el => el.name?.toLowerCase().includes(props.filterCondition))
+          .map((item, index) => {
+            return getVariableItems(item, index);
+          })
+      );
+    } else {
+      return (
+        variable.map((item, index) => {
+          return getVariableItems(item, index);
+        })
+      );
+    }
+  }
+
+  return (
+    <>
+      {
+        props.isLoading ?
+          <>
+            <div id="divSpinner" className="spinner loading"></div>
+            <div className="loading-history-text">{"Loading...."}</div>
+          </>
+          :
+          history.length > 0 ?
+            getVariableBody()
+            :
+            <div className="no-history-text">{"No Variable Available"}</div>
+      }
+    </>
+  );
+};

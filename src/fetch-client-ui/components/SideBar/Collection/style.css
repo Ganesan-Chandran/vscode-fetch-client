@@ -1,0 +1,47 @@
+summary {
+  list-style: none;
+  word-break: break-all;
+  padding: 5px;
+  cursor: pointer;
+  position: relative;
+  padding-left: 35px;
+  font-size: var(--font-size);
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+summary:before {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  content: "▷";
+  background-color: transparent;
+  color: var(--text-color);
+  display: inline-flex;
+  flex-shrink: 0;
+  left: 0.75rem;
+}
+
+summary:hover {
+  background-color: var(--vscode-dropdown-border);
+}
+
+details[open] summary {
+  background-color: var(--vscode-dropdown-border);
+}
+
+details[open] summary:before {
+  content: "▼";
+}
+
+.collection-items:hover .more-icon {
+  display: block;
+}
+
+.divider {
+  border-top: 0.3pt solid var(--border-color);
+  margin: 1px 14px 1px 14px;
+  opacity: .6;
+}

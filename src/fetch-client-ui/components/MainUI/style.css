@@ -1,0 +1,133 @@
+.accordion>input[name="collapse"] {
+  display: none;
+}
+
+.accordion .accordion-title,
+.accordion .content {
+  margin: 0 auto;
+}
+
+.accordion .content {
+  border: 1px solid;
+  height: 0;
+  overflow: hidden;
+  transition: 0.5s;
+}
+
+.accordion>input[name="collapse"]:checked~.content {
+  height: calc(100% - 30px);
+  transition: height 0.5s;
+}
+
+.accordion .accordion-title {
+  display: block;
+}
+
+/* For Desktop */
+@media only screen and (min-width: 620px) {
+  .accordion>input[name="collapse"]:checked~.content {
+    /* height: 93%; */
+    height: calc(100% - 30px);
+  }
+}
+
+.accordion {
+  margin-bottom: 2px;
+}
+
+.accordion>input[name="collapse"]:checked~.content {
+  border-top: 0;
+  transition: 0.3s;
+}
+
+.accordion .handle {
+  margin: 0;
+  font-size: 16px;
+  border: 1px solid;
+}
+
+.accordion .accordion-title {
+  background: #0a95ff;
+  color: #fff;
+  cursor: pointer;
+  font-weight: normal;
+  padding: 3px 3px 3px 10px;
+  user-select: none;
+}
+
+.accordion .accordion-title:hover,
+.accordion .accordion-title:focus {
+  /* background: #252525; */
+  background: #194880;
+}
+
+.accordion .handle .accordion-title:before {
+  content: "+";
+  display: inline-block;
+  font-size: 1em;
+  line-height: 1.556em;
+  margin-right: 10px;
+  transition: 0.4s;
+}
+
+.accordion>input[name="collapse"]:checked~.handle .accordion-title:before {
+  content: "-";
+  transform: rotate(180deg);
+  transform-origin: center;
+  transition: 0.4s;
+}
+
+.accordion>input[name="collapse"]:checked~.handle .accordion-title {
+  background: #194880;
+}
+
+.half-height {
+  height: 49.5%;
+}
+
+.full-height {
+  height: calc(100% - 40px);
+}
+
+.zero-height {
+  height: 30px;
+}
+
+.no-border {
+  border: 0 !important;
+}
+
+.split-vertical {
+  display: flex;
+  flex-direction: row;
+  height: 99.2%;
+}
+
+.split-horizontal {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 10px);
+}
+
+.gutter {
+  background-color: var(--border-color);
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
+
+.gutter.gutter-vertical {
+  cursor: ns-resize;
+}
+
+.gutter.gutter-horizontal {
+  cursor: ew-resize;
+}
+
+.gutter.gutter-horizontal:hover{
+  background-color: var(--button-background-color);
+  width: 3px !important;
+}
+
+.gutter.gutter-vertical:hover {
+  background-color: var(--button-background-color);  
+}

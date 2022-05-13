@@ -1,0 +1,34 @@
+.editor {
+  position: relative;
+  border: var(--border-size) solid var(--border-color);
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.monaco-editor {
+  height: 100%;  
+}
+
+.copy-button {
+  background-color: var(--button-background-color);
+  border: 1px solid rgb(51, 51, 51);
+  border-radius: 5px;
+  color: var(--button-text-color);
+  cursor: pointer;
+  font-size: medium;
+  opacity: 0;
+  outline: none;
+  padding: 0.4rem 0.5rem;
+  position: absolute;
+  right: 1rem;
+  top: 0.8rem;
+  transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+  visibility: hidden;
+  z-index: 99;
+}
+
+.copy-button:hover,
+.editor:hover .copy-button {
+  opacity: 1;
+  visibility: visible;
+}

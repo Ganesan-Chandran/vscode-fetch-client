@@ -1,0 +1,72 @@
+.response-params-panel {
+  float: right;
+  margin-left: auto;
+  display: flex;
+  width: auto;
+  justify-content: space-around;
+}
+
+.response-params {
+  color: #4bb543;
+  padding: 0 10px;
+  font-weight: bolder;
+}
+
+.response-params-panel-vertical {
+  display: flex;
+  margin: 5px;
+  padding-bottom: 20px;
+}
+
+.menu-panel {
+  margin-left: auto !important;
+}
+
+.code-snippet-icon,
+.code-snippet-icon-disabled {
+  cursor: pointer;
+}
+
+.code-snippet-icon path {
+  fill: var(--text-color);
+}
+
+.res-menu {
+  margin-left: 10px;
+  cursor: pointer;
+  width: 16px;
+  margin-bottom: 3px;
+}
+
+.res-menu path {
+  fill: var(--text-color);
+}
+
+.code-snippet-icon-clicked path {
+  fill: var(--button-background-color);
+}
+
+.save-to-file-button:disabled,
+.save-to-file-button[disabled],
+.save-to-file-button:disabled:hover,
+.save-to-file-button[disabled]:hover {
+  color: #666;
+  cursor: not-allowed;
+  background-color: lightgrey;  
+}
+
+.save-to-file-button:hover {
+  color: var(--button-text-color);
+}
+
+.code-snippet-icon-disabled {
+  cursor: not-allowed;
+}
+
+.code-snippet-icon-disabled path {
+  fill: #666;
+}
+
+.res-drop-down-menu {
+  width: 175px !important;
+}

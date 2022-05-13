@@ -1,0 +1,345 @@
+.addto-header {
+  font-style : normal;
+  font-size  : x-large;
+  padding-top: 50px;
+  text-align : center;
+}
+
+.addto-body {
+  padding-top: 50px;
+}
+
+.center {
+  margin: 0 auto;
+}
+
+.addto-table thead,
+.addto-table tbody,
+.addto-table th,
+.addto-table tr,
+.addto-table td {
+  border: none !important;
+}
+
+.addto-table {
+  width: 50%;
+}
+
+.addto-table tr {
+  height: 60px;
+}
+
+.addto-table td,
+.addto-table tr {
+  display: flex;
+}
+
+.addto-table tr:hover {
+  background-color: transparent !important;
+}
+
+.block-display {
+  display: block !important;
+}
+
+.col-1-size {
+  width: 200px;
+}
+
+.col-2-size {
+  width: 100%;
+}
+
+.details-col {
+  display   : grid !important;
+  text-align: left !important;
+}
+
+.details-row {
+  height: 130px !important;
+}
+
+.button-panel {
+  width : 50%;
+  margin: 0 auto;
+  float : right;
+}
+
+.addto-label {
+  font-weight  : 500;
+  color        : var(--text-color);
+  padding-right: 20px;
+}
+
+.addto-text {
+  color           : var(--text-color);
+  font-size       : 14px;
+  border          : 1px solid var(--border-color);
+  background-color: transparent;
+  outline         : 0;
+  height          : 25px;
+  width           : 100%;
+  padding         : 5px 10px;
+}
+
+.addto-text:focus {
+  outline: none;
+}
+
+.required-value {
+  border: 1px solid var(--required-color) !important;
+}
+
+.addto-select {
+  background-color: var(--background-color);
+  box-sizing      : border-box;
+  color           : var(--text-color);
+  font-size       : small;
+  outline         : none;
+  padding         : 10px;
+  width           : 100%;
+}
+
+.addto-select:focus {
+  outline: none;
+}
+
+.addto-select:required:invalid {
+  color: var(--input-unchecked);
+}
+
+.addto-select option[value=""][disabled] {
+  display: none;
+}
+
+.addto-select option {
+  color     : var(--text-color) !important;
+  background: var(--background-color) !important;
+}
+
+.col-2-size select {
+  height: 37px;
+}
+
+.disabled {
+  color: var(--input-unchecked);
+}
+
+.success-message {
+  color    : green;
+  font-size: medium;
+}
+
+.message-panel {
+  width      : 50%;
+  margin     : 0 auto;
+  padding-top: 70px;
+  text-align : center;
+}
+
+.addto-text:disabled,
+.addto-text[disabled],
+.addto-text:disabled:hover,
+.addto-text[disabled]:hover {
+  background-color: var(--list-hover-background-color);
+  cursor          : not-allowed;
+}
+
+.error-select {
+  border: 1px solid red !important;
+}
+
+.runall-panel {
+  overflow: hidden;
+}
+
+.runall-header {
+  font-style : normal;
+  font-size  : x-large;
+  padding-top: 25px;
+  text-align : center;
+}
+
+.runall-body {
+  padding-top: 25px;
+}
+
+.runall-tbl {
+  margin-top     : 20px;
+  width          : 95%;
+  table-layout   : fixed;
+  border-collapse: collapse;
+  text-align     : center;
+}
+
+.runall-tbl,
+.runall-tbl thead,
+.runall-tbl tbody,
+.runall-tbl th,
+.runall-tbl tr,
+.runall-tbl td {
+  border: var(--border-size) solid var(--border-color) !important;
+}
+
+.runall-tbl th {
+  padding         : 7px;
+  background-color: var(--list-hover-background-color);
+}
+
+.runall-tbl td {
+  padding: 10px;
+}
+
+.runall-col-name {
+  left    : 2.5%;
+  position: relative;
+}
+
+.runall-method-label,
+.method-label {
+  width        : 60px;
+  text-align   : center;
+  height       : 25px;
+  border-radius: 5px;
+  font-weight  : bold;
+}
+
+.method-label {
+  padding: 5px 5px 0;
+}
+
+.runall-method-label {
+  padding: 3px;
+}
+
+.runall-col-1 {
+  width: 10%;
+}
+
+.runall-col-2 {
+  width: 30%;
+}
+
+.runall-label {
+  color     : var(--text-color);
+  word-break: break-word;
+}
+
+.runall-btn-panel {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.runall-btn {
+  margin-right: 10px;
+  height      : 30px;
+  padding     : 5px !important;
+}
+
+.runall-status-success {
+  color      : #4bb543;
+  font-weight: bolder;
+}
+
+.runall-status-error {
+  color      : #ea5b5b !important;
+  font-weight: bolder;
+}
+
+.runall-tbl tbody {
+  cursor: pointer;
+}
+
+
+/* Style The Dropdown Button */
+.runall-dropbtn {
+  margin-right: 10px;
+  height      : 30px;
+  padding     : 5px !important;
+  width       : max-content;
+}
+
+.runall-dropdown {
+  position: relative;
+  display : inline-block;
+}
+
+.runall-dropdown-content {
+  display         : none;
+  position        : fixed;
+  background-color: #f9f9f9;
+  min-width       : 100px;
+  box-shadow      : 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index         : 1;
+}
+
+.runall-dropdown-content {
+  display         : none;
+  position        : fixed;
+  width           : 125px;
+  overflow        : auto;
+  box-shadow      : 10px 8px 16px 0 rgba(0, 0, 0, 0.4);
+  color           : var(--text-color);
+  background-color: var(--background-color);
+  border          : 1px solid var(--border-color);
+}
+
+.runall-dropdown-content a {
+  padding         : 5px 10px;
+  text-decoration : none;
+  cursor          : pointer;
+  background-color: var(--background-color);
+  color           : var(--text-color);
+  outline         : none;
+  border          : 3px solid transparent;
+  border-radius   : 0;
+  text-align      : left;
+  display         : block;
+}
+
+.runall-dropdown-content a:hover {
+  background-color: var(--button-hover-color);
+  color           : var(--button-text-color);
+}
+
+.runall-test-normal,
+.runall-test-pass,
+.runall-test-fail {
+  color        : #fff;
+  display      : inline-block;
+  padding      : 2px 8px;
+  font-weight  : 500;
+  white-space  : nowrap;
+  border-radius: 3px;
+  min-width    : 32px;
+  font-size    : 14px;
+}
+
+.runall-test-normal {
+  background-color: #555;
+}
+
+.runall-test-pass {
+  background-color: green;
+}
+
+.runall-test-fail {
+  background-color: red;
+}
+
+.addto-text:disabled,
+.addto-text[disabled],
+.addto-text:disabled:hover,
+.addto-text[disabled]:hover {
+  background-color: var(--list-hover-background-color);
+  cursor          : not-allowed;
+}
+
+.runall-dropdown:hover .runall-dropdown-content {
+  display: block !important;
+}
+
+.a-disabled {
+  pointer-events: none;
+  opacity: 0.7;
+}

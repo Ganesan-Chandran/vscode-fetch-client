@@ -1,0 +1,62 @@
+.option-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.option-table thead {
+  background-color: var(--list-hover-background-color);
+}
+
+.option-table,
+.option-table thead,
+.option-table tbody,
+.option-table th,
+.option-table tr,
+.option-table td {
+  border: var(--border-size) solid var(--border-color) !important;
+}
+
+.table-input {
+  background-color: transparent;
+  border: 0;
+  box-sizing: border-box;
+  color: var(--text-color);
+  font-size: var(--font-size);
+  outline: none;
+  padding: 10px;
+  width: 100%;
+}
+
+.table-input:focus {
+  outline: none;
+}
+
+.action-cell {
+  text-align: center;
+  width: 50px;
+}
+
+.delete-button {
+  cursor: pointer;
+  height: 16px;
+  width: 16px;
+}
+
+.delete-button path {
+  fill: #f05348;
+}
+
+.option-names {
+  display: flex;
+}
+
+.disabled {
+  color: var(--input-unchecked);
+}
+
+.option-table>tbody>tr:hover,
+.option-table>tbody>tr:focus {
+  background-color: var(--list-hover-background-color);
+  border: var(--border-size) solid var(--border-color);
+}

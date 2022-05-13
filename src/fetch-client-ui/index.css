@@ -1,0 +1,56 @@
+body {
+  margin: 0;
+
+  --background-color: var(--vscode-editor-background);
+  --editor-text-color: var(--vscode-input-foreground);
+  --border-color: gray;
+  --border-size: 0.5px;
+  --button-text-color: var(--vscode-button-foreground);
+  --button-background-color: var(--vscode-button-background);
+  --button-hover-color: var(--vscode-button-hoverBackground);
+  --font-size: var(--vscode-font-size);
+  --font-weight: var(--vscode-font-weight);
+  --font-family: var(--vscode-font-family);
+  --input-background-color: var(--vscode-input-background);
+  --input-focus: var(--vscode-input-background);
+  --input-hover: var(--vscode-input-background);
+  --input-unchecked: #808080;
+  --text-color: var(--vscode-foreground);
+  --list-hover-background-color: var(--vscode-list-hoverBackground);
+  --required-color: red;
+}
+
+code {
+  font-size: var(--vscode-editor-font-size);
+  font-family: var(--vscode-editor-font-family);
+}
+
+.spinner.loading {
+  padding: 50px;
+  text-align: center;
+}
+
+.spinner.loading:before {
+  content: "";
+  height: 25px;
+  width: 25px;
+  margin: -15px auto auto -15px;
+  position: absolute;
+  bottom: 50%;
+  left: calc(50% - 45px);
+  border-width: 3px;
+  border-style: solid;
+  border-color: #2180c0 #ccc #ccc;
+  border-radius: 100%;
+  animation: rotation .7s infinite linear;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(359deg);
+  }
+}

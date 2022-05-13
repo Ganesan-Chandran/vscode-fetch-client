@@ -1,0 +1,36 @@
+.response-panel {
+  border-radius: 3px;
+  margin: 5px;
+  padding: 10px;
+  height: 97%;
+  box-sizing: border-box;
+}
+
+.response-container {
+  height: 100%;
+}
+
+.response-options-tab-panel {
+  height: calc(100% - 10px);
+}
+
+.response-options-tab-panel-vertical {
+  height: calc(100% - 54px);
+  margin-top: 4px;
+}
+
+.response-options-tab-panel,
+.response-options-tab-panel-vertical {
+  overflow: auto;
+  padding-right: 7px;
+}
+
+.res-hidden {
+  display: none;
+  height: calc(100% - 10px);
+}
+
+.res-visible {
+  display: block;
+  height: calc(100% - 10px);
+}
