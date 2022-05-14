@@ -49,6 +49,10 @@ export const ResponseSection = () => {
     setType("viewer");
   }
 
+  function isPreViewVisible(): boolean {
+    return (response.responseType?.format === "json" || response.responseType?.format === "html" || response.responseType?.format === "xml");
+  }
+
   return (
     <div className="response-content-panel">
       {
@@ -80,7 +84,7 @@ export const ResponseSection = () => {
               </div>
               :
               <>
-                {(response.responseType?.format === "json" || response.responseType?.format === "html" || response.responseType?.format === "xml") &&
+                {isPreViewVisible() &&
                   <div className="toggle">
                     <input type="radio" name="sizeBy" value="weight" id="sizeWeight" onChange={onTextResponseClick} checked={viewType === "raw"} />
                     <label htmlFor="sizeWeight">Raw View</label>
@@ -88,7 +92,7 @@ export const ResponseSection = () => {
                     <label htmlFor="sizeDimensions">{response.responseType?.format === "html" ? "HTML Preview" : "Tree View"}</label>
                   </div>
                 }
-                <div className="response-editor">
+                <div className={isPreViewVisible() ? "response-editor" : "response-editor-without-preview"}>
                   <div className={viewType === "raw" ? "res-visible" : "res-hidden"}>
                     {editor}
                   </div>

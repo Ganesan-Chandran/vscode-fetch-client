@@ -117,6 +117,9 @@ function checkType(value: string): boolean {
   if (value.toLowerCase().includes("text/plain")) {
     return false;
   }
+  if (value.toLowerCase().includes("application/javascript")) {
+    return false;
+  }
 
   return true;
 }

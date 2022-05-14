@@ -7,6 +7,11 @@
   padding-top: 10px;
 }
 
+.response-editor-without-preview {
+  height: 100%;
+  padding-top: 10px;
+}
+
 .response-header-label {
   position: relative;
   top: 40%;

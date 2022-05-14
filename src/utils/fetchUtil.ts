@@ -100,8 +100,8 @@ export const apiFetch = async (requestData: IRequestModel, timeOut: number, sour
 
   let apiResponse: any;
 
-  try {    
-    const resp = await axios(requestconfig);    
+  try {
+    const resp = await axios(requestconfig);
     const respHeaders: ITableData[] = [];
     let responseData: any;
     Object.entries(resp.headers).forEach(([key, value]) => {
@@ -115,7 +115,9 @@ export const apiFetch = async (requestData: IRequestModel, timeOut: number, sour
     let isFile = isFileType(respHeaders);
 
     if (!isFile) {
-      responseData = String.fromCharCode.apply(null, Array.from(new Uint16Array(resp.data)));
+      responseData = new Uint8Array(resp.data).reduce(function (data, byte) {
+        return data + String.fromCharCode(byte);
+      }, '');
     }
 
     return apiResponse = {
@@ -198,3 +200,11 @@ function validateURL(url: string): boolean {
   return false;
 }
 
+function arrayBufferToString(buffer: Uint8Array): string {
+  var binary = '';
+  var len = buffer.byteLength;
+  for (var i = 0; i < len; i++) {
+    binary += String.fromCharCode(buffer[i]);
+  }
+  return binary;
+}
