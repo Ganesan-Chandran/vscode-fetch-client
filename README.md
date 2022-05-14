@@ -279,8 +279,8 @@ Fetch client provides the quick access of History, collection and Environment va
 ## ⌨ Keyboard Shortcuts
 * `Ctl+Shift+P`: From Command Palette
   * Fetch Client - New Request
-* `Ctl+Alt+N` - Open Fetch Client View
-* `Enter` on request url textbox to send request.
+* `Ctl+Alt+N` - Open `Fetch Client` View
+* `Enter` on url textbox to send request
 
 ## ⚙️ Configuration
 
