@@ -36,7 +36,7 @@ export const RequestPanel = () => {
     let reqData = { ...requestData };
     if (newReq) {
       reqData.id = uuidv4();
-      reqData.name = reqData.url;
+      reqData.name = reqData.url.trim();
       reqData.createdTime = formatDate();
       dispatch(Actions.SetRequestAction(reqData));
     }

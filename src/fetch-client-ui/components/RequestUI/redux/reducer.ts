@@ -108,8 +108,8 @@ export const RequestReducer: (state?: IRequestModel,
       case FETCH_CLIENT_SET_REQ_URL: {
         return {
           ...state,
-          url: action.payload.url,
-          params: updateQueryParams(action.payload.url, state.params)
+          url: action.payload.url.trim(),
+          params: updateQueryParams(action.payload.url.trim(), state.params)
         };
       }
       case FETCH_CLIENT_SET_REQ_METHOD: {
@@ -122,7 +122,7 @@ export const RequestReducer: (state?: IRequestModel,
         return {
           ...state,
           params: action.payload.params,
-          url: updateURL(state.url, action.payload.params)
+          url: updateURL(state.url.trim(), action.payload.params)
         };
       }
       case FETCH_CLIENT_SET_REQ_AUTH: {
@@ -147,7 +147,7 @@ export const RequestReducer: (state?: IRequestModel,
         return {
           ...state,
           id: action.payload.req.id,
-          url: action.payload.req.url,
+          url: action.payload.req.url.trim(),
           method: action.payload.req.method,
           params: action.payload.req.params,
           auth: action.payload.req.auth,

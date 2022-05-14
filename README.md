@@ -4,7 +4,7 @@
 
 ## What is Fetch Client ?
 
-`"Don't leave from VSCode, Stay in it` - For Rest API testing. 😎
+**`"Don't leave from VSCode, Stay with it`** - For Rest API testing. 😎
 
 Fetch Client is Visual Studio Code extension which is used to test the Rest API.
 
@@ -14,11 +14,11 @@ Fetch Client is Visual Studio Code extension which is used to test the Rest API.
 * Lightweight
 * UI Customization and support VSCode Themes.
 * Test Rest API request with GET, POST, PUT, PATCH, DELETE, HEAD and OPTIONS methods.
-* Various authentications which are Basic Auth, Bearer Token and API Key.
+* Various authorization mechcanisms such as Basic Auth, Bearer Token and API Key.
 * Various post body which are Form, Form-Encoded, Raw (Json, Plain Text, XML), Binary File and GraphQL.
 * Syntax highlight for Response data.
 * Tree view for JSON and XML responses and HTML preview for HTML responses.
-* History, Collection, Enivronment Variable are supported.
+* History, Collection, Enivronment Variable is supported.
 * Test the API request and response data without any scripts/code.
 * Generate code snippet for various languages.
 * Save response and test results as File.
@@ -39,6 +39,8 @@ Fetch Client is Visual Studio Code extension which is used to test the Rest API.
 * Select the `Http method` and enter the `URL` and other parameters such as query parameters, headers, auth details, request body (if required) and click the `Send` button.
 * The response data will be displayed in the `Response` section. We can view the response data in the Tree view format for `JSON` and `XML` responses and HTML preview for `HTML` responses.
 * All existing requests are available in the `History` section in the Quick Access Bar.
+
+![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/Horizonal_Accordian_Split.gif?raw=true)
 
 ## 🔗 Features
 
@@ -102,7 +104,7 @@ Fetch client supports below authorization methods for Rest API testing.
 <a name="headers"></a>
 ### 5) Headers
 
-We can add the headers for API testing. Fetch Client gives the suggestion on various headers and corressponding values in the header section.
+We can add the headers for API testing. Fetch Client gives the suggestion on various headers and corresponding values in the header section.
 
 ![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/header-suggestion.png?raw=true)
 
@@ -144,11 +146,13 @@ We can add the headers for API testing. Fetch Client gives the suggestion on var
 ### 8) Response Data
 
 * Fetch client supports Syntax highlight for Response data.
-* Copy the response data using "Copy" button.
+* Copy the response data using `Copy` button.
 * It supports Tree view for JSON and XML responses and HTML preview for HTML responses.
 * Download the response data as file.
 * View the status code, response time and size of the response data.
 * View response headers.
+
+![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/response.png?raw=true)
 
 <a name="testresults"></a>
 ### 9) Test Results
@@ -156,10 +160,14 @@ We can add the headers for API testing. Fetch Client gives the suggestion on var
 * Once request is processed, Fetch client executes the test cases and display the test result with expected value and actual value.
 * We can download the test results as JSON file.
 
+![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/test-result.png?raw=true)
+
 <a name="notes"></a>
 ### 10) Notes
 
 Notes section is used to add the notes or documentation regarding the request. Fetch client has simple editor to add the documentation.
+
+![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/notes.png?raw=true)
 
 <a name="codesnippet"></a>
 ### 11) Code Snippet
@@ -174,6 +182,8 @@ Fetch client supports code snippet generation for various languages. Generate co
   * PHP
   * Python
   * Shell
+
+![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/code-snippet.png?raw=true)
 
 <a name="reqcancel"></a>
 ### 11) Request Cancel
@@ -225,7 +235,10 @@ Fetch client provides the quick access of History, collection and Environment va
 
 * Run all the requests in the collection using "Run All" options and download the results as file.
 * Once completed the all request, export the test result as `JSON` or `CSV`.
-* If you click the particular request from the table, it will open the corressponding request view.
+* If you click the particular request from the table, it will open the corresponding request view.
+
+![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/run-all-menu.png?raw=true)
+![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/run-all.png?raw=true)
 
 ## ⌨ Keyboard Shortcuts
 * `Ctl+Shift+P`: From Command Palette
@@ -253,22 +266,22 @@ Fetch Client is created with below tech stacks.
 * UI : [React JS](https://reactjs.org/), [Typescript](https://www.typescriptlang.org/), [CSS](https://developer.mozilla.org/en-US/docs/Web/CSS)
 * Editor : [Monaco Editor](https://microsoft.github.io/monaco-editor/)
 * Local DB : [LokiJS](https://techfort.github.io/LokiJS/)
-* Code Snippet Genereation : [httpsnippet](https://github.com/Kong/httpsnippet/)
+* Code Snippet Generation : [httpsnippet](https://github.com/Kong/httpsnippet/)
 
 ## 🔒 Privacy
 * Fetch client **`DOES NOT`** collect any your personal or request data.
 * Fetch client has no backend or cloud storage and all your data are stored **`LOCALLY`** on your computer.
 
 ## 📝 Changelog
-See the [release notes](https://github.com/Ganesan-Chandran/vscode-json-utility/blob/master/CHANGELOG.md) for the full set of changes.
+See the [release notes](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/CHANGELOG.md) for the full set of changes.
 
 ## ✒️ Author
 [Ganesan Chandran](https://ganesan-chandran.github.io/)
 
 ## 📜 License
-See the [license](https://github.com/Ganesan-Chandran/vscode-json-utility/blob/master/LICENSE) details.
+See the [license](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/LICENSE) details.
 
 ## 👍 Contribution
-Feel free to submit a pull request if you find any bugs or new feature (To see a list of active issues/feature request, visit the [Issues section](https://github.com/Ganesan-Chandran/vscode-json-utility/issues)). Please make sure all commits are properly documented.
+Feel free to submit a pull request if you find any bugs or new feature (To see a list of active issues/feature request, visit the [Issues section](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues)). Please make sure all commits are properly documented.
 
 
