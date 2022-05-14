@@ -30,7 +30,7 @@
 }
 
 .activity-items-panel {
-  height: 100%;
+  height: calc(100% - 2px);
   overflow-y: auto;
   overflow-x: hidden;
   cursor: pointer;

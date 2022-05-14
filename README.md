@@ -283,5 +283,3 @@ See the [license](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/m
 
 ## 👍 Contribution
 Feel free to submit a pull request if you find any bugs or new feature (To see a list of active issues/feature request, visit the [Issues section](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues)). Please make sure all commits are properly documented.
-
-
