@@ -31,7 +31,8 @@
     "graphql",
     "testing",
     "api testing",
-    "rest testing"
+    "rest testing",
+    "http"
   ],
   "license": "MIT",
   "homepage": "https://github.com/Ganesan-Chandran/vscode-json-utility",

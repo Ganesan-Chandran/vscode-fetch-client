@@ -263,10 +263,15 @@ Fetch client provides the quick access of History, collection and Environment va
 ## 🚀 Tech Stack
 Fetch Client is created with below tech stacks.
 * Extension : [VS Code Extension API](https://code.visualstudio.com/api)
-* UI : [React JS](https://reactjs.org/), [Typescript](https://www.typescriptlang.org/), [CSS](https://developer.mozilla.org/en-US/docs/Web/CSS)
+* UI : [React JS](https://reactjs.org/), [TypeScript](https://www.typescriptlang.org/), [JavaScript](https://www.w3schools.com/js/), [CSS](https://www.w3schools.com/css/default.asp)
 * Editor : [Monaco Editor](https://microsoft.github.io/monaco-editor/)
 * Local DB : [LokiJS](https://techfort.github.io/LokiJS/)
 * Code Snippet Generation : [httpsnippet](https://github.com/Kong/httpsnippet/)
+
+## 🖥️ Running the extension locally for development
+* Clone the [vscode-fetch-client](https://github.com/Ganesan-Chandran/vscode-fetch-client) repo.
+* Run `npm install` command to install dependencies.
+* Press `F5` to open a extension developement window with `fetch-client` extension loaded.
 
 ## 🔒 Privacy
 * Fetch client **`DOES NOT`** collect any your personal or request data.
