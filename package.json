@@ -1,10 +1,11 @@
 {
   "name": "fetch-client",
   "displayName": "Fetch Client",
-  "description": "API Client for VS Code",
+  "description": "Rest API Client for VS Code which is used to test your API's within VS Code.",
   "version": "1.0.0",
+  "publisher": "GanesanChandran",
   "author": {
-    "name": "Ganesan Chandran"
+    "name": "Ganesan Chandran <https://ganesan-chandran.github.io/>"
   },
   "engines": {
     "vscode": "^1.65.0"
@@ -157,7 +158,7 @@
     "vscode:prepublish": "npm run package",
     "compile": "webpack --mode development --progress --watch",
     "watch": "webpack --mode development --progress --watch",
-    "package": "webpack --mode production --progress --watch",
+    "package": "webpack --mode production",
     "compile-tests": "tsc -p ./",
     "watch-tests": "tsc -watch -p ./",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
