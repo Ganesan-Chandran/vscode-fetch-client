@@ -1,6 +1,10 @@
 # Fetch Client
 
-<img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/icons/fetch-client.png?raw=true" width="120" height="120">
+<div>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/icons/fetch-client.png?raw=true" width="120" height="120">
+  <br/>
+  <br/>
+</div>
 
 ## What is Fetch Client ?
 
@@ -39,8 +43,11 @@ Fetch Client is Visual Studio Code extension which is used to test the Rest API.
 * Select the `Http method` and enter the `URL` and other parameters such as query parameters, headers, auth details, request body (if required) and click the `Send` button.
 * The response data will be displayed in the `Response` section. We can view the response data in the Tree view format for `JSON` and `XML` responses and HTML preview for `HTML` responses.
 * All existing requests are available in the `History` section in the Quick Access Bar.
-
-![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/Horizonal_Accordian_Split.gif?raw=true)
+<div align="center">
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/Horizonal_Accordian_Split.gif?raw=true"/>
+  <br/>
+  <sup>Fetch Client v1.0.0</sup>
+</div>
 
 ## 🔗 Features
 
@@ -72,17 +79,21 @@ We can customize the UI in different modes.
   * Vertical mode
       * Split View
 
-| ![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/Horizonal_Accordian_Split.gif?raw=true) | 
-|:--:| 
-| *Horizontal mode - Accordian View* |
-
-| ![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/Horizonal_Split.gif?raw=true) | 
-|:--:| 
-| *Horizontal mode - Split View* |
-
-| ![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/Vertical_Split.gif?raw=true) | 
-|:--:| 
-| *Vertical mode - Split View* |
+<div align="center">
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/Horizonal_Accordian_Split.gif?raw=true"/>
+  <br/>
+  <sup>Horizontal mode - Accordian View</sup>
+  <br/>
+  <br/>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/Horizonal_Split.gif?raw=true"/>
+  <br/>
+  <sup>Horizontal mode - Split View</sup>
+  <br/>
+  <br/>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/Vertical_Split.gif?raw=true"/>
+  <br/>
+  <sup>Vertical mode - Split View</sup>
+</div>
 
 <a name="httpmethods"></a>
 ### 2) Different HTTP Methods
@@ -105,11 +116,13 @@ Fetch client supports below authorization methods for Rest API testing.
 ### 5) Headers
 
 We can add the headers for API testing. Fetch Client gives the suggestion on various headers and corresponding values in the header section.
-
-![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/header-suggestion.png?raw=true)
-
-![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/header-value-suggestion.png?raw=true)
-
+<div align="center">
+  <br/>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/header-suggestion.png?raw=true"/>
+  <br/>
+  <br/>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/header-value-suggestion.png?raw=true"/>
+</div>
 
 <a name="reqbody"></a>
 ### 6) Request Body
@@ -122,7 +135,10 @@ We can add the headers for API testing. Fetch Client gives the suggestion on var
     * GraphQL
   * `Content-Type` header will be automatically added based on binary file type.
 
-![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/raw-content-type-suggestion.png?raw=true)  
+<div align="center">
+  <br/>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/raw-content-type-suggestion.png?raw=true"/>
+</div>
 
 <a name="test"></a>
 ### 7) Test
@@ -138,9 +154,13 @@ We can add the headers for API testing. Fetch Client gives the suggestion on var
     * Specific Response Header value
     * Specific JSON property value in the JSON response
 
-| ![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/Test.gif?raw=true) | 
-|:--:| 
-| *Fetch Client - Test Case/Test Results* |
+<div align="center">
+  <br/>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/Test.gif?raw=true"/>
+  <br/>
+  <sup>Fetch Client - Test Case/Test Results</sup>
+</div>
+
 
 <a name="resdata"></a>
 ### 8) Response Data
@@ -152,7 +172,9 @@ We can add the headers for API testing. Fetch Client gives the suggestion on var
 * View the status code, response time and size of the response data.
 * View response headers.
 
-![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/response.png?raw=true)
+<div align="center">
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/response.png?raw=true"/>
+</div>
 
 <a name="testresults"></a>
 ### 9) Test Results
@@ -160,14 +182,19 @@ We can add the headers for API testing. Fetch Client gives the suggestion on var
 * Once request is processed, Fetch client executes the test cases and display the test result with expected value and actual value.
 * We can download the test results as JSON file.
 
-![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/test-result.png?raw=true)
+<div align="center">
+  <br/>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/test-result.png?raw=true"/>
+</div>
 
 <a name="notes"></a>
 ### 10) Notes
 
 Notes section is used to add the notes or documentation regarding the request. Fetch client has simple editor to add the documentation.
 
-![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/notes.png?raw=true)
+<div align="center">
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/notes.png?raw=true"/>
+</div>
 
 <a name="codesnippet"></a>
 ### 11) Code Snippet
@@ -183,7 +210,9 @@ Fetch client supports code snippet generation for various languages. Generate co
   * Python
   * Shell
 
-![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/code-snippet.png?raw=true)
+<div align="center">
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/code-snippet.png?raw=true"/>
+</div>
 
 <a name="reqcancel"></a>
 ### 11) Request Cancel
@@ -230,7 +259,10 @@ Fetch client provides the quick access of History, collection and Environment va
     * Click Menu icon and Select `Import` option.
     * Now select `Fetch Client` variable file.
 
-![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/quick-access.gif?raw=true)    
+<div align="center">
+  <br/>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/quick-access.gif?raw=true"/>
+</div>
 
 <a name="runall"></a>
 ### 12) Run All requests
@@ -239,8 +271,11 @@ Fetch client provides the quick access of History, collection and Environment va
 * Once completed the all request, export the test result as `JSON` or `CSV`.
 * If you click the particular request from the table, it will open the corresponding request view.
 
-![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/run-all-menu.png?raw=true)
-![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/run-all.png?raw=true)
+<div align="center">
+  <br/>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/run-all-menu.png?raw=true"/>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/run-all.png?raw=true"/>
+</div>
 
 ## ⌨ Keyboard Shortcuts
 * `Ctl+Shift+P`: From Command Palette
@@ -262,7 +297,10 @@ Fetch client provides the quick access of History, collection and Environment va
 |Time Out|fetch-client.timeOut|5 min|Request Timeout|
 |Default Protocol|fetch-client.defaultProtocol|http|Which protocol to add with url (if url has no protocol)|
 
-![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/fetch-client-setting.png?raw=true)
+<div align="center">
+  <br/>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/fetch-client-setting.png?raw=true"/>
+</div>
 
 ## 🚀 Tech Stack
 Fetch Client is created with below tech stacks.
