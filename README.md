@@ -3,7 +3,6 @@
 <div>
   <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/icons/fetch-client.png?raw=true" width="120" height="120">
   <br/>
-  <br/>
 </div>
 
 ## What is Fetch Client ?
@@ -46,7 +45,7 @@ Fetch Client is Visual Studio Code extension which is used to test the Rest API.
 <div align="center">
   <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/Horizonal_Accordian_Split.gif?raw=true"/>
   <br/>
-  <sup>Fetch Client v1.0.0</sup>
+  <sup><b>Fetch Client v1.0.0</b></sup>
 </div>
 
 ## 🔗 Features
@@ -82,17 +81,17 @@ We can customize the UI in different modes.
 <div align="center">
   <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/Horizonal_Accordian_Split.gif?raw=true"/>
   <br/>
-  <sup>Horizontal mode - Accordian View</sup>
+  <sup><b>Horizontal mode - Accordian View</b></sup>
   <br/>
   <br/>
   <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/Horizonal_Split.gif?raw=true"/>
   <br/>
-  <sup>Horizontal mode - Split View</sup>
+  <sup><b>Horizontal mode - Split View</b></sup>
   <br/>
   <br/>
   <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/Vertical_Split.gif?raw=true"/>
   <br/>
-  <sup>Vertical mode - Split View</sup>
+  <sup><b>Vertical mode - Split View</b></sup>
 </div>
 
 <a name="httpmethods"></a>
@@ -158,7 +157,7 @@ We can add the headers for API testing. Fetch Client gives the suggestion on var
   <br/>
   <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/Test.gif?raw=true"/>
   <br/>
-  <sup>Fetch Client - Test Case/Test Results</sup>
+  <sup><b>Fetch Client - Test Case/Test Results</b></sup>
 </div>
 
 
