@@ -230,7 +230,7 @@ Fetch client provides the quick access of History, collection and Environment va
     * Click Menu icon and Select `Import` option.
     * Now select `Fetch Client` variable file.
 
-![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/quick-access.png?raw=true)    
+![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/quick-access.gif?raw=true)    
 
 <a name="runall"></a>
 ### 12) Run All requests
