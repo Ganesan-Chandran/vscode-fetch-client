@@ -230,6 +230,8 @@ Fetch client provides the quick access of History, collection and Environment va
     * Click Menu icon and Select `Import` option.
     * Now select `Fetch Client` variable file.
 
+![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/quick-access.png?raw=true)    
+
 <a name="runall"></a>
 ### 12) Run All requests
 
@@ -259,6 +261,8 @@ Fetch client provides the quick access of History, collection and Environment va
 |History Limit|fetch-client.historyLimit|25|Number of items to be displayed in the History|
 |Time Out|fetch-client.timeOut|5 min|Request Timeout|
 |Default Protocol|fetch-client.defaultProtocol|http|Which protocol to add with url (if url has no protocol)|
+
+![fetch-client Screenshot](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/fetch-client-setting.png?raw=true)
 
 ## 🚀 Tech Stack
 Fetch Client is created with below tech stacks.
