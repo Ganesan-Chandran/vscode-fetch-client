@@ -17,16 +17,18 @@ Fetch Client is Visual Studio Code extension which is used to test the Rest API.
 * Lightweight
 * UI Customization and support VSCode Themes.
 * Test Rest API request with GET, POST, PUT, PATCH, DELETE, HEAD and OPTIONS methods.
-* Various authorization mechcanisms such as Basic Auth, Bearer Token and API Key.
+* Various authorization mechcanisms such as Basic Auth, Bearer Token, API Key and AWS Signature.
 * Various post body which are Form, Form-Encoded, Raw (Json, Plain Text, XML), Binary File and GraphQL.
 * Syntax highlight for Response data.
 * Tree view for JSON and XML responses and HTML preview for HTML responses.
-* History, Collection, Enivronment Variable is supported.
+* History, Collection, Environment Variable is supported.
 * Test the API request and response data without any scripts/code.
 * Generate code snippet for various languages.
 * Save response and test results as File.
-* Export/Import the Fecth Client's collections and environment variables.
+* Export/Import the Fetch Client's collections and environment variables.
 * Add documentation/feedback for each request.
+* Set the environment variable data from the response.
+* Manage the Cookies.
 
 ## 📦 How to Install ?
 
@@ -34,6 +36,10 @@ Fetch Client is Visual Studio Code extension which is used to test the Rest API.
     * Open VSCode Extensions panel using `Ctrl+Shift+X` shortcut.
     * Type `Fetch Client` in Search bar.
     * Select the `Fetch Client` and install the extension.
+    <div align="center">
+      <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/fetch-client-search.png?raw=true"/>
+      <br/>
+    </div>
 
 ## 💡 How to use ?
 
@@ -57,6 +63,7 @@ Fetch Client is Visual Studio Code extension which is used to test the Rest API.
 * [Headers](#headers)
 * [Request Body](#reqbody)
 * [Test](#test)
+* [Set Environment Variable](#setvar)
 * [Response Data](#resdata)
 * [Test Results](#testresults)
 * [Notes](#notes)
@@ -67,6 +74,7 @@ Fetch Client is Visual Studio Code extension which is used to test the Rest API.
     * [Collection](#collection)
     * [Environment Variable](#envvar)
 * [Run All requests](#runall)
+* [Manage Cookies](#managecookies)
 
 <a name="uicustomization"></a>
 ### 1) UI Customization
@@ -110,6 +118,7 @@ Fetch client supports below authorization methods for Rest API testing.
 * Basic Auth
 * Bearer Token
 * API Key
+* AWS Signature
 
 <a name="headers"></a>
 ### 5) Headers
@@ -160,9 +169,19 @@ We can add the headers for API testing. Fetch Client gives the suggestion on var
   <sup><b>Fetch Client - Test Case/Test Results</b></sup>
 </div>
 
+<a name="setvar"></a>
+### 8) Set Environment Variable
+
+* Fetch client supports the set the environment variable data from the response, headers and cookies.
+
+<div align="center">
+  <br/>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/setvar.png?raw=true"/>
+  <br/>
+</div>
 
 <a name="resdata"></a>
-### 8) Response Data
+### 9) Response Data
 
 * Fetch client supports Syntax highlight for Response data.
 * Copy the response data using `Copy` button.
@@ -176,7 +195,7 @@ We can add the headers for API testing. Fetch Client gives the suggestion on var
 </div>
 
 <a name="testresults"></a>
-### 9) Test Results
+### 10) Test Results
 
 * Once request is processed, Fetch client executes the test cases and display the test result with expected value and actual value.
 * We can download the test results as JSON file.
@@ -187,7 +206,7 @@ We can add the headers for API testing. Fetch Client gives the suggestion on var
 </div>
 
 <a name="notes"></a>
-### 10) Notes
+### 11) Notes
 
 Notes section is used to add the notes or documentation regarding the request. Fetch client has simple editor to add the documentation.
 
@@ -196,7 +215,7 @@ Notes section is used to add the notes or documentation regarding the request. F
 </div>
 
 <a name="codesnippet"></a>
-### 11) Code Snippet
+### 12) Code Snippet
 
 Fetch client supports code snippet generation for various languages. Generate code snippets to send request from another application. Open request view and click icon (right side of the response section) for code snippet generation. The code snippet generation is available for following languages.
   * C
@@ -214,12 +233,12 @@ Fetch client supports code snippet generation for various languages. Generate co
 </div>
 
 <a name="reqcancel"></a>
-### 11) Request Cancel
+### 13) Request Cancel
 
 Fetch client provides the feature for cancel the request. If you want to cancel the processing request then click then "Cancel Request" button in the response section.
 
 <a name="quickaccess"></a>
-### 12) Quick Access
+### 14) Quick Access
 
 Fetch client provides the quick access of History, collection and Environment variables in the side bar.
 <a name="history"></a>
@@ -264,7 +283,7 @@ Fetch client provides the quick access of History, collection and Environment va
 </div>
 
 <a name="runall"></a>
-### 12) Run All requests
+### 15) Run All requests
 
 * Run all the requests in the collection using "Run All" options and download the results as file.
 * Once completed the all request, export the test result as `JSON` or `CSV`.
@@ -276,15 +295,35 @@ Fetch client provides the quick access of History, collection and Environment va
   <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/run-all.png?raw=true"/>
 </div>
 
+<a name="managecookies"></a>
+### 16) Manage Cookies
+* View/Delete the cookies in the Manage Cookies Page.
+* Cookie header will automatically added if cookies are available for that request.
+* You can modify the cookies using the `cookie` header.
+
+<div align="center">
+  <br/>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/manage-cookies-menu.png?raw=true"/>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/manage-cookies.png?raw=true"/>
+</div>
+
 ## ⌨ Keyboard Shortcuts
-* `Ctl+Shift+P`: From Command Palette
+* `Ctl+Shift+P` (Open Command Palette)
   * Fetch Client - New Request
 * `Ctl+Alt+N` - Open `Fetch Client` View
 * `Enter` on url textbox to send request
+* `Cmd/Ctrl + s` - Save Request without run
 
 ## ⚙️ Configuration
 
-* Open VSCode settings View, then search for `Fetch Client`.
+* Open VSCode settings View, then search for `Fetch Client` or click `Extension Settings` in the menu item.
+
+<div align="center">
+  <br/>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/extension-settings-menu.png?raw=true"/>
+  <br/>
+</div>
+
 * Fetch Client has below configurations. 
 
 |Name | Setting | Default | Description |
@@ -298,7 +337,7 @@ Fetch client provides the quick access of History, collection and Environment va
 
 <div align="center">
   <br/>
-  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/fetch-client-setting.png?raw=true"/>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/fetch-client-setting.png?raw=true"/>  
 </div>
 
 ## 🚀 Tech Stack
@@ -316,7 +355,7 @@ Fetch Client is created with below tech stacks.
 
 ## 🔒 Privacy
 * Fetch client **`DOES NOT`** collect any your personal or request data.
-* Fetch client has no backend or cloud storage and all your data are stored **`LOCALLY`** on your computer.
+* Fetch client has no backend storage and all your data are stored **`LOCALLY`** on your computer.
 
 ## 📝 Changelog
 See the [release notes](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/CHANGELOG.md) for the full set of changes.

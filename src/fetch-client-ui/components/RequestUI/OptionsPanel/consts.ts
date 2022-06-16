@@ -3,5 +3,6 @@ export const requestOptions = [
   { name: "Authorization", value: "authorization" },
   { name: "Headers", value: "headers" },
   { name: "Body", value: "body" },
-  { name: "Tests", value: "tests" }
+  { name: "Tests", value: "tests" },
+  { name: "Set Var", value: "setvar" }
 ];

@@ -1,6 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { TestPanel } from "../../TestUI/TestPanel";
+import ResToVariables from "../../Variables/resToVar";
 import { AuthPanel } from "./Options/Auth";
 import { Body } from "./Options/Body";
 import { HeadersPanel } from "./Options/Headers";
@@ -25,6 +26,8 @@ export const OptionsPanel = () => {
         return <Body />;
       case 'settings':
         return <Settings />;
+      case 'setvar':
+        return <ResToVariables />;
       default:
         return <TestPanel />;
     }

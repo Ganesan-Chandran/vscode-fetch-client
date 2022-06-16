@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from "react-redux";
 import { IRootState } from "../../../../../reducer/combineReducer";
-import { Table } from "../../../../Common/Table/Table";
+import { ResponseTable } from '../../../../Common/Table/ResponseTable';
 
 export const ResponseCookies = () => {
   const { cookies } = useSelector((state: IRootState) => state.responseData);
@@ -10,9 +10,11 @@ export const ResponseCookies = () => {
     <>
       {
         cookies.length > 0 ?
-          <Table
+          <ResponseTable
             data={cookies}
             readOnly={true}
+            type="resCookies"
+            headers={{ key: "Name", value: "Value", value1: "Details" }}
           />
           :
           <>

@@ -31,7 +31,9 @@ const EditorProvider = (props: EditorProps) => {
         automaticLayout: true,
         formatOnType: true,
         formatOnPaste: true,
-        renderLineHighlight: "none"
+        renderLineHighlight: "none",
+        quickSuggestions: false,
+        wordBasedSuggestions: false
       });
 
       window.addEventListener("resize", () => {

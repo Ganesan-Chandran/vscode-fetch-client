@@ -1,0 +1,22 @@
+.aws-label {
+  display: block;
+  float  : left;
+  width  : 125px;
+  padding: 5px 0 0;
+}
+
+.aws-auth-text-panel {
+  padding: 10px 10px 10px 0;
+  max-width: 70%;
+}
+
+.aws-auth-text-panel .DraftEditor-editorContainer {
+  width        : calc(100% - 130px);
+  height       : 30px;
+  outline      : none;
+  padding      : 5px;
+  border-radius: 3px;
+  background   : var(--background-color);
+  border       : 0.25px solid var(--border-color);
+  color        : var(--text-color);
+}

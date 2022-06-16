@@ -6,10 +6,11 @@ import { collectionDBPath, mainDBPath } from "./consts";
 import { responseTypes } from '../configuration';
 import { writeLog } from '../logger/logger';
 import fs from "fs";
-import { ICollections, IHistory } from '../../fetch-client-ui/components/SideBar/redux/types';
+import { ICollections, IFolder, IHistory } from '../../fetch-client-ui/components/SideBar/redux/types';
 import { formatDate } from '../helper';
 import { FetchClientDataProxy } from '../ImportDataValidator';
 import { getGlobalPath } from '../../extension';
+import { isFolder } from '../../fetch-client-ui/components/SideBar/util';
 
 function getDB(): loki {
   const idbAdapter = new LokiFsAdapter();
@@ -22,7 +23,6 @@ function getCollectionDB(): loki {
   const db = new loki(getGlobalPath() + "\\" + collectionDBPath, { adapter: idbAdapter });
   return db;
 }
-
 
 export function SaveRequest(reqData: IRequestModel) {
   try {
@@ -53,6 +53,7 @@ export function UpdateRequest(reqData: IRequestModel) {
       req.headers = reqData.headers;
       req.body = reqData.body;
       req.tests = reqData.tests;
+      req.setvar = reqData.setvar;
       req.notes = reqData.notes;
       apiRequests.update(req);
       db.saveDatabase();
@@ -80,17 +81,22 @@ export function GetExitingItem(webview: vscode.Webview, id: string) {
 
 export function CopyExitingItems(oldIds: string[], ids: any) {
   try {
+
+    if (oldIds.length === 0) {
+      return;
+    }
+
     const db = getDB();
 
     db.loadDatabase({}, function () {
       let apiRequests = db.getCollection('apiRequests');
       const results = apiRequests.chain().find({ 'id': { '$in': oldIds } }).data({ forceClones: true, removeMeta: true });
-      
+
       if (results && results.length > 0) {
         results.forEach(item => {
           item.id = ids[item.id];
         });
-        
+
         apiRequests.insert(results);
         db.saveDatabase();
       }
@@ -117,6 +123,11 @@ export function DeleteExitingItem(id: string) {
 
 export function DeleteExitingItems(ids: string[]) {
   try {
+
+    if (ids.length === 0) {
+      return;
+    }
+
     const db = getDB();
 
     db.loadDatabase({}, function () {
@@ -129,13 +140,11 @@ export function DeleteExitingItems(ids: string[]) {
   }
 }
 
-export function Export(path: string, cols: ICollections, hisId: string) {
+export function Export(path: string, cols: ICollections, hisId: string, folderId: string) {
   try {
     const db = getDB();
     db.loadDatabase({}, function () {
       const apiRequests = db.getCollection('apiRequests');
-      const ids = hisId ? [hisId] : cols.data.map(item => item.id);
-      let results = apiRequests.chain().find({ 'id': { '$in': ids } }).data({ forceClones: true, removeMeta: true });
       let exportData = {
         app: "Fetch Client",
         id: cols.id,
@@ -144,8 +153,45 @@ export function Export(path: string, cols: ICollections, hisId: string) {
         type: "collections",
         createdTime: cols.createdTime,
         exportedDate: formatDate(),
-        data: results
+        data: []
       };
+
+      if (hisId) {
+        if (folderId) {
+          let item = cols.data.filter(item => item.id === folderId);
+          let results = apiRequests.chain().find({ 'id': { '$in': [hisId] } }).data({ forceClones: true, removeMeta: true });
+          (item[0] as IFolder).data = results;
+          exportData.data.push(item[0]);
+        } else {
+          let results = apiRequests.chain().find({ 'id': { '$in': [hisId] } }).data({ forceClones: true, removeMeta: true });
+          exportData.data.push(results[0]);
+        }
+      } else {
+        if (folderId) {
+          let item = cols.data.filter(item => item.id === folderId);
+          const ids = (item[0] as IFolder).data.map(item => item.id);
+          let results = apiRequests.chain().find({ 'id': { '$in': ids } }).data({ forceClones: true, removeMeta: true });
+          (item[0] as IFolder).data = results;
+          exportData.data.push(item[0]);
+        } else {
+          let intData = [];
+          cols.data.forEach((item) => {
+            if (isFolder(item)) {
+              const ids = (item as IFolder).data.map(item => item.id);
+              if (ids.length > 0) {
+                let results = apiRequests.chain().find({ 'id': { '$in': ids } }).data({ forceClones: true, removeMeta: true });
+                (item as IFolder).data = results;
+              }
+              exportData.data.push(item);
+            } else {
+              let results = apiRequests.chain().find({ 'id': { '$in': [item.id] } }).data({ forceClones: true, removeMeta: true });
+              intData.push(results[0]);
+            }
+          });
+
+          exportData.data = exportData.data.concat(intData);
+        }
+      }
 
       fs.writeFile(path, JSON.stringify(exportData), (error) => {
         if (error) {
@@ -211,19 +257,37 @@ export function Import(webviewView: vscode.WebviewView, path: string) {
 
     const parsedData = JSON.parse(data);
 
-    let reqData = parsedData.data as IRequestModel[];
-
-    reqData.forEach(item => {
-      item.id = uuidv4();
-      item.createdTime = formatDate();
-    });
+    let importedData = parsedData.data;
+    let reqData = [];
 
     let colData: ICollections = {
       id: uuidv4(),
       name: parsedData.name,
       createdTime: formatDate(),
       variableId: "",
-      data: reqData.map(item => {
+      data: []
+    };
+
+    importedData.forEach(item => {
+      item.id = uuidv4();
+      item.createdTime = formatDate();
+      if (isFolder(item)) {
+        item.data.forEach((itm, index) => {
+          itm.id = uuidv4();
+          itm.createdTime = formatDate();
+          reqData.push(itm);
+          let his: IHistory = {
+            id: itm.id,
+            method: itm.method,
+            name: itm.name,
+            url: itm.url,
+            createdTime: itm.createdTime
+          };
+          item.data[index] = his;
+        });
+        colData.data.push(item);
+      } else {
+        reqData.push(item);
         let his: IHistory = {
           id: item.id,
           method: item.method,
@@ -231,9 +295,9 @@ export function Import(webviewView: vscode.WebviewView, path: string) {
           url: item.url,
           createdTime: formatDate()
         };
-        return his;
-      })
-    };
+        colData.data.push(his);
+      }
+    });
 
     db.loadDatabase({}, function () {
       const apiRequests = db.getCollection('apiRequests');
@@ -260,7 +324,7 @@ export function GetColsRequests(ids: string[], webview: vscode.Webview) {
     const db = getDB();
 
     db.loadDatabase({}, function () {
-     const apiRequests = db.getCollection('apiRequests').find({ 'id': { '$in': ids } });
+      const apiRequests = db.getCollection('apiRequests').find({ 'id': { '$in': ids } });
       webview.postMessage({ type: responseTypes.getCollectionsByIdResponse, collections: apiRequests });
     });
 

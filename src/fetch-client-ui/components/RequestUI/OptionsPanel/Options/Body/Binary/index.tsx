@@ -87,10 +87,11 @@ export const Binary = () => {
     let localHeaders = [...headers];
     let isAvailable = false;
     for (let index = 0; index < localHeaders.length; index++) {
-      if (localHeaders[index].key.toLowerCase() === "content-type") {
-        if (localHeaders[index].value.toLowerCase() === contentTypeValue) {
+      if (localHeaders[index].key.trim().toLowerCase() === "content-type") {
+        if (localHeaders[index].value.trim().toLowerCase() === contentTypeValue) {
           localHeaders[index].isChecked = true;
           isAvailable = true;
+          break;
         } else {
           localHeaders[index].isChecked = false;
         }
@@ -125,10 +126,10 @@ export const Binary = () => {
             <span className="content-type-radio-button-wrapper"><input className="content-type-radio-button" type="radio" id="manual" name="content-type" value="manual" onChange={onChanged} checked={body.binary.contentTypeOption === "manual"} />{"Added by Manual"}</span>
             <span className="content-type-radio-button-wrapper"><input className="content-type-radio-button" type="radio" id="app-oct-stream" name="content-type" value="application/octet-stream" onChange={onChanged} checked={body.binary.contentTypeOption === "application/octet-stream"} />{"application/octet-stream"}</span>
             {contentType && <span className="content-type-radio-button-wrapper"><input className="content-type-radio-button" type="radio" id="by-selected" name="content-type" value={contentType} onChange={onChanged} checked={body.binary.contentTypeOption === contentType} />{contentType}</span>}
-            <p className="note-text"><b>{"Note: "}</b>
+            <span className="note-text"><b>{"Note: "}</b>
               <div className="note-text-part">{"For option 1, No Change in the headers section."}</div>
               <div className="note-text-part">{"For Options 2 and 3, manually added content type header will be unchecked and new content type header will be added with the selected value. If you want to return to the old content-type, then you need to do it manually."}</div>
-            </p>
+            </span>
           </div>
         </div>)
       }

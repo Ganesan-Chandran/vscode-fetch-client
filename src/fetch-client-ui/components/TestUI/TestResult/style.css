@@ -1,7 +1,7 @@
 .test-result-table {
   border-collapse: collapse;
-  width: 100%;
-  margin-top: 10px;
+  width          : 100%;
+  margin-top     : 10px;
 }
 
 /* .test-result-table,
@@ -30,45 +30,51 @@ tbody>tr:hover {
 
 .test-result-table-input {
   background-color: transparent;
-  border: 0;
-  box-sizing: border-box;
-  color: var(--text-color);
-  font-size: var(--font-size);
-  outline: none;
-  padding: 10px;
-  width: 100%;
-  text-overflow: ellipsis;
+  border          : 0;
+  box-sizing      : border-box;
+  color           : var(--text-color);
+  font-size       : var(--font-size);
+  outline         : none;
+  padding         : 10px;
+  width           : 100%;
+  text-overflow   : ellipsis;
 }
 
 .test-result-test-case-col {
-  width: 40%;
+  width         : 50%;
+  vertical-align: top;
 }
 
 .test-result-actual-val-col {
-  width: 40%;
+  width         : 40%;
+  vertical-align: top;
 }
 
 .center-text {
   text-align: center;
 }
 
+.top-align {
+  vertical-align: top;
+}
+
 .test-result-label {
-  display: block;
-  width: 50px;
+  display      : block;
+  width        : 50px;
   border-radius: 3px;
-  height: 23px;
-  margin: 5px;
-  padding: 4px 0 0;
-  text-align: center;
-  font-weight: bold;
+  height       : 23px;
+  margin       : 5px;
+  padding      : 4px 0 0;
+  text-align   : center;
+  font-weight  : bold;
 }
 
 .pass {
   background-color: rgb(2, 151, 2);
-  color: var(--button-text-color);
+  color           : var(--button-text-color);
 }
 
 .fail {
   background-color: rgb(240, 22, 22);
-  color: var(--button-text-color);
+  color           : var(--button-text-color);
 }

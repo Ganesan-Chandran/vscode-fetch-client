@@ -1,0 +1,24 @@
+.delete-all-button {
+    margin-left: 20px;
+    width      : fit-content;
+}
+
+.cookie-btn-panel {
+    margin-top: 20px;
+    width     : 62%;
+}
+
+.cookie-panel {
+    padding: 25px 40px;
+    margin : 0 auto;
+    height : 92%;
+}
+
+.no-cookie-text {
+    padding: 20px;
+    padding-left: 100px;
+}
+
+.cookie-select {
+    width: 80% !important;
+}

@@ -1,8 +1,10 @@
 import React from 'react';
 import { HeadersKeys, HerdersValues, ITableData, TableType } from "./types";
 import { ReactComponent as BinLogo } from '../../../../../icons/bin.svg';
-import "./style.css";
 import { Autocomplete } from '../Autocomplete/Autocomplete';
+import { IVariable } from '../../SideBar/redux/types';
+import { TextEditor } from '../TextEditor/TextEditor';
+import "./style.css";
 
 export interface TableProps {
   data: ITableData[];
@@ -13,10 +15,13 @@ export interface TableProps {
   readOnly: boolean;
   type?: TableType;
   placeholder?: { key: string, value: string }
+  selectedVariable?: IVariable;
+  highlightNeeded?: boolean;
+  headers?: { key: string, value: string, value1?: string }
 }
 
 export const Table = (props: TableProps) => {
-  const { data, onSelectChange, onRowAdd, onRowUpdate, deleteData, readOnly } = props;
+  const { data, onSelectChange, onRowAdd, onRowUpdate, deleteData, readOnly, selectedVariable } = props;
 
   function isEnabled(row: ITableData, index: number): boolean {
 
@@ -64,7 +69,7 @@ export const Table = (props: TableProps) => {
             <>
               <td>
                 <Autocomplete
-                  id={"key_" + index.toString()}
+                  id={props.type + "_key_" + index.toString()}
                   value={row.key}
                   className={isEnabled(row, index) ? "table-input disabled" : "table-input"}
                   onSelect={(val: string) => index === data.length - 1 ? onRowAdd(val, index, true) : onRowUpdate(val, index, true)}
@@ -72,11 +77,12 @@ export const Table = (props: TableProps) => {
                   maxLength={100}
                   disabled={isEnabled(row, index) ? true : false}
                   placeholder="header"
+                  selectedVariable={selectedVariable}
                 />
               </td>
               <td>
                 <Autocomplete
-                  id={"val_" + index.toString()}
+                  id={props.type + "_val_" + index.toString()}
                   value={row.value}
                   className={isEnabled(row, index) ? "table-input disabled" : "table-input"}
                   onSelect={(val: string) => index === data.length - 1 ? onRowAdd(val, index, false) : onRowUpdate(val, index, false)}
@@ -84,32 +90,58 @@ export const Table = (props: TableProps) => {
                   maxLength={100}
                   disabled={isEnabled(row, index) ? true : false}
                   placeholder="value"
+                  selectedVariable={selectedVariable}
                 />
               </td>
             </>
             :
             <>
               <td>
-                <input
-                  id={"key_" + index.toString()}
-                  className={props.type !== "resHeaders" ? (isEnabled(row, index) ? "table-input disabled" : "table-input") : "table-input"}
-                  value={row.key}
-                  onChange={(event) => index === data.length - 1 ? onRowAdd(event, index, true) : onRowUpdate(event, index, true)}
-                  maxLength={100}
-                  disabled={isEnabled(row, index) ? true : false}
-                  placeholder={props.placeholder ? props.placeholder.key : "parameter"}
-                />
+                {
+                  !props.highlightNeeded ?
+                    <input
+                      id={props.type + "_key_" + index.toString()}
+                      className={props.type !== "resHeaders" && props.type !== "resCookies" ? (isEnabled(row, index) ? "table-input disabled" : "table-input") : "table-input"}
+                      value={row.key}
+                      onChange={(event) => index === data.length - 1 ? onRowAdd(event, index, true) : onRowUpdate(event, index, true)}
+                      maxLength={100}
+                      disabled={isEnabled(row, index) ? true : false}
+                      placeholder={props.placeholder ? props.placeholder.key : "parameter"}
+                    />
+                    :
+                    selectedVariable.id && <TextEditor
+                      varWords={selectedVariable.data.map(item => item.key)}
+                      placeholder={props.placeholder ? props.placeholder.key : "parameter"}
+                      onChange={(event) => index === data.length - 1 ? onRowAdd(event, index, true) : onRowUpdate(event, index, true)}
+                      value={row.key}
+                      maxLength={100}
+                      disabled={isEnabled(row, index) ? true : false}
+                      focus={false}
+                    />
+                }
               </td>
               <td>
-                <input
-                  id={"val_" + index.toString()}
-                  className={props.type !== "resHeaders" ? (isEnabled(row, index) ? "table-input disabled" : "table-input") : "table-input"}
-                  value={row.value}
-                  onChange={(event) => index === data.length - 1 ? onRowAdd(event, index, false) : onRowUpdate(event, index, false)}
-                  maxLength={100}
-                  disabled={isEnabled(row, index) ? true : false}
-                  placeholder={props.placeholder ? props.placeholder.value : "value"}
-                />
+                {!props.highlightNeeded ?
+                  <input
+                    id={props.type + "_val_" + index.toString()}
+                    className={props.type !== "resHeaders" && props.type !== "resCookies" ? (isEnabled(row, index) ? "table-input disabled" : "table-input") : "table-input"}
+                    value={row.value}
+                    onChange={(event) => index === data.length - 1 ? onRowAdd(event, index, false) : onRowUpdate(event, index, false)}
+                    maxLength={100}
+                    disabled={isEnabled(row, index) ? true : false}
+                    placeholder={props.placeholder ? props.placeholder.value : "value"}
+                  />
+                  :
+                  selectedVariable.id && <TextEditor
+                    varWords={selectedVariable.data.map(item => item.key)}
+                    placeholder={props.placeholder ? props.placeholder.value : "value"}
+                    onChange={(event) => index === data.length - 1 ? onRowAdd(event, index, false) : onRowUpdate(event, index, false)}
+                    value={row.value}
+                    maxLength={100}
+                    disabled={isEnabled(row, index) ? true : false}
+                    focus={false}
+                  />
+                }
               </td>
             </>
         }
@@ -118,7 +150,7 @@ export const Table = (props: TableProps) => {
             <></>
             :
             <td className="action-cell">
-              {index !== data.length - 1 && row.isFixed !== true ?
+              {(row.key || row.value) && row.isFixed !== true ?
                 <BinLogo className="delete-button" onClick={() => deleteData(index)} />
                 :
                 <></>
@@ -145,15 +177,15 @@ export const Table = (props: TableProps) => {
             readOnly ?
               <></>
               :
-              <th></th>
+              <th className="action-cell"></th>
           }
-          <th>{props.placeholder ? props.placeholder.key.toUpperCase() : "KEY"}</th>
-          <th>{props.placeholder ? props.placeholder.value.toUpperCase() : "VALUE"}</th>
+          <th>{props.headers ? props.headers.key : "Key"}</th>
+          <th>{props.headers ? props.headers.value : "Value"}</th>
           {
             readOnly ?
               <></>
               :
-              <th></th>
+              <th className="action-cell"></th>
           }
         </tr>
       </thead>

@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import { OpenAddToColUI, OpenAttachVariableUI, OpenCopyToColUI, OpenExistingItem, OpenRunAllUI, OpenVariableUI } from '../../extension';
-import { IHistory, IVariable } from '../../fetch-client-ui/components/SideBar/redux/types';
-import { getNonce, requestTypes } from '../../utils/configuration';
-import { AddToCollection, AttachVariable, DeleteAllCollectionItems, DeleteCollection, DeleteCollectionItem, GetAllCollections, NewRequestToCollection, RenameCollection, RenameCollectionItem } from '../../utils/db/collectionDBUtil';
+import { getStorageManager, OpenAddToColUI, OpenAttachVariableUI, OpenColSettings, OpenCopyToColUI, OpenExistingItem, OpenRunAllUI, OpenVariableUI } from '../../extension';
+import { ICollections, IFolder, IHistory, IVariable } from '../../fetch-client-ui/components/SideBar/redux/types';
+import { getNonce, requestTypes, responseTypes } from '../../utils/configuration';
+import { AddToCollection, AttachVariable, CreateNewCollection, DeleteAllCollectionItems, DeleteCollection, DeleteCollectionItem, DuplicateItem, GetAllCollections, NewFolderToCollection, NewRequestToCollection, RenameCollection, RenameCollectionItem } from '../../utils/db/collectionDBUtil';
 import { DeleteAllHistory, DeleteHistory, GetAllHistory, RenameHistory } from '../../utils/db/historyDBUtil';
 import { Export, Import, SaveRequest } from '../db/mainDBUtil';
 import { ChangeVariableStatus, DeleteVariable, DuplicateVariable, ExportVariable, GetAllVariable, ImportVariable, RenameVariable, SaveVariable } from '../db/varDBUtil';
@@ -62,12 +62,16 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
         case requestTypes.renameCollectionItemRequest:
           this.showInputBox().then((name: any) => {
             if (name) {
-              RenameCollectionItem(webviewView, reqData.data.colId, reqData.data.historyId, name);
+              RenameCollectionItem(webviewView, reqData.data.colId, reqData.data.historyId, reqData.data.folderId, reqData.data.isFolder, name);
             }
           });
           break;
         case requestTypes.deleteCollectionItemRequest:
-          DeleteCollectionItem(webviewView, reqData.data.colId, reqData.data.historyId);
+          this.showConfirmationBox(`Do you want to delete the ${reqData.data.isFolder ? "folder?" : "item?"}`).then((data: any) => {
+            if (data === "Yes") {
+              DeleteCollectionItem(webviewView, reqData.data.colId, reqData.data.folderId, reqData.data.historyId, reqData.data.isFolder);
+            }
+          });
           break;
         case requestTypes.renameCollectionRequest:
           this.showInputBox().then((name: any) => {
@@ -87,20 +91,20 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
           OpenExistingItem();
           break;
         case requestTypes.duplicateCollectionsRequest:
-          AddToCollection(reqData.data, null, webviewView);
+          DuplicateItem(reqData.data.coldId, reqData.data.folderId, reqData.data.historyId, reqData.data.isFolder, webviewView);
           break;
         case requestTypes.exportRequest:
           vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file("fetch-client-" + reqData.data.cols.name + ".json") }).then((uri: vscode.Uri | undefined) => {
             if (uri) {
               const value = uri.fsPath;
-              Export(value, reqData.data.cols, reqData.data.hisId);
+              Export(value, reqData.data.cols, reqData.data.hisId, reqData.data.folderId);
             }
           });
           break;
         case requestTypes.clearRequest:
           this.showConfirmationBox("Do you want to clear all items?").then((data: any) => {
             if (data === "Yes") {
-              DeleteAllCollectionItems(webviewView, reqData.data);
+              DeleteAllCollectionItems(webviewView, reqData.data.colId, reqData.data.folderId);
             }
           });
           break;
@@ -182,7 +186,38 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
             url: reqData.data.request.url,
             createdTime: reqData.data.request.createdTime ? reqData.data.request.createdTime : formatDate()
           };
-          NewRequestToCollection(item, reqData.data.colId, webviewView);
+          NewRequestToCollection(item, reqData.data.colId, reqData.data.folderId, webviewView);
+          break;
+        case requestTypes.createNewFolderRequest:
+          NewFolderToCollection(reqData.data.folder, reqData.data.colId, webviewView);
+          break;
+        case requestTypes.newCollectionRequest:
+          this.showInputBox().then((name: any) => {
+            if (name) {
+              CreateNewCollection(name, webviewView);
+            }
+          });
+          break;
+        case requestTypes.openColSettingsRequest:
+          OpenColSettings(reqData.data.id, reqData.data.name, reqData.data.type);
+          break;
+        case requestTypes.copyItemRequest:
+          getStorageManager().setValue("item-copy-data", reqData.data.history);
+          webviewView.webview.postMessage({ type: responseTypes.copyItemResponse });
+          break;
+        case requestTypes.pasteItemRequest:
+          let history = getStorageManager().getValue("item-copy-data");
+          if (history) {
+            getStorageManager().setValue("item-copy-data", "");
+            let col: ICollections = reqData.data.col;
+            if (reqData.data.isFolder) {
+              (col.data[0] as IFolder).data.push(history as IHistory);
+            } else {
+              col.data.push(history as IHistory);
+            }
+            AddToCollection(col, reqData.data.isFolder, false, null, webviewView);
+            webviewView.webview.postMessage({ type: responseTypes.pasteItemResponse });
+          }
           break;
       }
     });

@@ -1,33 +1,47 @@
 import { ITableData } from "../../Common/Table/types";
+import { IAuth } from "../../RequestUI/redux/types";
 
 export interface IHistory {
-  id: string,
-  method: string,
-  name: string,
-  url: string,
-  createdTime: string
+  id: string;
+  method: string;
+  name: string;
+  url: string;
+  createdTime: string;
+}
+
+export interface IColSettings {
+  auth: IAuth;
 }
 
 export interface ICollections {
-  id: string,
-  name: string,
-  createdTime: string,
-  data?: IHistory[],
+  id: string;
+  name: string;
+  createdTime: string;
+  data?: (IHistory | IFolder)[];
   variableId: string;
+  // settings?: IColSettings;
+}
+
+export interface IFolder {
+  id: string;
+  name: string;
+  createdTime: string;
+  type: "folder";
+  data?: IHistory[];
 }
 
 export interface IVariable {
-  id: string,
-  name: string,
-  createdTime: string,
-  isActive: boolean,
-  data: ITableData[]
+  id: string;
+  name: string;
+  createdTime: string;
+  isActive: boolean;
+  data: ITableData[];
 }
 
 export interface ISideBarModel {
-  history: IHistory[],
-  collections: ICollections[],
-  variable: IVariable[]
+  history: IHistory[];
+  collections: ICollections[];
+  variable: IVariable[];
 }
 
 export const FETCH_CLIENT_SET_HISTORY: "FETCH_CLIENT_SET_HISTORY" = "FETCH_CLIENT_SET_HISTORY";
@@ -51,6 +65,7 @@ export const FETCH_CLIENT_SET_UPDATE_VARIABLE: "FETCH_CLIENT_SET_UPDATE_VARIABLE
 export const FETCH_CLIENT_SET_ATTACH_DETACH_VARIABLE: "FETCH_CLIENT_SET_ATTACH_DETACH_VARIABLE" = "FETCH_CLIENT_SET_ATTACH_DETACH_VARIABLE";
 export const FETCH_CLIENT_SET_ACTIVE_INACTIVE_VARIABLE: "FETCH_CLIENT_SET_ACTIVE_INACTIVE_VARIABLE" = "FETCH_CLIENT_SET_ACTIVE_INACTIVE_VARIABLE";
 export const FETCH_CLIENT_SET_NEW_REQUEST_TO_COLLECTION: "FETCH_CLIENT_SET_NEW_REQUEST_TO_COLLECTION" = "FETCH_CLIENT_SET_NEW_REQUEST_TO_COLLECTION";
+export const FETCH_CLIENT_SET_NEW_FOLDER_TO_COLLECTION: "FETCH_CLIENT_SET_NEW_FOLDER_TO_COLLECTION" = "FETCH_CLIENT_SET_NEW_FOLDER_TO_COLLECTION";
 
 export interface ISetHistory {
   type: typeof FETCH_CLIENT_SET_HISTORY;
@@ -99,7 +114,9 @@ export interface ISetRenameColItem {
   type: typeof FETCH_CLIENT_SET_RENAME_COL_ITEM;
   payload: {
     colId: string;
+    folderId: string;
     historyId: string;
+    isFolder: boolean;
     name: string;
   };
 }
@@ -108,7 +125,9 @@ export interface ISetDeleteColItem {
   type: typeof FETCH_CLIENT_SET_DELETE_COL_ITEM;
   payload: {
     colId: string;
+    folderId: string;
     historyId: string;
+    isFolder: boolean;
   };
 }
 
@@ -131,6 +150,7 @@ export interface ISetClearCollection {
   type: typeof FETCH_CLIENT_SET_CLEAR_COLLECTION;
   payload: {
     colId: string;
+    folderId: string;
   };
 }
 
@@ -212,9 +232,19 @@ export interface ISetNewRequestToCollection {
   payload: {
     item: IHistory;
     id: string;
+    folId: string;
+  };
+}
+
+export interface ISetNewFolderToCollection {
+  type: typeof FETCH_CLIENT_SET_NEW_FOLDER_TO_COLLECTION;
+  payload: {
+    folder: IFolder;
+    colId: string;
   };
 }
 
 export type SideBarActionTypes = | ISetHistory | ISetCollection | ISetDeleteHistory | ISetRenameHistory | ISetNewHistory | ISetHistoryToCollection |
   ISetRenameColItem | ISetDeleteColItem | ISetRenameCollection | ISetDeleteCollection | ISetClearCollection | ISetImportCollection |
-  ISetCopyToCollection | ISetVariable | ISetDeleteVariable | ISetRenameVariable | ISetNewVariable | ISetUpdateVariable | ISetAttachVariable | ISetActiveVariable | ISetNewRequestToCollection;
+  ISetCopyToCollection | ISetVariable | ISetDeleteVariable | ISetRenameVariable | ISetNewVariable | ISetUpdateVariable | ISetAttachVariable | ISetActiveVariable | ISetNewRequestToCollection |
+  ISetNewFolderToCollection;

@@ -3,7 +3,7 @@ import {
   FETCH_CLIENT_SET_NOTES,
   FETCH_CLIENT_SET_REQ,
   FETCH_CLIENT_SET_REQ_AUTH, FETCH_CLIENT_SET_REQ_BINARY_DATA, FETCH_CLIENT_SET_REQ_BODY, FETCH_CLIENT_SET_REQ_HEADERS, FETCH_CLIENT_SET_REQ_METHOD,
-  FETCH_CLIENT_SET_REQ_PARAMS, FETCH_CLIENT_SET_REQ_RAW, FETCH_CLIENT_SET_REQ_RAW_LANG, FETCH_CLIENT_SET_REQ_RESET_BODY, FETCH_CLIENT_SET_REQ_URL, FETCH_CLIENT_SET_TEST, IAuth, IBodyData, IRequestModel, ITest, MethodType, RequestActionTypes
+  FETCH_CLIENT_SET_REQ_PARAMS, FETCH_CLIENT_SET_REQ_RAW, FETCH_CLIENT_SET_REQ_RAW_LANG, FETCH_CLIENT_SET_REQ_RESET_BODY, FETCH_CLIENT_SET_REQ_URL, FETCH_CLIENT_SET_SET_VAR, FETCH_CLIENT_SET_TEST, IAuth, IBodyData, IRequestModel, ISetVar, ITest, MethodType, RequestActionTypes
 } from "./types";
 
 export const SetRequestAction = (value: IRequestModel): RequestActionTypes => {
@@ -120,6 +120,15 @@ export const SetNotesAction = (value: string): RequestActionTypes => {
     type: FETCH_CLIENT_SET_NOTES,
     payload: {
       notes: value
+    }
+  };
+};
+
+export const SetVarAction = (value: ISetVar[]): RequestActionTypes => {
+  return {
+    type: FETCH_CLIENT_SET_SET_VAR,
+    payload: {
+      data: value
     }
   };
 };

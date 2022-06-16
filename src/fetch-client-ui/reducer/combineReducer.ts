@@ -1,4 +1,6 @@
 import { combineReducers, Reducer } from "redux";
+import { CookieReducer } from "../components/Cookies/redux/reducer";
+import { ICookiesModel } from "../components/Cookies/redux/types";
 import { UIReducer } from "../components/MainUI/redux/reducer";
 import { IUIModel } from "../components/MainUI/redux/types";
 import { RequestReducer } from "../components/RequestUI/redux/reducer";
@@ -15,7 +17,8 @@ export interface IRootState {
   responseData: IReponseModel,
   uiData: IUIModel,
   sideBarData: ISideBarModel,
-  variableData: IVariableModel
+  variableData: IVariableModel,
+  cookieData: ICookiesModel
 }
 
 const createRootReducer: () => Reducer<IRootState> =
@@ -24,7 +27,8 @@ const createRootReducer: () => Reducer<IRootState> =
     responseData: ResponseReducer,
     uiData: UIReducer,
     sideBarData: SideBarReducer,
-    variableData: VariableReducer
+    variableData: VariableReducer,
+    cookieData: CookieReducer
   });
 
 export default createRootReducer;

@@ -1,3 +1,5 @@
+import { IFolder, IHistory } from "./redux/types";
+
 export function getDays(date1: string, date2: Date) {
   const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 
@@ -46,10 +48,14 @@ export function getMethodClassName(method: string) {
   }
 }
 
-export function getMethodName(method: string){
-  if(method === "OPTIONS"){
+export function getMethodName(method: string) {
+  if (method === "OPTIONS") {
     return "OPT";
   }
 
   return method;
+}
+
+export function isFolder(data: IHistory | IFolder): boolean {
+  return (data as IFolder).type !== undefined;
 }

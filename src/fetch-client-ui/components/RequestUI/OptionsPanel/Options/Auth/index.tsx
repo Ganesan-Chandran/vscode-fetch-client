@@ -1,18 +1,57 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "../../../../../reducer/combineReducer";
 import { ITableData } from "../../../../Common/Table/types";
+import { TextEditor } from '../../../../Common/TextEditor/TextEditor';
 import { Actions } from "../../../redux";
 import { InitialAuth } from '../../../redux/reducer';
+import { AwsAuth } from './aws';
 import { apiKeyAddTo, authTypes } from "./consts";
 import "./style.css";
 
-export const AuthPanel = () => {
+export interface IAuthProps {
+  settingsMode?: boolean;
+  authTypes?: { name: string, value: string }[];
+}
+
+export const AuthPanel = (props: IAuthProps) => {
 
   const dispatch = useDispatch();
 
   const { auth, params, headers } = useSelector((state: IRootState) => state.requestData);
+  const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
 
+  const [varColor, setColor] = useState("");
+  const [envVar, setEnvVar] = useState(null);
+
+  useEffect(() => {
+    if (selectedVariable.id) {
+      setEnvVar(selectedVariable.data.map(item => item.key));
+    } else {
+      setEnvVar([]);
+    }
+  }, [selectedVariable.data]);
+
+  useEffect(() => {
+    if (selectedVariable.id) {
+      setEnvVar(selectedVariable.data.map(item => item.key));
+    } else {
+      setEnvVar([]);
+    }
+
+    if (auth.authType === "bearertoken") {
+      if (auth.password.length > 4 && auth.password.includes("{{") && auth.password.includes("}}")) {
+        var word = auth.password.substring(auth.password.indexOf("{{") + 2, auth.password.lastIndexOf("}}"));
+        if (selectedVariable.id) {
+          selectedVariable.data.map(item => item.key).includes(word) ? setColor("var-available") : setColor("var-notavailable");
+        } else {
+          setColor("var-notavailable");
+        }
+      } else {
+        setColor("");
+      }
+    }
+  }, []);
 
   const setAuthValue = (evt: React.ChangeEvent<HTMLSelectElement>) => {
     let localAuth = { ...auth };
@@ -36,62 +75,112 @@ export const AuthPanel = () => {
   };
 
   const setBearerToken = (evt: React.ChangeEvent<HTMLTextAreaElement>) => {
+    let str = evt.target.value;
     let localAuth = { ...auth };
     localAuth.userName = "";
-    localAuth.password = evt.target.value;
+    localAuth.password = str;
     if (!auth.tokenPrefix) {
       localAuth.tokenPrefix = "Bearer";
     }
+
+    if (str.length > 4 && str.includes("{{") && str.includes("}}")) {
+      var word = str.substring(str.indexOf("{{") + 2, str.lastIndexOf("}}"));
+      envVar.includes(word) ? setColor("var-available") : setColor("var-notavailable");
+    } else {
+      setColor("");
+    }
     dispatch(Actions.SetRequestAuthAction(localAuth));
   };
 
-  const setTokenPrefix = (evt: React.ChangeEvent<HTMLInputElement>) => {
+  const setTokenPrefix = (value: string) => {
     let localAuth = { ...auth };
-    localAuth.tokenPrefix = evt.target.value;
+    localAuth.tokenPrefix = value;
     dispatch(Actions.SetRequestAuthAction(localAuth));
   };
 
-  const setBasicAuthUserName = (evt: React.ChangeEvent<HTMLInputElement>) => {
+  const setBasicAuthUserName = (value: string) => {
     let localAuth = { ...auth };
-    localAuth.userName = evt.target.value;
+    localAuth.userName = value;
     dispatch(Actions.SetRequestAuthAction(localAuth));
     if (auth.authType === "apikey") {
-      setQueryParam(evt.target.value);
+      if (localAuth.addTo === "queryparams") {
+        setQueryParam(value);
+      }
+      else {
+        setHeaderParam(value);
+      }
     }
   };
 
-  const setBasicAuthPassword = (evt: React.ChangeEvent<HTMLInputElement>) => {
+  const setBasicAuthPassword = (value: string) => {
     let localAuth = { ...auth };
-    localAuth.password = evt.target.value;
+    localAuth.password = value;
     dispatch(Actions.SetRequestAuthAction(localAuth));
     if (auth.authType === "apikey") {
-      setQueryParam(evt.target.value, true);
+      if (localAuth.addTo === "queryparams") {
+        setQueryParam(value, true);
+      } else {
+        setHeaderParam(value, true);
+      }
     }
   };
 
   const setQueryParam = (value: string, isPwd: boolean = false) => {
     let localTable = [...params];
     let basicAuthData = localTable.find(isAvailable);
+
     if (basicAuthData) {
       if (isPwd) {
         basicAuthData.value = value;
       } else {
         basicAuthData.key = value;
       }
+      if (!basicAuthData.value && !basicAuthData.key) {
+        localTable.shift();
+      }
     } else {
-      localTable.unshift({
-        isChecked: true,
-        key: !isPwd ? value : "",
-        value: isPwd ? value : "",
-        isFixed: true
-      });
+      if (value) {
+        localTable.unshift({
+          isChecked: true,
+          key: !isPwd ? value : "",
+          value: isPwd ? value : "",
+          isFixed: true
+        });
+      }
     }
 
     dispatch(Actions.SetRequestParamsAction(localTable));
   };
 
+  const setHeaderParam = (value: string, isPwd: boolean = false) => {
+    let localTable = [...headers];
+    let basicAuthData = localTable.find(isAvailable);
+
+    if (basicAuthData) {
+      if (isPwd) {
+        basicAuthData.value = value;
+      } else {
+        basicAuthData.key = value;
+      }
+      if (!basicAuthData.value && !basicAuthData.key) {
+        localTable.shift();
+      }
+    } else {
+      if (value) {
+        localTable.unshift({
+          isChecked: true,
+          key: !isPwd ? value : "",
+          value: isPwd ? value : "",
+          isFixed: true
+        });
+      }
+    }
+
+    dispatch(Actions.SetRequestHeadersAction(localTable));
+  };
+
   function isAvailable(item: ITableData) {
-    return item.isFixed === true;
+    return item.isFixed === true && item.key !== "Cookie";
   }
 
   const setAPIKeyAddTo = (evt: React.ChangeEvent<HTMLSelectElement>) => {
@@ -104,29 +193,41 @@ export const AuthPanel = () => {
   const modifyQueryParam = (section: string) => {
     if (section === "queryparams") {
       let localParams = [...params];
+      let localHeaders = [...headers];
+      let basicAuthData = localHeaders.find(isAvailable);
 
-      localParams.unshift({
-        isChecked: true,
-        key: auth.userName,
-        value: auth.password,
-        isFixed: true
-      });
+      if (auth.userName && auth.password) {
+        localParams.unshift({
+          isChecked: true,
+          key: auth.userName,
+          value: auth.password,
+          isFixed: true
+        });
+      }
 
       dispatch(Actions.SetRequestParamsAction(localParams));
-      removeHeaders();
+      if (basicAuthData) {
+        removeHeaders();
+      }
 
     } else {
       let localHeaders = [...headers];
+      let localParams = [...params];
+      let basicAuthData = localParams.find(isAvailable);
 
-      localHeaders.unshift({
-        isChecked: true,
-        key: auth.userName,
-        value: auth.password,
-        isFixed: true
-      });
+      if (auth.userName && auth.password) {
+        localHeaders.unshift({
+          isChecked: true,
+          key: auth.userName,
+          value: auth.password,
+          isFixed: true
+        });
+      }
 
       dispatch(Actions.SetRequestHeadersAction(localHeaders));
-      removeParams();
+      if (basicAuthData) {
+        removeParams();
+      }
     }
   };
 
@@ -158,20 +259,31 @@ export const AuthPanel = () => {
       <div className="auth-token-text-panel">
         <label className="auth-token-label">Token</label>
         <textarea
-          className="auth-token-text auth-text"
+          className={props.settingsMode ? "auth-token-text auth-text auth-token-setting-mode" : `auth-token-text auth-text ${varColor}`}
           id={"bearer_token"}
           value={auth.password}
           onChange={setBearerToken}
         >
         </textarea>
         <label className="auth-token-label">Prefix</label>
-        <input
-          className="auth-token-prefix-text auth-text"
-          id={"bearer_token"}
-          value={auth.tokenPrefix ? auth.tokenPrefix : "Bearer"}
-          maxLength={50}
-          onChange={setTokenPrefix}
-        />
+        {
+          props.settingsMode ?
+            <input
+              className="auth-token-prefix-text auth-text setting-mode"
+              id={"bearer_token"}
+              value={auth.tokenPrefix ? auth.tokenPrefix : "Bearer"}
+              maxLength={50}
+              onChange={(e) => setTokenPrefix(e.target.value)}
+            />
+            :
+            envVar && selectedVariable.id && <TextEditor
+              varWords={envVar}
+              onChange={setTokenPrefix}
+              value={auth.tokenPrefix ? auth.tokenPrefix : "Bearer"}
+              focus={false}
+              maxLength={50}
+            />
+        }
       </div>
     );
   };
@@ -181,24 +293,56 @@ export const AuthPanel = () => {
       <div>
         <div className="basic-auth-text-panel">
           <label className="basic-auth-label">User Name</label>
-          <input
-            className="basic-auth-username auth-text"
-            id={"basic_user_name"}
-            value={auth.userName}
-            maxLength={500}
-            onChange={setBasicAuthUserName}
-          />
+          {
+            props.settingsMode ?
+              <input
+                className="basic-auth-username auth-text setting-mode"
+                id={"basic_user_name"}
+                value={auth.userName}
+                maxLength={500}
+                onChange={(e) => setBasicAuthUserName(e.target.value)}
+              />
+              :
+              envVar && selectedVariable.id && <TextEditor
+                varWords={envVar}
+                onChange={setBasicAuthUserName}
+                value={auth.userName}
+                focus={false}
+                maxLength={500}
+              />
+          }
         </div>
         <div className="basic-auth-text-panel">
           <label className="basic-auth-label">Password</label>
-          <input
-            className="basic-auth-password auth-text"
-            id={"basic_password"}
-            value={auth.password}
-            type={auth.showPwd ? "text" : "password"}
-            maxLength={500}
-            onChange={setBasicAuthPassword}
-          />
+          {
+            props.settingsMode ?
+              <input
+                className="basic-auth-password auth-text"
+                id={"basic_password"}
+                value={auth.password}
+                type={auth.showPwd ? "text" : "password"}
+                maxLength={500}
+                onChange={(e) => setBasicAuthPassword(e.target.value)}
+              />
+              :
+              auth.showPwd ?
+                envVar && selectedVariable.id && <TextEditor
+                  varWords={envVar}
+                  onChange={setBasicAuthPassword}
+                  value={auth.password}
+                  focus={false}
+                  maxLength={500}
+                />
+                :
+                <input
+                  className="basic-auth-password auth-text"
+                  id={"basic_password"}
+                  value={auth.password}
+                  type="password"
+                  maxLength={500}
+                  onChange={(e) => setBasicAuthPassword(e.target.value)}
+                />
+          }
         </div>
         <div className="basic-auth-check">
           <input type="checkbox"
@@ -217,23 +361,45 @@ export const AuthPanel = () => {
       <div>
         <div className="basic-auth-text-panel">
           <label className="basic-auth-label">Key</label>
-          <input
-            className="basic-auth-username auth-text"
-            id={"basic_user_name"}
-            value={auth.userName}
-            maxLength={500}
-            onChange={setBasicAuthUserName}
-          />
+          {
+            props.settingsMode ?
+              <input
+                className="basic-auth-username auth-text setting-mode"
+                id={"basic_user_name"}
+                value={auth.userName}
+                maxLength={500}
+                onChange={(e) => setBasicAuthUserName(e.target.value)}
+              />
+              :
+              envVar && selectedVariable.id && <TextEditor
+                varWords={envVar}
+                onChange={setBasicAuthUserName}
+                value={auth.userName}
+                focus={false}
+                maxLength={500}
+              />
+          }
         </div>
         <div className="basic-auth-text-panel">
           <label className="basic-auth-label">Value</label>
-          <input
-            className="basic-auth-password auth-text"
-            id={"basic_password"}
-            value={auth.password}
-            maxLength={500}
-            onChange={setBasicAuthPassword}
-          />
+          {
+            props.settingsMode ?
+              <input
+                className="basic-auth-password auth-text setting-mode"
+                id={"basic_password"}
+                value={auth.password}
+                maxLength={500}
+                onChange={(e) => setBasicAuthPassword(e.target.value)}
+              />
+              :
+              envVar && selectedVariable.id && <TextEditor
+                varWords={envVar}
+                onChange={setBasicAuthPassword}
+                value={auth.password}
+                focus={false}
+                maxLength={500}
+              />
+          }
         </div>
         <div className="basic-auth-text-panel">
           <label className="basic-auth-label">Add to</label>
@@ -261,8 +427,10 @@ export const AuthPanel = () => {
         return basicAuth();
       case "apikey":
         return apiKeyAuth();
+      case "aws":
+        return <AwsAuth envVar={envVar} selectedVariable={selectedVariable}/>;
       default:
-        return (<div className="auth-no-label"><label>{"This request does not use any authorization."}</label></div>);
+        return (<div className={props.settingsMode ? "auth-no-label" : ""}><label>{"This request does not use any authorization."}</label></div>);
     }
   };
 
@@ -275,14 +443,23 @@ export const AuthPanel = () => {
           value={auth.authType}
           onChange={setAuthValue}
         >
-          {authTypes.map(({ value, name }) => (
-            <option value={value} key={value}>
-              {name}
-            </option>
-          ))}
+          {
+            props.authTypes ?
+              props.authTypes.map(({ value, name }) => (
+                <option value={value} key={value}>
+                  {name}
+                </option>
+              ))
+              :
+              authTypes.map(({ value, name }) => (
+                <option value={value} key={value}>
+                  {name}
+                </option>
+              ))
+          }
         </select>
       </div>
-      <hr />
+      {!props.settingsMode && <hr />}
       <div>
         {authValuePanel(auth.authType)}
       </div>

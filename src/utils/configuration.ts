@@ -36,7 +36,7 @@ export const requestTypes = {
   deleteVariableRequest: "deleteVariableRequest",
   renameVariableRequest: "renameVariableRequest",
   exportVariableRequest: "exportVariableRequest",
-  activeVariableRequest: "activeVariableRequest",  
+  activeVariableRequest: "activeVariableRequest",
   saveVariableRequest: "saveVariableRequest",
   updateVariableRequest: "updateVariableRequest",
   newVariableRequest: "newVariableRequest",
@@ -51,7 +51,24 @@ export const requestTypes = {
   getRunItemDataRequest: "getRunItemDataRequest",
   exportRunTestJsonRequest: "exportRunTestJsonRequest",
   exportRunTestCSVRequest: "exportRunTestCSVRequest",
-  createNewRequest: "createNewRequest"
+  createNewRequest: "createNewRequest",
+  saveRequest: "saveRequest",
+  createNewFolderRequest: "createNewFolderRequest",
+  newCollectionRequest: "newCollectionRequest",
+  openSetToVariableUIRequest: "openSetToVariableUIRequest",
+  setToVariableRequest: "setToVariableRequest",
+  saveCookieRequest: "saveCookieRequest",
+  getAllCookiesRequest: "getAllCookiesRequest",
+  getCookiesByIdRequest: "getCookiesByIdRequest",
+  deleteCookieByIdRequest: "deleteCookieByIdRequest",
+  deleteAllCookieRequest: "deleteAllCookieRequest",
+  openManageCookiesRequest: "openManageCookiesRequest",
+  openColSettingsRequest: "openColSettingsRequest",
+  getColSettingsRequest: "getColSettingsRequest",
+  saveColSettingsRequest: "saveColSettingsRequest",
+  copyItemRequest: "copyItemRequest",
+  pasteItemRequest: "pasteItemRequest",
+  getErrorLogRequest: "getErrorLogRequest"
 };
 
 export const responseTypes = {
@@ -98,8 +115,22 @@ export const responseTypes = {
   importVariableResponse: "importVariableResponse",
   duplicateVariableResponse: "duplicateVariableResponse",
   runAllResponse: "runAllResponse",
-  getRunItemDataResponse : "getRunItemDataResponse",
-  createNewResponse : "createNewResponse"
+  getRunItemDataResponse: "getRunItemDataResponse",
+  createNewResponse: "createNewResponse",
+  saveResponse: "saveResponse",
+  createNewFolderResponse: "createNewFolderResponse",
+  setToVariableResponse: "setToVariableResponse",
+  saveCookieResponse: "saveCookieResponse",
+  getAllCookiesResponse: "getAllCookiesResponse",
+  getCookiesByIdResponse: "getCookiesByIdResponse",
+  deleteCookieByIdResponse: "deleteCookieByIdResponse",
+  deleteAllCookieResponse: "deleteAllCookieResponse",
+  openColSettingsResponse: "openColSettingsResponse",
+  getColSettingsResponse: "getColSettingsResponse",
+  saveColSettingsResponse: "saveColSettingsResponse",
+  copyItemResponse: "copyItemResponse",
+  pasteItemResponse: "pasteItemResponse",
+  getErrorLogResponse: "getErrorLogResponse"
 };
 
 export function getNonce() {

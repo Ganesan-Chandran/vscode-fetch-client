@@ -1,0 +1,24 @@
+.public-DraftStyleDefault-block {
+  overflow-x : auto;
+  white-space: pre;
+}
+
+.outer-container *::-webkit-scrollbar {
+  height    : 0px;
+  background: transparent;
+}
+
+.outer-container * {
+  scrollbar-width: none;
+}
+
+.public-DraftEditorPlaceholder-inner {
+  position      : absolute;
+  pointer-events: none;
+  color         : gray;
+  padding       : 10px;
+}
+
+.DraftEditor-root {
+  position: relative;
+}

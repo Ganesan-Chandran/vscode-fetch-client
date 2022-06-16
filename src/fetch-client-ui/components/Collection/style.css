@@ -1,7 +1,7 @@
 .addto-header {
   font-style : normal;
   font-size  : x-large;
-  padding-top: 50px;
+  padding-top: 30px;
   text-align : center;
 }
 
@@ -193,6 +193,11 @@
 .runall-col-name {
   left    : 2.5%;
   position: relative;
+  padding-bottom: 15px;
+}
+
+.runall-col-last-row {
+  padding-bottom: 0;
 }
 
 .runall-method-label,
@@ -341,5 +346,42 @@
 
 .a-disabled {
   pointer-events: none;
-  opacity: 0.7;
+  opacity       : 0.7;
+}
+
+.col-settings-panel-tabs {
+  display        : flex;
+  justify-content: start;
+  border-bottom  : 1px solid #555;
+}
+
+.col-settings-panel {
+  height : calc(100% - 150px);
+  width  : 98%;
+  display: block;
+  padding: 10px;
+}
+
+.col-settings-header {
+  font-style : normal;
+  font-size  : x-large;
+  padding-top: 10px;
+  text-align : center;
+}
+
+.col-settings-name-panel {
+  padding  : 10px 210px 20px 10px;
+  font-size: medium;
+}
+
+.col-settings-body {
+  font-size  : var(--font-size);
+  max-height : calc(100% - 60px);
+  overflow   : scroll;
+  padding-top: 10px;
+}
+
+.addto-title-label {
+  color        : var(--text-color);
+  padding-right: 20px;
 }

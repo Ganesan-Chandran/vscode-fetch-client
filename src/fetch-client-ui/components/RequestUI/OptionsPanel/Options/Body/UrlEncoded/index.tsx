@@ -1,13 +1,16 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "../../../../../../reducer/combineReducer";
 import { ITableData } from "../../../../../Common/Table/types";
 import { Table } from "../../../../../Common/Table/Table";
 import { Actions, InitialParams } from "../../../../redux";
+import { FileTypes } from "../Binary/consts";
 
 export const UrlEncoded = () => {
+
   const dispatch = useDispatch();
-  const { body } = useSelector((state: IRootState) => state.requestData);
+  const { body, headers } = useSelector((state: IRootState) => state.requestData);
+  const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
 
   const onSelectChange = (index: number) => {
     let localbody = { ...body };
@@ -24,7 +27,7 @@ export const UrlEncoded = () => {
     }
   };
 
-  const onRowAdd = (event: React.ChangeEvent<HTMLInputElement>, index: number, isKey: boolean = true) => {
+  const onRowAdd = (value: string, index: number, isKey: boolean = true) => {
     let newRow: ITableData = {
       isChecked: false,
       key: "",
@@ -33,7 +36,7 @@ export const UrlEncoded = () => {
 
     let localbody = { ...body };
 
-    let localTable = addValue(event.target.value, index, isKey);
+    let localTable = addValue(value, index, isKey);
 
     if (localTable[index].key && localTable[index].value) {
       localTable.push(newRow);
@@ -44,9 +47,9 @@ export const UrlEncoded = () => {
     dispatch(Actions.SetRequestBodyAction(localbody));
   };
 
-  const onRowUpdate = (event: React.ChangeEvent<HTMLInputElement>, index: number, isKey: boolean = true) => {
+  const onRowUpdate = (value: string, index: number, isKey: boolean = true) => {
     let localbody = { ...body };
-    let localTable = addValue(event.target.value, index, isKey);
+    let localTable = addValue(value, index, isKey);
     localbody.urlencoded = localTable;
 
     dispatch(Actions.SetRequestBodyAction(localbody));
@@ -78,6 +81,32 @@ export const UrlEncoded = () => {
     }
   }
 
+  useEffect(() => {
+    if (body.bodyType === "formurlencoded" && body.urlencoded?.length > 1) {
+      let localHeaders = [...headers];
+      let contentTypeHeaderIndex = headers.findIndex(item => item.isChecked && item.key.trim().toLocaleLowerCase() === "content-type");
+      if(contentTypeHeaderIndex !== -1 && localHeaders[contentTypeHeaderIndex].key === "application/x-www-form-urlencoded"){
+        return;
+      }
+      if (contentTypeHeaderIndex !== -1) {
+        localHeaders[contentTypeHeaderIndex] = {
+          isChecked: true,
+          key: "Content-Type",
+          value: "application/x-www-form-urlencoded",
+          isFixed: false
+        };
+      } else {
+        localHeaders.splice(localHeaders.length - 1, 0, {
+          isChecked: true,
+          key: "Content-Type",
+          value: "application/x-www-form-urlencoded",
+          isFixed: false
+        });
+      }
+      dispatch(Actions.SetRequestHeadersAction(localHeaders));
+    }
+  }, [body.urlencoded]);
+
 
   return (
     <Table
@@ -87,6 +116,8 @@ export const UrlEncoded = () => {
       onRowUpdate={onRowUpdate}
       deleteData={deleteParam}
       readOnly={false}
+      selectedVariable={selectedVariable}
+      highlightNeeded={true}
     />
   );
 };

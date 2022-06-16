@@ -41,7 +41,10 @@ export const VariableSection = (props: IVariableProps) => {
   function openMoreMenu(evt: any, index: number) {
     evt.preventDefault();
     evt.stopPropagation();
+    openContextMenu(index);
+  }
 
+  function openContextMenu(index: number) {
     if (currentIndex === index) {
       setCurrentIndex(-1);
       return;
@@ -116,9 +119,15 @@ export const VariableSection = (props: IVariableProps) => {
     };
   }, []);
 
+  function onItemRightClick(e: any, index: number) {
+    e.preventDefault();
+    e.stopPropagation();
+    openContextMenu(index);
+  }
+
   function getVariableItems(item: IVariable, index: number) {
     return (
-      <div key={"variable_" + item.id} className={selectedItem === item.id ? "activity-items selected-item" : "activity-items"} onClick={(e) => onClickItem(e, item.id)}>
+      <div key={"variable_" + item.id} className={selectedItem === item.id ? "activity-items selected-item" : "activity-items"} onContextMenu={(e) => onItemRightClick(e, index)} onClick={(e) => onClickItem(e, item.id)}>
         <div className="activity-item-row-1 variable-row">
           <label className="var-item-name">{item.name}</label>
           {index === 0 && <label className="var-item-name">{item.isActive ? "  ✔️" : "  ❌"}</label>}
@@ -130,7 +139,7 @@ export const VariableSection = (props: IVariableProps) => {
                 <button onClick={(e) => onDelete(e, item.id)}>Delete</button></>}
               <button onClick={(e) => onDuplicate(e, item.id)}>Duplicate</button>
               <div className="divider"></div>
-              {index === 0 && <button onClick={(e) => onActive(e, item.id, !item.isActive)}>{item.isActive ? "Set Inactive" : "Set Active"}</button>}
+              {index === 0 && !item.isActive && <button onClick={(e) => onActive(e, item.id, !item.isActive)}>{item.isActive ? "Set Inactive" : "Set Active"}</button>}
               <button onClick={(e) => onExport(e, item)}>Export</button>
             </div>
           </div>

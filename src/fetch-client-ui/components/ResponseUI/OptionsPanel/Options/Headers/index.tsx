@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from "react-redux";
 import { IRootState } from "../../../../../reducer/combineReducer";
-import { Table } from "../../../../Common/Table/Table";
+import { ResponseTable } from '../../../../Common/Table/ResponseTable';
 import "./style.css";
 
 export const ResponseHeaders = () => {
@@ -12,10 +12,11 @@ export const ResponseHeaders = () => {
     <>
       {
         headers.length > 0 ?
-          <Table
+          <ResponseTable
             data={headers}
             readOnly={true}
             type="resHeaders"
+            headers={{ key: "Header", value: "Value" }}
           />
           :
           <>

@@ -31,7 +31,7 @@ const CodeSnippetGenerator = () => {
     let contentTypes = {
       json: "application/json",
       html: "text/html",
-      xml: "text/xml",
+      xml: "application/xml",
       text: "text/plain",
     };
 
@@ -55,6 +55,8 @@ const CodeSnippetGenerator = () => {
     } else {
       request = requestData;
     }
+
+    request.url = requestData.url.startsWith("http://") || requestData.url.startsWith("https:// ") ? requestData.url : "https://" + requestData.url;
 
     let body: any;
     if (request.body.bodyType === "formdata") {

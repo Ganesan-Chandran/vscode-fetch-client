@@ -42,8 +42,6 @@
 
 .request-url-text,
 .DraftEditor-editorContainer {
-  border          : var(--border-size) solid var(--border-color);
-  border-radius   : 2px;
   display         : inline-block;
   outline         : none;
   padding         : 10px;
@@ -51,6 +49,12 @@
   color           : var(--text-color);
   background-color: var(--background-color);
   box-sizing      : border-box;
+}
+
+.request-url-panel .DraftEditor-editorContainer {
+  border       : var(--border-size) solid var(--border-color);
+  border-radius: 2px;
+  padding      : 9px !important;
 }
 
 mark {
@@ -77,7 +81,7 @@ mark {
   display         : inline-block;
   font-weight     : bold;
   outline         : none;
-  padding         : 10px;
+  padding         : 11px;
   width           : 75px;
 }
 
@@ -93,7 +97,6 @@ mark {
 .request-send-button:hover {
   background-color: var(--button-hover-color);
 }
-
 
 #custom-url-editor {
   width           : 400px;

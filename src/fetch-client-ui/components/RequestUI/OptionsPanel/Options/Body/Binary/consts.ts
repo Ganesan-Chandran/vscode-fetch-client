@@ -57,6 +57,7 @@ export const FileTypes = {
   "ts": "video/mp2t",
   "ttf": "font/ttf",
   "txt": "text/plain",
+  "text": "text/plain",
   "vsd": "application/vnd.visio",
   "wav": "audio/wav",
   "weba": "audio/webm",

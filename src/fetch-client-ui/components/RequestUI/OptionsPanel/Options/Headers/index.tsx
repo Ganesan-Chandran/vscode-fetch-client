@@ -10,6 +10,7 @@ export const HeadersPanel = () => {
   const dispatch = useDispatch();
 
   const { headers } = useSelector((state: IRootState) => state.requestData);
+  const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
 
   const onSelectChange = (index: number) => {
     let localTable = [...headers];
@@ -40,7 +41,7 @@ export const HeadersPanel = () => {
 
     let localTable = addValue(value, index, isKey);
 
-    if (localTable[index].key && localTable[index].value) {
+    if (localTable[index].key) {
       localTable.push(newRow);
     }
 
@@ -75,7 +76,15 @@ export const HeadersPanel = () => {
 
   function deleteParam(index: number) {
     let localTable = [...headers];
-    localTable.splice(index, 1); 
+    localTable.splice(index, 1);
+    if (localTable.length > 0 && localTable[localTable.length - 1].key) {
+      let newRow: ITableData = {
+        isChecked: false,
+        key: "",
+        value: ""
+      };
+      localTable.push(newRow);
+    }
     dispatch(Actions.SetRequestHeadersAction(localTable));
   }
 
@@ -88,6 +97,8 @@ export const HeadersPanel = () => {
       deleteData={deleteParam}
       readOnly={false}
       type="reqHeaders"
+      selectedVariable={selectedVariable}
+      headers={{ key: "Header", value: "Value" }}
     />
   );
 };

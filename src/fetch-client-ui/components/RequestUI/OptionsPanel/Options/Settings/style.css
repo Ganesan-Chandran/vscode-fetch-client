@@ -49,3 +49,12 @@
 .global-var-text {
     color: gray;
 }
+
+.open-var-button {
+    float: none !important;
+    padding-left: 20px;
+}
+
+.manage-cookie-button{
+    padding-left: 0 !important;
+}

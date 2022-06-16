@@ -5,7 +5,8 @@ import {
   FETCH_CLIENT_SET_NOTES,
   FETCH_CLIENT_SET_REQ,
   FETCH_CLIENT_SET_REQ_AUTH, FETCH_CLIENT_SET_REQ_BINARY_DATA, FETCH_CLIENT_SET_REQ_BODY, FETCH_CLIENT_SET_REQ_HEADERS, FETCH_CLIENT_SET_REQ_METHOD,
-  FETCH_CLIENT_SET_REQ_PARAMS, FETCH_CLIENT_SET_REQ_RAW, FETCH_CLIENT_SET_REQ_RAW_LANG, FETCH_CLIENT_SET_REQ_RESET_BODY, FETCH_CLIENT_SET_REQ_URL, FETCH_CLIENT_SET_TEST, IAuth, IBinaryFileData, IBodyData, IRequestModel, ITest, RequestActionTypes
+  FETCH_CLIENT_SET_REQ_PARAMS, FETCH_CLIENT_SET_REQ_RAW, FETCH_CLIENT_SET_REQ_RAW_LANG, FETCH_CLIENT_SET_REQ_RESET_BODY, FETCH_CLIENT_SET_REQ_URL,
+  FETCH_CLIENT_SET_SET_VAR, FETCH_CLIENT_SET_TEST, IAuth, IAwsAuth, IBinaryFileData, IBodyData, IRequestModel, ISetVar, ITest, RequestActionTypes
 } from "./types";
 
 export const InitialRequestHeaders: ITableData[] = [
@@ -47,13 +48,22 @@ export const emptyRow: ITableData = {
   value: ""
 };
 
+export const InitialAwsAuth: IAwsAuth = {
+  service: "",
+  region: "",
+  accessKey: "",
+  secretAccessKey: "",
+  sessionToken: "",
+};
+
 export const InitialAuth: IAuth = {
   authType: "noauth",
   userName: "",
   password: "",
   addTo: "queryparams",
   showPwd: false,
-  tokenPrefix: ""
+  tokenPrefix: "",
+  aws: InitialAwsAuth
 };
 
 export const InitialParams: ITableData[] = [{
@@ -86,6 +96,12 @@ export const IntialTest: ITest[] = [{
   expectedValue: ""
 }];
 
+export const IntialSetVar: ISetVar[] = [{
+  parameter: "",
+  key: "",
+  variableName: ""
+}];
+
 export const InitialState: IRequestModel = {
   id: uuidv4(),
   url: "",
@@ -97,6 +113,7 @@ export const InitialState: IRequestModel = {
   headers: InitialRequestHeaders,
   body: InitialBody,
   tests: IntialTest,
+  setvar: IntialSetVar,
   notes: ""
 };
 
@@ -148,12 +165,15 @@ export const RequestReducer: (state?: IRequestModel,
           ...state,
           id: action.payload.req.id,
           url: action.payload.req.url.trim(),
+          name: action.payload.req.name.trim(),
+          createdTime: action.payload.req.createdTime,
           method: action.payload.req.method,
           params: action.payload.req.params,
           auth: action.payload.req.auth,
           headers: action.payload.req.headers,
           body: action.payload.req.body,
           tests: action.payload.req.tests,
+          setvar: action.payload.req.setvar ? action.payload.req.setvar : IntialSetVar,
           notes: action.payload.req.notes,
         };
       }
@@ -204,12 +224,7 @@ export const RequestReducer: (state?: IRequestModel,
           ...state,
           body: {
             ...state.body,
-            bodyType: action.payload.bodyType,
-            formdata: InitialBody.formdata,
-            urlencoded: InitialBody.urlencoded,
-            raw: InitialBody.raw,
-            binary: InitialBody.binary,
-            graphql: InitialBody.graphql,
+            bodyType: action.payload.bodyType
           }
         };
       }
@@ -217,6 +232,12 @@ export const RequestReducer: (state?: IRequestModel,
         return {
           ...state,
           notes: action.payload.notes,
+        };
+      }
+      case FETCH_CLIENT_SET_SET_VAR: {
+        return {
+          ...state,
+          setvar: action.payload.data
         };
       }
       default: {
@@ -227,7 +248,7 @@ export const RequestReducer: (state?: IRequestModel,
 
 function updateURL(url: string, params: ITableData[]): string {
   let searchParams = new URLSearchParams();
-  
+
   params.forEach((param: ITableData, index) => {
     if (param.key.trim() && param.isChecked && !param.isFixed) {
       searchParams.append(param.key.trim(), param.value.trim());

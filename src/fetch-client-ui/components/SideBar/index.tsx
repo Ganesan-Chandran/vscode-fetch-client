@@ -64,6 +64,12 @@ const SideBar = () => {
     setMenuShow(false);
   }
 
+  function onNewCollection(evt: any) {
+    evt.preventDefault();
+    vscode.postMessage({ type: requestTypes.newCollectionRequest });
+    setMenuShow(false);
+  }
+
   useEffect(() => {
     window.addEventListener("message", (event) => {
       if (event.data && event.data.type === responseTypes.getAllHistoryResponse) {
@@ -86,15 +92,15 @@ const SideBar = () => {
         if (!event.data.params.name) {
           return;
         }
-        dispatch(SideBarActions.SetRenameColItemAction(event.data.params.colId, event.data.params.historyId, event.data.params.name));
+        dispatch(SideBarActions.SetRenameColItemAction(event.data.params.colId, event.data.params.folderId, event.data.params.historyId, event.data.params.isFolder, event.data.params.name));
       } else if (event.data && event.data.type === responseTypes.deleteCollectionItemResponse) {
-        dispatch(SideBarActions.SetDeleteColItemAction(event.data.params.colId, event.data.params.historyId));
+        dispatch(SideBarActions.SetDeleteColItemAction(event.data.params.colId, event.data.params.folderId, event.data.params.historyId, event.data.params.isFolder));
       } else if (event.data && event.data.type === responseTypes.renameCollectionResponse) {
         dispatch(SideBarActions.SetRenameCollectionAction(event.data.params.id, event.data.params.name));
       } else if (event.data && event.data.type === responseTypes.deleteCollectionResponse) {
         dispatch(SideBarActions.SetDeleteCollectionAction(event.data.id));
       } else if (event.data && event.data.type === responseTypes.clearResponse) {
-        dispatch(SideBarActions.SetClearCollectionAction(event.data.id));
+        dispatch(SideBarActions.SetClearCollectionAction(event.data.id, event.data.folderId));
       } else if (event.data && event.data.type === responseTypes.importResponse) {
         dispatch(SideBarActions.SetImportCollectionAction(event.data.data as ICollections));
       } else if (event.data && event.data.type === responseTypes.copyToCollectionsResponse) {
@@ -116,7 +122,9 @@ const SideBar = () => {
       } else if (event.data && event.data.type === responseTypes.importVariableResponse) {
         dispatch(SideBarActions.SetNewVariableAction(event.data.vars));
       } else if (event.data && event.data.type === responseTypes.createNewResponse) {
-        dispatch(SideBarActions.SetNewRequestToCollectionAction(event.data.item, event.data.id));
+        dispatch(SideBarActions.SetNewRequestToCollectionAction(event.data.item, event.data.id, event.data.folderId));
+      } else if (event.data && event.data.type === responseTypes.createNewFolderResponse) {
+        dispatch(SideBarActions.SetFolderToCollectionAction(event.data.folder, event.data.colId));
       }
     });
 
@@ -144,7 +152,7 @@ const SideBar = () => {
   }
 
   function getCollectionsMenuItems() {
-    return <button onClick={(e) => onImportData(e)}>Import</button>;
+    return <><button onClick={(e) => onNewCollection(e)}>New Collection</button><button onClick={(e) => onImportData(e)}>Import</button></>;
   }
 
   function getVariableMenuItems() {

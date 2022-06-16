@@ -2,6 +2,14 @@ import { ITableData } from "../../Common/Table/types";
 
 export type MethodType = "get" | "post" | "put" | "patch" | "delete" | "options" | "head";
 
+export interface IAwsAuth {
+  service: string;
+  region: string;
+  accessKey: string;
+  secretAccessKey: string;
+  sessionToken: string;
+}
+
 export interface IAuth {
   authType: string;
   userName: string;
@@ -9,6 +17,7 @@ export interface IAuth {
   addTo: string;
   showPwd: boolean;
   tokenPrefix: string;
+  aws?: IAwsAuth;
 }
 
 export interface IBinaryFileData {
@@ -54,9 +63,15 @@ export interface IRequestModel {
   headers: ITableData[];
   body: IBodyData;
   tests: ITest[];
+  setvar: ISetVar[];
   notes: string;
 }
 
+export interface ISetVar {
+  parameter: string;
+  key: string;
+  variableName: string;
+}
 
 export const FETCH_CLIENT_SET_REQ_URL: "FETCH_CLIENT_SET_REQ_URL" = "FETCH_CLIENT_SET_REQ_URL";
 export const FETCH_CLIENT_SET_REQ_METHOD: "FETCH_CLIENT_SET_REQ_METHOD" = "FETCH_CLIENT_SET_REQ_METHOD";
@@ -71,6 +86,7 @@ export const FETCH_CLIENT_SET_REQ_BINARY_DATA: "FETCH_CLIENT_SET_REQ_BINARY_DATA
 export const FETCH_CLIENT_SET_REQ: "FETCH_CLIENT_SET_REQ" = "FETCH_CLIENT_SET_REQ";
 export const FETCH_CLIENT_SET_TEST: "FETCH_CLIENT_SET_TEST" = "FETCH_CLIENT_SET_TEST";
 export const FETCH_CLIENT_SET_NOTES: "FETCH_CLIENT_SET_NOTES" = "FETCH_CLIENT_SET_NOTES";
+export const FETCH_CLIENT_SET_SET_VAR: "FETCH_CLIENT_SET_SET_VAR" = "FETCH_CLIENT_SET_SET_VAR";
 
 export interface ISetTest {
   type: typeof FETCH_CLIENT_SET_TEST;
@@ -163,4 +179,11 @@ export interface ISetNotes {
   }
 }
 
-export type RequestActionTypes = | ISetURL | ISetMethod | ISetParams | ISetAuth | ISetHeaders | ISetBody | ISetRequest | ISetTest | ISetRawLang | ISetResetBody | ISetRawValue | ISetBinaryData | ISetNotes;
+export interface ISetAddVar {
+  type: typeof FETCH_CLIENT_SET_SET_VAR;
+  payload: {
+    data: ISetVar[];
+  };
+}
+
+export type RequestActionTypes = | ISetURL | ISetMethod | ISetParams | ISetAuth | ISetHeaders | ISetBody | ISetRequest | ISetTest | ISetRawLang | ISetResetBody | ISetRawValue | ISetBinaryData | ISetNotes | ISetAddVar;

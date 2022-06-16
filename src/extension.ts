@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { CreateCollectionDB, CreateHistoryDB, CreateMainDB, CreateVariableDB } from './utils/db/dbUtil';
+import { CreateCollectionDB, CreateCookieDB, CreateHistoryDB, CreateMainDB, CreateVariableDB } from './utils/db/dbUtil';
 import fs from "fs";
-import { collectionDBPath, historyDBPath, mainDBPath, variableDBPath } from './utils/db/consts';
+import { collectionDBPath, cookieDBPath, historyDBPath, mainDBPath, variableDBPath } from './utils/db/consts';
 import { AddToColUI } from './utils/ui/addToCollectionUIProvider';
 import { MainUIProvider } from './utils/ui/mainUIProvider';
 import { SideBarProvider } from './utils/ui/sideBarUIProvider';
@@ -9,6 +9,8 @@ import { logPath } from './utils/logger/consts';
 import { createLogFile } from './utils/logger/logger';
 import { VariableUI } from './utils/ui/variableUIProvider';
 import { LocalStorageService } from './utils/LocalStorageService';
+import { CookieUI } from './utils/ui/cookieUIProvider';
+import { ErrorLogUI } from './utils/ui/errorLogUIProvider';
 
 export var sideBarProvider: SideBarProvider;
 var storageManager: LocalStorageService;
@@ -22,8 +24,8 @@ export function OpenAddToColUI(id: string) {
   vscode.commands.executeCommand("fetch-client.addToCol", id, "", "addtocol");
 }
 
-export function OpenVariableUI(id?: string) {
-  vscode.commands.executeCommand("fetch-client.newVar", id);
+export function OpenVariableUI(id?: string, type?: string) {
+  vscode.commands.executeCommand("fetch-client.newVar", id, type);
 }
 
 export function OpenCopyToColUI(id: string, name: string) {
@@ -36,6 +38,14 @@ export function OpenAttachVariableUI(id: string, name: string) {
 
 export function OpenRunAllUI(id: string, name: string, varId: string) {
   vscode.commands.executeCommand("fetch-client.addToCol", id, name, "runall", varId);
+}
+
+export function OpenCookieUI(id?: string) {
+  vscode.commands.executeCommand("fetch-client.manageCookies", id);
+}
+
+export function OpenColSettings(id: string, name: string, type: string) {
+  vscode.commands.executeCommand("fetch-client.addToCol", id, name, "colsettings:" + type);
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -62,6 +72,10 @@ export function activate(context: vscode.ExtensionContext) {
     CreateVariableDB();
   }
 
+  if (!fs.existsSync(extPath + "\\" + cookieDBPath)) {
+    CreateCookieDB();
+  }
+
   if (!fs.existsSync(extPath + "\\" + logPath)) {
     createLogFile();
   }
@@ -73,6 +87,11 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(MainUIProvider(context.extensionUri, sideBarProvider));
   context.subscriptions.push(AddToColUI(context.extensionUri));
   context.subscriptions.push(VariableUI(context.extensionUri));
+  context.subscriptions.push(CookieUI(context.extensionUri));
+  context.subscriptions.push(vscode.commands.registerCommand('fetch-client.openSettings', () => {
+    vscode.commands.executeCommand('workbench.action.openSettings', 'Fetch Client');
+  }));
+  context.subscriptions.push(ErrorLogUI(context.extensionUri));
 }
 
 export function getGlobalPath() {

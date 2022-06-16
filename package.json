@@ -2,7 +2,7 @@
   "name": "fetch-client",
   "displayName": "Fetch Client",
   "description": "Rest API Client for VS Code which is used to test your API's within VS Code.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "publisher": "GanesanChandran",
   "author": {
     "name": "Ganesan Chandran <https://ganesan-chandran.github.io/>"
@@ -33,18 +33,22 @@
     "testing",
     "api testing",
     "rest testing",
-    "http"
+    "http",
+    "rest api"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/Ganesan-Chandran/vscode-json-utility",
+  "homepage": "https://github.com/Ganesan-Chandran/vscode-fetch-client",
   "bugs": {
-    "url": "https://github.com/Ganesan-Chandran/vscode-json-utility/issues"
+    "url": "https://github.com/Ganesan-Chandran/vscode-fetch-client/issues"
   },
   "activationEvents": [
     "onCommand:fetch-client.newRequest",
     "onCommand:fetch-client.addToCol",
     "onView:fetch-client.sideBar",
     "onCommand:fetch-client.newVar",
+    "onCommand:fetch-client.manageCookies",
+    "onCommand:fetch-client.openSettings",
+    "onCommand:fetch-client.openErrorLog",
     "onStartupFinished"
   ],
   "main": "./dist/extension.js",
@@ -61,6 +65,21 @@
       {
         "command": "fetch-client.newRequest",
         "title": "Fetch Client : New Request"
+      },
+      {
+        "command": "fetch-client.manageCookies",
+        "title": "Manage Cookies",
+        "category": "Fetch Client"
+      },
+      {
+        "command": "fetch-client.openSettings",
+        "title": "Extension Settings",
+        "category": "Fetch Client"
+      },
+      {
+        "command": "fetch-client.openErrorLog",
+        "title": "View Error Log",
+        "category": "Fetch Client"
       }
     ],
     "viewsContainers": {
@@ -152,7 +171,40 @@
           }
         }
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "fetch-client.manageCookies",
+          "when": "view == fetch-client.sideBar",
+          "group": "group1@1"
+        },
+        {
+          "command": "fetch-client.openErrorLog",
+          "when": "view == fetch-client.sideBar",
+          "group": "group2@1"
+        },
+        {
+          "command": "fetch-client.openSettings",
+          "when": "view == fetch-client.sideBar",
+          "group": "group2@2"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "fetch-client.manageCookies",
+          "when": "false"
+        },
+        {
+          "command": "fetch-client.openSettings",
+          "when": "false"
+        },
+        {
+          "command": "fetch-client.openErrorLog",
+          "when": "false"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
@@ -169,6 +221,8 @@
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
+    "@types/aws4": "^1.11.2",
+    "@types/draft-js": "^0.11.9",
     "@types/glob": "^7.2.0",
     "@types/httpsnippet": "^1.23.1",
     "@types/jest": "^27.4.1",
@@ -186,6 +240,7 @@
     "@vscode/test-electron": "^2.0.3",
     "buffer": "^6.0.3",
     "cross-env": "^7.0.3",
+    "draft-js": "^0.11.7",
     "eslint": "^8.6.0",
     "fast-xml-parser": "^4.0.7",
     "glob": "^7.2.0",
@@ -219,7 +274,9 @@
     "webpack-cli": "^4.9.2"
   },
   "dependencies": {
+    "aws4": "^1.11.0",
     "axios": "^0.26.1",
+    "form-data": "^4.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-icons": "^4.3.1",

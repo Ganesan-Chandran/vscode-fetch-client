@@ -13,7 +13,7 @@ export const ResponseOptionsTab = (props: any) => {
 
   const { selectedTab, setSelectedTab, isVerticalLayout } = props;
 
-  const { headers, response, testResults } = useSelector((state: IRootState) => state.responseData);
+  const { headers, response, testResults, cookies } = useSelector((state: IRootState) => state.responseData);
   const { url } = useSelector((state: IRootState) => state.requestData);
 
   const [menuShow, setMenuShow] = useState(false);
@@ -106,7 +106,16 @@ export const ResponseOptionsTab = (props: any) => {
             >
               <div className="option-names">
                 {option.name}
-                {option.value === "headers" ? (
+                {option.value === "cookies" && response.responseData ? (
+                  <div className="header-count">
+                    (
+                    {
+                      cookies.length
+                    }
+                    )
+                  </div>
+                ) : null}
+                {option.value === "headers" && response.responseData ? (
                   <div className="header-count">
                     (
                     {
@@ -128,7 +137,7 @@ export const ResponseOptionsTab = (props: any) => {
             </button>
           ))}
         {
-          !isVerticalLayout && response.status > 0
+          !isVerticalLayout
             ?
             responseParamsRender()
             :

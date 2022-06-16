@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { IVariable } from "../../SideBar/redux/types";
+import { TextEditor } from "../TextEditor/TextEditor";
 import "./style.css";
 
 export interface IAutocompleteProps {
@@ -10,6 +12,7 @@ export interface IAutocompleteProps {
   disabled: boolean;
   onSelect: any;
   placeholder: string;
+  selectedVariable: IVariable;
 }
 
 export const Autocomplete = (props: IAutocompleteProps) => {
@@ -23,6 +26,7 @@ export const Autocomplete = (props: IAutocompleteProps) => {
     topStyle: {
       top: topPosition + "px",
       width: width + "px",
+      zIndex: 1
     } as React.CSSProperties,
   };
 
@@ -35,19 +39,22 @@ export const Autocomplete = (props: IAutocompleteProps) => {
     }
   }
 
-  const onChange = (e: any) => {
+  const onChange = (value: string, existingValue: string) => {
+    if (value === existingValue) {
+      return;
+    }
+
     const { suggestions } = props;
-    const userInput = e.currentTarget.value;
 
     const filteredSuggestions = suggestions.filter(
       suggestion =>
-        suggestion.toLowerCase().indexOf(userInput.toLowerCase()) > -1
+        suggestion.toLowerCase().indexOf(value.toLowerCase()) > -1
     );
 
     setactiveSuggestion(0);
     setFilteredSuggestions(filteredSuggestions);
     setShowSuggestions(true);
-    props.onSelect(e.target.value);
+    props.onSelect(value);
   };
 
   const onMouseDown = (e: any) => {
@@ -58,19 +65,19 @@ export const Autocomplete = (props: IAutocompleteProps) => {
     props.onSelect(e.currentTarget.innerText);
   };
 
-  const onKeyDown = (e: any) => {
+  const onKeyDown = (keyCode: number) => {
 
-    if (e.keyCode === 13) {
+    if (keyCode === 13) {
       setactiveSuggestion(0);
       setShowSuggestions(false);
       props.onSelect(filteredSuggestions[activeSuggestion]);
-    } else if (e.keyCode === 38) {
+    } else if (keyCode === 38) {
       if (activeSuggestion === 0) {
         return;
       }
       setactiveSuggestion(activeSuggestion - 1);
     }
-    else if (e.keyCode === 40) {
+    else if (keyCode === 40) {
       if (activeSuggestion - 1 === filteredSuggestions.length) {
         return;
       }
@@ -111,18 +118,21 @@ export const Autocomplete = (props: IAutocompleteProps) => {
 
   return (
     <>
-      <input
-        id={props.id}
-        type="text"
-        className={props.className}
-        onChange={onChange}
-        onKeyDown={onKeyDown}
-        value={props.value}
-        onBlur={onBlurEvent}
-        disabled={props.disabled}
-        onFocus={onFocus}
-        placeholder={props.placeholder}
-      />
+      <div id={props.id}>
+        {
+          props.selectedVariable.id && <TextEditor
+            varWords={props.selectedVariable.data.map(item => item.key)}
+            placeholder={props.placeholder}
+            onChange={(val) => onChange(val, props.value)}
+            value={props.value}
+            onKeyPress={onKeyDown}
+            onBlur={onBlurEvent}
+            disabled={props.disabled}
+            onFocus={onFocus}
+            focus={false}
+          />
+        }
+      </div>
       {suggestionsListComponentRender()}
     </>
   );

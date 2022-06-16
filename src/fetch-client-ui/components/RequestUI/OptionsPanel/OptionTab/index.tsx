@@ -3,6 +3,8 @@ import { useSelector } from "react-redux";
 import { IRootState } from "../../../../reducer/combineReducer";
 import { requestOptions } from "../consts";
 import { ReactComponent as MenuLogo } from '../../../../../../icons/settings.svg';
+import { requestTypes } from '../../../../../utils/configuration';
+import vscode from '../../../Common/vscodeAPI';
 
 export const OptionsTab = (props: any) => {
 
@@ -41,7 +43,7 @@ export const OptionsTab = (props: any) => {
             </div>
           </button>
         ))}
-        <div className="settings-menu-panel"><MenuLogo className={settingsCss()} title="Menu" onClick={() => {setSelectedTab("settings");}} /></div>
+      <div className="settings-menu-panel"><MenuLogo className={settingsCss()} title="Menu" onClick={() => { setSelectedTab("settings"); }} /></div>
     </div>
   );
 };

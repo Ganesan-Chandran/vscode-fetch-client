@@ -2,9 +2,9 @@ import * as vscode from 'vscode';
 import fs from "fs";
 import { getStorageManager, OpenExistingItem, sideBarProvider } from '../../extension';
 import { getNonce, requestTypes } from '../configuration';
-import { AddToCollection, AttachVariable, CopyToCollection, GetAllCollectionName, GetAllCollectionsById } from '../db/collectionDBUtil';
+import { AddToCollection, AttachVariable, CopyToCollection, GetAllCollectionName, GetAllCollectionsById, GetCollectionSettings, SaveCollectionSettings } from '../db/collectionDBUtil';
 import { GetHistoryById } from '../db/historyDBUtil';
-import { GetAllVariable } from '../db/varDBUtil';
+import { GetAllVariable, GetVariableById, UpdateVariable } from '../db/varDBUtil';
 import { apiFetch } from '../fetchUtil';
 import { getTimeOut } from '../vscodeConfig';
 import { writeLog } from '../logger/logger';
@@ -53,7 +53,7 @@ export const AddToColUI = (extensionUri: any) => {
       } else if (reqData.type === requestTypes.getHistoryItemRequest) {
         GetHistoryById(reqData.data, colPanel.webview);
       } else if (reqData.type === requestTypes.addToCollectionsRequest) {
-        AddToCollection(reqData.data, colPanel.webview, sideBarProvider.view);
+        AddToCollection(reqData.data.col, reqData.data.hasFolder, reqData.data.isNewFolder, colPanel.webview, sideBarProvider.view);
       } else if (reqData.type === requestTypes.copyToCollectionsRequest) {
         CopyToCollection(reqData.data.sourceId, reqData.data.distId, reqData.data.name, colPanel.webview, sideBarProvider.view);
       } else if (reqData.type === requestTypes.getAllVariableRequest) {
@@ -61,7 +61,7 @@ export const AddToColUI = (extensionUri: any) => {
       } else if (reqData.type === requestTypes.attachVariableRequest) {
         AttachVariable(reqData.data.colId, reqData.data.varId, colPanel.webview, sideBarProvider.view);
       } else if (reqData.type === requestTypes.getCollectionsByIdRequest) {
-        GetAllCollectionsById(reqData.data, colPanel.webview);
+        GetAllCollectionsById(reqData.data.id, reqData.data.type, colPanel.webview);
       } else if (reqData.type === requestTypes.apiRequest) {
         const timeOut = getTimeOut();
         apiFetch(reqData.data.reqData, timeOut, null, reqData.data.variableData).then((data) => {
@@ -101,6 +101,14 @@ export const AddToColUI = (extensionUri: any) => {
             });
           }
         });
+      } else if (reqData.type === requestTypes.saveColSettingsRequest) {
+        SaveCollectionSettings(colPanel.webview, reqData.data.id, reqData.data.settings, reqData.data.type);
+      } else if (reqData.type === requestTypes.getColSettingsRequest) {
+        GetCollectionSettings(colPanel.webview, reqData.data.id, reqData.data.type);
+      } else if (reqData.type === requestTypes.updateVariableRequest) {
+        UpdateVariable(reqData.data, null);
+      } else if (reqData.type === requestTypes.getVariableItemRequest) {
+        GetVariableById(reqData.data.id, reqData.data.isGlobal, colPanel.webview);
       }
     });
   });

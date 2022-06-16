@@ -10,10 +10,12 @@ import { getConfiguration, getLayoutConfiguration, getTimeOutConfiguration } fro
 import { SideBarProvider } from './sideBarUIProvider';
 import axios, { CancelTokenSource } from 'axios';
 import { writeLog } from '../logger/logger';
-import { GetAllVariable, GetVariableById } from '../db/varDBUtil';
+import { GetAllVariable, GetVariableById, UpdateVariable } from '../db/varDBUtil';
 import { getTimeOut } from '../vscodeConfig';
-import { getStorageManager } from '../../extension';
+import { getStorageManager, OpenCookieUI, OpenVariableUI } from '../../extension';
 import { formatDate } from '../helper';
+import { UpdateCollection } from '../db/collectionDBUtil';
+import { GetAllCookies, SaveCookie } from '../db/cookieDBUtil';
 
 export const MainUIProvider = (extensionUri: any, sideBarProvider: SideBarProvider) => {
   const disposable = vscode.commands.registerCommand('fetch-client.newRequest', (id?: string, name?: string, varId?: string, type?: string) => {
@@ -77,7 +79,7 @@ export const MainUIProvider = (extensionUri: any, sideBarProvider: SideBarProvid
             SaveRequest(reqData);
             SaveHistory(item, sideBarProvider.view);
           } else {
-            UpdateRequest(reqData);            
+            UpdateRequest(reqData);
             UpdateHistory(item);
           }
         });
@@ -149,13 +151,46 @@ export const MainUIProvider = (extensionUri: any, sideBarProvider: SideBarProvid
           uiPanel.webview.postMessage({ type: responseTypes.readFileResponse, fileData: data });
         }
       } else if (message.type === requestTypes.getVariableItemRequest) {
-        GetVariableById(message.data, uiPanel.webview);
+        GetVariableById(message.data.id, message.data.isGlobal, uiPanel.webview);
       } else if (message.type === requestTypes.getAllVariableRequest) {
         GetAllVariable(uiPanel.webview);
       } else if (message.type === requestTypes.getRunItemDataRequest) {
         uiPanel.webview.postMessage({ type: responseTypes.getRunItemDataResponse, reqData: getStorageManager().getValue("run-request"), resData: getStorageManager().getValue("run-response") });
         getStorageManager().setValue("run-request", "");
         getStorageManager().setValue("run-response", "");
+      } else if (message.type === requestTypes.saveRequest) {
+        let item: IHistory = {
+          id: message.data.reqData.id,
+          method: message.data.reqData.method,
+          name: message.data.reqData.name ? message.data.reqData.name : message.data.reqData.url,
+          url: message.data.reqData.url,
+          createdTime: message.data.reqData.createdTime ? message.data.reqData.createdTime : formatDate()
+        };
+
+        let reqData = message.data.reqData as IRequestModel;
+        if (reqData.body.bodyType === "binary") {
+          reqData.body.binary.data = "";
+        }
+        if (message.data.isNew) {
+          SaveRequest(reqData);
+          SaveHistory(item, sideBarProvider.view);
+        } else {
+          UpdateRequest(reqData);
+          UpdateHistory(item);
+          UpdateCollection(item);
+        }
+        uiPanel.webview.postMessage({ type: responseTypes.saveResponse });
+      }
+      else if (message.type === requestTypes.openVariableItemRequest) {
+        OpenVariableUI(message.data);
+      } else if (message.type === requestTypes.updateVariableRequest) {
+        UpdateVariable(message.data, null);
+      } else if (message.type === requestTypes.saveCookieRequest) {
+        SaveCookie(message.data, null);
+      } else if (message.type === requestTypes.getAllCookiesRequest) {
+        GetAllCookies(uiPanel.webview);
+      } else if (message.type === requestTypes.openManageCookiesRequest) {
+        OpenCookieUI(message.data);
       }
     });
   });

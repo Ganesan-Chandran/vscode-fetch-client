@@ -38,12 +38,14 @@ export function UpdateHistory(item: IHistory) {
     db.loadDatabase({}, function () {
       const userHistory = db.getCollection('userHistory');
       var req = userHistory.findOne({ 'id': item.id });
-      req.name = item.name;
-      req.method = item.method;
-      req.url = item.url;
-      req.createdTime = item.createdTime;
-      userHistory.update(req);
-      db.saveDatabase();
+      if (req) {
+        req.name = item.name;
+        req.method = item.method;
+        req.url = item.url;
+        req.createdTime = item.createdTime;
+        userHistory.update(req);
+        db.saveDatabase();
+      }
     });
 
   } catch (err) {
@@ -106,8 +108,8 @@ export function DeleteAllHistory(webviewView: vscode.WebviewView) {
       const ids = results.map(item => item.id);
 
       userHistory.removeDataOnly();
-      db.saveDatabase();      
-      
+      db.saveDatabase();
+
       DeleteExitingItems(ids);
 
       webviewView.webview.postMessage({ type: responseTypes.deleteAllHistoryResponse });

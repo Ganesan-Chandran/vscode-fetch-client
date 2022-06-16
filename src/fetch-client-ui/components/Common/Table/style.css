@@ -1,7 +1,14 @@
 .option-table {
   border-collapse: collapse;
+  width          : 100%;
+  margin-top     : 10px;
+  table-layout   : fixed;
+  margin-bottom  : 10px;
+}
+
+.option-table tr,
+.option-table thead {
   width: 100%;
-  margin-top: 10px;
 }
 
 .option-table thead {
@@ -19,13 +26,13 @@
 
 .table-input {
   background-color: transparent;
-  border: 0;
-  box-sizing: border-box;
-  color: var(--text-color);
-  font-size: var(--font-size);
-  outline: none;
-  padding: 10px;
-  width: 100%;
+  border          : 0;
+  box-sizing      : border-box;
+  color           : var(--text-color);
+  font-size       : var(--font-size);
+  outline         : none;
+  padding         : 10px;
+  width           : 100%;
 }
 
 .table-input:focus {
@@ -34,13 +41,13 @@
 
 .action-cell {
   text-align: center;
-  width: 50px;
+  width     : 50px;
 }
 
 .delete-button {
   cursor: pointer;
   height: 16px;
-  width: 16px;
+  width : 16px;
 }
 
 .delete-button path {
@@ -58,5 +65,22 @@
 .option-table>tbody>tr:hover,
 .option-table>tbody>tr:focus {
   background-color: var(--list-hover-background-color);
-  border: var(--border-size) solid var(--border-color);
+  border          : var(--border-size) solid var(--border-color);
+}
+
+.option-table>tbody>tr:hover .DraftEditor-editorContainer,
+.option-table>tbody>tr:focus .DraftEditor-editorContainer {
+  background-color: var(--list-hover-background-color);
+}
+
+.res-table-input {
+  background-color: transparent;
+  border          : 0;
+  box-sizing      : border-box;
+  color           : var(--text-color);
+  font-size       : var(--font-size);
+  outline         : none;
+  padding         : 10px;
+  width           : 100%;
+  word-break      : break-word;
 }

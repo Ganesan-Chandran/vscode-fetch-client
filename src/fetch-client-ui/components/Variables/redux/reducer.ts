@@ -1,4 +1,4 @@
-import { FETCH_CLIENT_SET_LOCAL_CHANGE, FETCH_CLIENT_SET_REQ_ALL_VARIABLES, FETCH_CLIENT_SET_REQ_VARIABLE, IVariableModel, VariableActionTypes } from "./types";
+import { FETCH_CLIENT_SET_LOCAL_CHANGE, FETCH_CLIENT_SET_REQ_ALL_VARIABLES, FETCH_CLIENT_SET_REQ_VARIABLE, FETCH_CLIENT_SET_SETVAR_CHANGE, IVariableModel, VariableActionTypes } from "./types";
 
 export const InitialState: IVariableModel = {
   variables: [],
@@ -9,7 +9,8 @@ export const InitialState: IVariableModel = {
     isActive: false,
     data: []
   },
-  isLocalChange: false
+  isLocalChange: false,
+  setVarChanged: false
 };
 
 export const VariableReducer: (state?: IVariableModel,
@@ -40,6 +41,12 @@ export const VariableReducer: (state?: IVariableModel,
         return {
           ...state,
           isLocalChange: action.payload.change
+        };
+      }
+      case FETCH_CLIENT_SET_SETVAR_CHANGE: {
+        return {
+          ...state,
+          setVarChanged: action.payload.setVarChanged
         };
       }
       default: {

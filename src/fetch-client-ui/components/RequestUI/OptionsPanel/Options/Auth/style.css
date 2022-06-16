@@ -29,7 +29,7 @@
 }
 
 .auth-token-text-panel {
-  width    : 100%;
+  max-width    : 70%;
   flex-grow: 1;
 }
 
@@ -50,12 +50,13 @@
   font-weight  : var(--vscode-font-weight);
 }
 
-.auth-token-prefix-text {
-  width        : calc(100% - 105px);
-  height       : 25px;
+.auth-token-prefix-text,
+.auth-token-text-panel .DraftEditor-editorContainer {
+  width        : calc(100% - 83px);
+  height       : 30px;
   outline      : none;
   margin       : 10px;
-  padding      : 0 10px;
+  padding      : 5px;
   border-radius: 3px;
 }
 
@@ -79,12 +80,20 @@ label {
 }
 
 .basic-auth-username,
-.basic-auth-password {
+.basic-auth-text-panel .DraftEditor-editorContainer {
   width        : calc(100% - 110px);
-  height       : 25px;
+  height       : 30px;
   outline      : none;
-  padding      : 0 10px;
+  padding      : 5px;
   border-radius: 3px;
+}
+
+.basic-auth-password {
+  width        : calc(100% - 120px);
+  height       : 28px;
+  outline      : none;
+  padding      : 0 4px;
+  border-radius: 3px
 }
 
 .basic-auth-username:focus,
@@ -104,7 +113,8 @@ label {
 }
 
 .basic-auth-text-panel {
-  padding: 10px 10px 10px 0;
+  padding  : 10px 10px 10px 0;
+  max-width: 70%;
 }
 
 .apikey-add-select {
@@ -129,6 +139,7 @@ label {
   padding-top  : 10px;
   margin-left  : 96px;
   border-radius: 3px;
+  font-size    : var(--font-size);
 }
 
 .basic-auth-check-box {
@@ -140,8 +151,32 @@ label {
   outline: none;
 }
 
-.auth-text {
+.auth-text,
+.basic-auth-text-panel .DraftEditor-editorContainer,
+.auth-token-text-panel .DraftEditor-editorContainer {
   background: var(--background-color);
   border    : 0.25px solid var(--border-color);
   color     : var(--text-color);
+}
+
+.var-available {
+  color: rgb(18, 187, 18);
+}
+
+.var-notavailable {
+  color: #f05348;
+}
+
+.setting-mode {
+  width  : calc(100% - 120px) !important;
+  height : 28px !important;
+  padding: 0 10px !important;
+}
+
+.auth-token-setting-mode {
+  width: calc(100% - 131px) !important;
+}
+
+.auth-no-label {
+  padding-top: 10px;
 }

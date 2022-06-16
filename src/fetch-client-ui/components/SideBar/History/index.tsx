@@ -44,7 +44,10 @@ export const HistoryBar = (props: IHistoryProps) => {
   function openMoreMenu(evt: any, index: number) {
     evt.preventDefault();
     evt.stopPropagation();
+    openContextMenu(index);
+  }
 
+  function openContextMenu(index: number) {
     if (currentIndex === index) {
       setCurrentIndex(-1);
       return;
@@ -92,6 +95,12 @@ export const HistoryBar = (props: IHistoryProps) => {
     vscode.postMessage({ type: requestTypes.openHistoryItemRequest, data: { id: id, name: name } });
   }
 
+  function onItemRightClick(e: any, index: number) {
+    e.preventDefault();
+    e.stopPropagation();
+    openContextMenu(index);
+  }
+
   function getActivityBody() {
     if (props.filterCondition) {
       return (
@@ -115,7 +124,7 @@ export const HistoryBar = (props: IHistoryProps) => {
 
   function getHistoryItems(history: IHistory, index: number) {
     return (
-      <div key={"activity_" + history.id} className={selectedItem === history.id ? "activity-items selected-item" : "activity-items"} onClick={(e) => onClickHistory(e, history.id, history.name)}>
+      <div key={"activity_" + history.id} className={selectedItem === history.id ? "activity-items selected-item" : "activity-items"} onContextMenu={(e) => onItemRightClick(e, index)} onClick={(e) => onClickHistory(e, history.id, history.name)}>
         <div className="activity-item-row-1">
           <label className={"activity-method " + getMethodClassName(history.method.toUpperCase())}>{getMethodName(history.method.toUpperCase())}</label>
           <label className="activity-url">{history.name.replace(/^https?:\/\//, '')}</label>

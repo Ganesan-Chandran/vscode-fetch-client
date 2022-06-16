@@ -81,7 +81,7 @@ const Variables = (props: IVariableProps) => {
 
     let id = document.title.split(":")[1];
     if (id !== "undefined") {
-      vscode.postMessage({ type: requestTypes.getVariableItemRequest, data: id });
+      vscode.postMessage({ type: requestTypes.getVariableItemRequest, data: { id: id, isGlobal: false } });
       setNew(false);
     } else {
       setVariableItem({
@@ -119,12 +119,6 @@ const Variables = (props: IVariableProps) => {
     }
 
     if (!defaultGlobal && variableItem.name.toUpperCase().trim() === "GLOBAL") {
-      return true;
-    }
-
-    const isAvailable = variableItem.data.filter(item => item.isChecked);
-
-    if (isAvailable.length === 0) {
       return true;
     }
 

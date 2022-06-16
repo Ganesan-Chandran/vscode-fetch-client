@@ -1,0 +1,22 @@
+.error-log-text-box {
+    padding         : 20px;
+    width           : 100%;
+    height          : 100%;
+    resize          : none;
+    background-color: var(--background-color);
+    color           : var(--text-color);
+    border-color    : var(--border-color);
+    outline         : none;
+    box-sizing      : border-box;
+}
+
+.error-log-text-box:focus {
+    outline: none;
+}
+
+.error-log-panel {
+    padding   : 10px;
+    width     : 100%;
+    height    : 100%;
+    box-sizing: border-box;
+}

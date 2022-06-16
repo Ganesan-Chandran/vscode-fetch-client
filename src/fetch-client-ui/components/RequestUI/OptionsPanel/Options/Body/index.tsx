@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector, useStore } from "react-redux";
 import { IRootState } from "../../../../../reducer/combineReducer";
 import { Actions, InitialBinaryData, InitialParams } from "../../../redux";
-import { GraphQL } from "../GraphQL";
+import { GraphQL } from "./GraphQL";
 import { Binary } from "./Binary";
 import { requestBodyRaw, requestBodyTypes } from "./consts";
 import { FormDataBody } from "./FormData";

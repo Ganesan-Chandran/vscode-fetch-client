@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Split from 'react-split';
+import { v4 as uuidv4 } from 'uuid';
 import { requestTypes, responseTypes } from "../../../utils/configuration";
+import { formatDate } from "../../../utils/helper";
 import { IRootState } from '../../reducer/combineReducer';
 import vscode from "../Common/vscodeAPI";
+import { CookiesActions } from "../Cookies/redux";
+import { ICookie } from "../Cookies/redux/types";
 import { OptionsPanel } from "../RequestUI/OptionsPanel";
 import { Actions } from "../RequestUI/redux";
 import { IRequestModel } from "../RequestUI/redux/types";
@@ -21,8 +25,14 @@ const MainUI = () => {
   const dispatch = useDispatch();
 
   const { open } = useSelector((state: IRootState) => state.uiData);
-  const { responseData } = useSelector((state: IRootState) => state.responseData.response);
+  const { loading, response } = useSelector((state: IRootState) => state.responseData);
+  const requestData = useSelector((state: IRootState) => state.requestData);
   const { variables } = useSelector((state: IRootState) => state.variableData);
+
+  const refReq = useRef(requestData);
+  const setReq = (data: IRequestModel) => {
+    refReq.current = data;
+  };
 
   const [reqClass, setReqClass] = useState("full-height");
   const [resClass, setResClass] = useState("zero-height");
@@ -34,12 +44,23 @@ const MainUI = () => {
   const [layout, setLayout] = useState("");
   const [horiLayout, setHoriLayout] = useState("");
 
+  const [saveVisible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (responseData && resClass === "zero-height") {
+    if (loading && resClass === "zero-height") {
       setOpenPanel(1);
     }
-  }, [responseData]);
+  }, [loading]);
+
+  useEffect(() => {
+    if (response.responseData && resClass === "zero-height") {
+      setOpenPanel(1);
+    }
+  }, [response]);
+
+  useEffect(() => {
+    setReq(requestData);
+  }, [requestData]);
 
   useEffect(() => {
     if (reqClass === "zero-height") {
@@ -56,11 +77,19 @@ const MainUI = () => {
   }, [reqClass, resClass]);
 
   useEffect(() => {
+    if (saveVisible) {
+      setTimeout(() => {
+        setVisible(false);
+      }, 2000);
+    }
+  }, [saveVisible]);
+
+  useEffect(() => {
     window.addEventListener("message", (event) => {
       if (event.data && event.data.type === responseTypes.apiResponse) {
+        dispatch(ResponseActions.SetResponseCookiesAction(event.data.cookies));
         dispatch(ResponseActions.SetResponseAction(event.data.response));
         dispatch(ResponseActions.SetResponseHeadersAction(event.data.headers));
-        dispatch(ResponseActions.SetResponseCookiesAction(event.data.cookies));
       } else if (event.data && event.data.type === responseTypes.configResponse) {
         let config = JSON.parse(event.data.configData);
         let layoutConfig = config["layout"];
@@ -87,6 +116,10 @@ const MainUI = () => {
         dispatch(ResponseActions.SetResponseAction(event.data.resData.response));
         dispatch(ResponseActions.SetResponseHeadersAction(event.data.resData.headers));
         dispatch(ResponseActions.SetResponseCookiesAction(event.data.resData.cookies));
+      } else if (event.data && event.data.type === responseTypes.saveResponse) {
+        setVisible(true);
+      } else if (event.data && event.data.type === responseTypes.getAllCookiesResponse) {
+        dispatch(CookiesActions.SetAllCookiesAction(event.data.cookies as ICookie[]));
       }
     });
 
@@ -110,6 +143,29 @@ const MainUI = () => {
     if (isRunItem !== "undefined") {
       vscode.postMessage({ type: requestTypes.getRunItemDataRequest });
     }
+
+    document.addEventListener("keydown", function (e) {
+      if (e.ctrlKey && (e.key === 'S' || e.key === 's')) {
+        e.preventDefault();
+        if (!refReq.current.url) {
+          return;
+        }
+
+        let reqData = { ...refReq.current };
+        let isNew = false;
+        if (!reqData.name) {
+          reqData.id = uuidv4();
+          reqData.name = reqData.url.trim();
+          reqData.createdTime = formatDate();
+          dispatch(Actions.SetRequestAction(reqData));
+          isNew = true;
+        }
+        vscode.postMessage({ type: requestTypes.saveRequest, data: { reqData: reqData, isNew: isNew } });
+      }
+    });
+
+    vscode.postMessage({ type: requestTypes.getAllCookiesRequest });
+
   }, []);
 
   useEffect(() => {
@@ -129,58 +185,67 @@ const MainUI = () => {
   }, [variables]);
 
   function setOpenPanel(index: number) {
+    let localData = [...open];
 
     if (index === 0) {
       if (open[0] && open[1]) {
-        setReqClass("zero-height");
-        setResClass("full-height");
+        setResFull();
+        localData[index] = !localData[index];
       }
 
       if (open[0] && !open[1]) {
-        setBothZero();
+        setResFull();
+        localData = localData.map((item) => !item);
       }
 
       if (!open[0] && open[1]) {
         setBothHalf();
+        localData[index] = !localData[index];
       }
 
       if (!open[0] && !open[1]) {
-        setReqClass("full-height");
-        setResClass("zero-height");
+        setReqFull();
+        localData[index] = !localData[index];
       }
     }
 
     if (index === 1) {
       if (open[0] && open[1]) {
-        setReqClass("full-height");
-        setResClass("zero-height");
+        setReqFull();
+        localData[index] = !localData[index];
       }
 
       if (open[0] && !open[1]) {
         setBothHalf();
+        localData[index] = !localData[index];
       }
 
       if (!open[0] && open[1]) {
-        setBothZero();
+        setReqFull();
+        localData = localData.map((item) => !item);
       }
 
       if (!open[0] && !open[1]) {
-        setReqClass("zero-height");
-        setResClass("full-height");
+        setResFull();
+        localData[index] = !localData[index];
       }
     }
-
-    dispatch(UIActions.SetOpenAction(open.map((item, i) => i === index ? !item : item)));
-  }
-
-  function setBothZero() {
-    setReqClass("zero-height");
-    setResClass("zero-height");
+    dispatch(UIActions.SetOpenAction(localData));
   }
 
   function setBothHalf() {
     setReqClass("half-height");
     setResClass("half-height");
+  }
+
+  function setReqFull() {
+    setReqClass("full-height");
+    setResClass("zero-height");
+  }
+
+  function setResFull() {
+    setReqClass("zero-height");
+    setResClass("full-height");
   }
 
   return (
@@ -191,6 +256,7 @@ const MainUI = () => {
             <Split className="split split-horizontal" gutterSize={2} direction="vertical" cursor="ns-resize" minSize={60}>
               <div>
                 <RequestPanel />
+                <div className={saveVisible ? "save-text save-visible save-text-horizontal" : "save-text save-invisible"}>Saved Successfully</div>
                 <OptionsPanel />
               </div>
               <div>
@@ -208,6 +274,7 @@ const MainUI = () => {
                 </h2>
                 <div className={reqBorderClass + " content"}>
                   <RequestPanel />
+                  <div className={saveVisible ? "save-text save-visible save-text-horizontal" : "save-text save-invisible"}>Saved Successfully</div>
                   <OptionsPanel />
                 </div>
               </section>
@@ -227,6 +294,7 @@ const MainUI = () => {
           <Split className="split split-vertical" gutterSize={1} cursor="ew-resize" minSize={230} >
             <div>
               <RequestPanel />
+              <div className={saveVisible ? "save-text save-visible" : "save-text save-invisible"}>Saved Successfully</div>
               <OptionsPanel />
             </div>
             <div>

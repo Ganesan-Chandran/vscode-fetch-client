@@ -1,11 +1,10 @@
 summary {
-  list-style: none;
-  word-break: break-all;
-  padding: 5px;
-  cursor: pointer;
-  position: relative;
-  padding-left: 35px;
-  font-size: var(--font-size);
+  word-break  : break-all;
+  padding     : 5px;
+  cursor      : pointer;
+  position    : relative;
+  padding-left: 15px;
+  font-size   : 14px;
 }
 
 summary::-webkit-details-marker {
@@ -13,15 +12,14 @@ summary::-webkit-details-marker {
 }
 
 summary:before {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  content: "▷";
+  position        : absolute;
+  top             : 50%;
+  transform       : translateY(-50%);
   background-color: transparent;
-  color: var(--text-color);
-  display: inline-flex;
-  flex-shrink: 0;
-  left: 0.75rem;
+  color           : var(--text-color);
+  display         : inline-flex;
+  flex-shrink     : 0;
+  left            : 0.75rem;
 }
 
 summary:hover {
@@ -32,16 +30,38 @@ details[open] summary {
   background-color: var(--vscode-dropdown-border);
 }
 
-details[open] summary:before {
-  content: "▼";
-}
-
-.collection-items:hover .more-icon {
+.collection-items:hover .more-icon,
+.folder-items:hover .more-icon {
   display: block;
 }
 
 .divider {
   border-top: 0.3pt solid var(--border-color);
-  margin: 1px 14px 1px 14px;
-  opacity: .6;
+  margin    : 1px 14px 1px 14px;
+  opacity   : .6;
+}
+
+details.folder-details-items>summary {
+  list-style      : none;
+  padding-left    : 40px;
+  background-color: transparent !important;
+}
+
+details.folder-details-items>summary:before {
+  content     : "🗀";
+  padding-left: 5px;
+  color       : var(--text-color);
+}
+
+details[open].folder-details-items>summary:before {
+  content: "🗁";
+  color  : var(--text-color);
+}
+
+details.folder-details-items>summary:hover {
+  background-color: var(--vscode-dropdown-border) !important;
+}
+
+.folder-activity-item-row-1 {
+  padding-left: 20px !important;
 }

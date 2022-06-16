@@ -22,7 +22,6 @@
 .response-options-tab-panel,
 .response-options-tab-panel-vertical {
   overflow: auto;
-  padding-right: 7px;
 }
 
 .res-hidden {

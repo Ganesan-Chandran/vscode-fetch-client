@@ -105,13 +105,12 @@ export function GetAllVariable(webview: vscode.Webview) {
   }
 }
 
-export function GetVariableById(id: string, webview: vscode.Webview) {
+export function GetVariableById(id: string, isGlobal: boolean, webview: vscode.Webview) {
   try {
     const db = getDB();
 
     db.loadDatabase({}, function () {
-      const userVariables = db.getCollection('userVariables').find({ 'id': id });
-      db.saveDatabase();
+      let userVariables = db.getCollection('userVariables').find(isGlobal ? { 'name': 'Global' } : { 'id': id });
       webview.postMessage({ type: responseTypes.getVariableItemResponse, data: userVariables });
     });
 

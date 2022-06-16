@@ -15,24 +15,16 @@ export const TestResult = () => {
     return (
       <tr key={index}>
         <td className="test-result-test-case-col">
-          <input
-            id={"test_case_" + index.toString()}
-            className="test-result-table-input"
-            title={row.test}
-            value={row.test}
-            disabled={true}
-          />
+          <div id={"test_res_" + index.toString()} className="res-table-input">
+            {row.test}
+          </div>
         </td>
         <td className="test-result-actual-val-col">
-          <input
-            id={"test_actual_value_" + index.toString()}
-            className="test-result-table-input center-text"
-            title={row.actualValue}
-            value={row.actualValue}
-            disabled={true}
-          />
+          <div id={"test_res_" + index.toString()} className="res-table-input">
+            {row.actualValue}
+          </div>
         </td>
-        <td align="center">
+        <td align="center" className="top-align">
           <label className={row.result ? "test-result-label pass" : "test-result-label fail"}>{row.result ? "Pass" : "Fail"}</label>
         </td>
       </tr>

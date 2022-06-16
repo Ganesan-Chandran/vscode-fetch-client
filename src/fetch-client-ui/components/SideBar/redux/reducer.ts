@@ -1,15 +1,19 @@
+import { InitialAuth } from "../../RequestUI/redux/reducer";
 import {
-  FETCH_CLIENT_SET_ACTIVE_INACTIVE_VARIABLE,
-  FETCH_CLIENT_SET_ATTACH_DETACH_VARIABLE,
-  FETCH_CLIENT_SET_CLEAR_COLLECTION,
-  FETCH_CLIENT_SET_COLLECTION, FETCH_CLIENT_SET_COPY_TO_COLLECTION, FETCH_CLIENT_SET_DELETE_COLLECTION, FETCH_CLIENT_SET_DELETE_COL_ITEM, FETCH_CLIENT_SET_DELETE_HISTORY, FETCH_CLIENT_SET_DELETE_VARIABLE, FETCH_CLIENT_SET_HISTORY,
-  FETCH_CLIENT_SET_IMPORT_COLLECTION,
-  FETCH_CLIENT_SET_NEW_HISTORY, FETCH_CLIENT_SET_NEW_HISTORY_TO_COLLECTION, FETCH_CLIENT_SET_NEW_REQUEST_TO_COLLECTION, FETCH_CLIENT_SET_NEW_VARIABLE, FETCH_CLIENT_SET_RENAME_COLLECTION, FETCH_CLIENT_SET_RENAME_COL_ITEM, FETCH_CLIENT_SET_RENAME_HISTORY,
-  FETCH_CLIENT_SET_RENAME_VARIABLE,
-  FETCH_CLIENT_SET_UPDATE_VARIABLE,
-  FETCH_CLIENT_SET_VARIABLE,
-  ICollections, IHistory, ISideBarModel, IVariable, SideBarActionTypes
+  FETCH_CLIENT_SET_ACTIVE_INACTIVE_VARIABLE, FETCH_CLIENT_SET_ATTACH_DETACH_VARIABLE, FETCH_CLIENT_SET_CLEAR_COLLECTION,
+  FETCH_CLIENT_SET_COLLECTION, FETCH_CLIENT_SET_COPY_TO_COLLECTION, FETCH_CLIENT_SET_DELETE_COLLECTION,
+  FETCH_CLIENT_SET_DELETE_COL_ITEM, FETCH_CLIENT_SET_DELETE_HISTORY, FETCH_CLIENT_SET_DELETE_VARIABLE, FETCH_CLIENT_SET_HISTORY,
+  FETCH_CLIENT_SET_IMPORT_COLLECTION, FETCH_CLIENT_SET_NEW_FOLDER_TO_COLLECTION, FETCH_CLIENT_SET_NEW_HISTORY,
+  FETCH_CLIENT_SET_NEW_HISTORY_TO_COLLECTION, FETCH_CLIENT_SET_NEW_REQUEST_TO_COLLECTION, FETCH_CLIENT_SET_NEW_VARIABLE,
+  FETCH_CLIENT_SET_RENAME_COLLECTION, FETCH_CLIENT_SET_RENAME_COL_ITEM, FETCH_CLIENT_SET_RENAME_HISTORY,
+  FETCH_CLIENT_SET_RENAME_VARIABLE, FETCH_CLIENT_SET_VARIABLE,
+  ICollections, IColSettings, IFolder, IHistory, ISideBarModel, IVariable, SideBarActionTypes
 } from "./types";
+
+
+export const InitialColSettings: IColSettings = {
+  auth: InitialAuth
+};
 
 export const InitialState: ISideBarModel = {
   history: [],
@@ -61,13 +65,13 @@ export const SideBarReducer: (state?: ISideBarModel,
       case FETCH_CLIENT_SET_RENAME_COL_ITEM: {
         return {
           ...state,
-          collections: renameColItemFromState(action.payload.colId, action.payload.historyId, action.payload.name, state.collections),
+          collections: renameColItemFromState(action.payload.colId, action.payload.folderId, action.payload.historyId, action.payload.name, action.payload.isFolder, state.collections),
         };
       }
       case FETCH_CLIENT_SET_DELETE_COL_ITEM: {
         return {
           ...state,
-          collections: deleteColItemFromState(action.payload.colId, action.payload.historyId, state.collections),
+          collections: deleteColItemFromState(action.payload.colId, action.payload.folderId, action.payload.historyId, action.payload.isFolder, state.collections),
         };
       }
       case FETCH_CLIENT_SET_RENAME_COLLECTION: {
@@ -85,7 +89,7 @@ export const SideBarReducer: (state?: ISideBarModel,
       case FETCH_CLIENT_SET_CLEAR_COLLECTION: {
         return {
           ...state,
-          collections: clearCollectionFromState(action.payload.colId, state.collections),
+          collections: clearCollectionFromState(action.payload.colId, action.payload.folderId, state.collections),
         };
       }
       case FETCH_CLIENT_SET_IMPORT_COLLECTION: {
@@ -139,7 +143,13 @@ export const SideBarReducer: (state?: ISideBarModel,
       case FETCH_CLIENT_SET_NEW_REQUEST_TO_COLLECTION: {
         return {
           ...state,
-          collections: appendRequestToCollectionState(action.payload.item, action.payload.id, state.collections)
+          collections: appendRequestToCollectionState(action.payload.item, action.payload.id, action.payload.folId, state.collections)
+        };
+      }
+      case FETCH_CLIENT_SET_NEW_FOLDER_TO_COLLECTION: {
+        return {
+          ...state,
+          collections: appendRequestToCollectionState(action.payload.folder, action.payload.colId, "", state.collections)
         };
       }
       default: {
@@ -168,20 +178,31 @@ function findItemById(id: string, items: IHistory[] | ICollections[] | IVariable
   return { found: found, index: findIndex };
 }
 
-function findHistoryItemInColById(colId: string, historyId: string, items: ICollections[]): { found: boolean, colIndex: number, hisIndex: number } {
+function findItemInCollections(colId: string, folderId: string, historyId: string, isFolder: boolean, items: ICollections[]): { found: boolean, colIndex: number, folderIndex: number, hisIndex: number } {
   let colIndex: number = -1;
   let hisIndex: number = -1;
+  let folderIndex: number = -1;
+
   let found = items.some(function (item: ICollections, index: number) { colIndex = index; return item.id === colId; });
+
   if (found) {
-    found = items[colIndex].data.some(function (item: IHistory, index: number) { hisIndex = index; return item.id === historyId; });
+    if (folderId) {
+      found = items[colIndex].data.some(function (item: IHistory | IFolder, index: number) { folderIndex = index; return item.id === folderId; });
+      if (!isFolder && found) {
+        found = (items[colIndex].data[folderIndex] as IFolder).data.some(function (item: IHistory, index: number) { hisIndex = index; return item.id === historyId; });
+      }
+    } else {
+      found = items[colIndex].data.some(function (item: IHistory | IFolder, index: number) { hisIndex = index; return item.id === historyId; });
+    }
   }
-  return { found: found, colIndex: colIndex, hisIndex: hisIndex };
+
+  return { found: found, colIndex: colIndex, folderIndex: folderIndex, hisIndex: hisIndex };
 }
 
 function appendToCollectionState(item: ICollections, cols: ICollections[]): ICollections[] {
   const { found, index } = findItemById(item.id, cols);
   if (found) {
-    cols[index].data.push(item.data[0]);
+    cols[index] = item;
   } else {
     cols.push(item);
   }
@@ -189,17 +210,33 @@ function appendToCollectionState(item: ICollections, cols: ICollections[]): ICol
   return cols;
 }
 
-function renameColItemFromState(colId: string, historyId: string, name: string, cols: ICollections[]): ICollections[] {
-  const { found, colIndex, hisIndex } = findHistoryItemInColById(colId, historyId, cols);
+function renameColItemFromState(colId: string, folderId: string, historyId: string, name: string, isFolder: boolean, cols: ICollections[]): ICollections[] {
+  const { found, colIndex, folderIndex, hisIndex } = findItemInCollections(colId, folderId, historyId, isFolder, cols);
   if (!found) { return cols; }
-  cols[colIndex].data[hisIndex].name = name;
+  if (folderId) {
+    if (isFolder) {
+      cols[colIndex].data[folderIndex].name = name;
+    } else {
+      (cols[colIndex].data[folderIndex] as IFolder).data[hisIndex].name = name;
+    }
+  } else {
+    cols[colIndex].data[hisIndex].name = name;
+  }
   return cols;
 }
 
-function deleteColItemFromState(colId: string, historyId: string, cols: ICollections[]): ICollections[] {
-  const { found, colIndex, hisIndex } = findHistoryItemInColById(colId, historyId, cols);
+function deleteColItemFromState(colId: string, folderId: string, historyId: string, isFolder: boolean, cols: ICollections[]): ICollections[] {
+  const { found, colIndex, folderIndex, hisIndex } = findItemInCollections(colId, folderId, historyId, isFolder, cols);
   if (!found) { return cols; }
-  cols[colIndex].data.splice(hisIndex, 1);
+  if (folderId) {
+    if (isFolder) {
+      cols[colIndex].data.splice(folderIndex, 1);
+    } else {
+      (cols[colIndex].data[folderIndex] as IFolder).data.splice(hisIndex, 1);
+    }
+  } else {
+    cols[colIndex].data.splice(hisIndex, 1);
+  }
   return cols;
 }
 
@@ -217,10 +254,15 @@ function deleteCollectionFromState(id: string, cols: ICollections[]): ICollectio
   return cols;
 }
 
-function clearCollectionFromState(id: string, cols: ICollections[]): ICollections[] {
+function clearCollectionFromState(id: string, folderId: string, cols: ICollections[]): ICollections[] {
   const { found, index } = findItemById(id, cols);
   if (!found) { return cols; }
-  cols[index].data.length = 0;
+  if (folderId) {
+    (cols[index].data.find(item => item.id === folderId) as IFolder).data.length = 0;
+  } else {
+    cols[index].data.length = 0;
+  }
+
   return cols;
 }
 
@@ -265,10 +307,14 @@ function updateStatusVariableFromState(id: string, status: boolean, vars: IVaria
   return vars;
 }
 
-function appendRequestToCollectionState(item: IHistory, id: string, cols: ICollections[]): ICollections[] {
+function appendRequestToCollectionState(item: IHistory | IFolder, id: string, folderId: string, cols: ICollections[]): ICollections[] {
   const { found, index } = findItemById(id, cols);
   if (found) {
-    cols[index].data.push(item);
+    if (folderId) {
+      (cols[index].data.find(item => item.id === folderId) as IFolder).data.push(item as IHistory);
+    } else {
+      cols[index].data.push(item);
+    }
   }
 
   return cols;

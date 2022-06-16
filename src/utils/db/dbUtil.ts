@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getGlobalPath } from '../../extension';
 import { formatDate } from '../helper';
 import { writeLog } from '../logger/logger';
-import { collectionDBPath, historyDBPath, mainDBPath, variableDBPath } from './consts';
+import { collectionDBPath, cookieDBPath, historyDBPath, mainDBPath, variableDBPath } from './consts';
 
 
 export function CreateHistoryDB(): any {
@@ -149,6 +149,42 @@ export function CreateVariableDB(): any {
     }
     catch (err: any) {
       writeLog("error::CreateVariableDB()::dbInitialize(): " + err);
+    }
+  }
+}
+
+export function CreateCookieDB(): any {
+
+  let db: LokiConstructor;
+
+  try {
+    const idbAdapter = new LokiFsAdapter();
+    db = new loki(getGlobalPath() + "\\" + cookieDBPath, {
+      autoload: true,
+      autoloadCallback: dbInitialize,
+      autosave: true,
+      autosaveInterval: 4000,
+      serializationMethod: "normal",
+      adapter: idbAdapter,
+    });
+  }
+  catch (err: any) {
+    writeLog("error::CreateVariableDB(): " + err);
+  }
+
+
+  function dbInitialize() {
+    try {
+
+      let userCookies = db.getCollection('userCookies');
+      if (userCookies === null) {
+        userCookies = db.addCollection("userCookies", { autoupdate: true, disableMeta: true, unique: ["id"], indices: ["id", "name"] });
+      }
+
+      db.saveDatabase();
+    }
+    catch (err: any) {
+      writeLog("error::CreateCookieDB()::dbInitialize(): " + err);
     }
   }
 }

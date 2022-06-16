@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { sideBarProvider } from '../../extension';
 import { getNonce, requestTypes } from '../configuration';
 import { GetCollectionsByVariable } from '../db/collectionDBUtil';
-import { GetVariableById, SaveVariable, UpdateVariable } from '../db/varDBUtil';
+import { GetAllVariable, GetVariableById, SaveVariable, UpdateVariable } from '../db/varDBUtil';
 
 export const VariableUI = (extensionUri: any) => {
   const disposable = vscode.commands.registerCommand('fetch-client.newVar', (id?: string) => {
@@ -42,12 +42,14 @@ export const VariableUI = (extensionUri: any) => {
 
     varPanel.webview.onDidReceiveMessage((reqData: any) => {
       if (reqData.type === requestTypes.getVariableItemRequest) {
-        GetVariableById(reqData.data, varPanel.webview);
-        GetCollectionsByVariable(reqData.data, varPanel.webview);
+        GetVariableById(reqData.data.id, reqData.data.isGlobal, varPanel.webview);
+        GetCollectionsByVariable(reqData.data.id, varPanel.webview);
       } else if (reqData.type === requestTypes.updateVariableRequest) {
         UpdateVariable(reqData.data, varPanel.webview);
       } else if (reqData.type === requestTypes.saveVariableRequest) {
         SaveVariable(reqData.data, varPanel.webview, sideBarProvider.view);
+      } else if (reqData.type === requestTypes.getAllVariableRequest) {
+        GetAllVariable(varPanel.webview);
       }
     });
   });

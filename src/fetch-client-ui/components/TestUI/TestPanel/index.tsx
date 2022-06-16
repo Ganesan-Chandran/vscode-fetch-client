@@ -4,16 +4,20 @@ import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "../../../reducer/combineReducer";
 import { Actions } from "../../RequestUI/redux";
 import { ITest } from "../../RequestUI/redux/types";
-import { ActionsParametersMapping, TestCaseParameters } from "./consts";
+import { ActionsParametersMapping, TestCaseParameters, TestValueSuggestions } from "./consts";
 import "./style.css";
+import { TextEditor } from "../../Common/TextEditor/TextEditor";
+import { Autocomplete } from "../../Common/Autocomplete/Autocomplete";
+import { HerdersValues } from "../../Common/Table/types";
 
 export const TestPanel = () => {
 
   const dispatch = useDispatch();
 
   const { tests } = useSelector((state: IRootState) => state.requestData);
-  
-  const onSelect = (event: React.ChangeEvent<HTMLSelectElement> | React.ChangeEvent<HTMLInputElement>, index: number, type: string) => {
+  const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
+
+  const onSelectItem = (value: string, index: number, type: string) => {
     let newRow: ITest = {
       parameter: "",
       action: "",
@@ -21,13 +25,17 @@ export const TestPanel = () => {
       customParameter: ""
     };
 
-    let localTable = addValue(event.target.value, index, type);
+    let localTable = addValue(value, index, type);
 
-    if (index === tests.length - 1 && ((localTable[index].parameter === "Header" && localTable[index].customParameter) || (localTable[index].parameter !== "Header")) && localTable[index].action) {
+    if (index === tests.length - 1 && (((localTable[index].parameter === "Header" || localTable[index].parameter === "JSON") && localTable[index].customParameter) || (localTable[index].parameter !== "Header" && localTable[index].parameter !== "JSON")) && localTable[index].action) {
       localTable.push(newRow);
     }
 
     dispatch(Actions.SetTestAction(localTable));
+  };
+
+  const onSelect = (event: React.ChangeEvent<HTMLSelectElement> | React.ChangeEvent<HTMLInputElement>, index: number, type: string) => {
+    onSelectItem(event.target.value, index, type);
   };
 
   function onDelete(index: number) {
@@ -53,14 +61,13 @@ export const TestPanel = () => {
     return (
       <>
         {
-          row.parameter === "Header" || row.parameter === "JSON" ?
-            <input
-              id={"parameter_value_" + index.toString()}
-              className="parameter-value-text"
+          row.parameter === "Header" || row.parameter === "JSON" ?            
+          selectedVariable.id && <TextEditor
+              varWords={selectedVariable.data.map(item => item.key)}
+              placeholder={row.parameter === "Header" ? "header name" : "ex: data or data.id"}
+              onChange={(val) => onSelectItem(val, index, "customParameter")}
               value={row.customParameter}
-              onChange={(e) => onSelect(e, index, "customParameter")}
-              placeholder={row.parameter === "Header" ? "header name" : "json path (ex: data or data.id or data.student[0].id)"}
-              autoFocus={true}
+              focus={true}
             />
             :
             <select
@@ -140,18 +147,21 @@ export const TestPanel = () => {
           {getActionList(row, index)}
         </td>
         <td>
-          <input
-            id={"action_" + index.toString()}
-            className="testvalue-text"
+          <Autocomplete
+            id={"test_val_" + index.toString()}
             value={row.expectedValue}
+            className={row.parameter !== "" && row.action !== "" ? "table-input" : "table-input disabled"}
+            onSelect={(val) => onSelectItem(val, index, "expectedValue")}
+            suggestions={[...HerdersValues, ...TestValueSuggestions]}
+            maxLength={150}
             disabled={row.parameter !== "" && row.action !== "" ? false : true}
-            onChange={(e) => onSelect(e, index, "expectedValue")}
             placeholder={row.parameter !== "" && row.action !== "" ? "value" : ""}
+            selectedVariable={selectedVariable}
           />
         </td>
         <td className="test-action-cell">
           {index !== tests.length - 1 ?
-            <BinLogo className="delete-button" onClick={() => onDelete(index)} />            
+            <BinLogo className="delete-button" onClick={() => onDelete(index)} />
             :
             <></>
           }
@@ -159,7 +169,6 @@ export const TestPanel = () => {
       </tr >
     );
   };
-
 
   const makeTable = (data: ITest[]) => {
     return (
@@ -169,7 +178,6 @@ export const TestPanel = () => {
     );
   };
 
-
   return (
     <table className="test-table">
       <thead>
@@ -177,7 +185,7 @@ export const TestPanel = () => {
           <th>Parameter</th>
           <th>Action</th>
           <th>Test Value</th>
-          <th></th>
+          <th className="test-action-cell"></th>
         </tr>
       </thead>
       <tbody>

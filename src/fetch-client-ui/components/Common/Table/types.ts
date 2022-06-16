@@ -5,7 +5,7 @@ export interface ITableData {
   value: string;
 }
 
-export type TableType = "reqHeaders" | "queryParams" | "resHeaders" | "cookies" | "formData" | "urlEncoded";
+export type TableType = "reqHeaders" | "queryParams" | "resHeaders" | "formData" | "urlEncoded" | "resCookies";
 
 export const HerdersValues = [
   "application/json",
@@ -19,7 +19,13 @@ export const HerdersValues = [
   "text/html",
   "text/csv",
   "text/plain",
-  "text/xml"
+  "text/xml",
+  "image/png",
+  "image/jpeg",
+  "image/gif",
+  "image/webp",
+  "image/bmp",
+  "image/svg",
 ];
 
 export const HeadersKeys = [

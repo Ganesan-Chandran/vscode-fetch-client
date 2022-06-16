@@ -7,7 +7,7 @@ import { getMethodClassName } from "../SideBar/util";
 import { FormatBytes, GetResponseTime } from "../ResponseUI/OptionsPanel/OptionTab/util";
 import { IVariable } from "../SideBar/redux/types";
 import { formatDate } from "../../../utils/helper";
-import { executeTests } from "../TestUI/TestPanel/helper";
+import { executeTests, setVariable } from "../TestUI/TestPanel/helper";
 import "./style.css";
 
 const RunAll = () => {
@@ -23,7 +23,6 @@ const RunAll = () => {
   };
 
   const [varId, setVarId] = useState("");
-  const [variables, setVariables] = useState<IVariable[]>([]);
 
   const [selectedVariable, _setSelectedVariable] = useState<IVariable>();
   const refSelectedVariable = useRef(selectedVariable);
@@ -64,26 +63,37 @@ const RunAll = () => {
           headers: event.data.headers,
           cookies: event.data.cookies
         };
-        if(refReq.current[refCurIndex.current].tests.length -1  > 0){
+        if (refReq.current[refCurIndex.current].tests.length - 1 > 0) {
           newRes.testResults = executeTests(refReq.current[refCurIndex.current].tests, newRes, refSelectedVariable.current.data);
         } else {
           newRes.testResults = [];
         }
-        
+
+        if (refReq.current[refCurIndex.current].setvar.length - 1 > 0) {
+          let variable = setVariable(refSelectedVariable.current, refReq.current[refCurIndex.current].setvar, newRes);
+          setSelectedVariable(variable);
+        }
+
         if (refCurIndex.current === 0) {
           local[0] = newRes;
         } else {
           local.push(newRes);
         }
+
+        if (refCurIndex.current === refReq.current.length - 1) {
+          vscode.postMessage({ type: requestTypes.updateVariableRequest, data: refSelectedVariable.current });
+        }
+
         setRes(local);
         setProcessing(false);
-      } else if (event.data && event.data.type === responseTypes.getAllVariableResponse) {
-        setVariables((event.data.variable as IVariable[]));
+
+      } else if (event.data && event.data.type === responseTypes.getVariableItemResponse) {
+        setSelectedVariable(event.data.data[0] as IVariable);
       }
     });
 
-    vscode.postMessage({ type: requestTypes.getCollectionsByIdRequest, data: id });
-    vscode.postMessage({ type: requestTypes.getAllVariableRequest });
+    vscode.postMessage({ type: requestTypes.getVariableItemRequest, data: { id: varId, isGlobal: varId ? false : true } });
+    vscode.postMessage({ type: requestTypes.getCollectionsByIdRequest, data: { id: id, type: name.trim().includes("\\") ? "fol" : "col" } });
   }, []);
 
   function onSubmitClick() {
@@ -101,22 +111,6 @@ const RunAll = () => {
       }
     }
   }, [res]);
-
-  useEffect(() => {
-    if (variables && variables.length > 0) {
-      if (varId) {
-        let vars = variables.filter(item => item.id === varId);
-        if (vars && vars.length > 0) {
-          setSelectedVariable(vars[0] as IVariable);
-        }
-      } else {
-        let globalVar = variables.filter(item => item.name.toUpperCase().trim() === "GLOBAL" && item.isActive === true);
-        if (globalVar && globalVar.length > 0) {
-          setSelectedVariable(globalVar[0] as IVariable);
-        }
-      }
-    }
-  }, [variables]);
 
   function getResponseStatus(index: number) {
     return res[index] ? res[index].response.responseData.isError ? "ERROR" : (res[index].response.status === 0 ? "" : (res[index].response.status + " " + res[index].response.statusText)) : "";
@@ -249,8 +243,12 @@ const RunAll = () => {
       <div className="runall-header">Run Collection</div>
       <div className="runall-body center">
         <div className="runall-col-name">
-          <span className="addto-label">Collection Name :</span>
+          <span className="addto-label">{sourceColName.includes("\\") ? "Collection \\ Folder :" : "Collection :"}</span>
           <span className="addto-label">{sourceColName}</span>
+        </div>
+        <div className="runall-col-name runall-col-last-row">
+          <span className="addto-label">{"Attached Variable :"}</span>
+          <span className="addto-label">{selectedVariable ? selectedVariable.name : "-"}</span>
         </div>
         <table className="runall-tbl center" cellPadding={0} cellSpacing={0}>
           <thead>
@@ -295,11 +293,12 @@ const RunAll = () => {
             type="submit"
             className="request-send-button runall-btn"
             onClick={onSubmitClick}
+            disabled={req.length === 0}
           >
             Run All
           </button>
           <div className="runall-dropdown">
-            <button className="request-send-button runall-dropbtn" disabled={start && curIndex !== req.length - 1} >Export</button>
+            <button className="request-send-button runall-dropbtn" disabled={(start && curIndex !== req.length - 1) || (req.length === 0)} >Export</button>
             <div className={start && curIndex !== req.length - 1 ? "runall-dropdown-content a-disabled" : "runall-dropdown-content"}>
               <a onClick={onClickExportJson}>JSON</a>
               <a onClick={onClickExportCSV}>CSV</a>
