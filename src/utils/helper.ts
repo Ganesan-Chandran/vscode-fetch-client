@@ -156,6 +156,13 @@ export function replaceValueWithVariable(request: IRequestModel, varData: any) {
   request.auth.userName = replaceDataWithVariable(request.auth.userName, varData);
   request.auth.password = replaceDataWithVariable(request.auth.password, varData);
   request.auth.tokenPrefix = replaceDataWithVariable(request.auth.tokenPrefix, varData);
+  if (request.auth.aws) {
+    request.auth.aws.accessKey = replaceDataWithVariable(request.auth.aws.accessKey, varData);
+    request.auth.aws.secretAccessKey = replaceDataWithVariable(request.auth.aws.secretAccessKey, varData);
+    request.auth.aws.service = replaceDataWithVariable(request.auth.aws.service, varData);
+    request.auth.aws.region = replaceDataWithVariable(request.auth.aws.region, varData);
+    request.auth.aws.sessionToken = replaceDataWithVariable(request.auth.aws.sessionToken, varData);
+  }
   request.body.formdata = replaceTableDataWithVariable(request.body.formdata, varData);
   request.body.urlencoded = replaceTableDataWithVariable(request.body.urlencoded, varData);
 

@@ -35,7 +35,7 @@ export const OptionsTab = (props: any) => {
                 <div className="header-count">
                   (
                   {
-                    headers.length
+                    headers.length - 1
                   }
                   )
                 </div>

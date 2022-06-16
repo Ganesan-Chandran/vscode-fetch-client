@@ -35,7 +35,7 @@ export const apiFetch = async (requestData: IRequestModel, timeOut: number, sour
     }
 
     request.headers.forEach(({ isChecked, key, value }) => {
-      if (isChecked) {
+      if (isChecked && key) {
         reqHeaders[key] = value;
       }
     });
@@ -43,7 +43,7 @@ export const apiFetch = async (requestData: IRequestModel, timeOut: number, sour
     if (request.body.bodyType === "formdata") {
       const bodyFormData = new FormData();
       request.body.formdata.forEach(({ isChecked, key, value }) => {
-        if (isChecked) {
+        if (isChecked && key) {
           bodyFormData.append(key, value);
         }
       });
@@ -51,7 +51,7 @@ export const apiFetch = async (requestData: IRequestModel, timeOut: number, sour
     } else if (request.body.bodyType === "formurlencoded") {
       const bodyUrlEncoded = new URLSearchParams();
       request.body.urlencoded.forEach(({ isChecked, key, value }) => {
-        if (isChecked) {
+        if (isChecked && key) {
           bodyUrlEncoded.append(key, value);
         }
       });

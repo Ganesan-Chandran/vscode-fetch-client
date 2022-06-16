@@ -382,6 +382,7 @@ export const CollectionBar = (props: ICollectionProps) => {
                 <input type="checkbox" className="dd-input" checked={listItem.id === currentIndex} readOnly />
                 <div id={"drop-down-menu-" + listItem.id} className="dropdown-more" style={styles.bottomStyle}>
                   <button onClick={(e) => onRename(e, cols.id, listItem.id, item.id, false)}>Rename</button>
+                  <button onClick={(e) => onCopy(e, listItem as IHistory)}>Copy</button>
                   <button onClick={(e) => onDelete(e, cols.id, item.id, listItem.id, false)}>Delete</button>
                   <button onClick={(e) => onDuplicate(e, cols.id, item.id, listItem.id, false)}>Duplicate</button>
                   <div className="divider"></div>
