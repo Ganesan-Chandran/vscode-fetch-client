@@ -9,7 +9,7 @@ export interface IHistory {
   createdTime: string;
 }
 
-export interface IColSettings {
+export interface ISettings {
   auth: IAuth;
 }
 
@@ -19,7 +19,7 @@ export interface ICollections {
   createdTime: string;
   data?: (IHistory | IFolder)[];
   variableId: string;
-  // settings?: IColSettings;
+  settings: ISettings;
 }
 
 export interface IFolder {
@@ -27,7 +27,8 @@ export interface IFolder {
   name: string;
   createdTime: string;
   type: "folder";
-  data?: IHistory[];
+  data?: (IHistory | IFolder)[];
+  settings: ISettings;
 }
 
 export interface IVariable {
@@ -241,6 +242,7 @@ export interface ISetNewFolderToCollection {
   payload: {
     folder: IFolder;
     colId: string;
+    folderId: string;
   };
 }
 

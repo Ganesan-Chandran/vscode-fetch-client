@@ -1,4 +1,5 @@
 import { InitialAuth } from "../../RequestUI/redux/reducer";
+import { isFolder } from "../util";
 import {
   FETCH_CLIENT_SET_ACTIVE_INACTIVE_VARIABLE, FETCH_CLIENT_SET_ATTACH_DETACH_VARIABLE, FETCH_CLIENT_SET_CLEAR_COLLECTION,
   FETCH_CLIENT_SET_COLLECTION, FETCH_CLIENT_SET_COPY_TO_COLLECTION, FETCH_CLIENT_SET_DELETE_COLLECTION,
@@ -7,11 +8,11 @@ import {
   FETCH_CLIENT_SET_NEW_HISTORY_TO_COLLECTION, FETCH_CLIENT_SET_NEW_REQUEST_TO_COLLECTION, FETCH_CLIENT_SET_NEW_VARIABLE,
   FETCH_CLIENT_SET_RENAME_COLLECTION, FETCH_CLIENT_SET_RENAME_COL_ITEM, FETCH_CLIENT_SET_RENAME_HISTORY,
   FETCH_CLIENT_SET_RENAME_VARIABLE, FETCH_CLIENT_SET_VARIABLE,
-  ICollections, IColSettings, IFolder, IHistory, ISideBarModel, IVariable, SideBarActionTypes
+  ICollections, ISettings, IFolder, IHistory, ISideBarModel, IVariable, SideBarActionTypes
 } from "./types";
 
 
-export const InitialColSettings: IColSettings = {
+export const InitialSettings: ISettings = {
   auth: InitialAuth
 };
 
@@ -149,7 +150,7 @@ export const SideBarReducer: (state?: ISideBarModel,
       case FETCH_CLIENT_SET_NEW_FOLDER_TO_COLLECTION: {
         return {
           ...state,
-          collections: appendRequestToCollectionState(action.payload.folder, action.payload.colId, "", state.collections)
+          collections: appendRequestToCollectionState(action.payload.folder, action.payload.colId, action.payload.folderId, state.collections)
         };
       }
       default: {
@@ -211,32 +212,23 @@ function appendToCollectionState(item: ICollections, cols: ICollections[]): ICol
 }
 
 function renameColItemFromState(colId: string, folderId: string, historyId: string, name: string, isFolder: boolean, cols: ICollections[]): ICollections[] {
-  const { found, colIndex, folderIndex, hisIndex } = findItemInCollections(colId, folderId, historyId, isFolder, cols);
-  if (!found) { return cols; }
-  if (folderId) {
-    if (isFolder) {
-      cols[colIndex].data[folderIndex].name = name;
-    } else {
-      (cols[colIndex].data[folderIndex] as IFolder).data[hisIndex].name = name;
+  const { found, index } = findItemById(colId, cols);
+  if (found) {
+    let item = findItem(cols[index], historyId ? historyId : folderId);
+    if (item) {
+      item.name = name;
     }
-  } else {
-    cols[colIndex].data[hisIndex].name = name;
   }
+
   return cols;
 }
 
 function deleteColItemFromState(colId: string, folderId: string, historyId: string, isFolder: boolean, cols: ICollections[]): ICollections[] {
-  const { found, colIndex, folderIndex, hisIndex } = findItemInCollections(colId, folderId, historyId, isFolder, cols);
-  if (!found) { return cols; }
-  if (folderId) {
-    if (isFolder) {
-      cols[colIndex].data.splice(folderIndex, 1);
-    } else {
-      (cols[colIndex].data[folderIndex] as IFolder).data.splice(hisIndex, 1);
-    }
-  } else {
-    cols[colIndex].data.splice(hisIndex, 1);
+  const { found, index } = findItemById(colId, cols);
+  if (found) {
+    deleteItem(cols[index], isFolder ? folderId : historyId);
   }
+
   return cols;
 }
 
@@ -256,11 +248,14 @@ function deleteCollectionFromState(id: string, cols: ICollections[]): ICollectio
 
 function clearCollectionFromState(id: string, folderId: string, cols: ICollections[]): ICollections[] {
   const { found, index } = findItemById(id, cols);
-  if (!found) { return cols; }
-  if (folderId) {
-    (cols[index].data.find(item => item.id === folderId) as IFolder).data.length = 0;
-  } else {
-    cols[index].data.length = 0;
+
+  if (found) {
+    if (folderId) {
+      let item = findItem(cols[index], folderId);
+      item.data.length = 0;
+    } else {
+      cols[index].data.length = 0;
+    }
   }
 
   return cols;
@@ -307,15 +302,49 @@ function updateStatusVariableFromState(id: string, status: boolean, vars: IVaria
   return vars;
 }
 
-function appendRequestToCollectionState(item: IHistory | IFolder, id: string, folderId: string, cols: ICollections[]): ICollections[] {
-  const { found, index } = findItemById(id, cols);
+function appendRequestToCollectionState(item: IHistory | IFolder, colId: string, folderId: string, cols: ICollections[]): ICollections[] {
+  const { found, index } = findItemById(colId, cols);
   if (found) {
     if (folderId) {
-      (cols[index].data.find(item => item.id === folderId) as IFolder).data.push(item as IHistory);
+      let folder = findItem(cols[index], folderId);
+      if (folder) {
+        folder.data.push(item);
+      }
     } else {
       cols[index].data.push(item);
     }
   }
 
   return cols;
+}
+
+function findItem(source: any, searchId: string) {
+  let pos = source.data.findIndex((el: any) => el.id === searchId);
+
+  if (pos !== -1) {
+    return source.data[pos];
+  }
+
+  for (let i = 0; i < source.data.length; i++) {
+    if (isFolder(source.data[i])) {
+      const result = findItem(source.data[i], searchId);
+      if (result) {
+        return result;
+      }
+    }
+  }
+}
+
+function deleteItem(source: any, id: string) {
+  let pos = source.data.findIndex((el: any) => el.id === id);
+
+  if (pos !== -1) {
+    source.data.splice(pos, 1);
+  }
+
+  for (let i = 0; i < source.data.length; i++) {
+    if (isFolder(source.data[i])) {
+      deleteItem(source.data[i], id);
+    }
+  }
 }

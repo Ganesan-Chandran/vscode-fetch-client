@@ -31,9 +31,9 @@
   }
 }
 
-.accordion {
+/* .accordion {
   margin-bottom: 2px;
-}
+} */
 
 .accordion>input[name="collapse"]:checked~.content {
   border-top: 0;
@@ -82,11 +82,13 @@
 }
 
 .half-height {
-  height: 49.5%;
+  /* height: 49.5%; */
+  height: 50%;
 }
 
 .full-height {
-  height: calc(100% - 40px);
+  /* height: calc(100% - 40px); */
+  height: calc(100% - 30px);
 }
 
 .zero-height {
@@ -98,9 +100,10 @@
 }
 
 .split-vertical {
-  display       : flex;
-  flex-direction: row;
-  height        : 99.2%;
+  display          : flex;
+  flex-direction   : row;
+  /* height        : 99.2%; */
+  height           : 100%;
 }
 
 .split-horizontal {

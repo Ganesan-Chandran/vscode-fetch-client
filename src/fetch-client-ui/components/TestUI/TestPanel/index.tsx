@@ -152,8 +152,7 @@ export const TestPanel = () => {
             value={row.expectedValue}
             className={row.parameter !== "" && row.action !== "" ? "table-input" : "table-input disabled"}
             onSelect={(val) => onSelectItem(val, index, "expectedValue")}
-            suggestions={[...HerdersValues, ...TestValueSuggestions]}
-            maxLength={150}
+            suggestions={[...HerdersValues, ...TestValueSuggestions]}            
             disabled={row.parameter !== "" && row.action !== "" ? false : true}
             placeholder={row.parameter !== "" && row.action !== "" ? "value" : ""}
             selectedVariable={selectedVariable}

@@ -11,6 +11,7 @@ import { formatDate } from '../helper';
 import { FetchClientDataProxy } from '../ImportDataValidator';
 import { getGlobalPath } from '../../extension';
 import { isFolder } from '../../fetch-client-ui/components/SideBar/util';
+import { InitialSettings } from '../../fetch-client-ui/components/SideBar/redux/reducer';
 
 function getDB(): loki {
   const idbAdapter = new LokiFsAdapter();
@@ -140,66 +141,98 @@ export function DeleteExitingItems(ids: string[]) {
   }
 }
 
-export function Export(path: string, cols: ICollections, hisId: string, folderId: string) {
+function findItem(source: any, Id: string) {
+  let pos = source.data.findIndex((el: any) => el.id === Id);
+
+  if (pos !== -1) {
+    return source.data[pos];
+  }
+
+  for (let i = 0; i < source.data.length; i++) {
+    if (isFolder(source.data[i])) {
+      return findItem(source.data[i], Id);
+    }
+  }
+
+  return "";
+}
+
+function ExportItemFromFolder(source: any, apiRequests: any, exportData: any[], isSub: boolean, level: number): any {
+  let totalResults = [];
+
+  source.data.filter(item => item.data !== undefined).forEach((item) => {
+    let currentResults = ExportItemFromFolder(item, apiRequests, [exportData], true, level + 1);
+    totalResults.push(currentResults);
+  });
+
+  const ids = source.data.filter(item => item.data === undefined).map(itm => itm.id);
+  let results = apiRequests.chain().find({ 'id': { '$in': ids } }).data({ forceClones: true, removeMeta: true });
+
+  if (isSub) {
+    source.data = totalResults.length > 0 ? [...totalResults, ...results] : results;
+  } else {
+    exportData = [...totalResults, ...results];
+    return exportData;
+  }
+
+  return source;
+}
+
+export function Export(path: string, colId: string, hisId: string, folderId: string) {
   try {
     const db = getDB();
-    db.loadDatabase({}, function () {
-      const apiRequests = db.getCollection('apiRequests');
-      let exportData = {
-        app: "Fetch Client",
-        id: cols.id,
-        name: cols.name.toUpperCase().trim() === "DEFAULT" ? "Default Export" : cols.name,
-        version: "1.0",
-        type: "collections",
-        createdTime: cols.createdTime,
-        exportedDate: formatDate(),
-        data: []
-      };
+    const colDB = getCollectionDB();
 
-      if (hisId) {
-        if (folderId) {
-          let item = cols.data.filter(item => item.id === folderId);
-          let results = apiRequests.chain().find({ 'id': { '$in': [hisId] } }).data({ forceClones: true, removeMeta: true });
-          (item[0] as IFolder).data = results;
-          exportData.data.push(item[0]);
+    colDB.loadDatabase({}, function () {
+      const cols = colDB.getCollection('userCollections').chain().find({ "id": colId }).data({ forceClones: true, removeMeta: true });
+
+      db.loadDatabase({}, function () {
+        const apiRequests = db.getCollection('apiRequests');
+        let exportData = {
+          app: "Fetch Client",
+          id: cols[0].id,
+          name: cols[0].name.toUpperCase().trim() === "DEFAULT" ? "Default Export" : cols[0].name,
+          version: "1.0",
+          type: "collections",
+          createdTime: cols[0].createdTime,
+          exportedDate: formatDate(),
+          data: []
+        };
+
+        if (hisId) {
+          if (folderId) {
+            let item = findItem(cols[0], folderId);
+            let results = apiRequests.chain().find({ 'id': { '$in': [hisId] } }).data({ forceClones: true, removeMeta: true });
+            (item as IFolder).data = results;
+            exportData.data.push(item);
+          } else {
+            let results = apiRequests.chain().find({ 'id': { '$in': [hisId] } }).data({ forceClones: true, removeMeta: true });
+            exportData.data.push(results[0]);
+          }
         } else {
-          let results = apiRequests.chain().find({ 'id': { '$in': [hisId] } }).data({ forceClones: true, removeMeta: true });
-          exportData.data.push(results[0]);
-        }
-      } else {
-        if (folderId) {
-          let item = cols.data.filter(item => item.id === folderId);
-          const ids = (item[0] as IFolder).data.map(item => item.id);
-          let results = apiRequests.chain().find({ 'id': { '$in': ids } }).data({ forceClones: true, removeMeta: true });
-          (item[0] as IFolder).data = results;
-          exportData.data.push(item[0]);
-        } else {
-          let intData = [];
-          cols.data.forEach((item) => {
-            if (isFolder(item)) {
-              const ids = (item as IFolder).data.map(item => item.id);
-              if (ids.length > 0) {
-                let results = apiRequests.chain().find({ 'id': { '$in': ids } }).data({ forceClones: true, removeMeta: true });
-                (item as IFolder).data = results;
-              }
-              exportData.data.push(item);
-            } else {
-              let results = apiRequests.chain().find({ 'id': { '$in': [item.id] } }).data({ forceClones: true, removeMeta: true });
-              intData.push(results[0]);
+          if (folderId) {
+            let folder = findItem(cols[0], folderId);
+            let results = ExportItemFromFolder(folder, apiRequests, [], false, 0);
+            if (results) {
+              (folder as IFolder).data = results;
+              exportData.data.push(folder);
             }
-          });
-
-          exportData.data = exportData.data.concat(intData);
+          } else {
+            let results = ExportItemFromFolder(cols[0], apiRequests, [], false, 0);
+            if (results) {
+              exportData.data = results;
+            }
+          }
         }
-      }
 
-      fs.writeFile(path, JSON.stringify(exportData), (error) => {
-        if (error) {
-          vscode.window.showErrorMessage("Could not save to '" + path + "'. Error Message : " + error.message);
-          writeLog("error::ExportItem()::FileWrite()" + error.message);
-        } else {
-          vscode.window.showInformationMessage("Successfully saved to '" + path + "'.");
-        }
+        fs.writeFile(path, JSON.stringify(exportData), (error) => {
+          if (error) {
+            vscode.window.showErrorMessage("Could not save to '" + path + "'. Error Message : " + error.message);
+            writeLog("error::ExportItem()::FileWrite()" + error.message);
+          } else {
+            vscode.window.showInformationMessage("Successfully saved to '" + path + "'.");
+          }
+        });
       });
     });
 
@@ -244,6 +277,37 @@ function ValidateData(data: string): boolean {
   }
 }
 
+function ImportFolder(source: any, importData: any, reqData: any): any {
+  for (let i = 0; i < source.data.length; i++) {
+    if (isFolder(source.data[i])) {
+      let folder: IFolder = {
+        id: uuidv4(),
+        name: source.data[i].name,
+        createdTime: formatDate(),
+        type: "folder",
+        data: [],
+        settings: source.data[i].settings ? source.data[i].settings : InitialSettings
+      };
+      let result = ImportFolder(source.data[i], folder, reqData);
+      importData.data.push(result.importData);
+    } else {
+      source.data[i].id = uuidv4();
+      source.data[i].createdTime = formatDate();
+      let his: IHistory = {
+        id: source.data[i].id,
+        method: source.data[i].method,
+        name: source.data[i].name,
+        url: source.data[i].url,
+        createdTime: source.data[i].createdTime
+      };
+      reqData.push(source.data[i]);
+      importData.data.push(his);
+    }
+  }
+
+  return { importData, reqData };
+}
+
 export function Import(webviewView: vscode.WebviewView, path: string) {
   try {
     const db = getDB();
@@ -265,28 +329,28 @@ export function Import(webviewView: vscode.WebviewView, path: string) {
       name: parsedData.name,
       createdTime: formatDate(),
       variableId: "",
-      data: []
+      data: [],
+      settings: parsedData.settings ? parsedData.settings : InitialSettings
     };
 
     importedData.forEach(item => {
       item.id = uuidv4();
       item.createdTime = formatDate();
       if (isFolder(item)) {
-        item.data.forEach((itm, index) => {
-          itm.id = uuidv4();
-          itm.createdTime = formatDate();
-          reqData.push(itm);
-          let his: IHistory = {
-            id: itm.id,
-            method: itm.method,
-            name: itm.name,
-            url: itm.url,
-            createdTime: itm.createdTime
-          };
-          item.data[index] = his;
-        });
-        colData.data.push(item);
+        let importData: any;
+        let folder: IFolder = {
+          id: uuidv4(),
+          name: item.name,
+          createdTime: formatDate(),
+          type: "folder",
+          data: [],
+          settings: item.settings ? item.settings : InitialSettings
+        };
+        ({ importData, reqData } = ImportFolder(item, folder, reqData));
+        colData.data.push(importData);
       } else {
+        item.id = uuidv4();
+        item.createdTime = formatDate();
         reqData.push(item);
         let his: IHistory = {
           id: item.id,
@@ -319,13 +383,13 @@ export function Import(webviewView: vscode.WebviewView, path: string) {
   }
 }
 
-export function GetColsRequests(ids: string[], webview: vscode.Webview) {
+export function GetColsRequests(ids: string[], paths: any, webview: vscode.Webview) {
   try {
     const db = getDB();
 
     db.loadDatabase({}, function () {
       const apiRequests = db.getCollection('apiRequests').find({ 'id': { '$in': ids } });
-      webview.postMessage({ type: responseTypes.getCollectionsByIdResponse, collections: apiRequests });
+      webview.postMessage({ type: responseTypes.getCollectionsByIdResponse, collections: apiRequests, paths: paths });
     });
 
   } catch (err) {

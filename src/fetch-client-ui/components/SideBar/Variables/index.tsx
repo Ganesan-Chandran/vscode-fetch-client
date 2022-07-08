@@ -68,8 +68,8 @@ export const VariableSection = (props: IVariableProps) => {
     performOperation(evt, requestTypes.renameVariableRequest, id);
   }
 
-  function onDelete(evt: React.MouseEvent<HTMLElement>, id: string) {
-    performOperation(evt, requestTypes.deleteVariableRequest, id);
+  function onDelete(evt: React.MouseEvent<HTMLElement>, id: string, name: string) {
+    performOperation(evt, requestTypes.deleteVariableRequest, id, name);
   }
 
   function onExport(evt: React.MouseEvent<HTMLElement>, vars: IVariable) {
@@ -84,10 +84,10 @@ export const VariableSection = (props: IVariableProps) => {
     performOperation(evt, requestTypes.openVariableItemRequest, id);
   }
 
-  function performOperation(evt: React.MouseEvent<HTMLElement>, types: string, id: string) {
+  function performOperation(evt: React.MouseEvent<HTMLElement>, types: string, id: string, name?: string) {
     evt.preventDefault();
     evt.stopPropagation();
-    vscode.postMessage({ type: types, data: id });
+    vscode.postMessage({ type: types, data: id, name: name });
     setCurrentIndex(-1);
   }
 
@@ -136,7 +136,7 @@ export const VariableSection = (props: IVariableProps) => {
             <input type="checkbox" className="dd-input" checked={index === currentIndex} readOnly={true} />
             <div id={"drop-down-menu-" + item.id} className="dropdown-more" style={styles.bottomStyle}>
               {index !== 0 && <><button onClick={(e) => onRename(e, item.id)}>Rename</button>
-                <button onClick={(e) => onDelete(e, item.id)}>Delete</button></>}
+                <button onClick={(e) => onDelete(e, item.id, item.name)}>Delete</button></>}
               <button onClick={(e) => onDuplicate(e, item.id)}>Duplicate</button>
               <div className="divider"></div>
               {index === 0 && !item.isActive && <button onClick={(e) => onActive(e, item.id, !item.isActive)}>{item.isActive ? "Set Inactive" : "Set Active"}</button>}

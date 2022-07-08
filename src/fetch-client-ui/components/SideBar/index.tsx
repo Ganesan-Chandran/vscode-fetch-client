@@ -52,6 +52,12 @@ const SideBar = () => {
     setMenuShow(false);
   }
 
+  function onImportCurl(evt: any) {
+    evt.preventDefault();
+    vscode.postMessage({ type: requestTypes.importCurlRequest });
+    setMenuShow(false);
+  }
+
   function onImportVariableData(evt: any) {
     evt.preventDefault();
     vscode.postMessage({ type: requestTypes.importVariableRequest });
@@ -123,8 +129,9 @@ const SideBar = () => {
         dispatch(SideBarActions.SetNewVariableAction(event.data.vars));
       } else if (event.data && event.data.type === responseTypes.createNewResponse) {
         dispatch(SideBarActions.SetNewRequestToCollectionAction(event.data.item, event.data.id, event.data.folderId));
+        vscode.postMessage({ type: requestTypes.openHistoryItemRequest, data: { colId: event.data.id, folderId: event.data.folderId, id: event.data.item.id, name: event.data.item.name, varId: event.data.variableId } });
       } else if (event.data && event.data.type === responseTypes.createNewFolderResponse) {
-        dispatch(SideBarActions.SetFolderToCollectionAction(event.data.folder, event.data.colId));
+        dispatch(SideBarActions.SetFolderToCollectionAction(event.data.folder, event.data.colId, event.data.folderId));
       }
     });
 
@@ -152,7 +159,13 @@ const SideBar = () => {
   }
 
   function getCollectionsMenuItems() {
-    return <><button onClick={(e) => onNewCollection(e)}>New Collection</button><button onClick={(e) => onImportData(e)}>Import</button></>;
+    return (
+      <>
+        <button onClick={(e) => onNewCollection(e)}>New Collection</button>
+        <button onClick={(e) => onImportCurl(e)}>Import/Run Curl</button>
+        <button onClick={(e) => onImportData(e)}>Import</button>
+      </>
+    );
   }
 
   function getVariableMenuItems() {

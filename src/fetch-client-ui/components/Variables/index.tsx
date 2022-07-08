@@ -166,7 +166,7 @@ const Variables = (props: IVariableProps) => {
             <div className="button-panel var-btn-panel">
               <button
                 type="submit"
-                className="request-send-button"
+                className="submit-button"
                 onClick={onSubmitClick}
                 disabled={isDisabled()}
               >

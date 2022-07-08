@@ -118,10 +118,10 @@ const ManageCookies = () => {
                 headers={{ key: "Name", value: "Value", value1: "Details" }}
               />}
             </div>
-            <div className="button-panel cookie-btn-panel">
+            <div className="button-panel">
               <button
                 type="submit"
-                className="request-send-button"
+                className="submit-button"
                 onClick={onSubmitClick}
                 disabled={isDisabled()}
               >
@@ -129,7 +129,7 @@ const ManageCookies = () => {
               </button>
               <button
                 type="submit"
-                className="request-send-button delete-all-button"
+                className="submit-button delete-all-button"
                 onClick={onDeleteAllClick}
                 disabled={isDisabled()}
               >

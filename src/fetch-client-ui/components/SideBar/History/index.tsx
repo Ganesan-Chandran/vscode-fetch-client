@@ -81,10 +81,10 @@ export const HistoryBar = (props: IHistoryProps) => {
     setCurrentIndex(-1);
   }
 
-  function onDelete(evt: React.MouseEvent<HTMLElement>, id: string) {
+  function onDelete(evt: React.MouseEvent<HTMLElement>, id: string, name: string) {
     evt.preventDefault();
     evt.stopPropagation();
-    vscode.postMessage({ type: requestTypes.deleteHistoryRequest, data: id });
+    vscode.postMessage({ type: requestTypes.deleteHistoryRequest, data: id, name: name });
     setCurrentIndex(-1);
   }
 
@@ -137,7 +137,7 @@ export const HistoryBar = (props: IHistoryProps) => {
             <div id={"drop-down-menu-" + history.id} className="dropdown-more" style={styles.bottomStyle}>
               <button onClick={(e) => onSaveToCollection(e, history.id)}>Save to Collection</button>
               <button onClick={(e) => onRename(e, history.id)}>Rename</button>
-              <button onClick={(e) => onDelete(e, history.id)}>Delete</button>
+              <button onClick={(e) => onDelete(e, history.id, history.name)}>Delete</button>
             </div>
           </div>
         </div>

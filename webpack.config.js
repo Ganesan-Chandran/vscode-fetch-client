@@ -72,7 +72,7 @@ const commonConfig = (webpackEnv) => {
             },
             {
               loader: require.resolve("file-loader"),
-              exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
+              exclude: [/\.(js|mjs|jsx|ts|tsx|cjs)$/, /\.html$/, /\.json$/],
             }
           ],
         },

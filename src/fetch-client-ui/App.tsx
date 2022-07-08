@@ -12,6 +12,7 @@ const ManageCookies = React.lazy(() => import('./components/Cookies'));
 const CollectionSettings = React.lazy(() => import('./components/Collection/Settings/CollectionSettings'));
 const RunAll = React.lazy(() => import('./components/Collection/runAll'));
 const ErrorLog = React.lazy(() => import('./components/ErrorLog/ErrorLog'));
+const CurlUI = React.lazy(() => import('./components/Curl'));
 
 function ErrorFallback({ error }) {
   const errorData = " Name : " + error.name + "\n\n" + " Message : " + error.message + "\n\n" + " Stack : " + error.stack;
@@ -46,7 +47,7 @@ const App = () => {
   );
 };
 
-function renderUI() { 
+function renderUI() {
   if (document.title === 'sideBar') {
     return <SideBar />;
   } else if (document.title.includes('addtocol')) {
@@ -59,10 +60,12 @@ function renderUI() {
     return <AttachVariable />;
   } else if (document.title.includes('runall')) {
     return <RunAll />;
-  } else if (document.title.includes('managecookies')) {
-    return <ManageCookies />;
   } else if (document.title.includes('colsettings')) {
     return <CollectionSettings />;
+  } else if (document.title.includes('curlreq')) {
+    return <CurlUI />;
+  } else if (document.title.includes('managecookies')) {
+    return <ManageCookies />;
   } else if (document.title.includes('errorlog')) {
     return <ErrorLog />;
   } else {

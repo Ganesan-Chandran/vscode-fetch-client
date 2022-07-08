@@ -17,7 +17,7 @@ const AttachVariable = () => {
   useEffect(() => {
     const id = document.title.split(":")[1];
     setColId(id);
-    const name = document.title.split(":")[2];
+    const name = document.title.split(":")[3];
     setColName(name);
 
     window.addEventListener("message", (event) => {
@@ -117,7 +117,7 @@ const AttachVariable = () => {
           <div className="button-panel">
             <button
               type="submit"
-              className="request-send-button"
+              className="submit-button"
               onClick={onSubmitClick}
               disabled={isDone}
             >

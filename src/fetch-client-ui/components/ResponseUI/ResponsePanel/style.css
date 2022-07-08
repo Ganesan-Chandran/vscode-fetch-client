@@ -2,7 +2,8 @@
   border-radius: 3px;
   margin: 5px;
   padding: 10px;
-  height: 97%;
+  /* height: 97%; */
+  height: calc(100% - 5px);
   box-sizing: border-box;
 }
 
@@ -15,7 +16,8 @@
 }
 
 .response-options-tab-panel-vertical {
-  height: calc(100% - 54px);
+  /* height: calc(100% - 54px); */
+  height: calc(100% - 69px);
   margin-top: 4px;
 }
 
@@ -32,4 +34,9 @@
 .res-visible {
   display: block;
   height: calc(100% - 10px);
+}
+
+.res-visible-inside {
+  display: block;
+  height: calc(100% - 1px);
 }

@@ -17,6 +17,7 @@ Fetch Client is Visual Studio Code extension which is used to test the Rest API.
 * Lightweight
 * UI Customization and support VSCode Themes.
 * Test Rest API request with GET, POST, PUT, PATCH, DELETE, HEAD and OPTIONS methods.
+* Run curl requests.
 * Various authorization mechcanisms such as Basic Auth, Bearer Token, API Key and AWS Signature.
 * Various post body which are Form, Form-Encoded, Raw (Json, Plain Text, XML), Binary File and GraphQL.
 * Syntax highlight for Response data.
@@ -75,6 +76,7 @@ Fetch Client is Visual Studio Code extension which is used to test the Rest API.
     * [Environment Variable](#envvar)
 * [Run All requests](#runall)
 * [Manage Cookies](#managecookies)
+* [Run/Import Curl Request](#runcurl)
 
 <a name="uicustomization"></a>
 ### 1) UI Customization
@@ -305,6 +307,22 @@ Fetch client provides the quick access of History, collection and Environment va
   <br/>
   <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/manage-cookies-menu.png?raw=true"/>
   <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/manage-cookies.png?raw=true"/>
+</div>
+
+<a name="runcurl"></a>
+### 17) Run/Import Curl Request
+
+<div align="center">
+  <br/>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/import-curl-menu.png?raw=true"/>
+  <br/>  
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/import-curl.png?raw=true"/>
+  <br/>
+  <sup><b>Import Curl Request</b></sup>
+  <br/>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/run-curl.png?raw=true"/>
+  <br/>
+  <sup><b>Run Curl Request</b></sup>
 </div>
 
 ## ⌨ Keyboard Shortcuts

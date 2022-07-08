@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { requestTypes } from "../../../../../../utils/configuration";
 import { IRootState } from "../../../../../reducer/combineReducer";
-import { getDomainName } from "../../../../Common/helper";
+import { GetDomainName } from "../../../../Common/helper";
 import vscode from "../../../../Common/vscodeAPI";
 import { IVariable } from "../../../../SideBar/redux/types";
 import { VariableActions } from "../../../../Variables/redux";
@@ -74,7 +74,7 @@ export const Settings = () => {
     function onOpenCookies() {
         let id = "";
         if (cookies.length > 0) {
-            let domainName = getDomainName(url, responseData.cookies[0]);
+            let domainName = GetDomainName(url, responseData.cookies[0]);
 
             if (!domainName) {
                 return;

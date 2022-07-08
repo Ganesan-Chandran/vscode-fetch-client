@@ -1,7 +1,7 @@
 import { ITableData } from "../fetch-client-ui/components/Common/Table/types";
 import { IRequestModel } from "../fetch-client-ui/components/RequestUI/redux/types";
-import { getTimeOutConfiguration } from "./vscodeConfig";
-
+import { ISettings } from "../fetch-client-ui/components/SideBar/redux/types";
+import { responseTypes } from "./configuration";
 
 export const MIMETypes = {
   "audio/aac": "aac",
@@ -149,7 +149,7 @@ export function formatDate(value?: string) {
   return date + "-" + months[t.getMonth()] + "-" + t.getFullYear() + " " + timeFormat;
 }
 
-export function replaceValueWithVariable(request: IRequestModel, varData: any) {
+export function replaceValueWithVariable(request: IRequestModel, varData: any): IRequestModel {
   request.url = replaceDataWithVariable(request.url, varData);
   request.params = replaceTableDataWithVariable(request.params, varData);
   request.headers = replaceTableDataWithVariable(request.headers, varData);
@@ -165,6 +165,24 @@ export function replaceValueWithVariable(request: IRequestModel, varData: any) {
   }
   request.body.formdata = replaceTableDataWithVariable(request.body.formdata, varData);
   request.body.urlencoded = replaceTableDataWithVariable(request.body.urlencoded, varData);
+
+  return request;
+}
+
+export function replaceAuthSettingsInRequest(request: IRequestModel, settings: ISettings): IRequestModel {
+  if (settings.auth) {
+    request.auth.authType = settings.auth.authType;
+    request.auth.userName = settings.auth.userName;
+    request.auth.password = settings.auth.password;
+    request.auth.tokenPrefix = settings.auth.tokenPrefix;
+    if (request.auth.aws) {
+      request.auth.aws.accessKey = settings.auth.aws.accessKey;
+      request.auth.aws.secretAccessKey = settings.auth.aws.secretAccessKey;
+      request.auth.aws.service = settings.auth.aws.service;
+      request.auth.aws.region = settings.auth.aws.region;
+      request.auth.aws.sessionToken = settings.auth.aws.sessionToken;
+    }
+  }
 
   return request;
 }
@@ -202,3 +220,26 @@ export function replaceDataWithVariable(data: string, varData: any) {
   return data;
 }
 
+export function getRandomNumber(digit: number) {
+  return Math.random().toFixed(digit).split('.')[1];
+}
+
+export function getErrorResponse() {
+  return {
+    type: responseTypes.apiResponse,
+    response: {
+      responseData: "",
+      status: 0,
+      statusText: "",
+      size: "0",
+      duration: 0,
+      isError: true,
+      responseType: {
+        isBinaryFile: false,
+        format: ""
+      }
+    },
+    headers: [],
+    cookies: []
+  };
+}

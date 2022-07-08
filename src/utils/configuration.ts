@@ -25,6 +25,7 @@ export const requestTypes = {
   downloadFileTypeRequest: "downloadFileTypeRequest",
   downloadLargeFileRequest: "downloadLargeFileRequest",
   selectFileRequest: "selectFileRequest",
+  formDataFileRequest: "formDataFileRequest",
   readFileRequest: "readFileRequest",
   exportRequest: "exportRequest",
   clearRequest: "clearRequest",
@@ -65,10 +66,14 @@ export const requestTypes = {
   openManageCookiesRequest: "openManageCookiesRequest",
   openColSettingsRequest: "openColSettingsRequest",
   getColSettingsRequest: "getColSettingsRequest",
+  getParentSettingsRequest: "getParentSettingsRequest",
   saveColSettingsRequest: "saveColSettingsRequest",
   copyItemRequest: "copyItemRequest",
   pasteItemRequest: "pasteItemRequest",
-  getErrorLogRequest: "getErrorLogRequest"
+  getErrorLogRequest: "getErrorLogRequest",
+  convertCurlToJsonRequest: "convertCurlToJsonRequest",
+  runCurlRequest: "runCurlRequest",
+  importCurlRequest: "importCurlRequest"
 };
 
 export const responseTypes = {
@@ -127,10 +132,15 @@ export const responseTypes = {
   deleteAllCookieResponse: "deleteAllCookieResponse",
   openColSettingsResponse: "openColSettingsResponse",
   getColSettingsResponse: "getColSettingsResponse",
+  getParentSettingsResponse: "getParentSettingsResponse",
   saveColSettingsResponse: "saveColSettingsResponse",
   copyItemResponse: "copyItemResponse",
   pasteItemResponse: "pasteItemResponse",
-  getErrorLogResponse: "getErrorLogResponse"
+  getErrorLogResponse: "getErrorLogResponse",
+  formDataFileResponse: "formDataFileResponse",
+  convertCurlToJsonResponse: "convertCurlToJsonResponse",
+  runCurlResponse: "runCurlResponse",
+  curlErrorResponse: "curlErrorResponse"
 };
 
 export function getNonce() {

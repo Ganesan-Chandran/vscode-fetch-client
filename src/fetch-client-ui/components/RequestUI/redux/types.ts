@@ -1,4 +1,5 @@
 import { ITableData } from "../../Common/Table/types";
+import { ISettings } from "../../SideBar/redux/types";
 
 export type MethodType = "get" | "post" | "put" | "patch" | "delete" | "options" | "head";
 
@@ -73,12 +74,19 @@ export interface ISetVar {
   variableName: string;
 }
 
+export interface IReqColModel {
+  colId: string;
+  folderId: string;
+  parentSettings: ISettings;
+}
+
 export const FETCH_CLIENT_SET_REQ_URL: "FETCH_CLIENT_SET_REQ_URL" = "FETCH_CLIENT_SET_REQ_URL";
 export const FETCH_CLIENT_SET_REQ_METHOD: "FETCH_CLIENT_SET_REQ_METHOD" = "FETCH_CLIENT_SET_REQ_METHOD";
 export const FETCH_CLIENT_SET_REQ_PARAMS: "FETCH_CLIENT_SET_REQ_PARAMS" = "FETCH_CLIENT_SET_REQ_PARAMS";
 export const FETCH_CLIENT_SET_REQ_AUTH: "FETCH_CLIENT_SET_REQ_AUTH" = "FETCH_CLIENT_SET_REQ_AUTH";
 export const FETCH_CLIENT_SET_REQ_HEADERS: "FETCH_CLIENT_SET_REQ_HEADERS" = "FETCH_CLIENT_SET_REQ_HEADERS";
 export const FETCH_CLIENT_SET_REQ_BODY: "FETCH_CLIENT_SET_REQ_BODY" = "FETCH_CLIENT_SET_REQ_BODY";
+export const FETCH_CLIENT_SET_REQ_FORM_DATA_BODY: "FETCH_CLIENT_SET_REQ_FORM_DATA_BODY" = "FETCH_CLIENT_SET_REQ_FORM_DATA_BODY";
 export const FETCH_CLIENT_SET_REQ_RESET_BODY: "FETCH_CLIENT_SET_REQ_RESET_BODY" = "FETCH_CLIENT_SET_REQ_RESET_BODY";
 export const FETCH_CLIENT_SET_REQ_RAW: "FETCH_CLIENT_SET_REQ_RAW" = "FETCH_CLIENT_SET_REQ_RAW";
 export const FETCH_CLIENT_SET_REQ_RAW_LANG: "FETCH_CLIENT_SET_REQ_RAW_LANG" = "FETCH_CLIENT_SET_REQ_RAW_LANG";
@@ -87,6 +95,8 @@ export const FETCH_CLIENT_SET_REQ: "FETCH_CLIENT_SET_REQ" = "FETCH_CLIENT_SET_RE
 export const FETCH_CLIENT_SET_TEST: "FETCH_CLIENT_SET_TEST" = "FETCH_CLIENT_SET_TEST";
 export const FETCH_CLIENT_SET_NOTES: "FETCH_CLIENT_SET_NOTES" = "FETCH_CLIENT_SET_NOTES";
 export const FETCH_CLIENT_SET_SET_VAR: "FETCH_CLIENT_SET_SET_VAR" = "FETCH_CLIENT_SET_SET_VAR";
+export const FETCH_CLIENT_SET_REQ_COL_DETAILS: "FETCH_CLIENT_SET_REQ_COL_DETAILS" = "FETCH_CLIENT_SET_REQ_COL_DETAILS";
+export const FETCH_CLIENT_SET_REQ_PARENT_SETTINGS: "FETCH_CLIENT_SET_REQ_PARENT_SETTINGS" = "FETCH_CLIENT_SET_REQ_PARENT_SETTINGS";
 
 export interface ISetTest {
   type: typeof FETCH_CLIENT_SET_TEST;
@@ -144,6 +154,14 @@ export interface ISetBody {
   };
 }
 
+export interface ISetFormDataBody {
+  type: typeof FETCH_CLIENT_SET_REQ_FORM_DATA_BODY;
+  payload: {
+    value: string;
+    index: number;
+  };
+}
+
 export interface ISetRawValue {
   type: typeof FETCH_CLIENT_SET_REQ_RAW;
   payload: {
@@ -186,4 +204,19 @@ export interface ISetAddVar {
   };
 }
 
-export type RequestActionTypes = | ISetURL | ISetMethod | ISetParams | ISetAuth | ISetHeaders | ISetBody | ISetRequest | ISetTest | ISetRawLang | ISetResetBody | ISetRawValue | ISetBinaryData | ISetNotes | ISetAddVar;
+export interface ISetReqColDetails {
+  type: typeof FETCH_CLIENT_SET_REQ_COL_DETAILS;
+  payload: {
+    colId: string;
+    folderId: string;
+  }
+}
+
+export interface ISetReqParentSettings {
+  type: typeof FETCH_CLIENT_SET_REQ_PARENT_SETTINGS;
+  payload: {
+    parentSettings: ISettings;
+  }
+}
+
+export type RequestActionTypes = | ISetURL | ISetMethod | ISetParams | ISetAuth | ISetHeaders | ISetBody | ISetRequest | ISetTest | ISetRawLang | ISetResetBody | ISetRawValue | ISetBinaryData | ISetNotes | ISetAddVar | ISetReqColDetails | ISetReqParentSettings | ISetFormDataBody;

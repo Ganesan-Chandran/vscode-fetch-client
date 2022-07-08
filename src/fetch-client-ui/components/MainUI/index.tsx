@@ -15,7 +15,7 @@ import { IRequestModel } from "../RequestUI/redux/types";
 import { RequestPanel } from "../RequestUI/RequestPanel";
 import { ResponseActions } from "../ResponseUI/redux";
 import { ReponsePanel } from "../ResponseUI/ResponsePanel";
-import { IVariable } from "../SideBar/redux/types";
+import { ISettings, IVariable } from "../SideBar/redux/types";
 import { VariableActions } from "../Variables/redux";
 import { UIActions } from './redux';
 import "./style.css";
@@ -28,6 +28,7 @@ const MainUI = () => {
   const { loading, response } = useSelector((state: IRootState) => state.responseData);
   const requestData = useSelector((state: IRootState) => state.requestData);
   const { variables } = useSelector((state: IRootState) => state.variableData);
+  const { parentSettings } = useSelector((state: IRootState) => state.reqColData);
 
   const refReq = useRef(requestData);
   const setReq = (data: IRequestModel) => {
@@ -53,7 +54,7 @@ const MainUI = () => {
   }, [loading]);
 
   useEffect(() => {
-    if (response.responseData && resClass === "zero-height") {
+    if ((response.status !== 0 || response.isError) && resClass === "zero-height") {
       setOpenPanel(1);
     }
   }, [response]);
@@ -102,6 +103,9 @@ const MainUI = () => {
         dispatch(Actions.SetRequestAction(reqData));
         if (reqData.body.bodyType === "binary" && reqData.body.binary.fileName) {
           vscode.postMessage({ type: requestTypes.readFileRequest, path: reqData.body.binary.fileName });
+        }        
+        if (reqData.auth.authType === "inherit") {
+          vscode.postMessage({ type: requestTypes.getParentSettingsRequest, data: { colId: colId, folderId: folderId } });
         }
       } else if (event.data && event.data.type === responseTypes.readFileResponse) {
         dispatch(Actions.SetRequestBinaryDataAction(event.data.fileData));
@@ -113,6 +117,9 @@ const MainUI = () => {
         if (reqData.body.bodyType === "binary" && reqData.body.binary.fileName) {
           vscode.postMessage({ type: requestTypes.readFileRequest, path: reqData.body.binary.fileName });
         }
+        if (reqData.auth.authType === "inherit") {
+          vscode.postMessage({ type: requestTypes.getParentSettingsRequest, data: { colId: colId, folderId: folderId } });
+        }
         dispatch(ResponseActions.SetResponseAction(event.data.resData.response));
         dispatch(ResponseActions.SetResponseHeadersAction(event.data.resData.headers));
         dispatch(ResponseActions.SetResponseCookiesAction(event.data.resData.cookies));
@@ -120,14 +127,18 @@ const MainUI = () => {
         setVisible(true);
       } else if (event.data && event.data.type === responseTypes.getAllCookiesResponse) {
         dispatch(CookiesActions.SetAllCookiesAction(event.data.cookies as ICookie[]));
+      } else if (event.data && event.data.type === responseTypes.getParentSettingsResponse) {        
+        dispatch(Actions.SetReqParentSettingsAction(event.data.settings as ISettings));
       }
     });
 
     vscode.postMessage({ type: requestTypes.configRequest });
 
     let reqId = document.title.split(":")[0];
-    let varId = document.title.split(":")[1];
-    let isRunItem = document.title.split(":")[2];
+    let colId = document.title.split(":")[1];
+    let varId = document.title.split(":")[2];
+    let isRunItem = document.title.split(":")[3];
+    let folderId = document.title.split(":")[4];
 
     if (reqId !== "undefined" && isRunItem === "undefined") {
       vscode.postMessage({ type: requestTypes.openExistingItemRequest, data: reqId });
@@ -136,11 +147,14 @@ const MainUI = () => {
       vscode.postMessage({ type: requestTypes.getAllVariableRequest });
     }
 
+    dispatch(Actions.SetReqColDetailsAction(colId !== "undefined" ? colId : "", folderId !== "undefined" ? folderId : ""));
+
     if (varId !== "undefined") {
       setVarId(varId);
     }
 
     if (isRunItem !== "undefined") {
+      dispatch(UIActions.SetRunItemAction(true));
       vscode.postMessage({ type: requestTypes.getRunItemDataRequest });
     }
 
@@ -160,7 +174,7 @@ const MainUI = () => {
           dispatch(Actions.SetRequestAction(reqData));
           isNew = true;
         }
-        vscode.postMessage({ type: requestTypes.saveRequest, data: { reqData: reqData, isNew: isNew } });
+        vscode.postMessage({ type: requestTypes.saveRequest, data: { reqData: reqData, isNew: isNew, colId: colId } });
       }
     });
 
@@ -183,6 +197,45 @@ const MainUI = () => {
       }
     }
   }, [variables]);
+
+  useEffect(() => {
+    if (parentSettings && parentSettings.auth.authType === "apikey") {
+      modifyQueryParam(parentSettings.auth.addTo, parentSettings.auth.userName, parentSettings.auth.password);
+    }
+  }, [parentSettings]);
+
+  const modifyQueryParam = (section: string, userName: string, password: string) => {
+    if (section === "queryparams") {
+      let localParams = [...requestData.params];
+      let available = localParams.findIndex(item => item.isFixed === true && item.key === userName && item.value === password);
+
+      if (available === -1 && userName) {
+        localParams.unshift({
+          isChecked: true,
+          key: userName,
+          value: password,
+          isFixed: true
+        });
+
+        dispatch(Actions.SetRequestParamsAction(localParams));
+      }
+
+    } else {
+      let localHeaders = [...requestData.headers];
+      let available = localHeaders.findIndex(item => item.isFixed === true && item.key === userName && item.value === password);
+
+      if (available === -1 && userName) {
+        localHeaders.unshift({
+          isChecked: true,
+          key: userName,
+          value: password,
+          isFixed: true
+        });
+      }
+
+      dispatch(Actions.SetRequestHeadersAction(localHeaders));
+    }
+  };
 
   function setOpenPanel(index: number) {
     let localData = [...open];
@@ -236,16 +289,28 @@ const MainUI = () => {
   function setBothHalf() {
     setReqClass("half-height");
     setResClass("half-height");
+    let fulScreenButton = document.getElementById("fullscreen-expand-btn");
+    if (fulScreenButton) {
+      fulScreenButton.classList.remove("fullscreen-btn-invisible");
+    }
   }
 
   function setReqFull() {
     setReqClass("full-height");
     setResClass("zero-height");
+    let fulScreenButton = document.getElementById("fullscreen-expand-btn");
+    if (fulScreenButton) {
+      fulScreenButton.classList.add("fullscreen-btn-invisible");
+    }
   }
 
   function setResFull() {
     setReqClass("zero-height");
     setResClass("full-height");
+    let fulScreenButton = document.getElementById("fullscreen-expand-btn");
+    if (fulScreenButton) {
+      fulScreenButton.classList.remove("fullscreen-btn-invisible");
+    }
   }
 
   return (
@@ -260,7 +325,7 @@ const MainUI = () => {
                 <OptionsPanel />
               </div>
               <div>
-                <ReponsePanel isVerticalLayout={false} />
+                <ReponsePanel isVerticalLayout={false} isCurl={false} />
               </div>
             </Split>
             :
@@ -286,7 +351,7 @@ const MainUI = () => {
                   </label>
                 </h2>
                 <div className={resBorderClass + " content"}>
-                  <ReponsePanel isVerticalLayout={false} />
+                  <ReponsePanel isVerticalLayout={false} isCurl={false} />
                 </div>
               </section>
             </>
@@ -298,7 +363,7 @@ const MainUI = () => {
               <OptionsPanel />
             </div>
             <div>
-              <ReponsePanel isVerticalLayout={true} />
+              <ReponsePanel isVerticalLayout={true} isCurl={false} />
             </div>
           </Split>
       }

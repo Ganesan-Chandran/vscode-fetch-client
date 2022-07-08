@@ -11,17 +11,18 @@ import { VariableUI } from './utils/ui/variableUIProvider';
 import { LocalStorageService } from './utils/LocalStorageService';
 import { CookieUI } from './utils/ui/cookieUIProvider';
 import { ErrorLogUI } from './utils/ui/errorLogUIProvider';
+import { CurlProviderUI } from './utils/ui/curlUIProvider';
 
 export var sideBarProvider: SideBarProvider;
 var storageManager: LocalStorageService;
 var extPath = "";
 
-export function OpenExistingItem(id?: string, name?: string, varId?: string, type?: string) {
-  vscode.commands.executeCommand("fetch-client.newRequest", id, (name && name.length > 15 ? name.substring(0, 15) + "..." : name), varId, type);
+export function OpenExistingItem(id?: string, name?: string, colId?: string, folderId?: string, varId?: string, type?: string) {
+  vscode.commands.executeCommand("fetch-client.newRequest", id, (name && name.length > 15 ? name.substring(0, 15) + "..." : name), colId, varId, type, folderId);
 }
 
 export function OpenAddToColUI(id: string) {
-  vscode.commands.executeCommand("fetch-client.addToCol", id, "", "addtocol");
+  vscode.commands.executeCommand("fetch-client.addToCol", id, "", "", "addtocol");
 }
 
 export function OpenVariableUI(id?: string, type?: string) {
@@ -29,23 +30,27 @@ export function OpenVariableUI(id?: string, type?: string) {
 }
 
 export function OpenCopyToColUI(id: string, name: string) {
-  vscode.commands.executeCommand("fetch-client.addToCol", id, name, "copytocol");
+  vscode.commands.executeCommand("fetch-client.addToCol", id, "", name, "copytocol");
 }
 
 export function OpenAttachVariableUI(id: string, name: string) {
-  vscode.commands.executeCommand("fetch-client.addToCol", id, name, "attachcol");
+  vscode.commands.executeCommand("fetch-client.addToCol", id, "", name, "attachcol");
 }
 
-export function OpenRunAllUI(id: string, name: string, varId: string) {
-  vscode.commands.executeCommand("fetch-client.addToCol", id, name, "runall", varId);
+export function OpenRunAllUI(colId: string, folderId: string, name: string, varId: string) {
+  vscode.commands.executeCommand("fetch-client.addToCol", colId, folderId, name, "runall", varId);
 }
 
 export function OpenCookieUI(id?: string) {
   vscode.commands.executeCommand("fetch-client.manageCookies", id);
 }
 
-export function OpenColSettings(id: string, name: string, type: string) {
-  vscode.commands.executeCommand("fetch-client.addToCol", id, name, "colsettings:" + type);
+export function OpenCurlUI() {
+  vscode.commands.executeCommand("fetch-client.curlRequest");
+}
+
+export function OpenColSettings(colId: string, folderId: string, name: string, type: string, varId: string) {
+  vscode.commands.executeCommand("fetch-client.addToCol", colId, folderId, name, "colsettings:" + type, varId);
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -92,6 +97,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.executeCommand('workbench.action.openSettings', 'Fetch Client');
   }));
   context.subscriptions.push(ErrorLogUI(context.extensionUri));
+  context.subscriptions.push(CurlProviderUI(context.extensionUri));
 }
 
 export function getGlobalPath() {

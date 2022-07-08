@@ -10,11 +10,17 @@ import { ResponseSection } from "../OptionsPanel/Options/Response";
 import { ResponseOptionsTab } from "../OptionsPanel/OptionTab";
 import "./style.css";
 
-export const ReponsePanel = (props: any) => {
+export interface ResponsePanelProps {
+  isVerticalLayout: boolean;
+  isCurl: boolean;
+}
+
+export const ReponsePanel = (props: ResponsePanelProps) => {
 
   const { loading } = useSelector((state: IRootState) => state.responseData);
+  const { runItem } = useSelector((state: IRootState) => state.uiData);
 
-  const [selectedTab, setSelectedTab] = useState("response");
+  const [selectedTab, setSelectedTab] = useState(runItem ? "testresults" : "response");
 
   const CodeSnippetGenerator = React.lazy(() => import('../../Common/CodeGenerator'));
 
@@ -44,10 +50,10 @@ export const ReponsePanel = (props: any) => {
   return (
     <div className="response-panel">
       <div className="response-container">
-        <ResponseOptionsTab selectedTab={selectedTab} setSelectedTab={setSelectedTab} isVerticalLayout={props.isVerticalLayout} />
+        <ResponseOptionsTab selectedTab={selectedTab} setSelectedTab={setSelectedTab} isVerticalLayout={props.isVerticalLayout} isCurl={props.isCurl} />
         <div className={props.isVerticalLayout ? "response-options-tab-panel-vertical" : "response-options-tab-panel"}>
-          <div className={selectedTab === "response" ? "res-visible" : "res-hidden"}>
-            <ResponseSection />
+          <div id="response-section-panel" className={selectedTab === "response" ? "res-visible" : "res-hidden"}>
+            <ResponseSection isCurl={props.isCurl}/>
           </div>
           {renderOptionsUI(selectedTab)}
         </div>

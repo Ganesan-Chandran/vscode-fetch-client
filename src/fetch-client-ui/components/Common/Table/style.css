@@ -44,6 +44,10 @@
   width     : 50px;
 }
 
+.type-action-cell {
+  width: 150px;
+}
+
 .delete-button {
   cursor: pointer;
   height: 16px;
@@ -83,4 +87,13 @@
   padding         : 10px;
   width           : 100%;
   word-break      : break-word;
+}
+
+.file-select {
+  width      : 52px;
+  margin-left: 5px;
+}
+
+.file-name {
+  margin-left: 5px;
 }

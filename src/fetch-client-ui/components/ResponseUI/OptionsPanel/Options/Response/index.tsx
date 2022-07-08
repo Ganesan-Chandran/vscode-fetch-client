@@ -5,22 +5,23 @@ import { IRootState } from "../../../../../reducer/combineReducer";
 import { MonacoEditor } from "../../../../Common/Editor";
 import { responseType } from "./consts";
 import FetchClientIcon from "../../../../../../../icons/fetch-client.png";
-import "./style.css";
 import { maxDisplayResponseLimitInBytes } from '../../../ResponsePanel/consts';
 import { requestTypes } from '../../../../../../utils/configuration';
 import vscode from '../../../../Common/vscodeAPI';
 import { JSONViewer } from '../../../../Common/Viewer/JSONViewer';
 import { HTMLViewer } from '../../../../Common/Viewer/HTMLViewer';
 import { XMLViewer } from '../../../../Common/Viewer/XMLViewer';
+import { ReactComponent as ExpandLogo } from '../../../../../../../icons/expand.svg';
+import { ReactComponent as CollapseLogo } from '../../../../../../../icons/collapse.svg';
+import "./style.css";
 
-
-export const ResponseSection = () => {
+export const ResponseSection = (props: any) => {
 
   const { response, loading } = useSelector((state: IRootState) => state.responseData);
-  const { theme } = useSelector((state: IRootState) => state.uiData);
+  const { theme, horizontalLayout } = useSelector((state: IRootState) => state.uiData);
 
   const [viewType, setType] = useState("raw");
-
+  const [fullScreenMode, setFullScreenMode] = useState(false);
 
   const editor = useMemo(() => {
     return <MonacoEditor
@@ -53,85 +54,161 @@ export const ResponseSection = () => {
     return (response.responseType?.format === "json" || response.responseType?.format === "html" || response.responseType?.format === "xml");
   }
 
+  function onFullScreenClick() {
+    let responseSection = document.getElementById("response-section-panel");
+    if (responseSection) {
+      if (fullScreenMode) {
+        responseSection.classList.remove("response-section-panel-full-screen");
+        responseSection.classList.add("res-visible");
+        document.body.classList.remove("body-full-screen");
+      } else {
+        responseSection.classList.add("response-section-panel-full-screen");
+        responseSection.classList.remove("res-visible");
+        document.body.classList.add("body-full-screen");
+      }
+      setFullScreenMode(!fullScreenMode);
+    }
+  }
+
+  function getLoadingSection() {
+    return (<div className="response-header-label">
+      <div className="arrow-4"></div>
+      <span className="fetch-data-text">{"Fetching data ..."}</span>
+      {!props.isCurl && <div className="cancel-button-panel">
+        <button
+          type="submit"
+          className="file-reset-text"
+          onClick={() => onCancelRequest()}
+        >
+          Cancel Request
+        </button>
+      </div>}
+    </div>);
+  }
+
+  function getIdealSection() {
+    return (<div className='fetch-image-panel'>
+      <img src={FetchClientIcon} className="fetch-client-image" />
+      <span className="fetch-data-text">{props.isCurl ? "Enter the curl command and click Run to get a response." : "Enter the URL and click Send to get a response."}</span>
+    </div>);
+  }
+
+  function getErrorSection() {
+    return (<div className='res-not-support-panel'>
+      <div className="res-not-support-text error-text">{response.responseData}</div>
+    </div>);
+  }
+
+  function getBinaryResponseSection() {
+    return (<div className='res-not-support-panel'>
+      <div className="res-not-support-text">{"View response is not supported for 'file' response type."}</div>
+      <div className="res-not-support-text">{"Please download it."}</div>
+      <button
+        type="submit"
+        className="request-send-button res-not-support-download"
+        onClick={() => onDownloadFile()}
+      >
+        Download
+      </button>
+    </div>);
+  }
+
+  function getMaxSizeResponseSection() {
+    return (<div className='res-not-support-panel'>
+      <div className="res-not-support-text">{"View response is not supported on large files (> 5MB)."}</div>
+      <div className="res-not-support-text">{"Please download it."}</div>
+      <button
+        type="submit"
+        className="request-send-button"
+        onClick={() => onDownloadFile()}
+      >
+        Download
+      </button>
+    </div>);
+  }
+
+  function getPreviewHeaderSection() {
+    return (<div className="toggle">
+      <input type="radio" name="sizeBy" value="weight" id="sizeWeight" onChange={onTextResponseClick} checked={viewType === "raw"} />
+      <label htmlFor="sizeWeight">Raw View</label>
+      <input type="radio" name="sizeBy" value="dimensions" onChange={onJsonViewResponseClick} checked={viewType !== "raw"} id="sizeDimensions" />
+      <label htmlFor="sizeDimensions">{response.responseType?.format === "html" ? "HTML Preview" : "Tree View"}</label>
+    </div>);
+  }
+
+  function getEditorPanelCss() {
+    if (viewType === "raw") {
+      if (fullScreenMode) {
+        return "res-visible";
+      }
+
+      if (horizontalLayout) {
+        return "res-visible";
+      } else {
+        return "res-visible-inside";
+      }
+    }
+    return "res-hidden";
+  }
+
+  function getViewerPanelCss() {
+    if (viewType !== "raw") {
+      if (fullScreenMode) {
+        return "res-visible";
+      }
+
+      if (horizontalLayout) {
+        return "res-visible";
+      } else {
+        return "res-visible-inside";
+      }
+    }
+    return "res-hidden";
+  }
+
+  function getResponseSection() {
+    return (<div className={isPreViewVisible() ? "response-editor" : "response-editor-without-preview"}>
+      <div className={getEditorPanelCss()}>
+        {editor}
+      </div>
+      <div className={getViewerPanelCss()}>
+        {response.responseType?.format === "json" && <JSONViewer data={response.responseData} theme={theme} />}
+        {response.responseType?.format === "html" && <HTMLViewer data={response.responseData} />}
+        {response.responseType?.format === "xml" && <XMLViewer data={response.responseData} theme={theme} />}
+      </div>
+      {
+        fullScreenMode ?
+          <CollapseLogo className="collapse-btn" onClick={onFullScreenClick} />
+          :
+          <ExpandLogo id="fullscreen-expand-btn" className="expand-btn" onClick={onFullScreenClick} />
+      }
+    </div>);
+  }
+
   return (
     <div className="response-content-panel">
       {
-        response.responseData && !response.isError ?
-          response.responseType.isBinaryFile ?
-            <div className='res-not-support-panel'>
-              <div className="res-not-support-text">{"View response is not supported for 'file' response type."}</div>
-              <div className="res-not-support-text">{"Please download it."}</div>
-              <button
-                type="submit"
-                className="request-send-button res-not-support-download"
-                onClick={() => onDownloadFile()}
-              >
-                Download
-              </button>
-            </div>
-            :
-            parseInt(response.size) > maxDisplayResponseLimitInBytes ?
-              <div className='res-not-support-panel'>
-                <div className="res-not-support-text">{"View response is not supported on large files (> 5MB)."}</div>
-                <div className="res-not-support-text">{"Please download it."}</div>
-                <button
-                  type="submit"
-                  className="request-send-button"
-                  onClick={() => onDownloadFile()}
-                >
-                  Download
-                </button>
-              </div>
-              :
-              <>
-                {isPreViewVisible() &&
-                  <div className="toggle">
-                    <input type="radio" name="sizeBy" value="weight" id="sizeWeight" onChange={onTextResponseClick} checked={viewType === "raw"} />
-                    <label htmlFor="sizeWeight">Raw View</label>
-                    <input type="radio" name="sizeBy" value="dimensions" onChange={onJsonViewResponseClick} checked={viewType !== "raw"} id="sizeDimensions" />
-                    <label htmlFor="sizeDimensions">{response.responseType?.format === "html" ? "HTML Preview" : "Tree View"}</label>
-                  </div>
-                }
-                <div className={isPreViewVisible() ? "response-editor" : "response-editor-without-preview"}>
-                  <div className={viewType === "raw" ? "res-visible" : "res-hidden"}>
-                    {editor}
-                  </div>
-                  <div className={viewType !== "raw" ? "res-visible" : "res-hidden"}>
-                    {response.responseType?.format === "json" && <JSONViewer data={response.responseData} theme={theme} />}
-                    {response.responseType?.format === "html" && <HTMLViewer data={response.responseData} />}
-                    {response.responseType?.format === "xml" && <XMLViewer data={response.responseData} theme={theme} />}
-                  </div>
-                </div>
-              </>
+        response.isError ?
+          getErrorSection()
           :
-          response.isError ?
-            <div className='res-not-support-panel'>
-              <div className="res-not-support-text error-text">{response.responseData}</div>
-            </div>
+          response.status === 0
+            ?
+            <><hr />{loading === true ? getLoadingSection() : getIdealSection()}</>
             :
-            <>
-              <hr />
-              {loading === true ?
-                <div className="response-header-label">
-                  <div className="arrow-4"></div>
-                  <span className="fetch-data-text">{"Fetching data ..."}</span>
-                  <div className="cancel-button-panel">
-                    <button
-                      type="submit"
-                      className="file-reset-text"
-                      onClick={() => onCancelRequest()}
-                    >
-                      Cancel Request
-                    </button>
-                  </div>
-                </div>
+            response.responseData
+              ?
+              response.responseType.isBinaryFile ?
+                getBinaryResponseSection()
                 :
-                <div className='fetch-image-panel'>
-                  <img src={FetchClientIcon} className="fetch-client-image" />
-                  <span className="fetch-data-text">{"Enter the URL and click Send to get a response."}</span>
-                </div>
-              }
-            </>
+                parseInt(response.size) > maxDisplayResponseLimitInBytes ?
+                  getMaxSizeResponseSection()
+                  :
+                  <>
+                    {isPreViewVisible() && getPreviewHeaderSection()}
+                    {getResponseSection()}
+                  </>
+              :
+              <></>
       }
     </div>
   );

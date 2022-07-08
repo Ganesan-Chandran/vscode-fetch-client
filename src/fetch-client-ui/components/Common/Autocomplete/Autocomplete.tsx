@@ -8,7 +8,6 @@ export interface IAutocompleteProps {
   value: string;
   suggestions: string[];
   className?: string;
-  maxLength?: number;
   disabled: boolean;
   onSelect: any;
   placeholder: string;

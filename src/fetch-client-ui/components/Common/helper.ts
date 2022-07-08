@@ -1,14 +1,15 @@
 import { ITableData } from "./Table/types";
 
 export const notesMaxLimit = 2500;
-export function getDataFromHTML(data: string): string {
+
+export function GetDataFromHTML(data: string): string {
     let removedData: string;
     removedData = data?.replace(/(<([^>]+)>)/gm, '');
     removedData = removedData?.replace(/(&nbsp;|&gt;|&lt;|&amp;)/gm, ' ');
     return removedData;
 }
 
-export function getDomainName(url: string, cookie: ITableData): string {
+export function GetDomainName(url: string, cookie: ITableData): string {
     let domainName = "";
 
     try {
@@ -31,4 +32,8 @@ export function getDomainName(url: string, cookie: ITableData): string {
     }
 
     return domainName;
+}
+
+export function GetFileName(path: string) {
+    return path.split('\\').pop().split("/").pop();
 }

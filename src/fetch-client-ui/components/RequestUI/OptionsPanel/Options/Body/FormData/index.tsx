@@ -3,7 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "../../../../../../reducer/combineReducer";
 import { ITableData } from "../../../../../Common/Table/types";
 import { Table } from "../../../../../Common/Table/Table";
-import { Actions, InitialParams } from "../../../../redux";
+import { Actions } from "../../../../redux";
+import vscode from "../../../../../Common/vscodeAPI";
+import { requestTypes, responseTypes } from "../../../../../../../utils/configuration";
 
 export const FormDataBody = () => {
 
@@ -11,6 +13,14 @@ export const FormDataBody = () => {
 
   const { body, headers } = useSelector((state: IRootState) => state.requestData);
   const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
+
+  useEffect(() => {
+    window.addEventListener("message", (event) => {
+      if (event.data && event.data.type === responseTypes.formDataFileResponse) {
+        dispatch(Actions.SetRequestFormDataAction(event.data.path, event.data.index));
+      }
+    });
+  }, []);
 
   const onSelectChange = (index: number) => {
     let localbody = { ...body };
@@ -20,18 +30,40 @@ export const FormDataBody = () => {
       localFormData[index] = {
         isChecked: !rowData.isChecked,
         key: rowData.key,
-        value: rowData.value
+        value: rowData.value,
+        type: rowData.type
       };
       localbody.formdata = localFormData;
       dispatch(Actions.SetRequestBodyAction(localbody));
     }
   };
 
+  const onSelectType = (type: string, index: number) => {
+    let localbody = { ...body };
+    if (localbody.formdata) {
+      let localFormData = [...localbody.formdata];
+      let rowData = localFormData[index];
+      localFormData[index] = {
+        isChecked: rowData.isChecked,
+        key: rowData.key,
+        value: "",
+        type: type
+      };
+      localbody.formdata = localFormData;
+      dispatch(Actions.SetRequestBodyAction(localbody));
+    }
+  };
+
+  const onFileSelect = (index: number) => {
+    vscode.postMessage({ type: requestTypes.formDataFileRequest, index: index });
+  };
+
   const onRowAdd = (value: string, index: number, isKey: boolean = true) => {
     let newRow: ITableData = {
       isChecked: false,
       key: "",
-      value: ""
+      value: "",
+      type: "Text"
     };
 
     let localTable = addValue(value, index, isKey);
@@ -56,7 +88,8 @@ export const FormDataBody = () => {
       localFormData[index] = {
         isChecked: true,
         key: isKey ? value : rowData.key,
-        value: !isKey ? value : rowData.value
+        value: !isKey ? value : rowData.value,
+        type: rowData.type
       };
       return localFormData;
     }
@@ -78,9 +111,10 @@ export const FormDataBody = () => {
     if (body.bodyType === "formdata" && body.formdata?.length > 1) {
       let localHeaders = [...headers];
       let contentTypeHeaderIndex = headers.findIndex(item => item.isChecked && item.key.trim().toLocaleLowerCase() === "content-type");
-      if(contentTypeHeaderIndex !== -1 && localHeaders[contentTypeHeaderIndex].key === "multipart/form-data"){
+      if (contentTypeHeaderIndex !== -1 && localHeaders[contentTypeHeaderIndex].value.includes("multipart/form-data")) {
         return;
       }
+      contentTypeHeaderIndex = headers.findIndex(item => item.key.trim().toLocaleLowerCase() === "content-type");
       if (contentTypeHeaderIndex !== -1) {
         localHeaders[contentTypeHeaderIndex] = {
           isChecked: true,
@@ -103,8 +137,11 @@ export const FormDataBody = () => {
 
   return (
     <Table
-      data={body.formdata ?? InitialParams}
+      type="formData"
+      data={body.formdata ?? [{ isChecked: false, key: "", value: "" }]}
       onSelectChange={onSelectChange}
+      onFileSelect={onFileSelect}
+      onSelectType={onSelectType}
       onRowAdd={onRowAdd}
       onRowUpdate={onRowUpdate}
       deleteData={deleteParam}

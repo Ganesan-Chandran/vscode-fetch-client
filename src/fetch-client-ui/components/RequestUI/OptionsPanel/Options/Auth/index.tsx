@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
+import { requestTypes } from '../../../../../../utils/configuration';
 import { IRootState } from "../../../../../reducer/combineReducer";
-import { ITableData } from "../../../../Common/Table/types";
 import { TextEditor } from '../../../../Common/TextEditor/TextEditor';
+import vscode from '../../../../Common/vscodeAPI';
+import { IVariable } from '../../../../SideBar/redux/types';
 import { Actions } from "../../../redux";
 import { InitialAuth } from '../../../redux/reducer';
+import { isAvailable } from '../helper';
 import { AwsAuth } from './aws';
-import { apiKeyAddTo, authTypes } from "./consts";
+import { apiKeyAddTo, allAuthTypes, authCollection } from "./consts";
 import "./style.css";
 
 export interface IAuthProps {
   settingsMode?: boolean;
-  authTypes?: { name: string, value: string }[];
+  authTypes: { name: string, value: string }[];
+  selectedVariable: IVariable;
 }
 
 export const AuthPanel = (props: IAuthProps) => {
@@ -19,22 +23,22 @@ export const AuthPanel = (props: IAuthProps) => {
   const dispatch = useDispatch();
 
   const { auth, params, headers } = useSelector((state: IRootState) => state.requestData);
-  const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
+  const { colId, folderId, parentSettings } = useSelector((state: IRootState) => state.reqColData);
 
   const [varColor, setColor] = useState("");
   const [envVar, setEnvVar] = useState(null);
 
   useEffect(() => {
-    if (selectedVariable.id) {
-      setEnvVar(selectedVariable.data.map(item => item.key));
+    if (props.selectedVariable.id) {
+      setEnvVar(props.selectedVariable.data.map(item => item.key));
     } else {
       setEnvVar([]);
     }
-  }, [selectedVariable.data]);
+  }, [props.selectedVariable.data]);
 
   useEffect(() => {
-    if (selectedVariable.id) {
-      setEnvVar(selectedVariable.data.map(item => item.key));
+    if (props.selectedVariable.id) {
+      setEnvVar(props.selectedVariable.data.map(item => item.key));
     } else {
       setEnvVar([]);
     }
@@ -42,8 +46,8 @@ export const AuthPanel = (props: IAuthProps) => {
     if (auth.authType === "bearertoken") {
       if (auth.password.length > 4 && auth.password.includes("{{") && auth.password.includes("}}")) {
         var word = auth.password.substring(auth.password.indexOf("{{") + 2, auth.password.lastIndexOf("}}"));
-        if (selectedVariable.id) {
-          selectedVariable.data.map(item => item.key).includes(word) ? setColor("var-available") : setColor("var-notavailable");
+        if (props.selectedVariable.id) {
+          props.selectedVariable.data.map(item => item.key).includes(word) ? setColor("var-available") : setColor("var-notavailable");
         } else {
           setColor("var-notavailable");
         }
@@ -72,6 +76,23 @@ export const AuthPanel = (props: IAuthProps) => {
     }
 
     dispatch(Actions.SetRequestAuthAction(localAuth));
+
+    if (evt.target.value !== "inherit" && auth.authType === "inherit") {
+      if (auth.addTo = "queryparams") {
+        removeParams();
+      } else {
+        removeHeaders();
+      }
+    }
+
+    if (evt.target.value === "inherit" && !parentSettings) {
+      vscode.postMessage({ type: requestTypes.getParentSettingsRequest, data: { colId: colId, folderId: folderId } });
+      return;
+    }
+
+    if (evt.target.value === "inherit" && parentSettings && parentSettings.auth.authType === "apikey") {
+      modifyQueryParam(parentSettings.auth.addTo, parentSettings.auth.userName, parentSettings.auth.password);
+    }
   };
 
   const setBearerToken = (evt: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -179,28 +200,24 @@ export const AuthPanel = (props: IAuthProps) => {
     dispatch(Actions.SetRequestHeadersAction(localTable));
   };
 
-  function isAvailable(item: ITableData) {
-    return item.isFixed === true && item.key !== "Cookie";
-  }
-
   const setAPIKeyAddTo = (evt: React.ChangeEvent<HTMLSelectElement>) => {
     let localAuth = { ...auth };
     localAuth.addTo = evt.target.value;
     dispatch(Actions.SetRequestAuthAction(localAuth));
-    modifyQueryParam(evt.target.value);
+    modifyQueryParam(evt.target.value, auth.userName, auth.password);
   };
 
-  const modifyQueryParam = (section: string) => {
+  const modifyQueryParam = (section: string, userName: string, password: string) => {
     if (section === "queryparams") {
       let localParams = [...params];
       let localHeaders = [...headers];
       let basicAuthData = localHeaders.find(isAvailable);
 
-      if (auth.userName && auth.password) {
+      if (userName) {
         localParams.unshift({
           isChecked: true,
-          key: auth.userName,
-          value: auth.password,
+          key: userName,
+          value: password,
           isFixed: true
         });
       }
@@ -215,11 +232,11 @@ export const AuthPanel = (props: IAuthProps) => {
       let localParams = [...params];
       let basicAuthData = localParams.find(isAvailable);
 
-      if (auth.userName && auth.password) {
+      if (userName) {
         localHeaders.unshift({
           isChecked: true,
-          key: auth.userName,
-          value: auth.password,
+          key: userName,
+          value: password,
           isFixed: true
         });
       }
@@ -259,30 +276,20 @@ export const AuthPanel = (props: IAuthProps) => {
       <div className="auth-token-text-panel">
         <label className="auth-token-label">Token</label>
         <textarea
-          className={props.settingsMode ? "auth-token-text auth-text auth-token-setting-mode" : `auth-token-text auth-text ${varColor}`}
+          className={`auth-token-text auth-text ${varColor}`}
           id={"bearer_token"}
-          value={auth.password}
+          value={auth.authType === "inherit" ? parentSettings.auth.password : auth.password}
           onChange={setBearerToken}
         >
         </textarea>
         <label className="auth-token-label">Prefix</label>
         {
-          props.settingsMode ?
-            <input
-              className="auth-token-prefix-text auth-text setting-mode"
-              id={"bearer_token"}
-              value={auth.tokenPrefix ? auth.tokenPrefix : "Bearer"}
-              maxLength={50}
-              onChange={(e) => setTokenPrefix(e.target.value)}
-            />
-            :
-            envVar && selectedVariable.id && <TextEditor
-              varWords={envVar}
-              onChange={setTokenPrefix}
-              value={auth.tokenPrefix ? auth.tokenPrefix : "Bearer"}
-              focus={false}
-              maxLength={50}
-            />
+          envVar && props.selectedVariable.id && <TextEditor
+            varWords={envVar}
+            onChange={setTokenPrefix}
+            value={auth.authType === "inherit" ? parentSettings.auth.tokenPrefix : (auth.tokenPrefix ? auth.tokenPrefix : "Bearer")}
+            focus={false}
+          />
         }
       </div>
     );
@@ -294,64 +301,42 @@ export const AuthPanel = (props: IAuthProps) => {
         <div className="basic-auth-text-panel">
           <label className="basic-auth-label">User Name</label>
           {
-            props.settingsMode ?
-              <input
-                className="basic-auth-username auth-text setting-mode"
-                id={"basic_user_name"}
-                value={auth.userName}
-                maxLength={500}
-                onChange={(e) => setBasicAuthUserName(e.target.value)}
-              />
-              :
-              envVar && selectedVariable.id && <TextEditor
-                varWords={envVar}
-                onChange={setBasicAuthUserName}
-                value={auth.userName}
-                focus={false}
-                maxLength={500}
-              />
+            envVar && props.selectedVariable.id && <TextEditor
+              varWords={envVar}
+              onChange={setBasicAuthUserName}
+              value={auth.authType === "inherit" ? parentSettings.auth.userName : auth.userName}
+              focus={false}
+            />
           }
         </div>
         <div className="basic-auth-text-panel">
           <label className="basic-auth-label">Password</label>
           {
-            props.settingsMode ?
+            auth.showPwd ?
+              envVar && props.selectedVariable.id && <TextEditor
+                varWords={envVar}
+                onChange={setBasicAuthPassword}
+                value={auth.authType === "inherit" ? parentSettings.auth.password : auth.password}
+                focus={false}
+              />
+              :
               <input
                 className="basic-auth-password auth-text"
                 id={"basic_password"}
-                value={auth.password}
-                type={auth.showPwd ? "text" : "password"}
-                maxLength={500}
+                value={auth.authType === "inherit" ? parentSettings.auth.password : auth.password}
+                type="password"
                 onChange={(e) => setBasicAuthPassword(e.target.value)}
               />
-              :
-              auth.showPwd ?
-                envVar && selectedVariable.id && <TextEditor
-                  varWords={envVar}
-                  onChange={setBasicAuthPassword}
-                  value={auth.password}
-                  focus={false}
-                  maxLength={500}
-                />
-                :
-                <input
-                  className="basic-auth-password auth-text"
-                  id={"basic_password"}
-                  value={auth.password}
-                  type="password"
-                  maxLength={500}
-                  onChange={(e) => setBasicAuthPassword(e.target.value)}
-                />
           }
         </div>
-        <div className="basic-auth-check">
+        {auth.authType !== "inherit" && <div className="basic-auth-check">
           <input type="checkbox"
             className="basic-auth-check-box"
             checked={auth.showPwd}
             onChange={onSelectChange}
           />
           Show Password
-        </div>
+        </div>}
       </div>
     );
   };
@@ -362,50 +347,30 @@ export const AuthPanel = (props: IAuthProps) => {
         <div className="basic-auth-text-panel">
           <label className="basic-auth-label">Key</label>
           {
-            props.settingsMode ?
-              <input
-                className="basic-auth-username auth-text setting-mode"
-                id={"basic_user_name"}
-                value={auth.userName}
-                maxLength={500}
-                onChange={(e) => setBasicAuthUserName(e.target.value)}
-              />
-              :
-              envVar && selectedVariable.id && <TextEditor
-                varWords={envVar}
-                onChange={setBasicAuthUserName}
-                value={auth.userName}
-                focus={false}
-                maxLength={500}
-              />
+            envVar && props.selectedVariable.id && <TextEditor
+              varWords={envVar}
+              onChange={setBasicAuthUserName}
+              value={auth.authType === "inherit" ? parentSettings.auth.userName : auth.userName}
+              focus={false}
+            />
           }
         </div>
         <div className="basic-auth-text-panel">
           <label className="basic-auth-label">Value</label>
           {
-            props.settingsMode ?
-              <input
-                className="basic-auth-password auth-text setting-mode"
-                id={"basic_password"}
-                value={auth.password}
-                maxLength={500}
-                onChange={(e) => setBasicAuthPassword(e.target.value)}
-              />
-              :
-              envVar && selectedVariable.id && <TextEditor
-                varWords={envVar}
-                onChange={setBasicAuthPassword}
-                value={auth.password}
-                focus={false}
-                maxLength={500}
-              />
+            envVar && props.selectedVariable.id && <TextEditor
+              varWords={envVar}
+              onChange={setBasicAuthPassword}
+              value={auth.authType === "inherit" ? parentSettings.auth.password : auth.password}
+              focus={false}
+            />
           }
         </div>
         <div className="basic-auth-text-panel">
           <label className="basic-auth-label">Add to</label>
           <select
             className="apikey-add-select"
-            value={auth.addTo}
+            value={auth.authType === "inherit" ? parentSettings.auth.addTo : auth.addTo}
             onChange={setAPIKeyAddTo}
           >
             {apiKeyAddTo.map(({ value, name }) => (
@@ -419,6 +384,26 @@ export const AuthPanel = (props: IAuthProps) => {
     );
   };
 
+  const inheritAuth = () => {
+    if (!parentSettings) {
+      return (<></>);
+    }
+
+    return (
+      <>
+        <label className="auth-label">{`This request is inherit `}<b>{authCollection[parentSettings.auth.authType]}</b>{` values from Parent.`}</label>
+        <details className="inherit-auth-details" open={false} key={"inherit-auth-details"}>
+          <summary className="inherit-auth-summary">
+            {authCollection[parentSettings.auth.authType]}
+          </summary>
+          <div className="inherit-auth-summary-panel">
+            {authValuePanel(parentSettings.auth.authType)}
+          </div>
+        </details>
+      </>
+    );
+  };
+
   const authValuePanel = (type: string) => {
     switch (type) {
       case "bearertoken":
@@ -428,9 +413,11 @@ export const AuthPanel = (props: IAuthProps) => {
       case "apikey":
         return apiKeyAuth();
       case "aws":
-        return <AwsAuth envVar={envVar} selectedVariable={selectedVariable}/>;
+        return <AwsAuth envVar={envVar} selectedVariable={props.selectedVariable} settingAuth={parentSettings?.auth} />;
+      case "inherit":
+        return props.settingsMode ? <></> : inheritAuth();
       default:
-        return (<div className={props.settingsMode ? "auth-no-label" : ""}><label>{"This request does not use any authorization."}</label></div>);
+        return (<div className={props.settingsMode ? "auth-no-label" : ""}><label className="auth-label">{"This request does not use any authorization."}</label></div>);
     }
   };
 
@@ -444,18 +431,11 @@ export const AuthPanel = (props: IAuthProps) => {
           onChange={setAuthValue}
         >
           {
-            props.authTypes ?
-              props.authTypes.map(({ value, name }) => (
-                <option value={value} key={value}>
-                  {name}
-                </option>
-              ))
-              :
-              authTypes.map(({ value, name }) => (
-                <option value={value} key={value}>
-                  {name}
-                </option>
-              ))
+            props.authTypes.map(({ value, name }) => (
+              <option value={value} key={value}>
+                {name}
+              </option>
+            ))
           }
         </select>
       </div>

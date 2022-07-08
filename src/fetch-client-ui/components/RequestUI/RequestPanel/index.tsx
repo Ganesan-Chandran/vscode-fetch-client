@@ -11,7 +11,7 @@ import "./style.css";
 import { requestTypes } from '../../../../utils/configuration';
 import { executeTests, setVariable } from '../../TestUI/TestPanel/helper';
 import { formatDate } from '../../../../utils/helper';
-import { getDataFromHTML, getDomainName, notesMaxLimit } from '../../Common/helper';
+import { GetDataFromHTML, GetDomainName, notesMaxLimit } from '../../Common/helper';
 import { TextEditor } from '../../Common/TextEditor/TextEditor';
 import { ICookie } from '../../Cookies/redux/types';
 import { CookiesActions } from '../../Cookies/redux';
@@ -28,6 +28,7 @@ export const RequestPanel = () => {
   const responseData = useSelector((state: IRootState) => state.responseData);
   const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
   const { cookies } = useSelector((state: IRootState) => state.cookieData);
+  const { parentSettings } = useSelector((state: IRootState) => state.reqColData);
 
   const selectRequestMethod = (evt: React.ChangeEvent<HTMLSelectElement>): void => {
     dispatch(Actions.SetRequestMethodAction(evt.target.value as MethodType));
@@ -118,10 +119,10 @@ export const RequestPanel = () => {
       dispatch(Actions.SetRequestAction(reqData));
     }
 
-    const data = getDataFromHTML(reqData.notes);
+    const data = GetDataFromHTML(reqData.notes);
     reqData.notes = data.length > notesMaxLimit ? "" : reqData.notes;
 
-    vscode.postMessage({ type: requestTypes.apiRequest, data: { reqData: reqData, isNew: newReq, variableData: selectedVariable?.data } });
+    vscode.postMessage({ type: requestTypes.apiRequest, data: { reqData: reqData, isNew: newReq, variableData: selectedVariable?.data, settings: parentSettings } });
     setNewReq(false);
   };
 
@@ -141,7 +142,7 @@ export const RequestPanel = () => {
 
   useEffect(() => {
     if (responseData.cookies.length > 0) {
-      let domainName = getDomainName(requestData.url, responseData.cookies[0]);
+      let domainName = GetDomainName(requestData.url, responseData.cookies[0]);
 
       if (!domainName) {
         return;

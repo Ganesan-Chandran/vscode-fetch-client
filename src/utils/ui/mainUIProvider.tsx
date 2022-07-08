@@ -14,11 +14,11 @@ import { GetAllVariable, GetVariableById, UpdateVariable } from '../db/varDBUtil
 import { getTimeOut } from '../vscodeConfig';
 import { getStorageManager, OpenCookieUI, OpenVariableUI } from '../../extension';
 import { formatDate } from '../helper';
-import { UpdateCollection } from '../db/collectionDBUtil';
+import { GetParentSettings, UpdateCollection } from '../db/collectionDBUtil';
 import { GetAllCookies, SaveCookie } from '../db/cookieDBUtil';
 
 export const MainUIProvider = (extensionUri: any, sideBarProvider: SideBarProvider) => {
-  const disposable = vscode.commands.registerCommand('fetch-client.newRequest', (id?: string, name?: string, varId?: string, type?: string) => {
+  const disposable = vscode.commands.registerCommand('fetch-client.newRequest', (id?: string, name?: string, colId?: string, varId?: string, type?: string, folderId?: string,) => {
     const uiPanel = vscode.window.createWebviewPanel(
       "fetch-client",
       name ? name : "New Request",
@@ -43,7 +43,7 @@ export const MainUIProvider = (extensionUri: any, sideBarProvider: SideBarProvid
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link href="${styleUri}" rel="stylesheet" type="text/css"/>
-        <title>${id}:${varId}:${type}</title>
+        <title>${id}:${colId}:${varId}:${type}:${folderId}</title>
       </head>
       <body>
         <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -59,7 +59,8 @@ export const MainUIProvider = (extensionUri: any, sideBarProvider: SideBarProvid
       if (message.type === requestTypes.apiRequest) {
         const CancelToken = axios.CancelToken;
         source = CancelToken.source();
-        apiFetch(message.data.reqData, timeOut, source, message.data.variableData).then((data) => {
+
+        apiFetch(message.data.reqData, timeOut, source, message.data.variableData, message.data.settings).then((data) => {
           uiPanel.webview.postMessage(data);
 
           let item: IHistory = {
@@ -177,7 +178,9 @@ export const MainUIProvider = (extensionUri: any, sideBarProvider: SideBarProvid
         } else {
           UpdateRequest(reqData);
           UpdateHistory(item);
-          UpdateCollection(item);
+          if (message.data.colId) {
+            UpdateCollection(message.data.colId, item);
+          }
         }
         uiPanel.webview.postMessage({ type: responseTypes.saveResponse });
       }
@@ -191,6 +194,15 @@ export const MainUIProvider = (extensionUri: any, sideBarProvider: SideBarProvid
         GetAllCookies(uiPanel.webview);
       } else if (message.type === requestTypes.openManageCookiesRequest) {
         OpenCookieUI(message.data);
+      } else if (message.type === requestTypes.getParentSettingsRequest) {
+        GetParentSettings(message.data.colId, message.data.folderId, uiPanel.webview);
+      } else if (message.type === requestTypes.formDataFileRequest) {
+        vscode.window.showOpenDialog().then((uri: vscode.Uri[] | undefined) => {
+          if (uri && uri.length > 0) {
+            const value = uri[0].fsPath;     
+            uiPanel.webview.postMessage({ type: responseTypes.formDataFileResponse, path: value, index: message.index });
+          }
+        });
       }
     });
   });

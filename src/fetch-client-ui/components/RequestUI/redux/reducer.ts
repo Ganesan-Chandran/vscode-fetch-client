@@ -4,7 +4,7 @@ import { requestBodyRaw } from '../OptionsPanel/Options/Body/consts';
 import {
   FETCH_CLIENT_SET_NOTES,
   FETCH_CLIENT_SET_REQ,
-  FETCH_CLIENT_SET_REQ_AUTH, FETCH_CLIENT_SET_REQ_BINARY_DATA, FETCH_CLIENT_SET_REQ_BODY, FETCH_CLIENT_SET_REQ_HEADERS, FETCH_CLIENT_SET_REQ_METHOD,
+  FETCH_CLIENT_SET_REQ_AUTH, FETCH_CLIENT_SET_REQ_BINARY_DATA, FETCH_CLIENT_SET_REQ_BODY, FETCH_CLIENT_SET_REQ_FORM_DATA_BODY, FETCH_CLIENT_SET_REQ_HEADERS, FETCH_CLIENT_SET_REQ_METHOD,
   FETCH_CLIENT_SET_REQ_PARAMS, FETCH_CLIENT_SET_REQ_RAW, FETCH_CLIENT_SET_REQ_RAW_LANG, FETCH_CLIENT_SET_REQ_RESET_BODY, FETCH_CLIENT_SET_REQ_URL,
   FETCH_CLIENT_SET_SET_VAR, FETCH_CLIENT_SET_TEST, IAuth, IAwsAuth, IBinaryFileData, IBodyData, IRequestModel, ISetVar, ITest, RequestActionTypes
 } from "./types";
@@ -66,12 +66,6 @@ export const InitialAuth: IAuth = {
   aws: InitialAwsAuth
 };
 
-export const InitialParams: ITableData[] = [{
-  isChecked: true,
-  key: "",
-  value: "",
-}];
-
 export const InitialBinaryData: IBinaryFileData = {
   fileName: "",
   data: {},
@@ -80,12 +74,9 @@ export const InitialBinaryData: IBinaryFileData = {
 
 export const InitialBody: IBodyData = {
   bodyType: "none",
-  formdata: InitialParams,
-  urlencoded: InitialParams,
-  raw: {
-    data: "",
-    lang: requestBodyRaw[1].value
-  },
+  formdata: [{ isChecked: false, key: "", value: "" }],
+  urlencoded: [{ isChecked: false, key: "", value: "" }],
+  raw: { data: "", lang: requestBodyRaw[1].value },
   binary: InitialBinaryData,
   graphql: { query: "", variables: "" },
 };
@@ -108,7 +99,7 @@ export const InitialState: IRequestModel = {
   name: "",
   createdTime: "",
   method: "get",
-  params: InitialParams,
+  params: [{ isChecked: false, key: "", value: "" }],
   auth: InitialAuth,
   headers: InitialRequestHeaders,
   body: InitialBody,
@@ -158,6 +149,12 @@ export const RequestReducer: (state?: IRequestModel,
         return {
           ...state,
           body: action.payload.body,
+        };
+      }
+      case FETCH_CLIENT_SET_REQ_FORM_DATA_BODY: {
+        return {
+          ...state,
+          body: setFormDataBody(state.body, action.payload.value, action.payload.index),
         };
       }
       case FETCH_CLIENT_SET_REQ: {
@@ -294,4 +291,31 @@ function getUnchecked(item: ITableData) {
 
 function getFixed(item: ITableData) {
   return item.isFixed === true;
+}
+
+function setFormDataBody(body: IBodyData, path: string, index: number): IBodyData {
+  let localbody = { ...body };
+  if (localbody.formdata) {
+    let localFormData = [...localbody.formdata];
+    let rowData = localFormData[index];
+    localFormData[index] = {
+      isChecked: rowData.isChecked,
+      key: rowData.key,
+      value: path,
+      type: rowData.type
+    };
+    localbody.formdata = localFormData;
+
+    if (localbody.formdata.length - 1 === index && localFormData[index].key) {
+      let newRow: ITableData = {
+        isChecked: false,
+        key: "",
+        value: "",
+        type: "Text"
+      };
+
+      localbody.formdata.push(newRow);
+    }
+  }
+  return localbody;
 }

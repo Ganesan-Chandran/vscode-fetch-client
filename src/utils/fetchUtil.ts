@@ -1,15 +1,17 @@
 import axios, { CancelTokenSource } from "axios";
 import * as https from "https";
+import fs from "fs";
 import { sign, Request as awsRequest } from 'aws4';
 import FormData from 'form-data';
 import { ITableData } from "../fetch-client-ui/components/Common/Table/types";
 import { IRequestModel } from "../fetch-client-ui/components/RequestUI/redux/types";
 import { responseTypes } from "./configuration";
 import { getProtocolConfiguration, getSSLConfiguration } from "./vscodeConfig";
-import { getFileType, isFileType, replaceValueWithVariable } from "./helper";
+import { getErrorResponse, getFileType, getRandomNumber, isFileType, replaceAuthSettingsInRequest, replaceValueWithVariable } from "./helper";
 import { writeLog } from "./logger/logger";
+import { ISettings } from "../fetch-client-ui/components/SideBar/redux/types";
 
-export const apiFetch = async (requestData: IRequestModel, timeOut: number, source?: CancelTokenSource, variableData?: ITableData[]) => {
+export const apiFetch = async (requestData: IRequestModel, timeOut: number, source?: CancelTokenSource, variableData?: ITableData[], settings?: ISettings) => {
 
   const reqHeaders = {};
   let startTime: number, fetchDuration: number;
@@ -20,14 +22,23 @@ export const apiFetch = async (requestData: IRequestModel, timeOut: number, sour
 
   try {
 
+    if (settings && requestData.auth.authType === "inherit") {
+      let copyData = JSON.parse(JSON.stringify(requestData));
+      request = replaceAuthSettingsInRequest(copyData, settings);
+    }
+
     if (variableData?.length > 0) {
       variableData.forEach(item => {
         varData[item.key] = item.value;
       });
-      let copy = JSON.parse(JSON.stringify(requestData));
-      request = replaceValueWithVariable(copy, varData);
+      if (request) {
+        request = replaceValueWithVariable(request, varData);
+      } else {
+        let copy = JSON.parse(JSON.stringify(requestData));
+        request = replaceValueWithVariable(copy, varData);
+      }
     } else {
-      request = requestData;
+      request = request ? request : requestData;
     }
 
     if (request.auth.authType === "bearertoken") {
@@ -42,9 +53,16 @@ export const apiFetch = async (requestData: IRequestModel, timeOut: number, sour
 
     if (request.body.bodyType === "formdata") {
       const bodyFormData = new FormData();
-      request.body.formdata.forEach(({ isChecked, key, value }) => {
+      request.body.formdata.forEach(({ isChecked, key, value, type }) => {
         if (isChecked && key) {
-          bodyFormData.append(key, value);
+          if (type === "File") {
+            if (!fs.existsSync(value)) {
+              throw new Error("Error : ENOENT: No such file or directory - " + value);
+            }
+            bodyFormData.append(key, fs.createReadStream(value));
+          } else {
+            bodyFormData.append(key, value);
+          }
         }
       });
       reqData = bodyFormData;
@@ -70,8 +88,11 @@ export const apiFetch = async (requestData: IRequestModel, timeOut: number, sour
       });
     }
 
-    if (!reqHeaders["Content-Type"]) {
-      if (request.body.bodyType !== "none") {
+    if (request.body.bodyType === "formdata") {
+      let header = reqData.getHeaders();
+      reqHeaders["Content-Type"] = header["content-type"] ? header["content-type"] : getContentType(request.body.bodyType, "");
+    } else {
+      if (request.body.bodyType !== "none" && !reqHeaders["Content-Type"] && !reqHeaders["content-type"]) {
         reqHeaders["Content-Type"] = getContentType(request.body.bodyType, request.body.bodyType === "raw" ? request.body.raw.lang : "");
       }
     }
@@ -246,26 +267,6 @@ export const apiFetch = async (requestData: IRequestModel, timeOut: number, sour
   }
 };
 
-function getErrorResponse() {
-  return {
-    type: responseTypes.apiResponse,
-    response: {
-      responseData: "",
-      status: 0,
-      statusText: "",
-      size: "0",
-      duration: 0,
-      isError: true,
-      responseType: {
-        isBinaryFile: false,
-        format: ""
-      }
-    },
-    headers: [],
-    cookies: []
-  };
-}
-
 function getRawContentType(rawType: string): string {
   let contentTypes = {
     json: "application/json",
@@ -279,7 +280,7 @@ function getRawContentType(rawType: string): string {
 function getContentType(type: string, rawLang: string) {
   switch (type) {
     case "formdata":
-      return "multipart/form-data";
+      return "multipart/form-data; boundary=" + generateBoundryValue();
     case "formurlencoded":
       return "application/x-www-form-urlencoded";
     case "raw":
@@ -289,6 +290,10 @@ function getContentType(type: string, rawLang: string) {
     default: //binary
       return "application/octet-stream";
   }
+}
+
+function generateBoundryValue() {
+  return "--------------------------" + getRandomNumber(25);
 }
 
 function validateURL(url: string): boolean {

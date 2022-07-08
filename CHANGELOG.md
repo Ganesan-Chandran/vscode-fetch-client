@@ -2,6 +2,21 @@
 
 All notable changes to the "Fetch Client" extension will be documented in this file.
 
+## v1.2.0 - July, 2022
+### New Features
+- Support nested folder to the Collection.
+- Run curl request (Under collection in the side bar).
+- Import curl request (Under collection in the side bar) ([#5](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/5)).
+- Support settings(Auth) for collection and folders.
+- "Inherit auth from parent" option added in the Auth section.
+- Support Reorder and disable the request in the "Run All" Collection.
+- File option added in Form in the request body.
+- Full screen mode is added for resonse section.
+
+### Bug Fixes
+
+- Bearer Token as a variable does not work due to max length restriction ([#4](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/4)).
+
 ## v1.1.0 - June, 2022
 ### New Features
 - Folder added to the Collection.

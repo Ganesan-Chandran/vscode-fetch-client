@@ -101,8 +101,7 @@ const ResToVariables = () => {
             id={"set_var_key_" + index.toString()}
             className="table-input"
             value={row.key}
-            onChange={(event) => index === setvar.length - 1 ? onRowAdd(event, index, "key") : onRowUpdate(event, index, "key")}
-            maxLength={150}
+            onChange={(event) => index === setvar.length - 1 ? onRowAdd(event, index, "key") : onRowUpdate(event, index, "key")}            
             placeholder={row.parameter ? row.parameter === "Header" ? "header name" : row.parameter === "Cookie" ? "cookie name" : "json data" : "value"}
           />
         </td>
@@ -111,8 +110,7 @@ const ResToVariables = () => {
             id={"set_var_value_" + index.toString()}
             className="table-input"
             value={row.variableName}
-            onChange={(event) => index === setvar.length - 1 ? onRowAdd(event, index, "variableName") : onRowUpdate(event, index, "variableName")}
-            maxLength={100}
+            onChange={(event) => index === setvar.length - 1 ? onRowAdd(event, index, "variableName") : onRowUpdate(event, index, "variableName")}            
             placeholder="variable name"
           />
         </td>

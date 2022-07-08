@@ -6,6 +6,7 @@
 
 .json-viewer-panel {
   height: 100%;
+  box-sizing: border-box;
   overflow: scroll;
   border: var(--border-size) solid var(--border-color);
 }

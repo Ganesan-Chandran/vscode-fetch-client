@@ -1,18 +1,18 @@
 import * as vscode from 'vscode';
 import loki, { LokiFsAdapter } from 'lokijs';
 import { v4 as uuidv4 } from 'uuid';
-import { ICollections, IColSettings, IFolder, IHistory } from "../../fetch-client-ui/components/SideBar/redux/types";
+import { ICollections, ISettings, IFolder, IHistory } from "../../fetch-client-ui/components/SideBar/redux/types";
 import { collectionDBPath, mainDBPath } from "./consts";
 import { responseTypes } from '../configuration';
-import { CopyExitingItems, DeleteExitingItem, DeleteExitingItems, GetColsRequests, RenameRequestItem } from './mainDBUtil';
+import { CopyExitingItems, DeleteExitingItems, GetColsRequests, RenameRequestItem } from './mainDBUtil';
 import { IRequestModel } from '../../fetch-client-ui/components/RequestUI/redux/types';
 import { writeLog } from '../logger/logger';
 import { formatDate } from '../helper';
 import { getGlobalPath } from '../../extension';
 import { isFolder } from '../../fetch-client-ui/components/SideBar/util';
-import { InitialColSettings } from '../../fetch-client-ui/components/SideBar/redux/reducer';
 import { SettingsType } from '../../fetch-client-ui/components/Collection/consts';
-
+import { InitialSettings } from '../../fetch-client-ui/components/SideBar/redux/reducer';
+import { apiFetch } from '../fetchUtil';
 
 function getDB(): loki {
   const idbAdapter = new LokiFsAdapter();
@@ -26,88 +26,119 @@ function getRequestDB(): loki {
   return db;
 }
 
-function findItem(cols: any[], folderId: string, historyId: string) {
-  let pos = -1;
-  let pos1 = -1;
-  if (folderId) {
-    // Find Folder
-    pos = cols[0].data.findIndex((el: any) => el.id === folderId);
-    if (pos !== -1) {
-      // Find History Item
-      pos1 = cols[0].data[pos].data.findIndex((el: any) => el.id === historyId);
-      if (pos1 !== -1) {
-        return cols[0].data[pos].data[pos1];
-      }
-      return "";
-    }
-    return "";
-  } else {
-    // Find History Item
-    pos = cols[0].data.findIndex((el: any) => el.id === historyId);
-    if (pos !== -1) {
-      return cols[0].data[pos];
-    }
-    return "";
-  }
-}
+function findItem(source: any, id: string) {
 
-function findFolderItem(cols: any[], folderId: string) {
-  let pos = -1;
-  pos = cols[0].data.findIndex((el: any) => el.id === folderId);
+  let pos = source.data.findIndex((el: any) => el.id === id);
+
   if (pos !== -1) {
-    return cols[0].data[pos];
+    return source.data[pos];
   }
-  return "";
-}
 
-function findFolderIndex(cols: any[], folderId: string) {
-  let pos = -1;
-  pos = cols[0].data.findIndex((el: any) => el.id === folderId);
-  return pos;
-}
-
-function findHistoryIndex(cols: any[], folderId: string, historyId: string) {
-  let pos = -1;
-  let pos1 = -1;
-  if (folderId) {
-    pos = cols[0].data.findIndex((el: any) => el.id === folderId);
-    if (pos !== -1) {
-      pos1 = cols[0].data[pos].data.findIndex((el: any) => el.id === historyId);
-      return pos1;
+  for (let i = 0; i < source.data.length; i++) {
+    if (isFolder(source.data[i])) {
+      const result = findItem(source.data[i], id);
+      if (result) {
+        return result;
+      }
     }
-    return pos;
+  }
+}
+
+function findParent(source: any, id: string) {
+  let pos = source.data.findIndex((el: any) => el.id === id);
+
+  if (pos !== -1) {
+    return source;
+  }
+
+  for (let i = 0; i < source.data.length; i++) {
+    if (isFolder(source.data[i])) {
+      const result = findParent(source.data[i], id);
+
+      if (result) {
+        return result;
+      }
+    }
+  }
+}
+
+
+function findParentSettings(source: any, id: string, prevSettings: any) {
+
+  let pos = source.data.findIndex((el: any) => el.id === id);
+  let curSettings = source.settings;
+
+  if (curSettings) {
+    if (curSettings.auth.authType === "inherit") {
+      curSettings = prevSettings;
+    }
   } else {
-    pos = cols[0].data.findIndex((el: any) => el.id === historyId);
-    return pos;
+    curSettings = prevSettings;
   }
-}
 
-function findHistoryIndexWithoutFolder(cols: any, historyId: string): { folderIndex: number, historyIndex: number } {
-  for (let i = 0; i < cols.data.length; i++) {
-    if (cols.data[i].type) {
-      for (let j = 0; j < cols.data[i].data.length; j++) {
-        if (cols.data[i].data[j].id === historyId) {
-          return { folderIndex: i, historyIndex: j };
-        }
+  if (pos !== -1) {
+    if (source.data[pos].settings) {
+      if (source.data[pos].settings.auth.authType === "inherit") {
+        return curSettings;
+      } else {
+        return source.data[pos].settings;
       }
     } else {
-      if (cols.data[i].id === historyId) {
-        return { folderIndex: -1, historyIndex: i };
-      }
+      return curSettings;
+    }
+  }
+
+  let folders = source.data.filter(item => item.data !== undefined);
+
+  for (let i = 0; i < folders.length; i++) {
+    const result: any = findParentSettings(folders[i], id, curSettings);
+    if (result) {
+      return result;
     }
   }
 }
 
-function getAllIds(cols: any, newArray: string[]) {
-  cols.data.forEach(function (item) {
+function duplicateFolderItems(sourceFolder: IFolder, destFolder: IFolder, oldIds: string[], ids: {}): { folder: IFolder, oIds: string[], nIds: {} } {
+  sourceFolder.data.forEach((item) => {
     if (isFolder(item)) {
-      getAllIds(item, newArray);
+      let folder: IFolder = {
+        id: uuidv4(),
+        name: item.name,
+        createdTime: formatDate(),
+        type: "folder",
+        data: [],
+        settings: (item as IFolder).settings ? (item as IFolder).settings : InitialSettings
+      };
+      destFolder.data.push(folder);
+      duplicateFolderItems(item as IFolder, destFolder.data[destFolder.data.length - 1] as IFolder, oldIds, ids);
     } else {
-      newArray.push(item.id);
+      let newId = uuidv4();
+      ids[item.id] = newId;
+      oldIds.push(item.id);
+      let his: IHistory = {
+        id: newId,
+        method: (item as IHistory).method,
+        name: item.name,
+        url: (item as IHistory).url,
+        createdTime: formatDate()
+      };
+      destFolder.data.push(his);
     }
   });
 
-  return newArray;
+  return { folder: destFolder, oIds: oldIds, nIds: ids };
+}
+
+function getAllIds(source: any, ids: string[]) {
+  source.data.forEach(function (item) {
+    if (isFolder(item)) {
+      getAllIds(item, ids);
+    } else {
+      ids.push(item.id);
+    }
+  });
+
+  return ids;
 }
 
 export function CreateNewCollection(name: string, sideBarView: vscode.WebviewView) {
@@ -119,7 +150,8 @@ export function CreateNewCollection(name: string, sideBarView: vscode.WebviewVie
         createdTime: formatDate(),
         name: name,
         data: [],
-        variableId: ""
+        variableId: "",
+        settings: InitialSettings
       };
       const userCollections = colDB.getCollection('userCollections');
       userCollections.insert(item);
@@ -133,8 +165,9 @@ export function CreateNewCollection(name: string, sideBarView: vscode.WebviewVie
   }
 }
 
-export function AddToCollection(item: ICollections, hasFolder: boolean, isNewFolder: boolean, webview: vscode.Webview, sideBarView: vscode.WebviewView) {
+export function AddToCollection(item: ICollections, hasFolder: boolean, isNewFolder: boolean, webview: vscode.Webview, sideBarView: vscode.WebviewView, request?: IRequestModel) {
   try {
+
     const colDB = getDB();
     const reqDB = getRequestDB();
     const reqId = hasFolder ? (item.data[0] as IFolder).data[0].id : item.data[0].id;
@@ -144,17 +177,29 @@ export function AddToCollection(item: ICollections, hasFolder: boolean, isNewFol
       const userCollections = colDB.getCollection('userCollections');
 
       reqDB.loadDatabase({}, function () {
+
+        let reqData: IRequestModel;
+        let results: any[];
+
         //Add new item to main DB
         const apiRequests = reqDB.getCollection('apiRequests');
-        let results = apiRequests.chain().find({ 'id': reqId }).data({ forceClones: true, removeMeta: true });
-        if (results && results.length > 0) {
-          let reqData = (results[0] as IRequestModel);
+
+        if (request) {
+          reqData = request;
+        } else {
+          results = apiRequests.chain().find({ 'id': reqId }).data({ forceClones: true, removeMeta: true });
+          if (results && results.length > 0) {
+            reqData = (results[0] as IRequestModel);
+          }
+        }
+
+        if (reqData) {
           reqData.id = newId;
           apiRequests.insert(reqData);
           reqDB.saveDatabase();
 
           // Save item to collection DB
-          let colItem = userCollections.find({ id: item.id });
+          let colItem = userCollections.by("id", item.id);
 
           if (hasFolder) {
             (item.data[0] as IFolder).data[0].id = newId;
@@ -162,20 +207,20 @@ export function AddToCollection(item: ICollections, hasFolder: boolean, isNewFol
             item.data[0].id = newId;
           }
 
-          if (colItem === null || colItem.length === 0) {
+          if (colItem === null || colItem === undefined) {
             userCollections.insert(item);
           } else {
             if (item && item.data && item.data.length > 0) {
 
               if (hasFolder) {
                 if (isNewFolder) {
-                  colItem[0].data.push(item.data[0]);
+                  colItem.data.push(item.data[0]);
                 } else {
-                  let folder = findFolderItem(colItem, item.data[0].id);
+                  let folder = findItem(colItem, item.data[0].id);
                   folder.data.push((item.data[0] as IFolder).data[0]);
                 }
               } else {
-                colItem[0].data.push(item.data[0]);
+                colItem.data.push(item.data[0]);
               }
             }
           }
@@ -183,11 +228,18 @@ export function AddToCollection(item: ICollections, hasFolder: boolean, isNewFol
           colDB.saveDatabase();
 
           if (webview) {
-            webview.postMessage({ type: responseTypes.addToCollectionsResponse });
+            webview.postMessage({
+              type: responseTypes.addToCollectionsResponse,
+              colId: item.id,
+              folderId: hasFolder ? item.data[0].id : "",
+              historyId: newId,
+              historyName: hasFolder ? (item.data[0] as IFolder).data[0].name : item.data[0].name,
+              varId: colItem ? colItem.variableId : ""
+            });
           }
 
           if (sideBarView) {
-            sideBarView.webview.postMessage({ type: responseTypes.appendToCollectionsResponse, collection: colItem[0] });
+            sideBarView.webview.postMessage({ type: responseTypes.appendToCollectionsResponse, collection: colItem ? colItem : item });
           }
         }
       });
@@ -197,67 +249,68 @@ export function AddToCollection(item: ICollections, hasFolder: boolean, isNewFol
   }
 }
 
-export function DuplicateItem(coldId: string, folderId: string, historyId: string, isFolder: boolean, sideBarView: vscode.WebviewView) {
+export function DuplicateItem(coldId: string, folderId: string, historyId: string, folderType: boolean, sideBarView: vscode.WebviewView) {
   try {
     const colDB = getDB();
-    let collections;
+    let oldIds: string[];
+    let ids: {};
 
     colDB.loadDatabase({}, function () {
       const collections = colDB.getCollection('userCollections').find({ 'id': coldId });
-      let ids = {};
-      let oldIds = [];
 
-      if (isFolder) {
-        let item = findFolderItem(collections, folderId);
-        let folder: IFolder = {
-          id: uuidv4(),
-          name: item.name + " (Copy)",
-          createdTime: formatDate(),
-          type: "folder",
-          data: item.data.length > 0 ? item.data.map(itm => {
-            let newId = uuidv4();
-            ids[itm.id] = newId;
-            oldIds.push(itm.id);
-            let his: IHistory = {
-              id: newId,
-              method: itm.method,
-              name: itm.name,
-              url: itm.url,
-              createdTime: formatDate()
+      if (folderType) {
+        let parent = findParent(collections[0], folderId);
+        if (parent) {
+          let item = findItem(parent, folderId);
+          if (item) {
+            let destFolder: IFolder = {
+              id: uuidv4(),
+              name: item.name + " (Copy)",
+              createdTime: formatDate(),
+              type: "folder",
+              data: [],
+              settings: item.settings ? item.settings : InitialSettings
             };
-            return his;
-          }) : []
-        };
-        collections[0].data.push(folder);
+
+            const { folder, oIds, nIds } = duplicateFolderItems(item, destFolder, [], {});
+            oldIds = oIds;
+            ids = nIds;
+            parent.data.push(folder);
+          }
+        }
       } else {
         if (folderId) {
-          let folder = findFolderItem(collections, folderId);
-          let item = findItem(collections, folderId, historyId);
-          let newId = uuidv4();
-          ids[item.id] = newId;
-          oldIds.push(item.id);
-          let his: IHistory = {
-            id: newId,
-            method: item.method,
-            name: item.name + " (Copy)",
-            url: item.url,
-            createdTime: formatDate()
-          };
-          folder.data.push(his);
+          let folder = findItem(collections[0], folderId);
+          if (folder) {
+            let item = findItem(folder, historyId);
+            let newId = uuidv4();
+            ids[item.id] = newId;
+            oldIds.push(item.id);
+            let his: IHistory = {
+              id: newId,
+              method: item.method,
+              name: item.name + " (Copy)",
+              url: item.url,
+              createdTime: formatDate()
+            };
+            folder.data.push(his);
+          }
         }
         if (historyId) {
-          let item = findItem(collections, folderId, historyId);
-          let newId = uuidv4();
-          ids[item.id] = newId;
-          oldIds.push(item.id);
-          let his: IHistory = {
-            id: newId,
-            method: item.method,
-            name: item.name + " (Copy)",
-            url: item.url,
-            createdTime: formatDate()
-          };
-          collections[0].data.push(his);
+          let item = findItem(collections[0], historyId);
+          if (item) {
+            let newId = uuidv4();
+            ids[item.id] = newId;
+            oldIds.push(item.id);
+            let his: IHistory = {
+              id: newId,
+              method: item.method,
+              name: item.name + " (Copy)",
+              url: item.url,
+              createdTime: formatDate()
+            };
+            collections[0].data.push(his);
+          }
         }
 
         if (coldId) {
@@ -283,23 +336,22 @@ export function NewRequestToCollection(item: IHistory, colId: string, folderId: 
     const colDB = getDB();
 
     colDB.loadDatabase({}, function () {
-      let pos = -1;
-      let cols = colDB.getCollection('userCollections').find({ 'id': colId });
-      if (cols !== null) {
+      let cols = colDB.getCollection('userCollections').by('id', colId);
+      if (cols) {
         if (folderId) {
-          pos = cols[0].data.findIndex((el: any) => el.id === folderId);
-          if (pos !== -1) {
-            cols[0].data[pos].data.push(item);
+          let folder = findItem(cols, folderId);
+          if (folder) {
+            folder.data.push(item);
           }
         } else {
-          cols[0].data.push(item);
+          cols.data.push(item);
         }
       }
 
       colDB.saveDatabase();
 
       if (sideBarView) {
-        sideBarView.webview.postMessage({ type: responseTypes.createNewResponse, item: item, id: colId, folderId: folderId });
+        sideBarView.webview.postMessage({ type: responseTypes.createNewResponse, item: item, id: colId, folderId: folderId, variableId: cols.variableId });
       }
 
     });
@@ -313,44 +365,40 @@ export function CopyToCollection(sourceId: string, destID: string, destName: str
     const colDB = getDB();
 
     colDB.loadDatabase({}, function () {
-      const userCollections = colDB.getCollection('userCollections');
-      let collections = userCollections.chain().find({ 'id': sourceId }).data({ forceClones: true, removeMeta: true });
-
-      let colItem = userCollections.find({ id: destID });
       let cols: any;
       let ids = {};
+      let oldIds: string[] = [];
 
-      if (colItem === null || colItem.length === 0) {
+      const userCollections = colDB.getCollection('userCollections');
+      let sourceColItem = userCollections.chain().find({ 'id': sourceId }).data({ forceClones: true, removeMeta: true });
+      let destColItem = userCollections.by("id", destID);
+
+      if (destColItem === null || destColItem === undefined) {
         let items: ICollections = {
           id: destID,
           name: destName,
           createdTime: formatDate(),
           variableId: "",
-          data: (collections[0] as ICollections).data.length > 0 ? (collections[0] as ICollections).data.map(item => {
+          settings: sourceColItem[0].settings ? sourceColItem[0].settings : InitialSettings,
+          data: (sourceColItem[0] as ICollections).data.length > 0 ? (sourceColItem[0] as ICollections).data.map(item => {
             if (isFolder(item)) {
-              item = (item as IFolder);
-              let folder: IFolder = {
+              let destFolder: IFolder = {
                 id: uuidv4(),
                 name: item.name,
                 createdTime: formatDate(),
                 type: "folder",
-                data: item.data.length > 0 ? item.data.map(itm => {
-                  let newId = uuidv4();
-                  ids[itm.id] = newId;
-                  let his: IHistory = {
-                    id: newId,
-                    method: itm.method,
-                    name: itm.name,
-                    url: itm.url,
-                    createdTime: formatDate()
-                  };
-                  return his;
-                }) : []
+                data: [],
+                settings: (item as IFolder).settings ? (item as IFolder).settings : InitialSettings
               };
+              const { folder, oIds, nIds } = duplicateFolderItems(item as IFolder, destFolder, [], {});
+              oldIds = [...oldIds, ...oIds];
+              ids = { ...ids, ...nIds };
+
               return folder;
             } else {
               item = (item as IHistory);
               let newId = uuidv4();
+              oldIds.push(item.id);
               ids[item.id] = newId;
               let his: IHistory = {
                 id: newId,
@@ -368,32 +416,25 @@ export function CopyToCollection(sourceId: string, destID: string, destName: str
         userCollections.insert(items);
 
       } else {
-        if ((collections[0] as ICollections).data.length > 0) {
-          let items = (collections[0] as ICollections).data.map(item => {
+        if ((sourceColItem[0] as ICollections).data.length > 0) {
+          let items = (sourceColItem[0] as ICollections).data.map(item => {
             if (isFolder(item)) {
-              item = (item as IFolder);
-              let folder: IFolder = {
+              let destFolder: IFolder = {
                 id: uuidv4(),
                 name: item.name,
                 createdTime: formatDate(),
                 type: "folder",
-                data: item.data.length > 0 ? item.data.map(itm => {
-                  let newId = uuidv4();
-                  ids[itm.id] = newId;
-                  let his: IHistory = {
-                    id: newId,
-                    method: itm.method,
-                    name: itm.name,
-                    url: itm.url,
-                    createdTime: formatDate()
-                  };
-                  return his;
-                }) : []
+                data: [],
+                settings: (item as IFolder).settings ? (item as IFolder).settings : InitialSettings
               };
+              const { folder, oIds, nIds } = duplicateFolderItems(item as IFolder, destFolder, [], {});
+              oldIds = [...oldIds, ...oIds];
+              ids = { ...ids, ...nIds };
               return folder;
             } else {
               item = (item as IHistory);
               let newId = uuidv4();
+              oldIds.push(item.id);
               ids[item.id] = newId;
               let his: IHistory = {
                 id: newId,
@@ -407,22 +448,12 @@ export function CopyToCollection(sourceId: string, destID: string, destName: str
           });
 
           items.forEach(item => {
-            colItem[0].data.push(item);
+            destColItem.data.push(item);
           });
 
-          cols = colItem[0];
+          cols = destColItem;
         }
       }
-
-      const oldIds = collections[0].data.map((item: IHistory | IFolder) => {
-        if (isFolder(item)) {
-          (item as IFolder).data.map(itm => {
-            return itm.id;
-          });
-        } else {
-          return item.id;
-        }
-      });
 
       colDB.saveDatabase();
       CopyExitingItems(oldIds, ids);
@@ -485,33 +516,30 @@ export function GetAllCollections(webview: vscode.Webview) {
   }
 }
 
-export function RenameCollectionItem(webviewView: vscode.WebviewView, colId: string, historyId: string, folderId: string, isFolder: boolean, name: string) {
+export function RenameCollectionItem(webviewView: vscode.WebviewView, colId: string, historyId: string, folderId: string, folderType: boolean, name: string) {
   try {
     const db = getDB();
 
     db.loadDatabase({}, function () {
-      let cols = db.getCollection('userCollections').find({ 'id': colId });
-      let item;
-      if (cols !== null) {
-        if (isFolder) {
-          item = findFolderItem(cols, folderId);
-        } else {
-          item = findItem(cols, folderId, historyId);
-        }
+      let cols = db.getCollection('userCollections').by('id', colId);
+
+      if (cols) {
+        let item = findItem(cols, historyId ? historyId : folderId);
+
         if (item) {
           item["name"] = name;
         }
 
         db.saveDatabase();
 
-        if (!isFolder) {
+        if (!folderType) {
           RenameRequestItem(historyId, name);
         }
 
         webviewView.webview.postMessage(
           {
             type: responseTypes.renameCollectionItemResponse,
-            params: { colId: colId, historyId: historyId, folderId: folderId, isFolder: isFolder, name: name }
+            params: { colId: colId, historyId: historyId, folderId: folderId, isFolder: folderType, name: name }
           }
         );
       }
@@ -521,42 +549,40 @@ export function RenameCollectionItem(webviewView: vscode.WebviewView, colId: str
   }
 }
 
-export function DeleteCollectionItem(webviewView: vscode.WebviewView, colId: string, folderId: string, historyId: string, isFolder: boolean) {
+export function DeleteCollectionItem(webviewView: vscode.WebviewView, colId: string, folderId: string, historyId: string, folderType: boolean) {
   try {
+
+    let ids: string[];
+
+    function deleteItem(source: any, id: string, folderType: boolean) {
+      let pos = source.data.findIndex((el: any) => el.id === id);
+
+      if (pos !== -1) {
+        if (folderType) {
+          ids = getAllIds(source, []);
+        } else {
+          ids = [id];
+        }
+        source.data.splice(pos, 1);
+      }
+
+      for (let i = 0; i < source.data.length; i++) {
+        if (isFolder(source.data[i])) {
+          deleteItem(source.data[i], id, folderType);
+        }
+      }
+    }
+
     const db = getDB();
 
     db.loadDatabase({}, function () {
-      let pos = -1;
-      let pos1 = -1;
-      let ids;
-      let cols = db.getCollection('userCollections').find({ 'id': colId });
+      let cols = db.getCollection('userCollections').by('id', colId);
       if (cols !== null) {
-        if (folderId) {
-          pos = findFolderIndex(cols, folderId);
-        }
-        if (isFolder) {
-          if (pos !== -1) {
-            ids = cols[0].data[pos].data.map(item => item.id);
-            cols[0].data.splice(pos, 1);
-          }
-        } else {
-          pos1 = findHistoryIndex(cols, folderId, historyId);
-          if (folderId) {
-            if (pos1 !== -1) {
-              cols[0].data[pos].data.splice(pos1, 1);
-              ids = [historyId];
-            }
-          } else {
-            if (pos1 !== -1) {
-              cols[0].data.splice(pos1, 1);
-              ids = [historyId];
-            }
-          }
-        }
+        deleteItem(cols, folderType ? folderId : historyId, folderType);
+        db.saveDatabase();
       }
-      db.saveDatabase();
       DeleteExitingItems(ids);
-      webviewView.webview.postMessage({ type: responseTypes.deleteCollectionItemResponse, params: { colId: colId, folderId: folderId, historyId: historyId, isFolder: isFolder } });
+      webviewView.webview.postMessage({ type: responseTypes.deleteCollectionItemResponse, params: { colId: colId, folderId: folderId, historyId: historyId, isFolder: folderType } });
     });
 
   } catch (err) {
@@ -585,9 +611,8 @@ export function DeleteCollection(webviewView: vscode.WebviewView, colId: string)
 
     db.loadDatabase({}, function () {
       const userCollections = db.getCollection('userCollections');
-      let results = userCollections.chain().find({ 'id': colId }).data({ forceClones: true, removeMeta: true });
-      let ids = [];
-      ids = getAllIds(results[0], ids);
+      let results = userCollections.by('id', colId);
+      let ids = getAllIds(results, []);
 
       userCollections.findAndRemove({ 'id': colId });
       db.saveDatabase();
@@ -609,17 +634,17 @@ export function DeleteAllCollectionItems(webviewView: vscode.WebviewView, colId:
 
     db.loadDatabase({}, function () {
       const userCollections = db.getCollection('userCollections');
-      const results = userCollections.chain().find({ 'id': colId }).data();
+      const results = userCollections.by('id', colId);
       let ids = [];
       if (folderId) {
-        let item = findFolderItem(results, folderId);
+        let item = findItem(results, folderId);
         if (item) {
-          ids = item.data.map(item => item.id);
+          ids = getAllIds(item, []);
           item.data.length = 0;
         }
       } else {
-        ids = getAllIds(results[0], ids);
-        results[0].data.length = 0;
+        ids = getAllIds(results, []);
+        results.data.length = 0;
       }
 
       db.saveDatabase();
@@ -686,51 +711,21 @@ export function RemoveVariable(varId: string) {
   }
 }
 
-function getAllItemIdsInCollection(cols: any) {
-  let oldIds = [];
-  cols.data.forEach((item: IHistory | IFolder) => {
-    if (isFolder(item)) {
-      (item as IFolder).data.map(itm => {
-        oldIds.push(itm.id);
-      });
-    }
-  });
-
-  let oldIds1 = [];
-  cols.data.forEach((item: IHistory | IFolder) => {
-    if (!isFolder(item)) {
-      oldIds1.push(item.id);
-    }
-  });
-
-  return [...oldIds, ...oldIds1];
-}
-
-function getAllItemIdsInFolder(fol: any) {
-  let oldIds = [];
-  fol.data.forEach((item: IHistory) => {
-    oldIds.push(item.id);
-  });
-
-  return oldIds;
-}
-
-export function GetAllCollectionsById(id: string, type: string, webview: vscode.Webview) {
+export function GetAllCollectionsById(colId: string, folderId: string, type: string, webview: vscode.Webview) {
   try {
     const db = getDB();
 
     db.loadDatabase({}, function () {
       let ids = [];
-      let results;
+      let paths: any;
+      let results = db.getCollection('userCollections').by('id', colId);
       if (type === "col") {
-        results = db.getCollection('userCollections').chain().find({ 'id': id }).data({ forceClones: true, removeMeta: true });
-        ids = getAllItemIdsInCollection(results[0]);
+        ({ paths, ids } = getPath(results, "", {}, []));
       } else {
-        results = db.getCollection('userCollections').chain().find({ 'data.id': id }).data({ forceClones: true, removeMeta: true });
-        let item = findFolderItem(results, id);
-        ids = getAllItemIdsInFolder(item);
+        let item = findItem(results, folderId);
+        ({ paths, ids } = getPath(item, "", {}, []));
       }
-      GetColsRequests(ids, webview);
+      GetColsRequests(ids, paths, webview);
     });
 
   } catch (err) {
@@ -738,18 +733,53 @@ export function GetAllCollectionsById(id: string, type: string, webview: vscode.
   }
 }
 
-export function NewFolderToCollection(item: IFolder, colId: string, sideBarView: vscode.WebviewView) {
-  try {
-    const colDB = getDB();
+function getPath(source: any, path: string, paths: {}, ids: string[]) {
 
-    colDB.loadDatabase({}, function () {
-      const userCollections = colDB.getCollection('userCollections');
-      let colItem = userCollections.find({ id: colId });
-      colItem[0].data.push(item);
-      colDB.saveDatabase();
+  let folders = source.data.filter(item => item.data !== undefined);
+
+  if (folders.length === 0) {
+    source.data.forEach(item => {
+      paths[item.id] = path ? path + " > " + source.name + ";" + source.id : source.name + ";" + source.id;
+      ids.unshift(item.id);
+    });
+
+    return { paths, ids };
+  } else {
+    source.data.filter(i => i.data === undefined).forEach(item => {
+      paths[item.id] = path ? path + " > " + source.name + ";" + source.id : source.name + ";" + source.id;
+      ids.unshift(item.id);
+    });
+  }
+
+  path = path ? path + " > " + source.name : source.name;
+
+  for (let i = 0; i < folders.length; i++) {
+    const result = getPath(folders[i], path, paths, ids);
+    if (i === folders.length - 1) {      
+      return result;
+    }
+  }
+}
+
+
+export function NewFolderToCollection(item: IFolder, colId: string, folderId: string, sideBarView: vscode.WebviewView) {
+  try {
+    const db = getDB();
+
+    db.loadDatabase({}, function () {
+      const colItem = db.getCollection('userCollections').by("id", colId);
+      if (folderId) {
+        let folder = findItem(colItem, folderId);
+        if (folder) {
+          folder.data.push(item);
+        }
+      } else {
+        colItem.data.push(item);
+      }
+      db.saveDatabase();
 
       if (sideBarView) {
-        sideBarView.webview.postMessage({ type: responseTypes.createNewFolderResponse, folder: item, colId: colId });
+        sideBarView.webview.postMessage({ type: responseTypes.createNewFolderResponse, folder: item, colId: colId, folderId: folderId });
       }
     });
   } catch (err) {
@@ -757,56 +787,47 @@ export function NewFolderToCollection(item: IFolder, colId: string, sideBarView:
   }
 }
 
-export function UpdateCollection(item: IHistory) {
+export function UpdateCollection(colId: string, item: IHistory) {
   try {
-    const colDB = getDB();
+    const db = getDB();
 
-    colDB.loadDatabase({}, function () {
-      const userCollections = colDB.getCollection('userCollections');
-      let req = userCollections.chain().find({ 'data.id': item.id }).data();
-      if (req.length === 0) {
-        req = userCollections.chain().find({ 'data.data.id': item.id }).data();
+    db.loadDatabase({}, function () {
+      const colItem = db.getCollection('userCollections').by("id", colId);
+      let req = findItem(colItem, item.id);
+      if (req) {
+        req.name = item.name;
+        req.method = item.method;
+        req.url = item.url;
       }
-      if (req.length > 0) {
-        const { folderIndex, historyIndex } = findHistoryIndexWithoutFolder(req[0], item.id);
-        if (folderIndex === -1) {
-          req[0].data[historyIndex].name = item.name;
-          req[0].data[historyIndex].method = item.method;
-          req[0].data[historyIndex].url = item.url;
-        } else {
-          req[0].data[folderIndex].data[historyIndex].name = item.name;
-          req[0].data[folderIndex].data[historyIndex].method = item.method;
-          req[0].data[folderIndex].data[historyIndex].url = item.url;
-        }
-        colDB.saveDatabase();
-      }
+      db.saveDatabase();
     });
-
   } catch (err) {
     writeLog("error::UpdateCollection(): " + err);
   }
 }
 
-export function GetCollectionSettings(webview: vscode.Webview, id: string, type: string) {
+export function GetCollectionSettings(webview: vscode.Webview, colId: string, folderId: string) {
   try {
     const db = getDB();
 
     db.loadDatabase({}, function () {
-      let settings;
+      let settings: any;
 
-      let item = db.getCollection('userCollections').find(type === SettingsType.Collection ? { 'id': id } : { "data.id": id });
+      const colItem = db.getCollection('userCollections').by("id", colId);
 
-      if (item !== null && item.length > 0) {
-        if (type === SettingsType.Collection) {
-          settings = item[0].settings;
+      if (colItem) {
+        if (folderId) {
+          let folderItem = findItem(colItem, folderId);
+          if (folderItem) {
+            settings = folderItem.settings ? folderItem.settings : InitialSettings;
+          }
         } else {
-          let folderItem = findFolderItem(item, id);
-          settings = folderItem[0].settings;
+          settings = colItem.settings ? colItem.settings : InitialSettings;
         }
-      }
 
-      if (webview) {
-        webview.postMessage({ type: responseTypes.getColSettingsResponse, settings: settings });
+        if (webview) {
+          webview.postMessage({ type: responseTypes.getColSettingsResponse, data: { settings: settings, type: folderId ? SettingsType.Folder : SettingsType.Collection } });
+        }
       }
     });
   }
@@ -815,24 +836,89 @@ export function GetCollectionSettings(webview: vscode.Webview, id: string, type:
   }
 }
 
-export function SaveCollectionSettings(webview: vscode.Webview, id: string, settings: IColSettings, type: string) {
+export function GetParentSettings(colId: string, folderId: string, webview: vscode.Webview) {
   try {
     const db = getDB();
 
     db.loadDatabase({}, function () {
-      let item = db.getCollection('userCollections').find(type === SettingsType.Collection ? { 'id': id } : { "data.id": id });
-      if (item !== null && item.length > 0) {
-        if (type === SettingsType.Collection) {
-          item[0].settings = settings;
+      let settings: any;
+
+      const colItem = db.getCollection('userCollections').by("id", colId);
+
+      if (colItem) {
+        if (folderId) {
+          settings = findParentSettings(colItem, folderId, null);
+          if (!settings) {
+            settings = InitialSettings;
+          }
         } else {
-          let folderItem = findFolderItem(item, id);
-          folderItem[0].settings = settings;
+          settings = colItem.settings ? colItem.settings : InitialSettings;;
         }
+
+        if (webview) {
+          webview.postMessage({ type: responseTypes.getParentSettingsResponse, settings: settings });
+        }
+      }
+    });
+  }
+  catch (err) {
+    writeLog("error::GetParentSettings(): " + err);
+  }
+}
+
+
+export function ExecuteRequest(reqData: any, timeOut: number, webview: vscode.Webview) {
+  try {
+    const db = getDB();
+
+    db.loadDatabase({}, function () {
+      let settings: any;
+
+      const colItem = db.getCollection('userCollections').by("id", reqData.data.colId);
+
+      if (colItem) {
+        if (reqData.data.folderId) {
+          settings = findParentSettings(colItem, reqData.data.folderId, null);
+          if (!settings) {
+            settings = InitialSettings;
+          }
+        } else {
+          settings = colItem.settings ? colItem.settings : InitialSettings;;
+        }
+
+        apiFetch(reqData.data.reqData, timeOut, null, reqData.data.variableData, settings).then((data) => {
+          webview.postMessage(data);
+        });
+      }
+    });
+  }
+  catch (err) {
+    writeLog("error::ExecuteRequest(): " + err);
+  }
+}
+
+export function SaveCollectionSettings(webview: vscode.Webview, colId: string, folderId: string, settings: ISettings) {
+  try {
+    const db = getDB();
+
+    db.loadDatabase({}, function () {
+      const colItem = db.getCollection('userCollections').by("id", colId);
+
+      if (colItem) {
+        if (folderId) {
+          let folderItem = findItem(colItem, folderId);
+          if (folderItem) {
+            folderItem.settings = settings;
+          }
+        } else {
+          colItem.settings = settings;
+        }
+
         db.saveDatabase();
       }
 
       if (webview) {
-        webview.postMessage({ type: responseTypes.saveColSettingsResponse, id: id });
+        webview.postMessage({ type: responseTypes.saveColSettingsResponse, colId: colId, folderId: folderId });
       }
     });
   }

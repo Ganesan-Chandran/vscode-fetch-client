@@ -3,8 +3,9 @@ import { CookieReducer } from "../components/Cookies/redux/reducer";
 import { ICookiesModel } from "../components/Cookies/redux/types";
 import { UIReducer } from "../components/MainUI/redux/reducer";
 import { IUIModel } from "../components/MainUI/redux/types";
+import { ReqColReducer } from "../components/RequestUI/redux/colReducer";
 import { RequestReducer } from "../components/RequestUI/redux/reducer";
-import { IRequestModel } from "../components/RequestUI/redux/types";
+import { IReqColModel, IRequestModel } from "../components/RequestUI/redux/types";
 import { ResponseReducer } from "../components/ResponseUI/redux";
 import { IReponseModel } from "../components/ResponseUI/redux/types";
 import { SideBarReducer } from "../components/SideBar/redux";
@@ -18,7 +19,8 @@ export interface IRootState {
   uiData: IUIModel,
   sideBarData: ISideBarModel,
   variableData: IVariableModel,
-  cookieData: ICookiesModel
+  cookieData: ICookiesModel,
+  reqColData: IReqColModel
 }
 
 const createRootReducer: () => Reducer<IRootState> =
@@ -28,7 +30,8 @@ const createRootReducer: () => Reducer<IRootState> =
     uiData: UIReducer,
     sideBarData: SideBarReducer,
     variableData: VariableReducer,
-    cookieData: CookieReducer
+    cookieData: CookieReducer,
+    reqColData: ReqColReducer
   });
 
 export default createRootReducer;

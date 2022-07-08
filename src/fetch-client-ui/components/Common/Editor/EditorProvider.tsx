@@ -33,7 +33,11 @@ const EditorProvider = (props: EditorProps) => {
         formatOnPaste: true,
         renderLineHighlight: "none",
         quickSuggestions: false,
-        wordBasedSuggestions: false
+        wordBasedSuggestions: false,
+        scrollbar: {
+          verticalScrollbarSize: 10,
+          horizontalScrollbarSize: 10
+        }
       });
 
       window.addEventListener("resize", () => {

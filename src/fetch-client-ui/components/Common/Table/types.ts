@@ -1,11 +1,14 @@
 export interface ITableData {
   isFixed?: boolean;
   isChecked?: boolean;
+  type?: string;
   key: string;
   value: string;
 }
 
 export type TableType = "reqHeaders" | "queryParams" | "resHeaders" | "formData" | "urlEncoded" | "resCookies";
+
+export const dataTypes = ["Text", "File"];
 
 export const HerdersValues = [
   "application/json",

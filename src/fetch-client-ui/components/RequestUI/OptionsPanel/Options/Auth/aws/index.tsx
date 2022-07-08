@@ -4,9 +4,11 @@ import { IRootState } from "../../../../../../reducer/combineReducer";
 import { TextEditor } from "../../../../../Common/TextEditor/TextEditor";
 import { IVariable } from "../../../../../SideBar/redux/types";
 import { Actions } from "../../../../redux";
+import { IAuth } from "../../../../redux/types";
 import "./style.css";
 
 export interface IAwsAuthProps {
+  settingAuth?: IAuth;
   envVar: any;
   selectedVariable: IVariable;
 }
@@ -55,9 +57,8 @@ export const AwsAuth = (props: IAwsAuthProps) => {
           props.envVar && props.selectedVariable.id && <TextEditor
             varWords={props.envVar}
             onChange={onSetAccessKey}
-            value={auth.aws.accessKey}
+            value={props.settingAuth ? props.settingAuth.aws.accessKey : auth.aws.accessKey}
             focus={false}
-            maxLength={500}
           />
         }
       </div>
@@ -67,9 +68,8 @@ export const AwsAuth = (props: IAwsAuthProps) => {
           props.envVar && props.selectedVariable.id && <TextEditor
             varWords={props.envVar}
             onChange={onSetSecretKey}
-            value={auth.aws.secretAccessKey}
+            value={props.settingAuth ? props.settingAuth.aws.secretAccessKey : auth.aws.secretAccessKey}
             focus={false}
-            maxLength={500}
           />
         }
       </div>
@@ -87,9 +87,8 @@ export const AwsAuth = (props: IAwsAuthProps) => {
               props.envVar && props.selectedVariable.id && <TextEditor
                 varWords={props.envVar}
                 onChange={onSetRegion}
-                value={auth.aws.region}
+                value={props.settingAuth ? props.settingAuth.aws.region : auth.aws.region}
                 focus={false}
-                maxLength={500}
               />
             }
           </div>
@@ -99,9 +98,8 @@ export const AwsAuth = (props: IAwsAuthProps) => {
               props.envVar && props.selectedVariable.id && <TextEditor
                 varWords={props.envVar}
                 onChange={onSetServiceName}
-                value={auth.aws.service}
+                value={props.settingAuth ? props.settingAuth.aws.service : auth.aws.service}
                 focus={false}
-                maxLength={500}
               />
             }
           </div>
@@ -111,9 +109,8 @@ export const AwsAuth = (props: IAwsAuthProps) => {
               props.envVar && props.selectedVariable.id && <TextEditor
                 varWords={props.envVar}
                 onChange={onSetSessionToken}
-                value={auth.aws.sessionToken}
+                value={props.settingAuth ? props.settingAuth.aws.sessionToken : auth.aws.sessionToken}
                 focus={false}
-                maxLength={500}
               />
             }
           </div>

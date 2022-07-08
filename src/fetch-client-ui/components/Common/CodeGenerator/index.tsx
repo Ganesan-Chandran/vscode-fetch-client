@@ -59,15 +59,32 @@ const CodeSnippetGenerator = () => {
     request.url = requestData.url.startsWith("http://") || requestData.url.startsWith("https:// ") ? requestData.url : "https://" + requestData.url;
 
     let body: any;
+
     if (request.body.bodyType === "formdata") {
+      let params = [];
+      request.body.formdata.forEach(data => {
+        if (data.key && data.isChecked) {
+          if (data.type === "File") {
+            params.push({ "name": data.key, fileName: data.value });
+          } else {
+            params.push({ "name": data.key, "value": data.value });
+          }
+        }
+      });
       body = {
         "mimeType": "multipart/form-data",
-        "params": request.body.formdata.map(function (data) { return { "name": data.key, "value": data.value }; }),
+        "params": params,
       };
     } else if (request.body.bodyType === "formurlencoded") {
+      let params = [];
+      request.body.urlencoded.forEach(data => {
+        if (data.key && data.isChecked) {
+          params.push({ "name": data.key, "value": data.value });
+        }
+      });
       body = {
         "mimeType": "application/x-www-form-urlencoded",
-        "params": request.body.urlencoded.map(function (data) { return { "name": data.key, "value": data.value }; }),
+        "params": params,
       };
     } else if (request.body.bodyType === "raw") {
       body = {
@@ -125,7 +142,6 @@ const CodeSnippetGenerator = () => {
     }
 
     let str = isString(value) ? value as string : "";
-
 
     setCodeSnippet(str);
 

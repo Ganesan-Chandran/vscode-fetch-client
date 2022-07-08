@@ -44,7 +44,8 @@
 }
 
 .folder-activity-items {
-  padding-left: 15px !important;
+  padding-left: var(--fpl) !important;
+  /* 15px !important; */
 }
 
 .activity-items:hover,
@@ -91,6 +92,10 @@
 
 .other-mtd {
   background-color: #404040;
+}
+
+.disabled-mtd {
+  background-color: var(--input-unchecked);
 }
 
 .activity-item-row-1 {

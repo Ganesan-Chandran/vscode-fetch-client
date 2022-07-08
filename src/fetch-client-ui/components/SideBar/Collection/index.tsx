@@ -11,6 +11,9 @@ import { formatDate } from "../../../../utils/helper";
 import { IRequestModel } from "../../RequestUI/redux/types";
 import { InitialState } from "../../RequestUI/redux/reducer";
 import "./style.css";
+import { SettingsType } from "../../Collection/consts";
+import { type } from "os";
+import { InitialSettings } from "../redux/reducer";
 
 export interface ICollectionProps {
   filterCondition: string;
@@ -111,10 +114,10 @@ export const CollectionBar = (props: ICollectionProps) => {
     setCurrentHeadIndex("");
   }
 
-  function onDeleteCollection(evt: React.MouseEvent<HTMLElement>, id: string) {
+  function onDeleteCollection(evt: React.MouseEvent<HTMLElement>, id: string, name: string) {
     evt.preventDefault();
     evt.stopPropagation();
-    vscode.postMessage({ type: requestTypes.deleteCollectionRequest, data: id });
+    vscode.postMessage({ type: requestTypes.deleteCollectionRequest, data: id, name: name });
     setCurrentHeadIndex("");
   }
 
@@ -147,6 +150,7 @@ export const CollectionBar = (props: ICollectionProps) => {
         createdTime: folderData.createdTime,
         type: "folder",
         data: [],
+        settings: folderData.settings ? folderData.settings : InitialSettings
       };
     }
 
@@ -156,6 +160,7 @@ export const CollectionBar = (props: ICollectionProps) => {
       name: "Copy",
       data: isFolder ? [folder] : [],
       variableId: "",
+      settings: InitialSettings
     };
 
     vscode.postMessage({ type: requestTypes.pasteItemRequest, data: { col: collection, isFolder: isFolder } });
@@ -163,10 +168,10 @@ export const CollectionBar = (props: ICollectionProps) => {
     setCurrentHeadIndex("");
   }
 
-  function onDelete(evt: React.MouseEvent<HTMLElement>, colId: string, folderId: string, historyId: string, isFolder: boolean) {
+  function onDelete(evt: React.MouseEvent<HTMLElement>, colId: string, folderId: string, historyId: string, isFolder: boolean, name: string) {
     evt.preventDefault();
     evt.stopPropagation();
-    vscode.postMessage({ type: requestTypes.deleteCollectionItemRequest, data: { colId: colId, folderId: folderId, historyId: historyId, isFolder: isFolder } });
+    vscode.postMessage({ type: requestTypes.deleteCollectionItemRequest, data: { colId: colId, folderId: folderId, historyId: historyId, isFolder: isFolder, name: name } });
     setCurrentIndex("");
     setCurrentHeadIndex("");
   }
@@ -179,18 +184,18 @@ export const CollectionBar = (props: ICollectionProps) => {
     setCurrentHeadIndex("");
   }
 
-  function onExport(evt: React.MouseEvent<HTMLElement>, cols: ICollections, hisId: string, folderId: string) {
+  function onExport(evt: React.MouseEvent<HTMLElement>, colId: string, hisId: string, folderId: string, name: string) {
     evt.preventDefault();
     evt.stopPropagation();
-    vscode.postMessage({ type: requestTypes.exportRequest, data: { cols: cols, hisId: hisId, folderId: folderId } });
+    vscode.postMessage({ type: requestTypes.exportRequest, data: { colId: colId, hisId: hisId, folderId: folderId, name: name } });
     setCurrentIndex("");
     setCurrentHeadIndex("");
   }
 
-  function onSettings(evt: React.MouseEvent<HTMLElement>, id: string, type: string, name: string) {
+  function onSettings(evt: React.MouseEvent<HTMLElement>, colId: string, folderId: string, type: string, name: string, varId: string) {
     evt.preventDefault();
     evt.stopPropagation();
-    vscode.postMessage({ type: requestTypes.openColSettingsRequest, data: { id: id, type: type, name: name } });
+    vscode.postMessage({ type: requestTypes.openColSettingsRequest, data: { colId: colId, folderId: folderId, type: type, name: name, varId: varId } });
     setCurrentIndex("");
     setCurrentHeadIndex("");
   }
@@ -201,7 +206,7 @@ export const CollectionBar = (props: ICollectionProps) => {
     if (!cols.variableId) {
       vscode.postMessage({ type: requestTypes.attachVariableRequest, data: { id: cols.id, name: cols.name } });
     } else {
-      vscode.postMessage({ type: requestTypes.removeVariableRequest, data: { id: cols.id } });
+      vscode.postMessage({ type: requestTypes.removeVariableRequest, data: { id: cols.id, name: cols.name } });
     }
     setCurrentIndex("");
     setCurrentHeadIndex("");
@@ -215,18 +220,18 @@ export const CollectionBar = (props: ICollectionProps) => {
     setCurrentHeadIndex("");
   }
 
-  function onClear(evt: React.MouseEvent<HTMLElement>, colId: string, folderId: string) {
+  function onClear(evt: React.MouseEvent<HTMLElement>, colId: string, folderId: string, name: string) {
     evt.preventDefault();
     evt.stopPropagation();
-    vscode.postMessage({ type: requestTypes.clearRequest, data: { colId: colId, folderId: folderId } });
+    vscode.postMessage({ type: requestTypes.clearRequest, data: { colId: colId, folderId: folderId, name: name } });
     setCurrentHeadIndex("");
   }
 
-  function onClickHistory(evt: React.MouseEvent<HTMLElement>, id: string, name: string, variableId: string) {
+  function onClickHistory(evt: React.MouseEvent<HTMLElement>, colId: string, folderId: string, itemId: string, name: string, variableId: string) {
     evt.preventDefault();
     evt.stopPropagation();
-    setSelectedItem(id);
-    vscode.postMessage({ type: requestTypes.openHistoryItemRequest, data: { id: id, name: name, varId: variableId } });
+    setSelectedItem(itemId);
+    vscode.postMessage({ type: requestTypes.openHistoryItemRequest, data: { colId: colId, folderId: folderId, id: itemId, name: name, varId: variableId } });
   }
 
   function hasData(history: IHistory): boolean {
@@ -236,38 +241,45 @@ export const CollectionBar = (props: ICollectionProps) => {
       || history.createdTime?.toLowerCase().includes(props.filterCondition));
   }
 
+
+  function findData(source: any, dest: any) {
+    let folders = source.data.filter((item: any) => item.data !== undefined);
+    let histories = source.data.filter((item: any) => item.data === undefined);
+
+    let filteredData = histories?.filter((history: any) =>
+      history.name?.toLowerCase().includes(props.filterCondition)
+      || history.url?.toLowerCase().includes(props.filterCondition)
+      || history.method?.toLowerCase().includes(props.filterCondition)
+      || history.createdTime?.toLowerCase().includes(props.filterCondition)
+    );
+
+    if (filteredData?.length > 0) {
+      dest.data = filteredData;
+    } else {
+      dest.data = [];
+    }
+
+    if (folders.length === 0) {
+      return dest;
+    }
+
+    for (let i = 0; i < folders.length; i++) {
+      let result = findData(folders[i], JSON.parse(JSON.stringify(folders[i])));
+      if (result.data.length > 0) {
+        dest.data = dest.data.concat(result);
+      }
+    }
+
+    return dest;
+  }
+
   function filterCollections(cols: ICollections[]) {
     let filCol: ICollections[] = [];
-    for (let i = 0; i < cols.length; i++) {
-      let d: (IHistory | IFolder)[] = [];
-      cols[i].data.forEach((item) => {
-        if (isFolder(item)) {
-          let items: IHistory[] = [];
-          (item as IFolder).data.forEach((itm) => {
-            if (itm && hasData(itm)) {
-              items.push(itm);
-            }
-          });
-          if (items && items.length > 0) {
-            let fol: IFolder = item as IFolder;
-            fol.data = items;
-            d = d.concat(fol);
-          }
-        } else {
-          if (item && hasData(item as IHistory)) {
-            d = d.concat(item);
-          }
-        }
-      });
 
-      if (d.length > 0) {
-        filCol.push({
-          id: cols[i].id,
-          createdTime: cols[i].createdTime,
-          name: cols[i].name,
-          data: d,
-          variableId: cols[i].variableId
-        });
+    for (let i = 0; i < cols.length; i++) {
+      let result = findData(cols[i], JSON.parse(JSON.stringify(cols[i])));
+      if (result.data.length > 0) {
+        filCol.push(result);
       }
     }
 
@@ -299,10 +311,10 @@ export const CollectionBar = (props: ICollectionProps) => {
     </div>;
   }
 
-  function runAll(evt: React.MouseEvent<HTMLElement>, id: string, name: string, varId: string) {
+  function onRunAll(evt: React.MouseEvent<HTMLElement>, colId: string, folderId: string, name: string, varId: string) {
     evt.preventDefault();
     evt.stopPropagation();
-    vscode.postMessage({ type: requestTypes.runAllUIOpenRequest, data: { id: id, name: name, varId: varId } });
+    vscode.postMessage({ type: requestTypes.runAllUIOpenRequest, data: { colId: colId, folderId: folderId, name: name, varId: varId } });
     setCurrentHeadIndex("");
   }
 
@@ -318,7 +330,7 @@ export const CollectionBar = (props: ICollectionProps) => {
     setCurrentHeadIndex("");
   }
 
-  function addNewFolder(evt: React.MouseEvent<HTMLElement>, colId: string) {
+  function addNewFolder(evt: React.MouseEvent<HTMLElement>, colId: string, folderId: string) {
     evt.preventDefault();
     evt.stopPropagation();
     let newFolder: IFolder = {
@@ -326,9 +338,13 @@ export const CollectionBar = (props: ICollectionProps) => {
       name: "New Folder",
       type: "folder",
       createdTime: formatDate(),
-      data: []
+      data: [],
+      settings: InitialSettings
     };
-    vscode.postMessage({ type: requestTypes.createNewFolderRequest, data: { folder: newFolder, colId: colId } });
+
+    newFolder.settings.auth.authType = "inherit";
+
+    vscode.postMessage({ type: requestTypes.createNewFolderRequest, data: { folder: newFolder, colId: colId, folderId: folderId } });
     setCurrentHeadIndex("");
   }
 
@@ -344,56 +360,81 @@ export const CollectionBar = (props: ICollectionProps) => {
     openContextMenu(id, isSub);
   }
 
-  function getFolderItems(cols: ICollections, item: IFolder, variableId: string) {
-    return (<details className="folder-details-items" open={props.filterCondition ? true : false} key={"folder-" + item.id}>
-      <summary className="folder-items" onContextMenu={(e) => onColRightClick(e, item.id)}>
-        {item.name}
-        <div className={item.id === currentHeadIndex ? "more-icon display-block" : "more-icon"} ref={el => moreHeadMenuWrapperRef.current[item.id] = el}>
-          <DotsLogo id={"three-dots-" + item.id} onClick={(e) => openMoreMenu(e, item.id)} />
-          <input type="checkbox" className="dd-input" checked={item.id === currentHeadIndex} readOnly />
-          <div id={"drop-down-menu-" + item.id} className="dropdown-more" style={styles.bottomStyle}>
-            <button onClick={(e) => addNewRequest(e, cols.id, item.id)}>New Request</button>
-            <div className="divider"></div>
-            <button onClick={(e) => runAll(e, item.id, cols.name + " \\ " + item.name, cols.variableId)}>Run All</button>
-            <div className="divider"></div>
-            <button onClick={(e) => onRename(e, cols.id, "", item.id, true)}>Rename</button>
-            <button onClick={(e) => onDelete(e, cols.id, item.id, "", true)}>Delete</button>
-            <button onClick={(e) => onClear(e, cols.id, item.id)}>Clear Items</button>
-            {isCopied && <button onClick={(e) => onPaste(e, cols.id, item, true)}>Paste</button>}
-            <button onClick={(e) => onDuplicate(e, cols.id, item.id, "", true)}>Duplicate</button>
-            <div className="divider"></div>
-            <button onClick={(e) => onExport(e, cols, "", item.id)}>Export</button>
-            {/* <button onClick={(e) => onSettings(e, item.id, SettingsType.Folder, item.name)}>Settings</button> */}
+  function getPaddingLeft(level: number) {
+    const paddingStyle = {
+      "--b-pl": ((level + 1) * 5) + "px",
+      "--pl": ((level * 5) + 40) + "px",
+      "--fpl": (((level + 2) * 5) + 2) + "px",
+    };
+
+    return paddingStyle as React.CSSProperties;
+  }
+
+  function getFolderItems(cols: ICollections, item: IFolder, variableId: string, level: number) {
+    return (
+      <details className="folder-details-items" style={getPaddingLeft(level)} open={props.filterCondition ? true : false} key={"folder-" + item.id}>
+        <summary className="folder-items" onContextMenu={(e) => onColRightClick(e, item.id)}>
+          {item.name}
+          <div className={item.id === currentHeadIndex ? "more-icon display-block" : "more-icon"} ref={el => moreHeadMenuWrapperRef.current[item.id] = el}>
+            <DotsLogo id={"three-dots-" + item.id} onClick={(e) => openMoreMenu(e, item.id)} />
+            <input type="checkbox" className="dd-input" checked={item.id === currentHeadIndex} readOnly />
+            <div id={"drop-down-menu-" + item.id} className="dropdown-more" style={styles.bottomStyle}>
+              <button onClick={(e) => addNewRequest(e, cols.id, item.id)}>New Request</button>
+              <button onClick={(e) => addNewFolder(e, cols.id, item.id)}>New Folder</button>
+              <div className="divider"></div>
+              <button onClick={(e) => onRunAll(e, cols.id, item.id, cols.name + " \\ " + item.name, cols.variableId)}>Run All</button>
+              <div className="divider"></div>
+              <button onClick={(e) => onRename(e, cols.id, "", item.id, true)}>Rename</button>
+              <button onClick={(e) => onDelete(e, cols.id, item.id, "", true, item.name)}>Delete</button>
+              <button onClick={(e) => onClear(e, cols.id, item.id, item.name)}>Clear Items</button>
+              {isCopied && <button onClick={(e) => onPaste(e, cols.id, item, true)}>Paste</button>}
+              <button onClick={(e) => onDuplicate(e, cols.id, item.id, "", true)}>Duplicate</button>
+              <div className="divider"></div>
+              <button onClick={(e) => onExport(e, cols.id, "", item.id, item.name)}>Export</button>
+              <button onClick={(e) => onSettings(e, cols.id, item.id, SettingsType.Folder, item.name, cols.variableId)}>Settings</button>
+            </div>
           </div>
-        </div>
-      </summary>
-      {
-        item.data && item.data.length > 0 && item.data.map((listItem) => {
-          return (<div key={"collections-item-" + listItem.id} className={selectedItem === listItem.id ? "activity-items folder-activity-items selected-item" : "activity-items folder-activity-items"} onContextMenu={(e) => onItemRightClick(e, listItem.id, true)} onClick={(e) => onClickHistory(e, listItem.id, listItem.name, variableId)}>
-            <div className="activity-item-row-1">
-              <label className={"activity-method " + getMethodClassName((listItem as IHistory).method.toUpperCase())}>{getMethodName((listItem as IHistory).method.toUpperCase())}</label>
-              <label className="activity-url">{listItem.name.replace(/^https?:\/\//, '')}</label>
-            </div>
-            {getVariableName(variableId)}
-            <div className="activity-item-row-2">
-              <label>{getDays(listItem.createdTime, new Date())}</label>
-              <div className={listItem.id === currentIndex ? "more-icon display-block" : "more-icon"} ref={el => moreMenuWrapperRef.current[listItem.id] = el}>
-                <DotsLogo id={"three-dots-" + listItem.id} onClick={(e) => openMoreMenu(e, listItem.id, true)} />
-                <input type="checkbox" className="dd-input" checked={listItem.id === currentIndex} readOnly />
-                <div id={"drop-down-menu-" + listItem.id} className="dropdown-more" style={styles.bottomStyle}>
-                  <button onClick={(e) => onRename(e, cols.id, listItem.id, item.id, false)}>Rename</button>
-                  <button onClick={(e) => onCopy(e, listItem as IHistory)}>Copy</button>
-                  <button onClick={(e) => onDelete(e, cols.id, item.id, listItem.id, false)}>Delete</button>
-                  <button onClick={(e) => onDuplicate(e, cols.id, item.id, listItem.id, false)}>Duplicate</button>
-                  <div className="divider"></div>
-                  <button onClick={(e) => onExport(e, cols, listItem.id, item.id)}>Export</button>
-                </div>
-              </div>
-            </div>
-          </div>);
-        })
-      }
-    </details >
+        </summary>
+        {
+          <>
+            {
+              item.data && item.data.length > 0 && item.data.map((listItem) => {
+                if (isFolder(listItem)) {
+                  return getFolderItems(cols, (listItem as IFolder), cols.variableId, level + 1);
+                }
+              })
+            }
+            {
+              item.data && item.data.length > 0 && item.data.map((listItem) => {
+                if (!isFolder(listItem)) {
+                  return (<div key={"collections-item-" + listItem.id} style={getPaddingLeft(level)} className={selectedItem === listItem.id ? "activity-items folder-activity-items selected-item" : "activity-items folder-activity-items"} onContextMenu={(e) => onItemRightClick(e, listItem.id, true)} onClick={(e) => onClickHistory(e, cols.id, item.id, listItem.id, listItem.name, variableId)}>
+                    <div className="activity-item-row-1">
+                      <label className={"activity-method " + getMethodClassName((listItem as IHistory).method.toUpperCase())}>{getMethodName((listItem as IHistory).method.toUpperCase())}</label>
+                      <label className="activity-url">{listItem.name.replace(/^https?:\/\//, '')}</label>
+                    </div>
+                    {getVariableName(variableId)}
+                    <div className="activity-item-row-2">
+                      <label>{getDays(listItem.createdTime, new Date())}</label>
+                      <div className={listItem.id === currentIndex ? "more-icon display-block" : "more-icon"} ref={el => moreMenuWrapperRef.current[listItem.id] = el}>
+                        <DotsLogo id={"three-dots-" + listItem.id} onClick={(e) => openMoreMenu(e, listItem.id, true)} />
+                        <input type="checkbox" className="dd-input" checked={listItem.id === currentIndex} readOnly />
+                        <div id={"drop-down-menu-" + listItem.id} className="dropdown-more" style={styles.bottomStyle}>
+                          <button onClick={(e) => onRename(e, cols.id, listItem.id, item.id, false)}>Rename</button>
+                          <button onClick={(e) => onCopy(e, listItem as IHistory)}>Copy</button>
+                          <button onClick={(e) => onDelete(e, cols.id, item.id, listItem.id, false, listItem.name)}>Delete</button>
+                          <button onClick={(e) => onDuplicate(e, cols.id, item.id, listItem.id, false)}>Duplicate</button>
+                          <div className="divider"></div>
+                          <button onClick={(e) => onExport(e, cols.id, listItem.id, item.id, listItem.name)}>Export</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>);
+                }
+              })
+            }
+          </>
+        }
+      </details >
     );
   }
 
@@ -406,22 +447,22 @@ export const CollectionBar = (props: ICollectionProps) => {
             <DotsLogo id={"three-dots-" + item.id} onClick={(e) => openMoreMenu(e, item.id)} />
             <input type="checkbox" className="dd-input" checked={item.id === currentHeadIndex} readOnly />
             <div id={"drop-down-menu-" + item.id} className="dropdown-more" style={styles.bottomStyle}>
-              <button onClick={(e) => addNewFolder(e, item.id)}>New Folder</button>
               <button onClick={(e) => addNewRequest(e, item.id, "")}>New Request</button>
+              <button onClick={(e) => addNewFolder(e, item.id, "")}>New Folder</button>
               <div className="divider"></div>
-              <button onClick={(e) => runAll(e, item.id, item.name, item.variableId)}>Run All</button>
+              <button onClick={(e) => onRunAll(e, item.id, "", item.name, item.variableId)}>Run All</button>
               {index !== 0 && <div className="divider"></div>}
               {index !== 0 && <><button onClick={(e) => onRenameCollection(e, item.id)}>Rename</button>
-                <button onClick={(e) => onDeleteCollection(e, item.id)}>Delete</button></>}
-              <button onClick={(e) => onClear(e, item.id, "")}>Clear Items</button>
+                <button onClick={(e) => onDeleteCollection(e, item.id, item.name)}>Delete</button></>}
+              <button onClick={(e) => onClear(e, item.id, "", item.name)}>Clear Items</button>
               <div className="divider"></div>
               <button onClick={(e) => onCopyTo(e, item)}>Copy To</button>
               {isCopied && <button onClick={(e) => onPaste(e, item.id, null, false)}>Paste</button>}
               <button onClick={(e) => onDuplicate(e, item.id, "", "", false)}>Duplicate</button>
               <button onClick={(e) => onAttach(e, item)}>{item.variableId ? "Remove Variable" : "Attach Variable"}</button>
               <div className="divider"></div>
-              <button onClick={(e) => onExport(e, item, "", "")}>Export</button>
-              {/* <button onClick={(e) => onSettings(e, item.id, SettingsType.Collection, item.name)}>Settings</button> */}
+              <button onClick={(e) => onExport(e, item.id, "", "", item.name)}>Export</button>
+              <button onClick={(e) => onSettings(e, item.id, "", SettingsType.Collection, item.name, item.variableId)}>Settings</button>
             </div>
           </div>
         </summary>
@@ -429,17 +470,17 @@ export const CollectionBar = (props: ICollectionProps) => {
           {
             <>
               {
-                item.data && item.data.map((listItem) => {
+                item.data && item.data.length > 0 && item.data.map((listItem) => {
                   if (isFolder(listItem)) {
-                    return getFolderItems(item, (listItem as IFolder), item.variableId);
+                    return getFolderItems(item, (listItem as IFolder), item.variableId, 0);
                   }
                 })
               }
               {
-                item.data && item.data.map((listItem) => {
+                item.data && item.data.length > 0 && item.data.map((listItem) => {
                   if (!isFolder(listItem)) {
                     return (
-                      <div key={"collections-item-" + listItem.id} className={selectedItem === listItem.id ? "activity-items selected-item" : "activity-items"} onContextMenu={(e) => onItemRightClick(e, listItem.id, true)} onClick={(e) => onClickHistory(e, listItem.id, listItem.name, item.variableId)}>
+                      <div key={"collections-item-" + listItem.id} className={selectedItem === listItem.id ? "activity-items selected-item" : "activity-items"} onContextMenu={(e) => onItemRightClick(e, listItem.id, true)} onClick={(e) => onClickHistory(e, item.id, "", listItem.id, listItem.name, item.variableId)}>
                         <div className="activity-item-row-1">
                           <label className={"activity-method " + getMethodClassName((listItem as IHistory).method.toUpperCase())}>{getMethodName((listItem as IHistory).method.toUpperCase())}</label>
                           <label className="activity-url">{listItem.name.replace(/^https?:\/\//, '')}</label>
@@ -453,10 +494,10 @@ export const CollectionBar = (props: ICollectionProps) => {
                             <div id={"drop-down-menu-" + listItem.id} className="dropdown-more" style={styles.bottomStyle}>
                               <button onClick={(e) => onRename(e, item.id, listItem.id, "", false)}>Rename</button>
                               <button onClick={(e) => onCopy(e, listItem as IHistory)}>Copy</button>
-                              <button onClick={(e) => onDelete(e, item.id, "", listItem.id, false)}>Delete</button>
+                              <button onClick={(e) => onDelete(e, item.id, "", listItem.id, false, listItem.name)}>Delete</button>
                               <button onClick={(e) => onDuplicate(e, item.id, "", listItem.id, false)}>Duplicate</button>
                               <div className="divider"></div>
-                              <button onClick={(e) => onExport(e, item, listItem.id, "")}>Export</button>
+                              <button onClick={(e) => onExport(e, item.id, listItem.id, "", listItem.name)}>Export</button>
                             </div>
                           </div>
                         </div>

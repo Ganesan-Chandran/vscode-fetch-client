@@ -2,10 +2,12 @@ export interface IUIModel {
   open: boolean[],
   horizontalLayout: boolean;
   theme: number;
+  runItem: boolean;
 }
 
 export const FETCH_CLIENT_SET_ACC_OPEN: "FETCH_CLIENT_SET_ACC_OPEN" = "FETCH_CLIENT_SET_ACC_OPEN";
 export const FETCH_CLIENT_SET_UI_HORIZONTAL: "FETCH_CLIENT_SET_UI_HORIZONTAL" = "FETCH_CLIENT_SET_UI_HORIZONTAL";
+export const FETCH_CLIENT_SET_RUN_ITEM: "FETCH_CLIENT_SET_RUN_ITEM" = "FETCH_CLIENT_SET_RUN_ITEM";
 
 export interface ISetOpen {
   type: typeof FETCH_CLIENT_SET_ACC_OPEN;
@@ -22,4 +24,11 @@ export interface ISetLayout {
   };
 }
 
-export type UIActionTypes = | ISetOpen | ISetLayout;
+export interface ISetRunItem {
+  type: typeof FETCH_CLIENT_SET_RUN_ITEM;
+  payload: {
+    runItem: boolean;
+  };
+}
+
+export type UIActionTypes = | ISetOpen | ISetLayout | ISetRunItem;

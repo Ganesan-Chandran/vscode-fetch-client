@@ -6,5 +6,10 @@ export const responseOptions = [
   { name: "Notes", value: "notes", }
 ];
 
+export const curlResponseOptions = [
+  { name: "Response", value: "response", },
+  { name: "Headers", value: "headers", },
+  { name: "Cookies", value: "cookies", }
+];
 
 export const maxDisplayResponseLimitInBytes = 5242880;

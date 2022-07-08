@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from "react-redux";
 import { IRootState } from "../../../../reducer/combineReducer";
-import { responseOptions } from "../../ResponsePanel/consts";
+import { curlResponseOptions, responseOptions } from "../../ResponsePanel/consts";
 import { ReactComponent as MenuLogo } from '../../../../../../icons/menu.svg';
 import { ReactComponent as CodeLogo } from '../../../../../../icons/code.svg';
 import "./style.css";
@@ -83,6 +83,9 @@ export const ResponseOptionsTab = (props: any) => {
       setSelectedTab("codesnippet");
     }
   }
+  function getResponseOptions(): { name: string; value: string; }[] {
+    return props.isCurl ? curlResponseOptions : responseOptions;
+  }
 
   return (
     <>
@@ -94,7 +97,7 @@ export const ResponseOptionsTab = (props: any) => {
       }
       <div className="tab-options">
         {
-          responseOptions.map((option) => (
+          getResponseOptions().map((option) => (
             <button
               key={option.value}
               onClick={() => setSelectedTab(option.value)}
@@ -149,7 +152,7 @@ export const ResponseOptionsTab = (props: any) => {
             <MenuLogo className="res-menu" title="Menu" onClick={(e) => setShowMenu(e)} />
             {menuShow && (<div id="res-menu" className={"dropdown-content res-drop-down-menu show"}>
               <button className="save-to-file-button" onClick={(e) => onSaveResponse(e)} disabled={response.responseData && !response.responseType.isBinaryFile && !response.isError ? false : true}>Save Response to File</button>
-              <button className="save-to-file-button" onClick={(e) => onSaveTestResponse(e)} disabled={testResults.length > 0 ? false : true}>Save Tests to File</button>
+              {!props.isCurl && <button className="save-to-file-button" onClick={(e) => onSaveTestResponse(e)} disabled={testResults.length > 0 ? false : true}>Save Tests to File</button>}
             </div>
             )}
           </div>

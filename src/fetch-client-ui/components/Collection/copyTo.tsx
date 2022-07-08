@@ -21,7 +21,7 @@ const CopyTo = () => {
   useEffect(() => {
     const id = document.title.split(":")[1];
     setSourceColId(id);
-    const name = document.title.split(":")[2];
+    const name = document.title.split(":")[3];
     setSourceColName(name);
 
     window.addEventListener("message", (event) => {
@@ -143,7 +143,7 @@ const CopyTo = () => {
           <div className="button-panel">
             <button
               type="submit"
-              className="request-send-button"
+              className="submit-button"
               onClick={onSubmitClick}
               disabled={isDone}
             >

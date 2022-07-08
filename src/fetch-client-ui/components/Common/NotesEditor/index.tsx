@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { DefaultEditor } from 'react-simple-wysiwyg';
 import { IRootState } from '../../../reducer/combineReducer';
 import { Actions } from '../../RequestUI/redux';
-import { getDataFromHTML, notesMaxLimit } from '../helper';
+import { GetDataFromHTML, notesMaxLimit } from '../helper';
 import "./style.css";
 
 export const NotesEditor = () => {
@@ -30,14 +30,14 @@ export const NotesEditor = () => {
         }
 
         if (notes) {
-            const data = getDataFromHTML(notes);
+            const data = GetDataFromHTML(notes);
             setCount(data.length);
         }
 
     }, []);
 
     function onChange(e: any) {
-        const data = getDataFromHTML(e.target.value);
+        const data = GetDataFromHTML(e.target.value);
         dispatch(Actions.SetNotesAction(e.target.value));
         setCount(data.length);
     }

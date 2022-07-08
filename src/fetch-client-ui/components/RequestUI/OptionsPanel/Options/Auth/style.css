@@ -29,7 +29,7 @@
 }
 
 .auth-token-text-panel {
-  max-width    : 70%;
+  max-width: 70%;
   flex-grow: 1;
 }
 
@@ -168,7 +168,7 @@ label {
 }
 
 .setting-mode {
-  width  : calc(100% - 120px) !important;
+  width  : calc(100% - 131px) !important;
   height : 28px !important;
   padding: 0 10px !important;
 }
@@ -179,4 +179,20 @@ label {
 
 .auth-no-label {
   padding-top: 10px;
+}
+
+.auth-label {
+  font-size: medium;
+}
+
+.inherit-auth-summary {
+  padding-left: 5px;
+}
+
+.inherit-auth-details {
+  padding-top: 15px;
+}
+
+.inherit-auth-summary-panel {
+  pointer-events: none;
 }

@@ -1,0 +1,99 @@
+.curl-text-panel {
+  height    : 49%;
+  padding   : 15px;
+  box-sizing: border-box;
+}
+
+.curl-res-panel {
+  height: 48%;
+}
+
+.curl-text-box {
+  width           : calc(100% - 100px);
+  height          : calc(100% - 25px);
+  resize          : none;
+  background-color: var(--background-color);
+  color           : var(--text-color);
+  border-color    : var(--border-color);
+  outline         : none;
+  margin-top      : 5px;
+  padding         : 10px;
+}
+
+.curl-text-box:focus {
+  outline: none;
+}
+
+.curl-options {
+  margin-bottom: 15px;
+}
+
+.curl-option {
+  margin-left: 20px;
+}
+
+.curl-label {
+  padding-left: 5px;
+}
+
+.curl-text-section {
+  display: flex;
+  height : calc(100% - 45px);
+  padding: 5px;
+}
+
+.curl-run-btn {
+  top        : 30%;
+  position   : relative;
+  margin-left: 15px;
+}
+
+.curl-run-col-btn:disabled,
+.curl-run-col-btn[disabled] .curl-run-btn:disabled,
+.curl-run-btn[disabled] {
+  background-color: #ccc;
+  color           : #666;
+  cursor          : not-allowed;
+}
+
+.curl-run-col-btn {
+  margin: 0 auto;
+}
+
+.curl-col-table-panel {
+  display: block;
+}
+
+.curl-col-table {
+  width      : 50%;
+  padding    : 10px;
+  margin-left: 10px;
+}
+
+.curl-col-table td,
+.curl-col-table tr {
+  display: flex;
+}
+
+.curl-col-table tr {
+  height: 60px;
+}
+
+.curl-col-table tr:hover {
+  background-color: transparent !important;
+}
+
+.curl-run-btn-panel {
+  text-align: center;
+}
+
+.curl-import-btn-panel {
+  width     : 100%;
+  text-align: center;
+}
+
+.curl-error {
+  width     : 100%;
+  margin    : 0 auto;
+  text-align: center;
+}

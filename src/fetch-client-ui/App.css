@@ -5,42 +5,42 @@ body,
 }
 
 .app {
-  height: calc(100% - 3.5px);
+  height: 100%;
 }
 
 body {
   background-color: var(--background-color);
-  color: var(--text-color);
-  border-color: var(--border-color);
-  font-family: var(--font-family);
-  padding: 0;
+  color           : var(--text-color);
+  border-color    : var(--border-color);
+  font-family     : var(--font-family);
+  padding         : 0;
 }
 
 hr {
-  border: none;
-  height: 1px;
+  border    : none;
+  height    : 1px;
   background: #5e5e5e;
 }
 
 .error-text-box {
-  width: 90%;
-  height: 350px;
-  resize: none;
+  width           : 90%;
+  height          : 350px;
+  resize          : none;
   background-color: var(--background-color);
-  color: var(--text-color);
-  border-color: var(--border-color);
-  outline: none;
+  color           : var(--text-color);
+  border-color    : var(--border-color);
+  outline         : none;
 }
 
 .error-header-text-box,
 .error-something-text-box {
-  width: 90%;
-  height: 50px;
-  resize: none;
+  width           : 90%;
+  height          : 50px;
+  resize          : none;
   background-color: transparent;
-  color: red;
-  border-color: transparent;
-  outline: none;
+  color           : red;
+  border-color    : transparent;
+  outline         : none;
 }
 
 .error-something-text-box {
@@ -54,7 +54,7 @@ hr {
 }
 
 .error-panel {
-  padding: 20px;
+  padding   : 20px;
   text-align: center;
 }
 
@@ -63,23 +63,28 @@ hr {
 }
 
 .issue-raise-button-panel {
-  width: 90%;
-  text-align: center;
+  width      : 90%;
+  text-align : center;
   padding-top: 10px;
 }
 
 .issue-raise-button {
-  appearance: button;
-  width: fit-content !important;
+  appearance     : button;
+  width          : fit-content !important;
   text-decoration: none;
 }
 
 .issue-raise-button:hover {
   background-color: var(--button-hover-color);
-  color: var(--text-color);
-  text-decoration: none;
+  color           : var(--text-color);
+  text-decoration : none;
 }
 
 .issue-raise-button:focus {
   outline: none;
+}
+
+.body-full-screen {
+  overflow : hidden;
+  transform: none !important;
 }

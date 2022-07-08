@@ -31,7 +31,11 @@ export function getDays(date1: string, date2: Date) {
 }
 
 
-export function getMethodClassName(method: string) {
+export function getMethodClassName(method: string, disabled?: boolean) {
+  if (disabled !== undefined && disabled !== null && disabled === false) {
+    return "disabled-mtd";
+  }
+
   switch (method) {
     case "GET":
       return "get-mtd";
@@ -56,6 +60,6 @@ export function getMethodName(method: string) {
   return method;
 }
 
-export function isFolder(data: IHistory | IFolder): boolean {
-  return (data as IFolder).type !== undefined;
+export function isFolder(item: any): boolean {
+  return item.data !== undefined;
 }

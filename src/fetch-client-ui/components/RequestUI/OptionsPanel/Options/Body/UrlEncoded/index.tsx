@@ -3,8 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "../../../../../../reducer/combineReducer";
 import { ITableData } from "../../../../../Common/Table/types";
 import { Table } from "../../../../../Common/Table/Table";
-import { Actions, InitialParams } from "../../../../redux";
-import { FileTypes } from "../Binary/consts";
+import { Actions } from "../../../../redux";
 
 export const UrlEncoded = () => {
 
@@ -85,7 +84,7 @@ export const UrlEncoded = () => {
     if (body.bodyType === "formurlencoded" && body.urlencoded?.length > 1) {
       let localHeaders = [...headers];
       let contentTypeHeaderIndex = headers.findIndex(item => item.isChecked && item.key.trim().toLocaleLowerCase() === "content-type");
-      if(contentTypeHeaderIndex !== -1 && localHeaders[contentTypeHeaderIndex].key === "application/x-www-form-urlencoded"){
+      if (contentTypeHeaderIndex !== -1 && localHeaders[contentTypeHeaderIndex].key === "application/x-www-form-urlencoded") {
         return;
       }
       if (contentTypeHeaderIndex !== -1) {
@@ -110,7 +109,7 @@ export const UrlEncoded = () => {
 
   return (
     <Table
-      data={body.urlencoded ?? InitialParams}
+      data={body.urlencoded ?? [{ isChecked: false, key: "", value: "" }]}
       onSelectChange={onSelectChange}
       onRowAdd={onRowAdd}
       onRowUpdate={onRowUpdate}

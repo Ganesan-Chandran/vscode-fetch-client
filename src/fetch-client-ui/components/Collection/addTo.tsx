@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { requestTypes, responseTypes } from "../../../utils/configuration";
 import { formatDate } from "../../../utils/helper";
 import vscode from "../Common/vscodeAPI";
+import { InitialSettings } from "../SideBar/redux/reducer";
 import { ICollections, IFolder, IHistory } from "../SideBar/redux/types";
 import { getMethodClassName } from "../SideBar/util";
 import "./style.css";
@@ -115,6 +116,7 @@ const AddToCollection = () => {
           createdTime: formatDate(),
           type: "folder",
           data: [history],
+          settings: InitialSettings
         };
       }
 
@@ -124,6 +126,7 @@ const AddToCollection = () => {
         name: selectedCollection === "0" ? colName : "",
         data: folder ? [folder] : [history],
         variableId: "",
+        settings: InitialSettings
       };
 
       vscode.postMessage({ type: requestTypes.addToCollectionsRequest, data: { col: collection, hasFolder: folder ? true : false, isNewFolder : selectedFolder === "0" ? true : false} });
@@ -242,7 +245,7 @@ const AddToCollection = () => {
           <div className="button-panel">
             <button
               type="submit"
-              className="request-send-button"
+              className="submit-button"
               onClick={onSubmitClick}
               disabled={isDone}
             >

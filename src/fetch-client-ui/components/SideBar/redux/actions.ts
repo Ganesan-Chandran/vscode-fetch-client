@@ -205,12 +205,13 @@ export const SetNewRequestToCollectionAction = (value: IHistory, value1: string,
   };
 };
 
-export const SetFolderToCollectionAction = (value: IFolder, value1: string): SideBarActionTypes => {
+export const SetFolderToCollectionAction = (value: IFolder, value1: string, value2: string): SideBarActionTypes => {
   return {
     type: FETCH_CLIENT_SET_NEW_FOLDER_TO_COLLECTION,
     payload: {
       folder: value,
-      colId: value1
+      colId: value1,
+      folderId: value2
     }
   };
 };

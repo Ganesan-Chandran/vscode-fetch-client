@@ -1,9 +1,10 @@
-import { FETCH_CLIENT_SET_ACC_OPEN, FETCH_CLIENT_SET_UI_HORIZONTAL, IUIModel, UIActionTypes } from "./types";
+import { FETCH_CLIENT_SET_ACC_OPEN, FETCH_CLIENT_SET_RUN_ITEM, FETCH_CLIENT_SET_UI_HORIZONTAL, IUIModel, UIActionTypes } from "./types";
 
 export const InitialState: IUIModel = {
   open: [true, false],
   horizontalLayout: true,
-  theme: 2
+  theme: 2,
+  runItem: false
 };
 
 export const UIReducer: (state?: IUIModel,
@@ -22,6 +23,12 @@ export const UIReducer: (state?: IUIModel,
           ...state,
           horizontalLayout: action.payload.horizontalLayout,
           theme: action.payload.theme,
+        };
+      }
+      case FETCH_CLIENT_SET_RUN_ITEM: {
+        return {
+          ...state,
+          runItem: action.payload.runItem
         };
       }
       default: {
