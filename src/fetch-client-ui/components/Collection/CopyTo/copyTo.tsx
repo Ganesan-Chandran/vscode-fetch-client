@@ -1,10 +1,9 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
-import { requestTypes, responseTypes } from "../../../utils/configuration";
-import vscode from "../Common/vscodeAPI";
-import { ICollections } from "../SideBar/redux/types";
-import "./style.css";
+import { requestTypes, responseTypes } from "../../../../utils/configuration";
+import vscode from "../../Common/vscodeAPI";
+import "../style.css";
 
 const CopyTo = () => {
 

@@ -295,6 +295,7 @@ Fetch client provides the quick access of History, collection and Environment va
   <br/>
   <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/run-all-menu.png?raw=true"/>
   <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/run-all.png?raw=true"/>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/run-all-settings.png?raw=true"/>
 </div>
 
 <a name="managecookies"></a>

@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 import { requestTypes, responseTypes } from "../../../utils/configuration";
 import { formatDate } from "../../../utils/helper";
-import { HandleColSelectionValidation } from "../Collection/helper";
+import { HandleColSelectionValidation } from "./helper";
 import vscode from "../Common/vscodeAPI";
 import { ResponseActions } from "../ResponseUI/redux";
 import { ReponsePanel } from "../ResponseUI/ResponsePanel";

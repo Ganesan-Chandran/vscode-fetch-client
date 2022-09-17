@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
-import { requestTypes, responseTypes } from "../../../utils/configuration";
-import vscode from "../Common/vscodeAPI";
-import { IVariable } from "../SideBar/redux/types";
-import "./style.css";
+import { requestTypes, responseTypes } from "../../../../utils/configuration";
+import vscode from "../../Common/vscodeAPI";
+import { IVariable } from "../../SideBar/redux/types";
+import "../style.css";
 
 const AttachVariable = () => {
   const [colName, setColName] = useState("");

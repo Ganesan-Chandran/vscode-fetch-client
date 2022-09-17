@@ -47,7 +47,7 @@ export const CurlProviderUI = (extensionUri: any) => {
       if (reqData.type === requestTypes.runCurlRequest) {
         const timeOut = getTimeOut();
         let req = ConvertCurlToRequest(reqData.data);
-        if (!req) {
+        if (!req || !req.url) {
           let apiResponse = getErrorResponse();
           apiResponse.response.responseData = "Invalid Curl Command";
           curlPanel.webview.postMessage({ type: responseTypes.runCurlResponse, request: null, response: apiResponse });
@@ -58,7 +58,7 @@ export const CurlProviderUI = (extensionUri: any) => {
         });
       } else if (reqData.type === requestTypes.convertCurlToJsonRequest) {
         let req = ConvertCurlToRequest(reqData.data.curl);
-        if (!req) {
+        if (!req || !req.url) {
           curlPanel.webview.postMessage({ type: responseTypes.curlErrorResponse, error: "Invalid Curl Command" });
           return;
         }

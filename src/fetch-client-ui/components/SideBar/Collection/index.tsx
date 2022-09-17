@@ -12,7 +12,6 @@ import { IRequestModel } from "../../RequestUI/redux/types";
 import { InitialState } from "../../RequestUI/redux/reducer";
 import "./style.css";
 import { SettingsType } from "../../Collection/consts";
-import { type } from "os";
 import { InitialSettings } from "../redux/reducer";
 
 export interface ICollectionProps {

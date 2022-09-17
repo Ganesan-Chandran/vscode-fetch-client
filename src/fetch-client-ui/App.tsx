@@ -4,13 +4,13 @@ import "./App.css";
 
 const SideBar = React.lazy(() => import('./components/SideBar'));
 const MainUI = React.lazy(() => import('./components/MainUI'));
-const AddToCollection = React.lazy(() => import('./components/Collection/addTo'));
-const CopyTo = React.lazy(() => import('./components/Collection/copyTo'));
+const AddToCollection = React.lazy(() => import('./components/Collection/AddTo/addTo'));
+const CopyTo = React.lazy(() => import('./components/Collection/CopyTo/copyTo'));
 const Variables = React.lazy(() => import('./components/Variables'));
-const AttachVariable = React.lazy(() => import('./components/Collection/attachVariable'));
+const AttachVariable = React.lazy(() => import('./components/Collection/AttachVariable/attachVariable'));
 const ManageCookies = React.lazy(() => import('./components/Cookies'));
 const CollectionSettings = React.lazy(() => import('./components/Collection/Settings/CollectionSettings'));
-const RunAll = React.lazy(() => import('./components/Collection/runAll'));
+const RunAll = React.lazy(() => import('./components/Collection/RunAll/runAll'));
 const ErrorLog = React.lazy(() => import('./components/ErrorLog/ErrorLog'));
 const CurlUI = React.lazy(() => import('./components/Curl'));
 

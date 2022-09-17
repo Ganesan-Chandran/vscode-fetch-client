@@ -2,6 +2,7 @@ export const requestTypes = {
   newRequest: "newRequest",
   cancelRequest: "cancelRequest",
   apiRequest: "apiRequest",
+  multipleApiRequest: "multipleApiRequest",
   configRequest: "configRequest",
   layoutConfigRequest: "layoutConfigRequest",
   getHistoryItemRequest: "getHistoryItemRequest",
@@ -78,6 +79,7 @@ export const requestTypes = {
 
 export const responseTypes = {
   apiResponse: "apiResponse",
+  multipleApiResponse: "multipleApiResponse",
   cancelResponse: "cancelResponse",
   configResponse: "configResponse",
   layoutConfigResponse: "layoutConfigResponse",

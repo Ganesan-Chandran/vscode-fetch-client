@@ -31,9 +31,9 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
       name: "",
       createdTime: "",
       method: "get",
-      params: [{ isChecked: false, key: "", value: "" }],
+      params: [],
       auth: InitialAuth,
-      headers: [{ isChecked: false, key: "", value: "" }],
+      headers: [],
       body: InitialBody,
       tests: IntialTest,
       setvar: IntialSetVar,
@@ -49,7 +49,7 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
       return true;
     };
 
-    const removeQuotes = (str: string) => str.replace(/[""]+/g, "");
+    const removeQuotes = (str: string) => str.trim().replace(/[""]+/g, "").replace(/['']+/g, "");
 
     const stringIsUrl = (url: string) => {
       return /(?:^|[ \t])((https?:\/\/)?(?:localhost|[\w-]+(?:\.[\w-]+)+)(:\d+)?(\/\S*)?)/.test(url);
@@ -93,7 +93,7 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
 
     const parseData = (data: any) => {
 
-      const contentTypeHeader = request.headers.find(item => item.key.toLowerCase() === "content-type")?.key;
+      const contentTypeHeader = request.headers.find(item => item.key.toLowerCase() === "content-type")?.value;
 
       if (contentTypeHeader?.includes("application/x-www-form-urlencoded")) {
         request.body.urlencoded = parseDataUrlEncode(data);
@@ -121,8 +121,7 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
       } else if (contentTypeHeader && MIMETypes[contentTypeHeader]) {
         request.body.binary = data;
         request.body.bodyType = "binary";
-      }
-      else if (isJson(data)) {
+      } else if (isJson(data)) {
         request.headers.push({
           isChecked: true,
           key: "Content-Type",
@@ -138,8 +137,7 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
         });
         request.body.raw.data = data;
         request.body.raw.lang = "xml";
-      }
-      else {
+      } else {
         request.body.raw.data = data;
         request.body.raw.lang = "text";
         request.body.bodyType = "raw";
@@ -148,11 +146,16 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
 
     const parseDataUrlEncode = (data: any): ITableData[] => {
       let jsonUrlEncoded = "";
-      request.headers.push({
-        isChecked: true,
-        key: "Content-Type",
-        value: "application/x-www-form-urlencoded"
-      });
+
+      const contentTypeHeader = request.headers.find(item => item.key.toLowerCase() === "content-type")?.value;
+
+      if (!contentTypeHeader) {
+        request.headers.push({
+          isChecked: true,
+          key: "Content-Type",
+          value: "application/x-www-form-urlencoded"
+        });
+      }
 
       if (Array.isArray(data)) {
         data.forEach((item, index) => {
@@ -182,6 +185,7 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
         }
       }
 
+      params.push({ isChecked: false, key: "", value: "" });
       return params;
     };
 
@@ -192,7 +196,6 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
             const _ = argvs[argv];
             _.forEach((item: any) => {
               item = removeQuotes(item);
-
               if (stringIsUrl(item)) {
                 request.url = item;
               }
@@ -261,11 +264,11 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
 
         case "compressed": {
           const index = request.headers.findIndex(item => item.key.toLowerCase() === "accept-encoding");
-          if (index !== -1) {
+          if (index === -1) {
             request.headers.push({
               isChecked: true,
               key: "Accept-Encoding",
-              value: argvs[argv] || "gzip, deflate"
+              value: argvs[argv] ? (typeof argvs[argv] === "boolean" ? "gzip, deflate" : argvs[argv])  : "gzip, deflate"
             });
           }
         }
@@ -275,6 +278,9 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
           break;
       }
     }
+
+    request.params.push({ isChecked: false, key: "", value: "" });
+    request.headers.push({ isChecked: false, key: "", value: "" });
 
     return request;
   }

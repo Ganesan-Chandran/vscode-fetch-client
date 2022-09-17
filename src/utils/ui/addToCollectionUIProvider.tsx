@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import fs from "fs";
 import { getStorageManager, OpenExistingItem, sideBarProvider } from '../../extension';
 import { getNonce, requestTypes } from '../configuration';
-import { AddToCollection, AttachVariable, CopyToCollection, ExecuteRequest, GetAllCollectionName, GetAllCollectionsById, GetCollectionSettings, GetParentSettings, SaveCollectionSettings } from '../db/collectionDBUtil';
+import { AddToCollection, AttachVariable, CopyToCollection, ExecuteMultipleRequest, ExecuteRequest, GetAllCollectionName, GetAllCollectionsById, GetCollectionSettings, GetParentSettings, SaveCollectionSettings } from '../db/collectionDBUtil';
 import { GetHistoryById } from '../db/historyDBUtil';
 import { GetAllVariable, GetVariableById, UpdateVariable } from '../db/varDBUtil';
 import { apiFetch } from '../fetchUtil';
@@ -72,6 +72,9 @@ export const AddToColUI = (extensionUri: any) => {
             colPanel.webview.postMessage(data);
           });
         }
+      } else if (reqData.type === requestTypes.multipleApiRequest) {
+        const timeOut = getTimeOut();
+        ExecuteMultipleRequest(reqData, timeOut, colPanel.webview);
       } else if (reqData.type === requestTypes.getAllVariableRequest) {
         GetAllVariable(colPanel.webview);
       } else if (reqData.type === requestTypes.openRunRequest) {

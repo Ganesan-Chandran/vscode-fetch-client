@@ -2,6 +2,18 @@
 
 All notable changes to the "Fetch Client" extension will be documented in this file.
 
+## v1.3.0 - September, 2022
+### New Features
+- Added the settings in the "Run All" Collection.
+- Support for multiple iterations in "Run All" Collection.
+- Can add delay between requests and iterations.
+- Run the requests in sequential or parallel mode for multiple iterations.
+
+### Bug Fixes
+
+- import from Curl ([#5](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/5)).
+- Not able to Duplicate the item in the folder.
+
 ## v1.2.0 - July, 2022
 ### New Features
 - Support nested folder to the Collection.

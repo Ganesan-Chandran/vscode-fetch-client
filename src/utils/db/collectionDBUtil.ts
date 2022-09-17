@@ -252,8 +252,8 @@ export function AddToCollection(item: ICollections, hasFolder: boolean, isNewFol
 export function DuplicateItem(coldId: string, folderId: string, historyId: string, folderType: boolean, sideBarView: vscode.WebviewView) {
   try {
     const colDB = getDB();
-    let oldIds: string[];
-    let ids: {};
+    let oldIds: string[] = [];
+    let ids = {};
 
     colDB.loadDatabase({}, function () {
       const collections = colDB.getCollection('userCollections').find({ 'id': coldId });
@@ -296,7 +296,7 @@ export function DuplicateItem(coldId: string, folderId: string, historyId: strin
             folder.data.push(his);
           }
         }
-        if (historyId) {
+        else if (historyId) {
           let item = findItem(collections[0], historyId);
           if (item) {
             let newId = uuidv4();
@@ -311,14 +311,11 @@ export function DuplicateItem(coldId: string, folderId: string, historyId: strin
             };
             collections[0].data.push(his);
           }
-        }
-
-        if (coldId) {
+        } else if (coldId) {
           CopyToCollection(coldId, uuidv4(), collections[0].name + " (Copy)", null, sideBarView);
           return;
         }
       }
-
       colDB.saveDatabase();
       CopyExitingItems(oldIds, ids);
 
@@ -725,6 +722,7 @@ export function GetAllCollectionsById(colId: string, folderId: string, type: str
         let item = findItem(results, folderId);
         ({ paths, ids } = getPath(item, "", {}, []));
       }
+      ids = ids.reverse();
       GetColsRequests(ids, paths, webview);
     });
 
@@ -755,7 +753,7 @@ function getPath(source: any, path: string, paths: {}, ids: string[]) {
 
   for (let i = 0; i < folders.length; i++) {
     const result = getPath(folders[i], path, paths, ids);
-    if (i === folders.length - 1) {      
+    if (i === folders.length - 1) {
       return result;
     }
   }
@@ -894,6 +892,53 @@ export function ExecuteRequest(reqData: any, timeOut: number, webview: vscode.We
   }
   catch (err) {
     writeLog("error::ExecuteRequest(): " + err);
+  }
+}
+
+export function ExecuteMultipleRequest(reqData: any, timeOut: number, webview: vscode.Webview) {
+  try {
+    const db = getDB();
+
+    db.loadDatabase({}, function () {
+      let settings: any;
+      let requests: any[] = [];
+
+      const colItem = db.getCollection('userCollections').by("id", reqData.data.colId);
+
+      reqData.data.reqData.forEach(item => {
+        if (item.auth.authType === "inherit") {
+
+          if (colItem) {
+            let id = item.data.itemPaths[item.id].split(";")[1];
+            if (id === item.data.colId) {
+              id = "";
+            }
+
+            if (id) {
+              settings = findParentSettings(colItem, id, null);
+              if (!settings) {
+                settings = InitialSettings;
+              }
+            } else {
+              settings = colItem.settings ? colItem.settings : InitialSettings;;
+            }
+
+            requests.push(apiFetch(item, timeOut, null, reqData.data.variableData, settings));
+          }
+        } else {
+          requests.push(apiFetch(item, timeOut, null, reqData.data.variableData, null));
+        }
+      });
+
+      if (requests.length > 0) {
+        Promise.allSettled(requests).then((values) => {
+          webview.postMessage({ type: responseTypes.multipleApiResponse, output: values });
+        });
+      }
+    });
+  }
+  catch (err) {
+    writeLog("error::ExecuteMultipleRequest(): " + err);
   }
 }
 

@@ -1,3 +1,12 @@
+.tab-menu {
+  padding         : 10px;
+  background-color: transparent;
+  color           : var(--text-color);
+  border          : 0;
+  cursor          : pointer;
+  margin-left     : 10px;
+}
+
 .addto-header {
   font-style : normal;
   font-size  : x-large;
@@ -124,7 +133,7 @@
 }
 
 .success-message {
-  color    : green;
+  color    : #2fb12f !important;;
   font-size: medium;
 }
 
@@ -160,8 +169,7 @@
 }
 
 .runall-body {
-  padding-top: 25px;
-  height     : calc(100% - 70px);
+  height: calc(100% - 70px);
 }
 
 .runall-tbl {
@@ -178,7 +186,7 @@
   padding-right: 10px;
   box-sizing   : border-box;
   overflow     : auto;
-  max-height   : calc(100% - 120px);
+  max-height   : calc(100% - 30px);
 }
 
 .runall-tbl tbody,
@@ -215,7 +223,7 @@
 }
 
 .runall-col-name {
-  left          : 2.5%;
+  margin-left   : 20px;
   position      : relative;
   padding-bottom: 15px;
 }
@@ -274,9 +282,14 @@
 }
 
 .runall-btn {
+  width: fit-content;
   margin-right: 10px;
   height      : 30px;
   padding     : 5px !important;
+}
+
+.runall-cancel-btn {
+  width: 100px !important;
 }
 
 .runall-status-success {
@@ -310,21 +323,16 @@
 .runall-dropdown-content {
   display         : none;
   position        : fixed;
-  background-color: #f9f9f9;
-  min-width       : 100px;
-  box-shadow      : 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  z-index         : 1;
-}
-
-.runall-dropdown-content {
-  display         : none;
-  position        : fixed;
   width           : 125px;
+  min-width       : 100px;
   overflow        : auto;
   box-shadow      : 10px 8px 16px 0 rgba(0, 0, 0, 0.4);
   color           : var(--text-color);
   background-color: var(--background-color);
   border          : 1px solid var(--border-color);
+  z-index         : 1;
+  position        : absolute;
+  bottom          : 100%;
 }
 
 .runall-dropdown-content a {
@@ -489,4 +497,93 @@ select.runall-order-select option {
 .runall-order-select:disabled,
 .runall-order-select[disabled] {
   color: var(--input-unchecked) !important;
+}
+
+.runall-tab-items-panel {
+  max-height: calc(100% - 95px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  cursor    : pointer;
+}
+
+.runall-settings-option {
+  padding: 20px 10px 10px 10px;
+}
+
+.settings-option {
+  margin-left: 20px;
+}
+
+.runall-settings-delay-panel {
+  margin-left: 15px;
+}
+
+.runall-delay-text {
+  width: 100px;
+}
+
+.runall-settings-label {
+  width  : 165px;
+  display: inline-block;
+}
+
+.runall-settings-info-label {
+  margin-left: 5px;
+  cursor     : pointer;
+}
+
+.runall-delay-text:disabled,
+.runall-delay-text[disabled],
+.runall-delay-text:disabled:hover,
+.runall-delay-text[disabled]:hover {
+  background-color: var(--list-hover-background-color);
+  cursor          : not-allowed;
+}
+
+.runall-iteration-selector-panel {
+  float        : right;
+  margin-bottom: 10px;
+  margin-right : 12px;
+}
+
+.runall-iteration-prevButton {
+  background-color: var(--button-background-color);
+  border          : 1px;
+  border-radius   : 3px 0 0 3px;
+  color           : var(--button-text-color);
+  cursor          : pointer;
+  display         : inline-block;
+  height          : 20px;
+  margin-left     : 10px;
+}
+
+.runall-iteration-nextButton {
+  background-color: var(--button-background-color);
+  border          : 1px;
+  border-radius   : 0 3px 3px 0;
+  color           : var(--button-text-color);
+  cursor          : pointer;
+  display         : inline-block;
+  height          : 20px;
+}
+
+.runall-iteration-prevButton:disabled,
+.runall-iteration-prevButton[disabled],
+.runall-iteration-nextButton:disabled,
+.runall-iteration-nextButton[disabled] {
+  background-color: #ccc;
+  color           : #666;
+  cursor          : not-allowed;
+}
+
+.runall-iteration-text {
+  width     : 30px;
+  height    : 14px;
+  text-align: center;
+}
+
+.runall-iteration-process-text {
+  float       : left;
+  margin      : 10px;
+  padding-left: 5px;
 }
