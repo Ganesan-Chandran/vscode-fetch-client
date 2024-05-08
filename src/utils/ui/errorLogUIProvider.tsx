@@ -1,8 +1,9 @@
 import * as vscode from 'vscode';
 import fs from "fs";
 import { getNonce, requestTypes, responseTypes } from '../configuration';
-import { getGlobalPath } from '../../extension';
-import { logPath } from '../logger/consts';
+import { logPath } from '../logger/constants';
+import { getExtDbPath } from '../db/getExtDbPath';
+import path from 'path';
 
 export const ErrorLogUI = (extensionUri: any) => {
   const disposable = vscode.commands.registerCommand('fetch-client.openErrorLog', () => {
@@ -44,8 +45,8 @@ export const ErrorLogUI = (extensionUri: any) => {
       if (reqData.type === requestTypes.getErrorLogRequest) {
         let data = "";
         try {
-          if (fs.existsSync(getGlobalPath() + "\\" + logPath)) {
-            data = fs.readFileSync(getGlobalPath() + "\\" + logPath, "utf8");
+          if (fs.existsSync(path.resolve(getExtDbPath(), logPath))) {
+            data = fs.readFileSync(path.resolve(getExtDbPath(), logPath), "utf8");
           }
         } catch {
           data = "";

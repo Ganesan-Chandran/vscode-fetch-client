@@ -113,6 +113,11 @@
         "type": "object",
         "title": "Fetch Client",
         "properties": {
+          "fetch-client.keepInLocalPath": {
+            "type": "boolean",
+            "default": true,
+            "description": "Keep requests config in then project local path"
+          },
           "fetch-client.layout": {
             "type": "string",
             "default": "Horizontal Split",

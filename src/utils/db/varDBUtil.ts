@@ -3,18 +3,17 @@ import loki, { LokiFsAdapter } from 'lokijs';
 import fs from "fs";
 import { v4 as uuidv4 } from 'uuid';
 import { IVariable } from "../../fetch-client-ui/components/SideBar/redux/types";
-import { variableDBPath } from "./consts";
 import { responseTypes } from '../configuration';
 import { writeLog } from '../logger/logger';
-import { getGlobalPath } from '../../extension';
 import { FetchClientVariableProxy } from '../ImportVariableValidator';
 import { formatDate } from '../helper';
 import { RemoveVariable } from './collectionDBUtil';
+import { variableDBPath } from './dbPaths';
 
 
 function getDB(): loki {
   const idbAdapter = new LokiFsAdapter();
-  const db = new loki(getGlobalPath() + "\\" + variableDBPath, { adapter: idbAdapter });
+  const db = new loki(variableDBPath(), { adapter: idbAdapter });
   return db;
 }
 

@@ -58,3 +58,9 @@ export function getTimeOut(): number {
       return 0;
   }
 }
+
+export function getKeepInLocalPathConfiguration(): boolean {
+  let config = getFetchClientConfiguration();
+  let keepInLocal = config.get("keepInLocalPath", true);
+  return keepInLocal;
+}

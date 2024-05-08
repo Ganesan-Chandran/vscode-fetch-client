@@ -74,7 +74,7 @@ const Variables = (props: IVariableProps) => {
         setEnabled(false);
       } else if (event.data && (event.data.type === responseTypes.saveVariableResponse || event.data.type === responseTypes.updateVariableResponse)) {
         setDone(true);
-      } else if (event.data && (event.data.type === responseTypes.getAttchedColIdsResponse)) {
+      } else if (event.data && (event.data.type === responseTypes.getAttachedColIdsResponse)) {
         setCollectionNames(event.data.colNames);
       }
     });
