@@ -11,7 +11,7 @@ export const FormDataBody = () => {
 
   const dispatch = useDispatch();
 
-  const { body, headers } = useSelector((state: IRootState) => state.requestData);
+  const { body } = useSelector((state: IRootState) => state.requestData);
   const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
 
   useEffect(() => {
@@ -106,34 +106,6 @@ export const FormDataBody = () => {
       dispatch(Actions.SetRequestBodyAction(localbody));
     }
   }
-
-  useEffect(() => {
-    if (body.bodyType === "formdata" && body.formdata?.length > 1) {
-      let localHeaders = [...headers];
-      let contentTypeHeaderIndex = headers.findIndex(item => item.isChecked && item.key.trim().toLocaleLowerCase() === "content-type");
-      if (contentTypeHeaderIndex !== -1 && localHeaders[contentTypeHeaderIndex].value.includes("multipart/form-data")) {
-        return;
-      }
-      contentTypeHeaderIndex = headers.findIndex(item => item.key.trim().toLocaleLowerCase() === "content-type");
-      if (contentTypeHeaderIndex !== -1) {
-        localHeaders[contentTypeHeaderIndex] = {
-          isChecked: true,
-          key: "Content-Type",
-          value: "multipart/form-data",
-          isFixed: false
-        };
-      } else {
-        localHeaders.splice(localHeaders.length - 1, 0, {
-          isChecked: true,
-          key: "Content-Type",
-          value: "multipart/form-data",
-          isFixed: false
-        });
-      }
-      dispatch(Actions.SetRequestHeadersAction(localHeaders));
-    }
-  }, [body.formdata]);
-
 
   return (
     <Table

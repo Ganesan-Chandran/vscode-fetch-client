@@ -78,19 +78,19 @@ const commonConfig = (webpackEnv) => {
         },
       ],
     },
-    optimization: {
-      minimize: true,
-      minimizer: [
-        new TerserPlugin({
-          terserOptions: {
-            format: {
-              comments: false,
-            },
-          },
-          extractComments: false,
-        }),
-      ],
-    },
+    // optimization: {
+    //   minimize: true,
+    //   minimizer: [
+    //     new TerserPlugin({
+    //       terserOptions: {
+    //         format: {
+    //           comments: false,
+    //         },
+    //       },
+    //       extractComments: false,
+    //     }),
+    //   ],
+    // },
     plugins: [
       new MiniCssExtractPlugin({
         filename: "ignore.css",
@@ -125,7 +125,7 @@ function fetchClientUIConfig(webpackEnv) {
       new MiniCssExtractPlugin(),
       new MonacoWebpackPlugin({
         languages: [
-          'cpp', 'csharp', 'go', 'java', 'javascript', 'json', 'html', 'xml', 'php', 'python', 'shell', 'graphql', 'restructuredtext'
+          'cpp', 'csharp', 'dart', 'go', 'java', 'javascript', 'json', 'kotlin', 'ruby' , 'typescript', 'html', 'xml', 'php', 'python', 'shell', 'swift', 'graphql', 'restructuredtext'
         ]
       }),
       new webpack.ProvidePlugin({

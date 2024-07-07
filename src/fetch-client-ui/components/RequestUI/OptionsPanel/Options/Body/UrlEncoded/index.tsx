@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "../../../../../../reducer/combineReducer";
 import { ITableData } from "../../../../../Common/Table/types";
@@ -8,7 +8,7 @@ import { Actions } from "../../../../redux";
 export const UrlEncoded = () => {
 
   const dispatch = useDispatch();
-  const { body, headers } = useSelector((state: IRootState) => state.requestData);
+  const { body } = useSelector((state: IRootState) => state.requestData);
   const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
 
   const onSelectChange = (index: number) => {
@@ -79,33 +79,6 @@ export const UrlEncoded = () => {
       dispatch(Actions.SetRequestBodyAction(localbody));
     }
   }
-
-  useEffect(() => {
-    if (body.bodyType === "formurlencoded" && body.urlencoded?.length > 1) {
-      let localHeaders = [...headers];
-      let contentTypeHeaderIndex = headers.findIndex(item => item.isChecked && item.key.trim().toLocaleLowerCase() === "content-type");
-      if (contentTypeHeaderIndex !== -1 && localHeaders[contentTypeHeaderIndex].key === "application/x-www-form-urlencoded") {
-        return;
-      }
-      if (contentTypeHeaderIndex !== -1) {
-        localHeaders[contentTypeHeaderIndex] = {
-          isChecked: true,
-          key: "Content-Type",
-          value: "application/x-www-form-urlencoded",
-          isFixed: false
-        };
-      } else {
-        localHeaders.splice(localHeaders.length - 1, 0, {
-          isChecked: true,
-          key: "Content-Type",
-          value: "application/x-www-form-urlencoded",
-          isFixed: false
-        });
-      }
-      dispatch(Actions.SetRequestHeadersAction(localHeaders));
-    }
-  }, [body.urlencoded]);
-
 
   return (
     <Table

@@ -452,6 +452,13 @@
   height          : 30px;
 }
 
+.submit-button:disabled,
+.submit-button[disabled] {
+  background-color: #ccc;
+  color           : #666;
+  cursor          : not-allowed;
+}
+
 .order-btn-panel {
   display: flex;
 }

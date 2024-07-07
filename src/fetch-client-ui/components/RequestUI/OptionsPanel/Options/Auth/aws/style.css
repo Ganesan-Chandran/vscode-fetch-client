@@ -7,7 +7,7 @@
 
 .aws-auth-text-panel {
   padding: 10px 10px 10px 0;
-  max-width: 70%;
+  max-width: 100%;
 }
 
 .aws-auth-text-panel .DraftEditor-editorContainer {

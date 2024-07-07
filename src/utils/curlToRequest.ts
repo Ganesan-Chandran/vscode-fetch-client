@@ -4,7 +4,7 @@ import { XMLValidator } from "fast-xml-parser";
 import { IRequestModel } from "../fetch-client-ui/components/RequestUI/redux/types";
 import { MIMETypes } from "./helper";
 import { ITableData } from "../fetch-client-ui/components/Common/Table/types";
-import { InitialAuth, InitialBody, IntialSetVar, IntialTest } from "../fetch-client-ui/components/RequestUI/redux/reducer";
+import { InitialAuth, InitialBody, InitialPreFetch, InitialSetVar, InitialTest } from "../fetch-client-ui/components/RequestUI/redux/reducer";
 import { writeLog } from "./logger/logger";
 
 export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null => {
@@ -34,10 +34,11 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
       params: [],
       auth: InitialAuth,
       headers: [],
-      body: InitialBody,
-      tests: IntialTest,
-      setvar: IntialSetVar,
-      notes: ""
+      body: JSON.parse(JSON.stringify(InitialBody)),
+      tests: JSON.parse(JSON.stringify(InitialTest)),
+      setvar: JSON.parse(JSON.stringify(InitialSetVar)),
+      notes: "",
+      preFetch: JSON.parse(JSON.stringify(InitialPreFetch))
     };
 
     const isJson = (str: string) => {
@@ -106,7 +107,7 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
         }
       } else if (contentTypeHeader?.includes("application/xml") || contentTypeHeader?.includes("text/xml")) {
         request.body.bodyType = "raw";
-        if (XMLValidator.validate(data)) {
+        if (XMLValidator.validate(data) === true) {
           request.body.raw.data = data;
           request.body.raw.lang = "xml";
         }
@@ -189,6 +190,12 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
       return params;
     };
 
+    const setRequestMethod = (): void => {
+      if (request.method === "get" || request.method === "options" || request.method === "head") {
+        request.method = "post";
+      }
+    };
+
     for (const argv in argvs) {
       switch (argv) {
         case "_":
@@ -250,16 +257,19 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
         case "data-raw":
         case "data-ascii":
           parseData(argvs[argv]);
+          setRequestMethod();
           break;
 
         case "data-urlencode":
           request.body.urlencoded = parseDataUrlEncode(argvs[argv]);
           request.body.bodyType = "formurlencoded";
+          setRequestMethod();
           break;
 
         case "data-binary":
           request.body.binary = argvs[argv];
           request.body.bodyType = "binary";
+          setRequestMethod();
           break;
 
         case "compressed": {
@@ -268,7 +278,7 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
             request.headers.push({
               isChecked: true,
               key: "Accept-Encoding",
-              value: argvs[argv] ? (typeof argvs[argv] === "boolean" ? "gzip, deflate" : argvs[argv])  : "gzip, deflate"
+              value: argvs[argv] ? (typeof argvs[argv] === "boolean" ? "gzip, deflate" : argvs[argv]) : "gzip, deflate"
             });
           }
         }

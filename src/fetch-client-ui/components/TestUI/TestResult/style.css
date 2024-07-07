@@ -25,7 +25,7 @@ tr {
 }
 
 tbody>tr:hover {
-  background-color: var(--input-hover);
+  background-color: var(--list-hover-background-color);
 }
 
 .test-result-table-input {
@@ -77,4 +77,42 @@ tbody>tr:hover {
 .fail {
   background-color: rgb(240, 22, 22);
   color           : var(--button-text-color);
+}
+
+.short-content {
+  height       : 50px;
+  overflow     : hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 10px;
+}
+
+.show-more-btn {
+  background   : transparent;
+  border       : 0;
+  color        : var(--button-background-color);
+  text-align   : center;
+  float        : right;
+  margin-bottom: 2px;
+  cursor       : pointer;
+}
+
+.show-more-btn:hover {
+  color: var(--button-hover-color);
+}
+
+.test-result-title {
+  font-size: 14px;
+  display  : block;
+  margin   : 5px 10px 5px 0;
+  padding  : 5px 10px 5px 0;
+}
+
+.test-result-title-panel {
+  display    : flex;
+  font-weight: 400;
+}
+
+.test-result-panel {
+  padding-right : 5px;
+  padding-bottom: 5px;
 }

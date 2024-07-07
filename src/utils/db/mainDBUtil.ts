@@ -1,17 +1,20 @@
 import * as vscode from 'vscode';
-import loki, { LokiFsAdapter } from 'lokijs';
-import { v4 as uuidv4 } from 'uuid';
+import { collectionDBPath, mainDBPath, variableDBPath } from "./consts";
+import { FetchClientDataProxy } from '../validators/fetchClientCollectionValidator';
+import { fetchClientImporter } from '../importers/fetchClientImporter_1_0';
+import { formatDate } from '../helper';
+import { getGlobalPath } from '../../extension';
+import { ICollections, IFolder, IHistory } from '../../fetch-client-ui/components/SideBar/redux/types';
+import { InitialSettings } from '../../fetch-client-ui/components/SideBar/redux/reducer';
 import { IRequestModel } from '../../fetch-client-ui/components/RequestUI/redux/types';
-import { collectionDBPath, mainDBPath } from "./consts";
+import { isFolder } from '../../fetch-client-ui/components/SideBar/util';
+import { isJson } from '../../fetch-client-ui/components/TestUI/TestPanel/helper';
+import { postmanImporter } from '../importers/postmanImporter_2_1';
+import { PostmanSchema_2_1, POSTMAN_SCHEMA_V2_1 } from '../importers/postman_2_1.types';
 import { responseTypes } from '../configuration';
 import { writeLog } from '../logger/logger';
 import fs from "fs";
-import { ICollections, IFolder, IHistory } from '../../fetch-client-ui/components/SideBar/redux/types';
-import { formatDate } from '../helper';
-import { FetchClientDataProxy } from '../ImportDataValidator';
-import { getGlobalPath } from '../../extension';
-import { isFolder } from '../../fetch-client-ui/components/SideBar/util';
-import { InitialSettings } from '../../fetch-client-ui/components/SideBar/redux/reducer';
+import loki, { LokiFsAdapter } from 'lokijs';
 
 function getDB(): loki {
   const idbAdapter = new LokiFsAdapter();
@@ -22,6 +25,12 @@ function getDB(): loki {
 function getCollectionDB(): loki {
   const idbAdapter = new LokiFsAdapter();
   const db = new loki(getGlobalPath() + "\\" + collectionDBPath, { adapter: idbAdapter });
+  return db;
+}
+
+function getVariableDB(): loki {
+  const idbAdapter = new LokiFsAdapter();
+  const db = new loki(getGlobalPath() + "\\" + variableDBPath, { adapter: idbAdapter });
   return db;
 }
 
@@ -56,6 +65,7 @@ export function UpdateRequest(reqData: IRequestModel) {
       req.tests = reqData.tests;
       req.setvar = reqData.setvar;
       req.notes = reqData.notes;
+      req.preFetch = reqData.preFetch;
       apiRequests.update(req);
       db.saveDatabase();
     });
@@ -66,13 +76,36 @@ export function UpdateRequest(reqData: IRequestModel) {
   }
 }
 
-export function GetExitingItem(webview: vscode.Webview, id: string) {
+export function GetRequestItem(reqId: string) {
+  try {
+    return new Promise<IRequestModel>((resolve, _reject) => {
+      const db = getDB();
+      db.loadDatabase({}, function (err: any) {
+        if(err){
+          resolve(null);
+        }
+        const results = db.getCollection('apiRequests').chain().find({ 'id': reqId }).data();
+        resolve(results && results.length > 0 ? results[0] as IRequestModel : null);
+      });
+    });
+  } catch (err) {
+    writeLog("error::GetRequestItem(): " + err);
+  }
+}
+
+export function GetExitingItem(webview: vscode.Webview, id: string, callback: any = null) {
   try {
     const db = getDB();
 
     db.loadDatabase({}, function () {
       const results = db.getCollection('apiRequests').chain().find({ 'id': id }).data();
-      webview.postMessage({ type: responseTypes.openExistingItemResponse, item: results });
+      if (webview) {
+        webview.postMessage({ type: responseTypes.openExistingItemResponse, item: results });
+      }
+
+      if (callback) {
+        callback(results);
+      }
     });
 
   } catch (err) {
@@ -196,7 +229,8 @@ export function Export(path: string, colId: string, hisId: string, folderId: str
           type: "collections",
           createdTime: cols[0].createdTime,
           exportedDate: formatDate(),
-          data: []
+          data: [],
+          settings: cols[0].settings ? cols[0].settings : JSON.parse(JSON.stringify(InitialSettings))
         };
 
         if (hisId) {
@@ -258,128 +292,132 @@ export function RenameRequestItem(id: string, name: string) {
   }
 }
 
-function ValidateData(data: string): boolean {
+enum ImportType {
+  FetchClient_1_0 = "FetchClient_1_0",
+  Postman_2_1 = "Postman_2_1",
+}
+
+function ValidateData(data: string): ImportType | null {
   try {
-    if (!data || data.length === 0) {
+    if (!data || data.length === 0 || !isJson(data)) {
       vscode.window.showErrorMessage("Could not import the collection - Empty Data.");
       writeLog("error::Import::ValidateData() " + "Error Message : Could not import the collection - Empty Data.");
-      return false;
+      return null;
     }
 
-    FetchClientDataProxy.Parse(data);
-
-    return true;
+    try {
+      FetchClientDataProxy.Parse(data);
+      return ImportType.FetchClient_1_0;
+    } catch {
+      let postmanData = JSON.parse(data) as PostmanSchema_2_1;
+      if (postmanData.info?._postman_id && postmanData.info?.schema === POSTMAN_SCHEMA_V2_1) {
+        return ImportType.Postman_2_1;
+      }
+      return null;
+    }
   }
   catch (err) {
     vscode.window.showErrorMessage("Could not import the collection - Invalid Data.");
     writeLog("error::Import::ValidateData() " + "Error Message : Could not import the collection - " + err);
-    return false;
+    return null;
   }
 }
 
-function ImportFolder(source: any, importData: any, reqData: any): any {
-  for (let i = 0; i < source.data.length; i++) {
-    if (isFolder(source.data[i])) {
-      let folder: IFolder = {
-        id: uuidv4(),
-        name: source.data[i].name,
-        createdTime: formatDate(),
-        type: "folder",
-        data: [],
-        settings: source.data[i].settings ? source.data[i].settings : InitialSettings
-      };
-      let result = ImportFolder(source.data[i], folder, reqData);
-      importData.data.push(result.importData);
-    } else {
-      source.data[i].id = uuidv4();
-      source.data[i].createdTime = formatDate();
-      let his: IHistory = {
-        id: source.data[i].id,
-        method: source.data[i].method,
-        name: source.data[i].name,
-        url: source.data[i].url,
-        createdTime: source.data[i].createdTime
-      };
-      reqData.push(source.data[i]);
-      importData.data.push(his);
-    }
-  }
-
-  return { importData, reqData };
+function insertCollections(colDB: loki, webviewView: vscode.WebviewView, fcCollection: ICollections) {
+  colDB.loadDatabase({}, function () {
+    const userCollections = colDB.getCollection('userCollections');
+    userCollections.insert(fcCollection);
+    colDB.saveDatabase();
+    webviewView.webview.postMessage({ type: responseTypes.importResponse, data: fcCollection });
+  });
 }
 
 export function Import(webviewView: vscode.WebviewView, path: string) {
   try {
-    const db = getDB();
-    const colDB = getCollectionDB();
-
     const data = fs.readFileSync(path, "utf8");
 
-    if (!ValidateData(data)) {
+    console.log(data);
+
+    switch (ValidateData(data)) {
+      case ImportType.FetchClient_1_0:
+        ImportFC(webviewView, data);
+        break;
+      case ImportType.Postman_2_1:
+        ImportPostman(webviewView, data);
+        break;
+      default:
+        vscode.window.showErrorMessage("Could not import the collection - Invalid data.");
+    }
+
+  } catch (err) {
+    vscode.window.showErrorMessage("Could not import the collection - Invalid data.");
+    writeLog("error::Import(): - Error Message : " + err);
+  }
+}
+
+function ImportPostman(webviewView: vscode.WebviewView, data: string) {
+  try {
+    const convertedData = postmanImporter(data);
+    if (!convertedData || !convertedData.fcCollection || !convertedData.fcRequests) {
       return;
     }
 
-    const parsedData = JSON.parse(data);
-
-    let importedData = parsedData.data;
-    let reqData = [];
-
-    let colData: ICollections = {
-      id: uuidv4(),
-      name: parsedData.name,
-      createdTime: formatDate(),
-      variableId: "",
-      data: [],
-      settings: parsedData.settings ? parsedData.settings : InitialSettings
-    };
-
-    importedData.forEach(item => {
-      item.id = uuidv4();
-      item.createdTime = formatDate();
-      if (isFolder(item)) {
-        let importData: any;
-        let folder: IFolder = {
-          id: uuidv4(),
-          name: item.name,
-          createdTime: formatDate(),
-          type: "folder",
-          data: [],
-          settings: item.settings ? item.settings : InitialSettings
-        };
-        ({ importData, reqData } = ImportFolder(item, folder, reqData));
-        colData.data.push(importData);
-      } else {
-        item.id = uuidv4();
-        item.createdTime = formatDate();
-        reqData.push(item);
-        let his: IHistory = {
-          id: item.id,
-          method: item.method,
-          name: item.name,
-          url: item.url,
-          createdTime: formatDate()
-        };
-        colData.data.push(his);
-      }
-    });
+    const db = getDB();
+    const colDB = getCollectionDB();
+    const varDB = getVariableDB();
 
     db.loadDatabase({}, function () {
       const apiRequests = db.getCollection('apiRequests');
-      apiRequests.insert(reqData);
+      apiRequests.insert(convertedData.fcRequests);
+      db.saveDatabase();
+
+      if (convertedData.fcVariable) {
+        varDB.loadDatabase({}, function () {
+          const userVariables = varDB.getCollection('userVariables');
+          userVariables.insert(convertedData.fcVariable);
+          varDB.saveDatabase();
+          webviewView.webview.postMessage({ type: responseTypes.importVariableResponse, vars: convertedData.fcVariable });
+          insertCollections(colDB, webviewView, convertedData.fcCollection);
+        });
+      } else {
+        insertCollections(colDB, webviewView, convertedData.fcCollection);
+      }
+    });
+  } catch (err) {
+    vscode.window.showErrorMessage("Could not import the collection - Invalid data.");
+    writeLog("error::ImportPostman(): - Error Message : " + err);
+  }
+}
+
+function ImportFC(webviewView: vscode.WebviewView, data: string) {
+  try {
+    const parsedData = JSON.parse(data);
+
+    const convertedData = fetchClientImporter(parsedData);
+    if (!convertedData || !convertedData.fcCollection || !convertedData.fcRequests) {
+      return;
+    }
+
+    const db = getDB();
+    const colDB = getCollectionDB();
+
+    db.loadDatabase({}, function () {
+      const apiRequests = db.getCollection('apiRequests');
+      apiRequests.insert(convertedData.fcRequests);
       db.saveDatabase();
 
       colDB.loadDatabase({}, function () {
         const userCollections = colDB.getCollection('userCollections');
-        userCollections.insert(colData);
+        userCollections.insert(convertedData.fcCollection);
         colDB.saveDatabase();
 
-        webviewView.webview.postMessage({ type: responseTypes.importResponse, data: colData });
+        webviewView.webview.postMessage({ type: responseTypes.importResponse, data: convertedData.fcCollection });
       });
     });
 
   } catch (err) {
     vscode.window.showErrorMessage("Could not import the collection - Invalid data.");
-    writeLog("error::Import(): - Error Mesaage : " + err);
+    writeLog("error::ImportFC(): - Error Message : " + err);
   }
 }
 

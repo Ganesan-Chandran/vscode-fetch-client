@@ -37,7 +37,8 @@ const EditorProvider = (props: EditorProps) => {
         scrollbar: {
           verticalScrollbarSize: 10,
           horizontalScrollbarSize: 10
-        }
+        },
+        wordWrap: "off"
       });
 
       window.addEventListener("resize", () => {
@@ -69,6 +70,16 @@ const EditorProvider = (props: EditorProps) => {
       }
     }
   }, [props.language, props.format, props.value]);
+
+  useEffect(() => {
+    if (monacoEditor) {
+      if (props.wordWrap) {
+        monacoEditor.updateOptions({ wordWrap: "on" });
+      } else {
+        monacoEditor.updateOptions({ wordWrap: "off" });
+      }
+    }
+  }, [props.wordWrap]);
 
   useEffect(() => {
     if (monacoEditor) {

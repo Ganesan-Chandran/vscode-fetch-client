@@ -1,0 +1,82 @@
+.preReq-container{
+    display: grid;
+    padding: 10px 0 5px 0;
+}
+.preReq-panel {
+    padding: 3px 0px 2px 0;
+}
+
+.preReq-delete-panel {
+    float: right;
+}
+
+.preReq-condition-panel {
+    display: flex;
+    padding: 3px 0 7px 0;
+}
+
+.preReq-select {
+    padding: 2px 4px 4px 4px !important;
+    border : 1px solid !important;
+}
+
+.preReq-condition-param-panel {
+    width       : 30%;
+    margin-right: 10px;
+}
+
+.preReq-condition-param-panel .public-DraftEditorPlaceholder-inner {
+    padding: 2px 4px 4px 4px;
+}
+
+.preReq-condition-param-panel .DraftEditor-editorContainer {
+    padding      : 2px 4px 4px 4px;
+    border       : var(--border-size) solid var(--border-color);
+    border-radius: 2px;
+}
+
+.preReq-condition-delete-panel {
+    display    : flex;
+    align-items: center;
+}
+
+.preReq-condition-delete-btn {
+    transform: scale(0.80);
+}
+
+.preReq-col-select {
+    height          : 30px;
+    outline         : none;
+    border-radius   : 3px;
+    background-color: var(--background-color);
+    color           : var(--text-color);
+    width           : 170px !important;
+}
+
+.preReq-col-select option {
+    background-color: var(--background-color);
+    color           : var(--text-color);
+}
+
+.preReq-col-select:focus,
+.preReq-col-select:hover {
+    outline: none;
+}
+
+.preReq-col-select:invalid {
+    color: var(--input-unchecked);
+}
+
+.preReq-col-select option[value=""][disabled] {
+    display: none;
+}
+
+.preReq-field-panel {
+    margin-top: 3px
+}
+
+.preReq-text-panel {
+    display: flex;
+    padding  : 5px 5px 5px 0;
+    max-width: 100%;
+}

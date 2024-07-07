@@ -35,22 +35,31 @@ details[open] summary {
   display: block;
 }
 
+.collection-items {
+  padding-right: 0 !important;
+  min-width    : 220px;
+}
+
+.folder-items {
+  padding-right: 0 !important;
+}
+
 .divider {
   border-top: 0.3pt solid var(--border-color);
-  margin    : 1px 14px 1px 14px;
+  margin    : 1px 12px 1px 12px;
   opacity   : .6;
 }
 
 details.folder-details-items>summary {
   list-style      : none;
-  padding-left   : var(--pl);
+  padding-left    : var(--pl);
   background-color: transparent !important;
 }
 
 details.folder-details-items>summary:before {
-  content        : "🗀";
-  padding-left   : var(--b-pl);
-  color          : var(--text-color);
+  content     : "🗀";
+  padding-left: var(--b-pl);
+  color       : var(--text-color);
 }
 
 details[open].folder-details-items>summary:before {
@@ -60,4 +69,81 @@ details[open].folder-details-items>summary:before {
 
 details.folder-details-items>summary:hover {
   background-color: var(--list-hover-background-color) !important;
+}
+
+.add-req-button {
+  color       : currentColor;
+  fill        : currentColor;
+  transform   : scale(0.70);
+  color       : currentColor;
+  margin-right: 5px;
+  padding     : 0 3px 0 3px;
+  filter      : contrast(0.50);
+}
+
+.add-req-button:hover {
+  background-color: var(--list-hover-background-color) !important;
+  border-radius   : 3px;
+  filter          : none;
+}
+
+.col-fol-title {
+  width  : 70%;
+  display: inline-flex;
+}
+
+.col-fol-icon-panel {
+  margin-left: 2px;
+  text-align : right;
+}
+
+.col-fol-icon {
+  transform: scale(0.75);
+  padding  : 0 3px 0 3px;
+}
+
+.col-fol-icon:hover {
+  background-color: var(--list-hover-background-color);
+  border-radius   : 3px;
+}
+
+details,
+details:hover,
+details:focus,
+details :focus-visible,
+details:focus-within,
+summary,
+summary:hover,
+summary:focus,
+summary :focus-visible,
+summary:focus-within {
+  outline: none;
+}
+
+.sub-menu {
+  display: none;
+}
+
+.parent-menu:hover .sub-menu {
+  display: block;
+  left   : -88px;
+  width  : 90px !important;
+  top    : 0;
+}
+
+.parent-menu {
+  padding         : 5px 10px;
+  text-decoration : none;
+  cursor          : pointer;
+  background-color: var(--background-color);
+  color           : var(--text-color);
+  outline         : none;
+  border          : 3px solid transparent;
+  border-radius   : 0;
+  text-align      : left;
+}
+
+.parent-menu:hover {
+  background-color: var(--button-hover-color);
+  color           : var(--button-text-color);
 }

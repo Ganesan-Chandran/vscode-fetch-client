@@ -1,23 +1,23 @@
-import React, { useRef } from "react";
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import Split from 'react-split';
-import { v4 as uuidv4 } from 'uuid';
-import { requestTypes, responseTypes } from "../../../utils/configuration";
-import { formatDate } from "../../../utils/helper";
-import { IRootState } from '../../reducer/combineReducer';
-import vscode from "../Common/vscodeAPI";
-import { CookiesActions } from "../Cookies/redux";
-import { ICookie } from "../Cookies/redux/types";
-import { OptionsPanel } from "../RequestUI/OptionsPanel";
 import { Actions } from "../RequestUI/redux";
-import { IRequestModel } from "../RequestUI/redux/types";
-import { RequestPanel } from "../RequestUI/RequestPanel";
-import { ResponseActions } from "../ResponseUI/redux";
-import { ReponsePanel } from "../ResponseUI/ResponsePanel";
+import { CookiesActions } from "../Cookies/redux";
+import { formatDate } from "../../../utils/helper";
+import { ICookie } from "../Cookies/redux/types";
+import { ICollection, IRequestModel } from "../RequestUI/redux/types";
+import { IRootState } from '../../reducer/combineReducer';
 import { ISettings, IVariable } from "../SideBar/redux/types";
-import { VariableActions } from "../Variables/redux";
+import { OptionsPanel } from "../RequestUI/OptionsPanel";
+import { ReponsePanel } from "../ResponseUI/ResponsePanel";
+import { RequestPanel } from "../RequestUI/RequestPanel";
+import { pubSubTypes, requestTypes, responseTypes } from "../../../utils/configuration";
+import { ResponseActions } from "../ResponseUI/redux";
 import { UIActions } from './redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { VariableActions } from "../Variables/redux";
+import React, { useRef } from "react";
+import Split from 'react-split';
+import vscode from "../Common/vscodeAPI";
 import "./style.css";
 
 const MainUI = () => {
@@ -28,7 +28,7 @@ const MainUI = () => {
   const { loading, response } = useSelector((state: IRootState) => state.responseData);
   const requestData = useSelector((state: IRootState) => state.requestData);
   const { variables } = useSelector((state: IRootState) => state.variableData);
-  const { parentSettings } = useSelector((state: IRootState) => state.reqColData);
+  const { parentSettings, collectionList } = useSelector((state: IRootState) => state.reqColData);
 
   const refReq = useRef(requestData);
   const setReq = (data: IRequestModel) => {
@@ -99,11 +99,11 @@ const MainUI = () => {
         setHoriLayout(hariLayoutConfig);
         dispatch(UIActions.SetLayoutAction(layoutConfig === "Horizontal Split" ? true : false, event.data.theme));
       } else if (event.data && event.data.type === responseTypes.openExistingItemResponse) {
-        const reqData = event.data.item[0] as IRequestModel;
-        dispatch(Actions.SetRequestAction(reqData));
+        const reqData = event.data.item[0] as IRequestModel;        
+        dispatch(Actions.SetRequestAction(reqData));        
         if (reqData.body.bodyType === "binary" && reqData.body.binary.fileName) {
           vscode.postMessage({ type: requestTypes.readFileRequest, path: reqData.body.binary.fileName });
-        }        
+        }
         if (reqData.auth.authType === "inherit") {
           vscode.postMessage({ type: requestTypes.getParentSettingsRequest, data: { colId: colId, folderId: folderId } });
         }
@@ -127,8 +127,27 @@ const MainUI = () => {
         setVisible(true);
       } else if (event.data && event.data.type === responseTypes.getAllCookiesResponse) {
         dispatch(CookiesActions.SetAllCookiesAction(event.data.cookies as ICookie[]));
-      } else if (event.data && event.data.type === responseTypes.getParentSettingsResponse) {        
+      } else if (event.data && event.data.type === responseTypes.getParentSettingsResponse) {
         dispatch(Actions.SetReqParentSettingsAction(event.data.settings as ISettings));
+      } else if (event.data && event.data.type === pubSubTypes.updateVariables) {
+        vscode.postMessage({ type: requestTypes.getAllVariableRequest });
+      } else if (event.data && event.data.type === pubSubTypes.removeCurrentVariable) {
+        setVarId("");
+      } else if (event.data && event.data.type === pubSubTypes.addCurrentVariable) {
+        setVarId(event.data.data.varId);
+      } else if (event.data && event.data.type === pubSubTypes.themeChanged) {
+        vscode.postMessage({ type: requestTypes.themeRequest });
+      } else if (event.data && event.data.type === responseTypes.themeResponse) {
+        dispatch(UIActions.SetThemeAction(event.data.theme));
+      } else if (event.data && event.data.type === responseTypes.getAllCollectionNameResponse) {        
+        let col: ICollection[] = event.data.collectionNames?.map((item: { value: any; name: any; }) => {
+          return {
+            id: item.value,
+            name: item.name
+          };
+        });
+        col.unshift({ id: "", name: "select" });
+        dispatch(Actions.SetCollectionListAction(col));        
       }
     });
 
@@ -145,6 +164,10 @@ const MainUI = () => {
       setTimeout(vscode.postMessage({ type: requestTypes.getAllVariableRequest }), 1000);
     } else {
       vscode.postMessage({ type: requestTypes.getAllVariableRequest });
+    }
+
+    if (collectionList.length === 0) {
+      setTimeout(vscode.postMessage({ type: requestTypes.getAllCollectionNameRequest, data: "addtocol" }), 1000);
     }
 
     dispatch(Actions.SetReqColDetailsAction(colId !== "undefined" ? colId : "", folderId !== "undefined" ? folderId : ""));
@@ -185,18 +208,33 @@ const MainUI = () => {
   useEffect(() => {
     if (variables && variables.length > 0) {
       if (varId) {
-        let vars = variables.filter(item => item.id === varId);
-        if (vars && vars.length > 0) {
-          dispatch(VariableActions.SetReqVariableAction(vars[0] as IVariable));
-        }
+        updateVaribleData(varId);
       } else {
-        let globalVar = variables.filter(item => item.name.toUpperCase().trim() === "GLOBAL" && item.isActive === true);
-        if (globalVar && globalVar.length > 0) {
-          dispatch(VariableActions.SetReqVariableAction(globalVar[0] as IVariable));
-        }
+        setRequiredGlobalVariable();
       }
     }
-  }, [variables]);
+  }, [variables, varId]);
+
+  function updateVaribleData(varId: string) {
+    let index = variables.findIndex(item => item.id === varId);
+    if (index !== -1) {
+      setRequiredVariable(index);
+    } else {
+      setRequiredGlobalVariable();
+    }
+  }
+
+  function setRequiredVariable(index: number) {
+    dispatch(VariableActions.SetReqVariableAction(variables[index] as IVariable));
+  }
+
+  function setRequiredGlobalVariable() {
+    let index = variables.findIndex(item => item.name.toUpperCase().trim() === "GLOBAL" && item.isActive === true);
+    if (index !== -1) {
+      setRequiredVariable(index);
+      setVarId(variables[index].id);
+    }
+  }
 
   useEffect(() => {
     if (parentSettings && parentSettings.auth.authType === "apikey") {

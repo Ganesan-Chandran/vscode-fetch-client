@@ -1,6 +1,5 @@
 .variable-panel {
     padding: 25px 50px;
-    width  : 75%;
     margin : 0 auto;
     height : 91%;
 }
@@ -13,7 +12,6 @@
 
 .var-btn-panel {
     margin-top: 20px;
-    width     : 55%;
 }
 
 .variable-panel-name {
@@ -23,7 +21,9 @@
 }
 
 .variable-text-label {
-    width: 55px;
+    width      : 55px;
+    display    : flex;
+    align-items: center;
 }
 
 .variable-text {

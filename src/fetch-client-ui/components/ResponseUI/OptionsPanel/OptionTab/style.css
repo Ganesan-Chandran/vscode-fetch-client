@@ -1,30 +1,34 @@
 .response-params-panel {
-  float: right;
-  margin-left: auto;
-  display: flex;
-  width: auto;
+  float          : right;
+  margin-left    : auto;
+  display        : flex;
+  width          : auto;
   justify-content: space-around;
 }
 
 .response-params {
-  color: #4bb543;
-  padding: 0 10px;
+  color      : #4bb543;
+  padding    : 0 10px;
   font-weight: bolder;
 }
 
 .response-params-panel-vertical {
-  display: flex;
-  margin: 5px;
+  display       : flex;
+  margin        : 5px;
   padding-bottom: 20px;
 }
 
 .menu-panel {
   margin-left: auto !important;
+  padding-top: 4px;
 }
 
 .code-snippet-icon,
 .code-snippet-icon-disabled {
-  cursor: pointer;
+  cursor      : pointer;
+  transform   : scale(1.2);
+  margin-right: 5px;
+
 }
 
 .code-snippet-icon path {
@@ -32,9 +36,9 @@
 }
 
 .res-menu {
-  margin-left: 10px;
-  cursor: pointer;
-  width: 16px;
+  margin-left  : 10px;
+  cursor       : pointer;
+  width        : 16px;
   margin-bottom: 3px;
 }
 
@@ -50,9 +54,9 @@
 .save-to-file-button[disabled],
 .save-to-file-button:disabled:hover,
 .save-to-file-button[disabled]:hover {
-  color: #666;
-  cursor: not-allowed;
-  background-color: lightgrey;  
+  color           : #666;
+  cursor          : not-allowed;
+  background-color: lightgrey;
 }
 
 .save-to-file-button:hover {
@@ -69,4 +73,8 @@
 
 .res-drop-down-menu {
   width: 175px !important;
+}
+
+.res-code-drop-down-menu {
+  width: 125px !important;
 }

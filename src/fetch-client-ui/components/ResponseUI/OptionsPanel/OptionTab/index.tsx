@@ -2,12 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from "react-redux";
 import { IRootState } from "../../../../reducer/combineReducer";
 import { curlResponseOptions, responseOptions } from "../../ResponsePanel/consts";
-import { ReactComponent as MenuLogo } from '../../../../../../icons/menu.svg';
 import { ReactComponent as CodeLogo } from '../../../../../../icons/code.svg';
 import "./style.css";
 import { FormatBytes, GetResponseTime } from "./util";
 import vscode from '../../../Common/vscodeAPI';
 import { requestTypes } from '../../../../../utils/configuration';
+import { getColFolDotMenu } from '../../../Common/icons';
 
 export const ResponseOptionsTab = (props: any) => {
 
@@ -17,8 +17,10 @@ export const ResponseOptionsTab = (props: any) => {
   const { url } = useSelector((state: IRootState) => state.requestData);
 
   const [menuShow, setMenuShow] = useState(false);
+  const [codeMenuShow, setCodeMenuShow] = useState(false);
 
   const wrapperRef = useRef(null);
+  const codeWrapperRef = useRef(null);
 
   function getClassName(status: number): string {
     if (response.isError) {
@@ -55,12 +57,24 @@ export const ResponseOptionsTab = (props: any) => {
     if (wrapperRef.current && !wrapperRef.current.contains(evt.target)) {
       setMenuShow(false);
     }
+
+    if (codeWrapperRef.current && !codeWrapperRef.current.contains(evt.target)) {
+      setCodeMenuShow(false);
+    }
   }
 
   function setShowMenu(evt: any) {
     evt.preventDefault();
     setMenuShow(!menuShow);
+    setCodeMenuShow(false);
   }
+
+  function setCodeShowMenu(evt: any) {
+    evt.preventDefault();
+    setMenuShow(false);
+    setCodeMenuShow(!codeMenuShow);
+  }
+
 
   function onSaveResponse(evt: any) {
     evt.preventDefault();
@@ -78,11 +92,35 @@ export const ResponseOptionsTab = (props: any) => {
     return url ? (selectedTab === "codesnippet" ? "code-snippet-icon code-snippet-icon-clicked" : "code-snippet-icon") : "code-snippet-icon-disabled";
   };
 
-  function onSelectTab() {
-    if (url) {
-      setSelectedTab("codesnippet");
+  function onSelectTab(opt: string) {
+    setSelectedTab(opt);
+    setCodeMenuShow(false);
+  }
+
+  function isDisabled(opt: string) {
+    if (opt === "codesnippet" && url) {
+      return false;
+    }
+
+    if (opt === "codetype" && url ) { //&& !response.isError && isJson(response.responseData)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  function isJson(response: any) {
+    try {
+      if (response) {
+        JSON.parse(response);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
     }
   }
+
   function getResponseOptions(): { name: string; value: string; }[] {
     return props.isCurl ? curlResponseOptions : responseOptions;
   }
@@ -147,14 +185,23 @@ export const ResponseOptionsTab = (props: any) => {
             <></>
         }
         <div className="menu-panel">
-          <CodeLogo className={codeSnippetCss()} title="Code Snippet" onClick={onSelectTab} />
-          <div className="dropdown" ref={wrapperRef}>
-            <MenuLogo className="res-menu" title="Menu" onClick={(e) => setShowMenu(e)} />
-            {menuShow && (<div id="res-menu" className={"dropdown-content res-drop-down-menu show"}>
-              <button className="save-to-file-button" onClick={(e) => onSaveResponse(e)} disabled={response.responseData && !response.responseType.isBinaryFile && !response.isError ? false : true}>Save Response to File</button>
-              {!props.isCurl && <button className="save-to-file-button" onClick={(e) => onSaveTestResponse(e)} disabled={testResults.length > 0 ? false : true}>Save Tests to File</button>}
+          <div>
+            <div className="dropdown" ref={codeWrapperRef}>
+              <CodeLogo title="Code Snippet" className="code-snippet-icon" onClick={setCodeShowMenu} />
+              {codeMenuShow && (<div id="res-menu" className={"dropdown-content res-code-drop-down-menu show"}>
+                <button className="save-to-file-button" disabled={isDisabled("codesnippet")} onClick={() => onSelectTab("codesnippet")}>Code Snippet</button>
+                <button className="save-to-file-button" disabled={isDisabled("codetype")} onClick={() => onSelectTab("codetype")}>Code Types</button>
+              </div>
+              )}
             </div>
-            )}
+            <div className="dropdown" ref={wrapperRef}>
+              {getColFolDotMenu("res-menu", "Menu", "hamburger-menu", (e) => { e.stopPropagation(); e.preventDefault(); }, (e) => setShowMenu(e))}
+              {menuShow && (<div id="res-menu" className={"dropdown-content res-drop-down-menu show"}>
+                <button className="save-to-file-button" onClick={(e) => onSaveResponse(e)} disabled={response.responseData && !response.responseType.isBinaryFile && !response.isError ? false : true}>Save Response to File</button>
+                {!props.isCurl && <button className="save-to-file-button" onClick={(e) => onSaveTestResponse(e)} disabled={testResults.length > 0 ? false : true}>Save Tests to File</button>}
+              </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

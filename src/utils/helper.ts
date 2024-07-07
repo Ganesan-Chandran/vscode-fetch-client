@@ -1,3 +1,4 @@
+import { checkSysVariable, getSysVariableWithValue, SysVariables } from "../fetch-client-ui/components/Common/Consts/sysVariables";
 import { ITableData } from "../fetch-client-ui/components/Common/Table/types";
 import { IRequestModel } from "../fetch-client-ui/components/RequestUI/redux/types";
 import { ISettings } from "../fetch-client-ui/components/SideBar/redux/types";
@@ -144,18 +145,36 @@ export function formatDate(value?: string) {
 
   let t = value ? new Date(value) : new Date();
   let date = ("0" + t.getDate()).slice(-2);
-  let timeFormat = ("0" + t.getHours()).slice(-2) + ":" + ("0" + t.getMinutes()).slice(-2) + ":" + ("0" + t.getSeconds()).slice(-2); //t.toTimeString().replace(/([\d]+:[\d]{4})(:[\d]{4})(.*)/, "$1$3");
+  let timeFormat = ("0" + t.getHours()).slice(-2) + ":" + ("0" + t.getMinutes()).slice(-2) + ":" + ("0" + t.getSeconds()).slice(-2);
+
+  return date + "-" + months[t.getMonth()] + "-" + t.getFullYear() + " " + timeFormat;
+}
+
+export function formatDateWithMs(value?: string) {
+  let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  let t = value ? new Date(value) : new Date();
+  let date = ("0" + t.getDate()).slice(-2);
+  let timeFormat = ("0" + t.getHours()).slice(-2) + ":" + ("0" + t.getMinutes()).slice(-2) + ":" + ("0" + t.getSeconds()).slice(-2) + ":" + ("0" + t.getMilliseconds()).slice(-4);
 
   return date + "-" + months[t.getMonth()] + "-" + t.getFullYear() + " " + timeFormat;
 }
 
 export function replaceValueWithVariable(request: IRequestModel, varData: any): IRequestModel {
   request.url = replaceDataWithVariable(request.url, varData);
-  request.params = replaceTableDataWithVariable(request.params, varData);
-  request.headers = replaceTableDataWithVariable(request.headers, varData);
+  if (request.params.filter(item => item.isChecked).length > 0) {
+    request.params = replaceTableDataWithVariable(request.params, varData);
+  }
+
+  if (request.headers.filter(item => item.isChecked).length > 0) {
+    request.headers = replaceTableDataWithVariable(request.headers, varData);
+  }
+
   request.auth.userName = replaceDataWithVariable(request.auth.userName, varData);
   request.auth.password = replaceDataWithVariable(request.auth.password, varData);
   request.auth.tokenPrefix = replaceDataWithVariable(request.auth.tokenPrefix, varData);
+
   if (request.auth.aws) {
     request.auth.aws.accessKey = replaceDataWithVariable(request.auth.aws.accessKey, varData);
     request.auth.aws.secretAccessKey = replaceDataWithVariable(request.auth.aws.secretAccessKey, varData);
@@ -163,8 +182,23 @@ export function replaceValueWithVariable(request: IRequestModel, varData: any): 
     request.auth.aws.region = replaceDataWithVariable(request.auth.aws.region, varData);
     request.auth.aws.sessionToken = replaceDataWithVariable(request.auth.aws.sessionToken, varData);
   }
-  request.body.formdata = replaceTableDataWithVariable(request.body.formdata, varData);
-  request.body.urlencoded = replaceTableDataWithVariable(request.body.urlencoded, varData);
+
+  if (request.body.bodyType === "formurlencoded" && request.body.urlencoded.filter(item => item.isChecked).length > 0) {
+    request.body.urlencoded = replaceTableDataWithVariable(request.body.urlencoded, varData);
+  }
+
+  if (request.body.bodyType === "formdata" && request.body.formdata.filter(item => item.isChecked).length > 0) {
+    request.body.formdata = replaceTableDataWithVariable(request.body.formdata, varData);
+  }
+
+  if (request.body.bodyType === "raw") {
+    request.body.raw.data = replaceDataWithVariable(request.body.raw.data, varData);
+  }
+
+  if (request.body.bodyType === "graphql") {
+    request.body.graphql.query = replaceDataWithVariable(request.body.graphql.query, varData);
+    request.body.graphql.variables = replaceDataWithVariable(request.body.graphql.variables, varData);
+  }
 
   return request;
 }
@@ -193,14 +227,14 @@ function replaceTableDataWithVariable(data: ITableData[], varData: any) {
     if (re.test(item.key)) {
       let ptn = item.key.match(/({{([^}}]+)}})/gm);
       ptn?.forEach(p => {
-        item.key = item.key.replace(p, varData[p.replace("{{", "").replace("}}", "")]);
+        item.key = updateVariable(p, item.key, varData);
       });
     }
 
     if (re.test(item.value)) {
       let ptn = item.value.match(/({{([^}}]+)}})/gm);
       ptn?.forEach(p => {
-        item.value = item.value.replace(p, varData[p.replace("{{", "").replace("}}", "")]);
+        item.value = updateVariable(p, item.value, varData);
       });
     }
   });
@@ -209,15 +243,38 @@ function replaceTableDataWithVariable(data: ITableData[], varData: any) {
 }
 
 export function replaceDataWithVariable(data: string, varData: any) {
-  const re = new RegExp("({{([^}}]+)}})");
-  if (re.test(data)) {
+  if (checkVariableMatch(data)) {
     let ptn = data.match(/({{([^}}]+)}})/gm);
     ptn?.forEach(item => {
-      data = data.replace(item, varData[item.replace("{{", "").replace("}}", "")]);
+      data = updateVariable(item, data, varData);
     });
   }
 
   return data;
+}
+
+function updateVariable(item: string, data: string, varData: any) {
+  if (item.includes("{{#") && item.includes("}}")) {
+    let variable = checkSysVariable(item);
+    if (variable) {
+      let value = getSysVariableWithValue(variable);
+      data = data.replace(item, value?.toString());
+    }
+  } else {
+    let replacedValue = varData[item.replace("{{", "").replace("}}", "")];
+    if (replacedValue && checkVariableMatch(replacedValue)) {
+      data = data.replace(item, replaceDataWithVariable(replacedValue, varData));
+    } else {
+      data = data.replace(item, varData[item.replace("{{", "").replace("}}", "")]);
+    }
+  }
+
+  return data;
+}
+
+function checkVariableMatch(data: string): boolean {
+  const re = new RegExp("({{([^}}]+)}})");
+  return re.test(data);
 }
 
 export function getRandomNumber(digit: number) {

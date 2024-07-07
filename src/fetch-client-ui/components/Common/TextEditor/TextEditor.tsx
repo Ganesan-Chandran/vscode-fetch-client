@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Editor, EditorState, CompositeDecorator, Modifier, DraftHandleValue, ContentState, getDefaultKeyBinding, KeyBindingUtil } from "draft-js";
 import { useSelector } from "react-redux";
 import { IRootState } from "../../../reducer/combineReducer";
+import { checkSysVariable, SysVariables } from "../Consts/sysVariables";
 import "./style.css";
+import { replaceDataWithVariable } from "../../../../utils/helper";
 
 export interface TextEditorProps {
   varWords: string[];
@@ -26,10 +28,22 @@ export const TextEditor = (props: TextEditorProps) => {
   const [curValue, setCurValue] = useState("");
   const [changeHandle, setChangeHandle] = useState(false);
 
+  const refVarData = useRef({});
+  const setVarData = (value: {}) => {
+    refVarData.current = value;
+  };
+
   const editor = React.useRef(null);
 
-  const matchedDecorated = ({ children }) => {
-    return <span style={{ color: "rgb(18, 187, 18)" }}>{children}</span>;
+  const matchedDecorated = (props: any) => {
+    if (!checkSysVariable(props.decoratedText)) {
+      let title = replaceDataWithVariable(props.decoratedText, refVarData.current);
+      if (title) {
+        return <span style={{ color: "rgb(18, 187, 18)" }} title={title}>{props.children}</span>;
+      }
+    }
+
+    return <span style={{ color: "rgb(18, 187, 18)" }}>{props.children}</span>;
   };
 
   const unmatchedDecorated = ({ children }) => {
@@ -39,12 +53,20 @@ export const TextEditor = (props: TextEditorProps) => {
   function findWithRegex(words: string[], contentBlock: any, callback: any) {
     const text = contentBlock.getText();
 
-    var regexEx = /{{[\w]+}}/;
+    let regexEx = /{{[A-Za-z0-9\s!@#$%^&*()_+=-`~\\\]\[|';:\/.,?><]+}}/;
+    let sysVarRegex = /(({{#)((num|str|char|rdate|date|dateISO|email|guid|bool)|(num,[ ]?[0-9]+,[ ]?[0-9]+)|(date,( )*[a-zA-Z $&+,:;=?@#|'<>.^*()%!-\/]*))(}}))/;
     const matches = [...text.matchAll(new RegExp(regexEx, 'gm'))].map(a => { return { index: a.index, word: a[0] }; });
+    const sysVarMatches = [...text.matchAll(new RegExp(sysVarRegex, 'gm'))].map(a => { return { index: a.index, word: a[0] }; });
 
-    matches.forEach(match => {
+    [...matches].forEach(match => {
       let word = match.word.replace("{{", "").replace("}}", "").trim();
       if (words.includes(word)) {
+        callback(match.index, match.index + match.word.length);
+      }
+    });
+
+    [...sysVarMatches].forEach(match => {
+      if (SysVariables.includes(match.word) || match.word.includes("{{#num,") || match.word.includes("{{#date,")) {
         callback(match.index, match.index + match.word.length);
       }
     }
@@ -54,12 +76,21 @@ export const TextEditor = (props: TextEditorProps) => {
   function findWithRegexUnMatched(words: string[], contentBlock: any, callback: any) {
     const text = contentBlock.getText();
 
-    var regexEx = /{{[\w]+}}/;
+    let regexEx = /{{[A-Za-z0-9\s!@#$%^&*()_+=-`~\\\]\[|';:\/.,?><]+}}/;
+    let sysVarRegex = /(({{#)((num|str|char|rdate|date|dateISO|email|guid|bool)|(num,[ ]?[0-9]+,[ ]?[0-9]+)|(date,( )*[a-zA-Z $&+,:;=?@#|'<>.^*()%!-\/]*))(}}))/;
     const matches = [...text.matchAll(new RegExp(regexEx, 'gm'))].map(a => { return { index: a.index, word: a[0] }; });
+    const sysVarMatches = [...text.matchAll(new RegExp(sysVarRegex, 'gm'))].map(a => { return { index: a.index, word: a[0] }; });
 
-    matches.forEach(match => {
+    [...matches].forEach(match => {
       let word = match.word.replace("{{", "").replace("}}", "").trim();
       if (!words.includes(word)) {
+        callback(match.index, match.index + match.word.length);
+      }
+    }
+    );
+
+    [...sysVarMatches].forEach(match => {
+      if (!SysVariables.includes(match.word) && !match.word.includes("{{#num,") && !match.word.includes("{{#date,")) {
         callback(match.index, match.index + match.word.length);
       }
     }
@@ -123,7 +154,15 @@ export const TextEditor = (props: TextEditorProps) => {
 
   useEffect(() => {
     if (selectedVariable.data.length > 0) {
+      let varData = {};
+
       setEditorState(EditorState.set(editorState, { decorator: createDecorator() }));
+
+      selectedVariable.data.forEach(item => {
+        varData[item.key] = item.value;
+      });
+
+      setVarData(varData);
     }
   }, [selectedVariable]);
 

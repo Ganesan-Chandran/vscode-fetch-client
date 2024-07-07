@@ -9,7 +9,8 @@ import { Actions } from "../../../redux";
 import { InitialAuth } from '../../../redux/reducer';
 import { isAvailable } from '../helper';
 import { AwsAuth } from './aws';
-import { apiKeyAddTo, allAuthTypes, authCollection } from "./consts";
+import { apiKeyAddTo, authCollection } from "./consts";
+import { OAuth } from './OAuth';
 import "./style.css";
 
 export interface IAuthProps {
@@ -397,14 +398,14 @@ export const AuthPanel = (props: IAuthProps) => {
             {authCollection[parentSettings.auth.authType]}
           </summary>
           <div className="inherit-auth-summary-panel">
-            {authValuePanel(parentSettings.auth.authType)}
+            {authValuePanel(parentSettings.auth.authType, true)}
           </div>
         </details>
       </>
     );
   };
 
-  const authValuePanel = (type: string) => {
+  const authValuePanel = (type: string, isInherit: boolean = false) => {
     switch (type) {
       case "bearertoken":
         return bearerToken();
@@ -414,6 +415,8 @@ export const AuthPanel = (props: IAuthProps) => {
         return apiKeyAuth();
       case "aws":
         return <AwsAuth envVar={envVar} selectedVariable={props.selectedVariable} settingAuth={parentSettings?.auth} />;
+      case "oauth2":
+          return <OAuth envVar={envVar} selectedVariable={props.selectedVariable} settingAuth={parentSettings?.auth} inherit={isInherit} />;
       case "inherit":
         return props.settingsMode ? <></> : inheritAuth();
       default:

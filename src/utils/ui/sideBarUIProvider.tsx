@@ -1,12 +1,25 @@
-import * as vscode from 'vscode';
-import { getStorageManager, OpenAddToColUI, OpenAttachVariableUI, OpenColSettings, OpenCopyToColUI, OpenCurlUI, OpenExistingItem, OpenRunAllUI, OpenVariableUI } from '../../extension';
-import { ICollections, IFolder, IHistory, IVariable } from '../../fetch-client-ui/components/SideBar/redux/types';
-import { getNonce, requestTypes, responseTypes } from '../../utils/configuration';
-import { AddToCollection, AttachVariable, CreateNewCollection, DeleteAllCollectionItems, DeleteCollection, DeleteCollectionItem, DuplicateItem, GetAllCollections, NewFolderToCollection, NewRequestToCollection, RenameCollection, RenameCollectionItem } from '../../utils/db/collectionDBUtil';
+import {
+  AddToCollection, AttachVariable, CreateNewCollection,
+  DeleteAllCollectionItems, DeleteCollection, DeleteCollectionItem,
+  DuplicateItem, GetAllCollections, NewFolderToCollection, NewRequestToCollection,
+  RemoveVariableByVariableId, RenameCollection, RenameCollectionItem
+} from '../../utils/db/collectionDBUtil';
+import {
+  ChangeVariableStatus, DeleteVariable, DuplicateVariable, ExportVariable,
+  GetAllVariable, ImportVariableFromJsonFile, ImportVariableFromEnvFile, RenameVariable
+} from '../db/varDBUtil';
 import { DeleteAllHistory, DeleteHistory, GetAllHistory, RenameHistory } from '../../utils/db/historyDBUtil';
 import { Export, Import, SaveRequest } from '../db/mainDBUtil';
-import { ChangeVariableStatus, DeleteVariable, DuplicateVariable, ExportVariable, GetAllVariable, ImportVariable, RenameVariable, SaveVariable } from '../db/varDBUtil';
 import { formatDate } from '../helper';
+import { getNonce, pubSubTypes, requestTypes, responseTypes } from '../../utils/configuration';
+import {
+  getStorageManager, OpenAddToColUI, OpenAttachVariableUI, OpenColSettings, OpenCopyToColUI,
+  OpenCurlUI, OpenExistingItem, OpenRunAllUI, OpenVariableUI, pubSub, vsCodeLogger
+} from '../../extension';
+import { getVSCodeTheme } from '../vscodeConfig';
+import { ICollections, IFolder, IHistory } from '../../fetch-client-ui/components/SideBar/redux/types';
+import { IPubSubMessage, Subscription } from '../PubSub';
+import * as vscode from 'vscode';
 
 export class SideBarProvider implements vscode.WebviewViewProvider {
 
@@ -14,11 +27,16 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 
   public view?: vscode.WebviewView;
 
+  private _scriptionId: Subscription;
+  
   constructor(
     private readonly _extensionUri: vscode.Uri,
-  ) { }
+  ) {
+    this._pushMessages = this._pushMessages.bind(this);
+    this._scriptionId = pubSub.subscribe(this._pushMessages);
+  }
 
-  public resolveWebviewView(webviewView: vscode.WebviewView, context: vscode.WebviewViewResolveContext, _token: vscode.CancellationToken,) {
+  public resolveWebviewView(webviewView: vscode.WebviewView, _context: vscode.WebviewViewResolveContext, _token: vscode.CancellationToken,) {
     this.view = webviewView;
 
     webviewView.webview.options = {
@@ -27,6 +45,10 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
     };
 
     webviewView.webview.html = this.getHtmlForWebview(webviewView.webview);
+
+    webviewView.onDidDispose(() => {
+      this._scriptionId.unsubscribe();
+    });
 
     webviewView.webview.onDidReceiveMessage(reqData => {
       switch (reqData.type) {
@@ -55,7 +77,7 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
           });
           break;
         case requestTypes.openHistoryItemRequest:
-          OpenExistingItem(reqData.data.id, reqData.data.name, reqData.data.colId, reqData.data.folderId, reqData.data.varId);
+          OpenExistingItem(reqData.data.id, reqData.data.name, reqData.data.colId, reqData.data.folderId, reqData.data.varId, undefined, reqData.data.isNewTab);
           break;
         case requestTypes.addToCollectionsRequest:
           OpenAddToColUI(reqData.data);
@@ -168,10 +190,15 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
           });
           break;
         case requestTypes.importVariableRequest:
-          vscode.window.showOpenDialog({ filters: { 'Json Files': ['json'] } }).then((uri: vscode.Uri[] | undefined) => {
+          vscode.window.showOpenDialog({ filters: { 'Files': ['json', 'env'] } }).then((uri: vscode.Uri[] | undefined) => {
             if (uri && uri.length > 0) {
               const value = uri[0].fsPath;
-              ImportVariable(webviewView, value);
+              let ext = value.split('.').pop();
+              if (ext.toLowerCase() === "json") {
+                ImportVariableFromJsonFile(webviewView, value);
+              } else {
+                ImportVariableFromEnvFile(webviewView, value);
+              }
             }
           });
           break;
@@ -237,8 +264,27 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
         case requestTypes.importCurlRequest:
           OpenCurlUI();
           break;
+        case requestTypes.removeVariableFromColRequest:
+          if (reqData.data.varId) {
+            RemoveVariableByVariableId(reqData.data.varId, webviewView);
+          }
+          break;
+        case requestTypes.viewLogRequest:
+          if (vsCodeLogger) {
+            vsCodeLogger.showLog();
+          }
+          break;
+        case requestTypes.themeRequest:
+          webviewView.webview.postMessage(getVSCodeTheme());
+          break;
       }
     });
+  }
+
+  private _pushMessages(message: IPubSubMessage) {
+    if (message.messageType === pubSubTypes.themeChanged) {
+      this.view.webview.postMessage({ type: message.messageType });
+    }
   }
 
   private async showInputBox() {

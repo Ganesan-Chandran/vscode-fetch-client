@@ -11,10 +11,14 @@ import "./style.css";
 export interface IHistoryProps {
   filterCondition: string;
   isLoading: boolean;
+  selectedItem: {
+    itemId: string;
+  }
 }
 
 export const HistoryBar = (props: IHistoryProps) => {
 
+  const { theme } = useSelector((state: IRootState) => state.uiData);
   const { history } = useSelector((state: IRootState) => state.sideBarData);
 
   const [ddPosition, setPosition] = useState("");
@@ -22,6 +26,10 @@ export const HistoryBar = (props: IHistoryProps) => {
   const [selectedItem, setSelectedItem] = useState("");
 
   const [currentIndex, _setCurrentIndex] = useState(-1);
+
+  useEffect(() => {
+    setSelectedItem(props.selectedItem.itemId);
+  }, [props.selectedItem]);
 
   const refIndex = useRef(currentIndex);
   const setCurrentIndex = (data: number) => {
@@ -91,8 +99,19 @@ export const HistoryBar = (props: IHistoryProps) => {
   function onClickHistory(evt: React.MouseEvent<HTMLElement>, id: string, name: string) {
     evt.preventDefault();
     evt.stopPropagation();
+    openItem(id, name, evt.ctrlKey ? true : false);
+  }
+
+  function onClickNewTab(evt: React.MouseEvent<HTMLElement>, id: string, name: string) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    openItem(id, name, true);
+    setCurrentIndex(-1);
+  }
+
+  function openItem(id: string, name: string, isNewTab: boolean) {
     setSelectedItem(id);
-    vscode.postMessage({ type: requestTypes.openHistoryItemRequest, data: { id: id, name: name } });
+    vscode.postMessage({ type: requestTypes.openHistoryItemRequest, data: { id: id, name: name, isNewTab: isNewTab } });
   }
 
   function onItemRightClick(e: any, index: number) {
@@ -122,9 +141,17 @@ export const HistoryBar = (props: IHistoryProps) => {
     }
   }
 
+  function getThemeColor() {
+    if (theme === 1) {
+      return "light-theme-boder";
+    }
+
+    return "dark-theme-boder";
+  }
+
   function getHistoryItems(history: IHistory, index: number) {
     return (
-      <div key={"activity_" + history.id} className={selectedItem === history.id ? "activity-items selected-item" : "activity-items"} onContextMenu={(e) => onItemRightClick(e, index)} onClick={(e) => onClickHistory(e, history.id, history.name)}>
+      <div key={"activity_" + history.id} className={selectedItem === history.id ? `${getThemeColor()} activity-items selected-item` : `${getThemeColor()} activity-items`} onContextMenu={(e) => onItemRightClick(e, index)} onClick={(e) => onClickHistory(e, history.id, history.name)}>
         <div className="activity-item-row-1">
           <label className={"activity-method " + getMethodClassName(history.method.toUpperCase())}>{getMethodName(history.method.toUpperCase())}</label>
           <label className="activity-url">{history.name.replace(/^https?:\/\//, '')}</label>
@@ -135,6 +162,8 @@ export const HistoryBar = (props: IHistoryProps) => {
             <DotsLogo id={"three-dots-" + history.id} onClick={(e) => openMoreMenu(e, index)} />
             <input type="checkbox" className="dd-input" checked={index === currentIndex} readOnly={true} />
             <div id={"drop-down-menu-" + history.id} className="dropdown-more" style={styles.bottomStyle}>
+              <button onClick={(e) => onClickNewTab(e, history.id, history.name)}>Open in New Tab</button>
+              <div className="divider"></div>
               <button onClick={(e) => onSaveToCollection(e, history.id)}>Save to Collection</button>
               <button onClick={(e) => onRename(e, history.id)}>Rename</button>
               <button onClick={(e) => onDelete(e, history.id, history.name)}>Delete</button>
