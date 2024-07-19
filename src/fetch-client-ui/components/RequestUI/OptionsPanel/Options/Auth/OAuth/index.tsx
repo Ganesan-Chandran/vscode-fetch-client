@@ -137,7 +137,7 @@ export const OAuth = (props: IOAuthProps) => {
           dispatch(Actions.SetOAuthTokenAction(responseData[tokenName] ? responseData[tokenName] : ""));
         }
       }
-    })
+    });
   }, []);
 
   return (

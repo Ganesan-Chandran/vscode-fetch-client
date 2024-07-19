@@ -81,7 +81,7 @@ export function GetRequestItem(reqId: string) {
     return new Promise<IRequestModel>((resolve, _reject) => {
       const db = getDB();
       db.loadDatabase({}, function (err: any) {
-        if(err){
+        if (err) {
           resolve(null);
         }
         const results = db.getCollection('apiRequests').chain().find({ 'id': reqId }).data();
@@ -261,10 +261,10 @@ export function Export(path: string, colId: string, hisId: string, folderId: str
 
         fs.writeFile(path, JSON.stringify(exportData), (error) => {
           if (error) {
-            vscode.window.showErrorMessage("Could not save to '" + path + "'. Error Message : " + error.message);
+            vscode.window.showErrorMessage("Could not save to '" + path + "'. Error Message : " + error.message, { modal: true });
             writeLog("error::ExportItem()::FileWrite()" + error.message);
           } else {
-            vscode.window.showInformationMessage("Successfully saved to '" + path + "'.");
+            vscode.window.showInformationMessage("Successfully saved to '" + path + "'.", { modal: true });
           }
         });
       });
@@ -300,7 +300,7 @@ enum ImportType {
 function ValidateData(data: string): ImportType | null {
   try {
     if (!data || data.length === 0 || !isJson(data)) {
-      vscode.window.showErrorMessage("Could not import the collection - Empty Data.");
+      vscode.window.showErrorMessage("Could not import the collection - Empty Data.", { modal: true });
       writeLog("error::Import::ValidateData() " + "Error Message : Could not import the collection - Empty Data.");
       return null;
     }
@@ -308,7 +308,7 @@ function ValidateData(data: string): ImportType | null {
     try {
       FetchClientDataProxy.Parse(data);
       return ImportType.FetchClient_1_0;
-    } catch {
+    } catch (err) {
       let postmanData = JSON.parse(data) as PostmanSchema_2_1;
       if (postmanData.info?._postman_id && postmanData.info?.schema === POSTMAN_SCHEMA_V2_1) {
         return ImportType.Postman_2_1;
@@ -317,7 +317,7 @@ function ValidateData(data: string): ImportType | null {
     }
   }
   catch (err) {
-    vscode.window.showErrorMessage("Could not import the collection - Invalid Data.");
+    vscode.window.showErrorMessage("Could not import the collection - Invalid Data.", { modal: true });
     writeLog("error::Import::ValidateData() " + "Error Message : Could not import the collection - " + err);
     return null;
   }
@@ -335,10 +335,8 @@ function insertCollections(colDB: loki, webviewView: vscode.WebviewView, fcColle
 export function Import(webviewView: vscode.WebviewView, path: string) {
   try {
     const data = fs.readFileSync(path, "utf8");
-
-    console.log(data);
-
-    switch (ValidateData(data)) {
+    var type = ValidateData(data);
+    switch (type) {
       case ImportType.FetchClient_1_0:
         ImportFC(webviewView, data);
         break;
@@ -346,11 +344,11 @@ export function Import(webviewView: vscode.WebviewView, path: string) {
         ImportPostman(webviewView, data);
         break;
       default:
-        vscode.window.showErrorMessage("Could not import the collection - Invalid data.");
+        vscode.window.showErrorMessage("Could not import the collection - Invalid data.", { modal: true });
     }
 
   } catch (err) {
-    vscode.window.showErrorMessage("Could not import the collection - Invalid data.");
+    vscode.window.showErrorMessage("Could not import the collection - Invalid data.", { modal: true });
     writeLog("error::Import(): - Error Message : " + err);
   }
 }
@@ -384,7 +382,7 @@ function ImportPostman(webviewView: vscode.WebviewView, data: string) {
       }
     });
   } catch (err) {
-    vscode.window.showErrorMessage("Could not import the collection - Invalid data.");
+    vscode.window.showErrorMessage("Could not import the collection - Invalid data.", { modal: true });
     writeLog("error::ImportPostman(): - Error Message : " + err);
   }
 }
@@ -416,7 +414,7 @@ function ImportFC(webviewView: vscode.WebviewView, data: string) {
     });
 
   } catch (err) {
-    vscode.window.showErrorMessage("Could not import the collection - Invalid data.");
+    vscode.window.showErrorMessage("Could not import the collection - Invalid data.", { modal: true });
     writeLog("error::ImportFC(): - Error Message : " + err);
   }
 }

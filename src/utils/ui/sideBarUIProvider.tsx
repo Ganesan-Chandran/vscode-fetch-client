@@ -28,7 +28,7 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
   public view?: vscode.WebviewView;
 
   private _scriptionId: Subscription;
-  
+
   constructor(
     private readonly _extensionUri: vscode.Uri,
   ) {
@@ -299,7 +299,7 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
   }
 
   private async showConfirmationBox(text: string) {
-    const res = await vscode.window.showWarningMessage(text, "Yes", "No");
+    const res = await vscode.window.showWarningMessage(text, { modal: true }, "Yes", "No");
     return res;
   }
 

@@ -22,6 +22,7 @@ const SideBar = () => {
   const [isHisLoading, setHisLoading] = useState(true);
   const [isColLoading, setColLoading] = useState(true);
   const [isVarLoading, setVarLoading] = useState(true);
+  const [isViewLogOpen, setViewLogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState({ colId: "", foldId: "", itemId: "", });
 
   const wrapperRef = useRef(null);
@@ -151,7 +152,7 @@ const SideBar = () => {
     vscode.postMessage({ type: requestTypes.getAllHistoryRequest });
 
     setTimeout(() => {
-      vscode.postMessage({ type: requestTypes.getAllCollectionsRequest });      
+      vscode.postMessage({ type: requestTypes.getAllCollectionsRequest });
     }, 1000);
 
     setTimeout(() => {
@@ -190,6 +191,7 @@ const SideBar = () => {
   }
 
   function onViewLogClick(e: any) {
+    setViewLogOpen(!isViewLogOpen);
     vscode.postMessage({ type: requestTypes.viewLogRequest });
   }
 
@@ -223,7 +225,11 @@ const SideBar = () => {
         </div>
         <footer className="bottom-menu-panel">
           <a className="view-log" onClick={onViewLogClick}>
-            <span className="log-span">📝 View Log</span>            
+            {isViewLogOpen ?
+              <span className="log-span">📝 Close Log</span>
+              :
+              <span className="log-span">📝 View Log</span>
+            }
           </a>
         </footer>
       </div>

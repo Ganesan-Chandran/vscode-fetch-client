@@ -79,7 +79,7 @@ export class DataEntityProxy {
     }
     checkBoolean(d.isChecked, false, field + ".isChecked");
     checkString(d.key, false, field + ".key");
-    checkString(d.value, false, field + ".value");
+    checkStringOrNumber(d.value, false, field + ".value");
     return new DataEntityProxy(d);
   }
   private constructor(d: any) {
@@ -111,6 +111,11 @@ function checkBoolean(d: any, nullable: boolean, field: string): void {
 function checkString(d: any, nullable: boolean, field: string): void {
   if (typeof(d) !== 'string' && (!nullable || (nullable && d !== null && d !== undefined))) {
     errorHelper(field, d, "string", nullable);
+  }
+}
+function checkStringOrNumber(d: any, nullable: boolean, field: string): void {
+  if ((typeof(d) !== 'string' && typeof(d) !== 'number') && (!nullable || (nullable && d !== null && d !== undefined))) {
+    errorHelper(field, d, "stringORnumber", nullable);
   }
 }
 function errorHelper(field: string, d: any, type: string, nullable: boolean): never {

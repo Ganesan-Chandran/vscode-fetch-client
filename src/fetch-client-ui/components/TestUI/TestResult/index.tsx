@@ -41,7 +41,7 @@ export const TestResult = () => {
           Show More
         </button>
       </>
-    )
+    );
   }
 
   function onShowMoreClick(e: React.MouseEvent<HTMLElement>) {

@@ -78,19 +78,19 @@ const commonConfig = (webpackEnv) => {
         },
       ],
     },
-    // optimization: {
-    //   minimize: true,
-    //   minimizer: [
-    //     new TerserPlugin({
-    //       terserOptions: {
-    //         format: {
-    //           comments: false,
-    //         },
-    //       },
-    //       extractComments: false,
-    //     }),
-    //   ],
-    // },
+    optimization: {
+      minimize: true,
+      minimizer: [
+        new TerserPlugin({
+          terserOptions: {
+            format: {
+              comments: false,
+            },
+          },
+          extractComments: false,
+        }),
+      ],
+    },
     plugins: [
       new MiniCssExtractPlugin({
         filename: "ignore.css",

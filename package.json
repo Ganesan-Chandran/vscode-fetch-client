@@ -8,7 +8,7 @@
     "name": "Ganesan Chandran <https://ganesan-chandran.github.io/>"
   },
   "engines": {
-    "vscode": "^1.65.0"
+    "vscode": "^1.75.0"
   },
   "icon": "icons/fetch-client.png",
   "repository": {
@@ -213,7 +213,7 @@
         },
         {
           "command": "fetch-client.openErrorLog",
-          "when": "view == fetch-client.sideBar",
+          "when": "false",
           "group": "group2@1"
         },
         {
@@ -246,7 +246,9 @@
     "compile-tests": "tsc -p ./",
     "watch-tests": "tsc -watch -p ./",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
-    "lint": "eslint src --ext .ts,.tsx",
+    "lint-check": "eslint src --ext .ts,.tsx",
+    "lint-fix": "eslint src --ext .ts,.tsx --fix",
+    "pre-commit": "npm run eclint-check && npm run md-lint && npm run md-spellcheck",
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
@@ -274,7 +276,7 @@
     "buffer": "^6.0.3",
     "cross-env": "^7.0.3",
     "draft-js": "^0.11.7",
-    "eslint": "^8.6.0",
+    "eslint": "^8.57.0",
     "fast-xml-parser": "^4.0.7",
     "glob": "^7.2.0",
     "httpsnippet": "^2.0.0",

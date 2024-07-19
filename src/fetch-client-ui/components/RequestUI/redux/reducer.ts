@@ -196,7 +196,7 @@ export const RequestReducer: (state?: IRequestModel,
           tests: action.payload.req.tests,
           setvar: action.payload.req.setvar ? action.payload.req.setvar : JSON.parse(JSON.stringify(InitialSetVar)),
           notes: action.payload.req.notes,
-          preFetch: action.payload.req.preFetch
+          preFetch: action.payload.req.preFetch ?? InitialPreFetch
         };
       }
       case FETCH_CLIENT_SET_TEST: {
@@ -276,7 +276,7 @@ export const RequestReducer: (state?: IRequestModel,
           ...state,
           preFetch: {
             ...state.preFetch,
-            requests: updateCondition(state.preFetch.requests, action.payload.condition, action.payload.reqIndex, action.payload.condIndex)
+            requests: updateCondition(state.preFetch?.requests, action.payload.condition, action.payload.reqIndex, action.payload.condIndex)
           }
         };
       }
@@ -285,7 +285,7 @@ export const RequestReducer: (state?: IRequestModel,
           ...state,
           preFetch: {
             ...state.preFetch,
-            requests: [...state.preFetch.requests, action.payload.request]
+            requests: [...state.preFetch?.requests, action.payload.request]
           }
         };
       }
@@ -294,7 +294,7 @@ export const RequestReducer: (state?: IRequestModel,
           ...state,
           preFetch: {
             ...state.preFetch,
-            requests: deleteRequest(state.preFetch.requests, action.payload.index)
+            requests: deleteRequest(state.preFetch?.requests, action.payload.index)
           }
         };
       }
@@ -303,7 +303,7 @@ export const RequestReducer: (state?: IRequestModel,
           ...state,
           preFetch: {
             ...state.preFetch,
-            requests: deleteCondition(state.preFetch.requests, action.payload.reqIndex, action.payload.condIndex)
+            requests: deleteCondition(state.preFetch?.requests, action.payload.reqIndex, action.payload.condIndex)
           }
         };
       }
@@ -312,7 +312,7 @@ export const RequestReducer: (state?: IRequestModel,
           ...state,
           preFetch: {
             ...state.preFetch,
-            requests: updateSelectedCol(state.preFetch.requests, action.payload.index, action.payload.colId, "", "col")
+            requests: updateSelectedCol(state.preFetch?.requests, action.payload.index, action.payload.colId, "", "col")
           }
         };
       }
@@ -321,7 +321,7 @@ export const RequestReducer: (state?: IRequestModel,
           ...state,
           preFetch: {
             ...state.preFetch,
-            requests: updateSelectedCol(state.preFetch.requests, action.payload.index, action.payload.reqId, action.payload.parentId, "req")
+            requests: updateSelectedCol(state.preFetch?.requests, action.payload.index, action.payload.reqId, action.payload.parentId, "req")
           }
         };
       }

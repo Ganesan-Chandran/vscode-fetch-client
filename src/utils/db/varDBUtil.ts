@@ -214,10 +214,10 @@ export function ExportVariable(path: string, vars: IVariable) {
 
     fs.writeFile(path, JSON.stringify(exportData), (error) => {
       if (error) {
-        vscode.window.showErrorMessage("Could not save to '" + path + "'. Error Message : " + error.message);
+        vscode.window.showErrorMessage("Could not save to '" + path + "'. Error Message : " + error.message, { modal: true });
         writeLog("error::ExportVariable()::FileWrite()" + error.message);
       } else {
-        vscode.window.showInformationMessage("Successfully saved to '" + path + "'.");
+        vscode.window.showInformationMessage("Successfully saved to '" + path + "'.", { modal: true });
       }
     });
   } catch (err) {
@@ -228,7 +228,7 @@ export function ExportVariable(path: string, vars: IVariable) {
 function ValidateData(data: string): boolean {
   try {
     if (!data || data.length === 0) {
-      vscode.window.showErrorMessage("Could not import the variable - Empty Data.");
+      vscode.window.showErrorMessage("Could not import the variable - Empty Data.", { modal: true });
       writeLog("error::ImportVariable::ValidateData() " + "Error Message : Could not import the variable - Empty Data.");
       return false;
     }
@@ -238,7 +238,7 @@ function ValidateData(data: string): boolean {
     return true;
   }
   catch (err) {
-    vscode.window.showErrorMessage("Could not import the variable - Invalid Data.");
+    vscode.window.showErrorMessage("Could not import the variable - Invalid Data.", { modal: true });
     writeLog("error::ImportVariable::ValidateData() " + "Error Message : Could not import the variable - " + err);
     return false;
   }
@@ -262,7 +262,7 @@ export function ImportVariableFromJsonFile(webviewView: vscode.WebviewView, path
     ImportVariable(webviewView, reqData);
 
   } catch (err) {
-    vscode.window.showErrorMessage("Could not import the variable - Invalid data.");
+    vscode.window.showErrorMessage("Could not import the variable - Invalid data.", { modal: true });
     writeLog("error::ImportVariableFromJsonFile(): - Error Mesaage : " + err);
   }
 }
@@ -294,7 +294,7 @@ export function ImportVariableFromEnvFile(webviewView: vscode.WebviewView, path:
     ImportVariable(webviewView, reqData);
 
   } catch (err) {
-    vscode.window.showErrorMessage("Could not import the variable - Invalid data.");
+    vscode.window.showErrorMessage("Could not import the variable - Invalid data.", { modal: true });
     writeLog("error::ImportVariableFromEnvFile(): - Error Mesaage : " + err);
   }
 }
@@ -311,7 +311,7 @@ export function ImportVariable(webviewView: vscode.WebviewView, reqData: IVariab
     });
 
   } catch (err) {
-    vscode.window.showErrorMessage("Could not import the variable - Invalid data.");
+    vscode.window.showErrorMessage("Could not import the variable - Invalid data.", { modal: true });
     writeLog("error::ImportVariable(): - Error Mesaage : " + err);
   }
 }

@@ -89,10 +89,10 @@ export const AddToColUI = (extensionUri: any) => {
             const value = uri.fsPath;
             fs.writeFile(value, JSON.stringify(message.data), (error) => {
               if (error) {
-                vscode.window.showErrorMessage("Could not save to '" + value + "'. Error Message : " + error.message);
+                vscode.window.showErrorMessage("Could not save to '" + value + "'. Error Message : " + error.message, { modal: true });
                 writeLog("error::ExportVariable()::FileWrite()" + error.message);
               } else {
-                vscode.window.showInformationMessage("Successfully saved to '" + value + "'.");
+                vscode.window.showInformationMessage("Successfully saved to '" + value + "'.", { modal: true });
               }
             });
           }
@@ -103,10 +103,10 @@ export const AddToColUI = (extensionUri: any) => {
             const value = uri.fsPath;
             fs.writeFile(value, message.data.toString(), (error) => {
               if (error) {
-                vscode.window.showErrorMessage("Could not save to '" + value + "'. Error Message : " + error.message);
+                vscode.window.showErrorMessage("Could not save to '" + value + "'. Error Message : " + error.message, { modal: true });
                 writeLog("error::ExportVariable()::FileWrite()" + error.message);
               } else {
-                vscode.window.showInformationMessage("Successfully saved to '" + value + "'.");
+                vscode.window.showInformationMessage("Successfully saved to '" + value + "'.", { modal: true });
               }
             });
           }

@@ -505,7 +505,7 @@ export class AwsProxy {
       field = "root";
     }
     if (d === null || d === undefined) {
-      throwNull2NonNull(field, d);
+      return null;
     } else if (typeof (d) !== 'object') {
       throwNotObject(field, d, false);
     } else if (Array.isArray(d)) {
@@ -547,7 +547,7 @@ export class OauthProxy {
       field = "root";
     }
     if (d === null || d === undefined) {
-      throwNull2NonNull(field, d);
+      return null;
     } else if (typeof (d) !== 'object') {
       throwNotObject(field, d, false);
     } else if (Array.isArray(d)) {
@@ -993,8 +993,8 @@ export class AuthProxy {
   public readonly addTo: string;
   public readonly showPwd: boolean;
   public readonly tokenPrefix: string;
-  public readonly aws: AwsProxy;
-  public readonly oauth: OauthProxy;
+  public readonly aws: AwsProxy | null;
+  public readonly oauth: OauthProxy | null;
   public static Parse(d: string): AuthProxy | null {
     return AuthProxy.Create(JSON.parse(d));
   }

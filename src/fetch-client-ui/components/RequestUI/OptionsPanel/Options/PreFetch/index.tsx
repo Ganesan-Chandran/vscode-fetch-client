@@ -17,7 +17,7 @@ export const PreFetch = () => {
       reqId: "",
       parentId: "",
       colId: "",
-      order: preFetch?.requests?.length + 1,
+      order: preFetch && preFetch?.requests ? preFetch.requests.length + 1 : 1,
       condition: JSON.parse(JSON.stringify(InitialTest))
     };
     dispatch(Actions.SetAddPreRequestAction(newPreReq));
@@ -34,7 +34,7 @@ export const PreFetch = () => {
 
   return (
     <div className="preReq-container">
-      <div><button onClick={onAddReqClick} className="format-button">Add Pre-request</button></div>
+      <div><div className="max-req">* Max 5 request</div><button onClick={onAddReqClick} disabled={preFetch?.requests?.length > 4} className="format-button">Add Pre-request</button></div>
       {
         makeRequests(preFetch?.requests)
       }

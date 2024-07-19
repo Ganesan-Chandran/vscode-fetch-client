@@ -86,7 +86,7 @@ const TypesGenerator = () => {
       </>
       }
     </div>
-  )
-}
+  );
+};
 
 export default TypesGenerator;

@@ -18,7 +18,7 @@
 }
 
 .sidebar-panel {
-  height : calc(100vh - 130px);
+  height : calc(100vh - 131px);
   width  : 100%;
   display: block;
   padding: 0;

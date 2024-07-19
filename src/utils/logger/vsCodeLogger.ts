@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 export class VSCodeLogger {
 
   private _logChannel: vscode.OutputChannel;
+  private _isOpen = false;
 
   constructor() {
     this._logChannel = vscode.window.createOutputChannel("Fetch Client");
@@ -10,7 +11,8 @@ export class VSCodeLogger {
 
   public showLog() {
     if (this._logChannel) {
-      this._logChannel.show();
+      this._isOpen ? this._logChannel.hide() : this._logChannel.show();
+      this._isOpen = !this._isOpen;
     }
   }
 
@@ -34,7 +36,7 @@ export class VSCodeLogger {
           err += this.mapObject(args);
         });
         this._logChannel.appendLine(err);
-        vscode.window.showErrorMessage(err);
+        vscode.window.showErrorMessage(err, { modal: true });
         return;
 
       default:
