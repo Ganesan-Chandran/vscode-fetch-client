@@ -2,11 +2,11 @@
 
 All notable changes to the "Fetch Client" extension will be documented in this file.
 
-## v1.4.0 - October, 2022
+## v1.4.0 - July, 2024
 ### 🎉 New Features
 - Import Postman collection (Postman Collection v2.1).
 - OAuth2 added for request authorization.
-- Pre-requests and conditions are added for Request execution.
+- Pre-requests(Pre-Fetch) and conditions are added for Request execution.
 - Tests and Variables are moved to PostFetch section.
 - Types genreation added for JSON response.
 - Added auto refresh in the request tabs when variables are modified.
@@ -24,9 +24,12 @@ All notable changes to the "Fetch Client" extension will be documented in this f
 
 ### 🐛 Bug Fixes
 - import from Curl ([#5](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/5)).
+- Clicking on collection item opens a new window every time instead of switching to existing window ([#6](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/6))
+- import/export postman collections and environment ([#7](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/7))
+
 
 ### Requirements
-- Minimum required version of VSCode is v1.66.0
+- Minimum required version of VSCode is v1.75.0
 
 ## v1.3.0 - September, 2022
 ### 🎉 New Features
