@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import ReactJson from 'react-json-view';
+import { useSelector } from 'react-redux';
+import { IRootState } from '../../../reducer/combineReducer';
 import "./style.css";
 import { ViewerProps } from './types';
 
 export const JSONViewer = (props: ViewerProps) => {
 
+  const { theme } = useSelector((state: IRootState) => state.uiData);
+  
   const [jsonData, setJsonData] = useState({});
   const [isValid, setValid] = useState(false);
 
@@ -23,7 +27,7 @@ export const JSONViewer = (props: ViewerProps) => {
         isValid ?
           <ReactJson
             src={jsonData}
-            theme={props.theme === 1 ? "summerfruit:inverted" : props.theme === 2 ? "summerfruit" : "brewer"}
+            theme={theme === 1 ? "summerfruit:inverted" : theme === 2 ? "summerfruit" : "brewer"}
             enableClipboard={false}
             displayDataTypes={false}
           />

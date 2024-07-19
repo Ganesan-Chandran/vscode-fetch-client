@@ -88,7 +88,7 @@
 
 .res-not-support-download {
   margin-top: 10px;
-  width     : auto;
+  width     : auto !important;
 }
 
 .cancel-button-panel {
@@ -127,7 +127,8 @@
   color: var(--button-hover-color);
 }
 
-.toggle {
+.toggle,
+.word-wrap-button {
   box-sizing     : border-box;
   font-size      : 0;
   display        : flex;
@@ -224,4 +225,13 @@
 
 .fullscreen-btn-invisible {
   visibility: hidden;
+}
+
+.word-wrap-button {
+  margin-left: auto;
+  order      : 2;
+}
+
+.res-prev-header {
+  display: flex;
 }

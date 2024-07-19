@@ -2,20 +2,46 @@
 
 All notable changes to the "Fetch Client" extension will be documented in this file.
 
+## v1.4.0 - October, 2022
+### 🎉 New Features
+- Import Postman collection (Postman Collection v2.1).
+- OAuth2 added for request authorization.
+- Pre-requests and conditions are added for Request execution.
+- Tests and Variables are moved to PostFetch section.
+- Types genreation added for JSON response.
+- Added auto refresh in the request tabs when variables are modified.
+- Added log for request and response in the output window.
+- Added "View Log" button in the sidebar panel to open the log output window.
+- Display the variables value when hovering over them.
+- Import .env file in the Variable section.
+- System variables are added to generate random dynamic data.
+- The item in side bar will be focused when changing the request tab.
+- Added show more option for larger response in the test case output.
+- Added isJson(), regex, notContains options in the test.
+- Added support for nested variables.
+- "New Request" shortcut icon added in the Collection/Folder.
+- Word wrap option added for response section.
+
+### 🐛 Bug Fixes
+- import from Curl ([#5](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/5)).
+
+### Requirements
+- Minimum required version of VSCode is v1.66.0
+
 ## v1.3.0 - September, 2022
-### New Features
+### 🎉 New Features
 - Added the settings in the "Run All" Collection.
 - Support for multiple iterations in "Run All" Collection.
 - Can add delay between requests and iterations.
 - Run the requests in sequential or parallel mode for multiple iterations.
 
-### Bug Fixes
+### 🐛 Bug Fixes
 
 - import from Curl ([#5](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/5)).
 - Not able to Duplicate the item in the folder.
 
 ## v1.2.0 - July, 2022
-### New Features
+### 🎉 New Features
 - Support nested folder to the Collection.
 - Run curl request (Under collection in the side bar).
 - Import curl request (Under collection in the side bar) ([#5](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/5)).
@@ -25,12 +51,12 @@ All notable changes to the "Fetch Client" extension will be documented in this f
 - File option added in Form in the request body.
 - Full screen mode is added for resonse section.
 
-### Bug Fixes
+### 🐛 Bug Fixes
 
 - Bearer Token as a variable does not work due to max length restriction ([#4](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/4)).
 
 ## v1.1.0 - June, 2022
-### New Features
+### 🎉 New Features
 - Folder added to the Collection.
 - Set environment variable from json response, headers and cookies.
 - Support AWS Signature auth type.
@@ -43,7 +69,7 @@ All notable changes to the "Fetch Client" extension will be documented in this f
 - Right click for context menu in Sidebar (History, Collection and Variable).
 - Menu items added (Manage Cookies, View Error Log and Extension Settings)
 
-### Bug Fixes
+### 🐛 Bug Fixes
 
 \-
 
@@ -51,7 +77,7 @@ All notable changes to the "Fetch Client" extension will be documented in this f
 - Minimum required version of VSCode is v1.65.0
 
 ## v1.0.0 - May, 2022
-### New Features
+### 🎉 New Features
 - UI Customization and support VSCode Themes.
 - Test Rest API request with GET, POST, PUT, PATCH, DELETE, HEAD and OPTIONS methods.
 - Various authentications which are Basic Auth, Bearer Token and API Key.
@@ -65,6 +91,6 @@ All notable changes to the "Fetch Client" extension will be documented in this f
 - Export/Import the Fecth Client's collections and environment variables.
 - Add documentation/feedback for each request. 
 
-### Bug Fixes
+### 🐛 Bug Fixes
 
 \-

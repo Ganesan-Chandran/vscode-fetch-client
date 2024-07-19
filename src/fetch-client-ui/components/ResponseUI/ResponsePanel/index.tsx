@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useState } from "react";
 import { useSelector } from 'react-redux';
 import { IRootState } from '../../../reducer/combineReducer';
+import TypesGenerator from '../..//Common/TypesGenerator';
 import { NotesEditor } from '../../Common/NotesEditor';
 import { TestResult } from '../../TestUI/TestResult';
 import { ResponseCookies } from "../OptionsPanel/Options/Cookies";
@@ -24,7 +25,7 @@ export const ReponsePanel = (props: ResponsePanelProps) => {
 
   const CodeSnippetGenerator = React.lazy(() => import('../../Common/CodeGenerator'));
 
-  const renderOptionsUI = (tab: string) => {
+  const renderOptionsUI = (tab: string) => {    
     switch (tab) {
       case 'headers':
         return <ResponseHeaders />;
@@ -34,6 +35,8 @@ export const ReponsePanel = (props: ResponsePanelProps) => {
         return <TestResult />;
       case 'codesnippet':
         return <React.Suspense fallback={<div>loading...</div>}><CodeSnippetGenerator /></React.Suspense>;
+      case 'codetype':
+        return <React.Suspense fallback={<div>loading...</div>}><TypesGenerator /></React.Suspense>;
       case 'notes':
         return <NotesEditor />;
       default:
@@ -53,7 +56,7 @@ export const ReponsePanel = (props: ResponsePanelProps) => {
         <ResponseOptionsTab selectedTab={selectedTab} setSelectedTab={setSelectedTab} isVerticalLayout={props.isVerticalLayout} isCurl={props.isCurl} />
         <div className={props.isVerticalLayout ? "response-options-tab-panel-vertical" : "response-options-tab-panel"}>
           <div id="response-section-panel" className={selectedTab === "response" ? "res-visible" : "res-hidden"}>
-            <ResponseSection isCurl={props.isCurl}/>
+            <ResponseSection isCurl={props.isCurl} />
           </div>
           {renderOptionsUI(selectedTab)}
         </div>

@@ -3,6 +3,11 @@ export const requestOptions = [
   { name: "Authorization", value: "authorization" },
   { name: "Headers", value: "headers" },
   { name: "Body", value: "body" },
+  { name: "PreFetch", value: "preFetch" },
+  { name: "PostFetch", value: "postFetch" }
+];
+
+export const postFetchOptions = [
   { name: "Tests", value: "tests" },
-  { name: "Set Var", value: "setvar" }
+  { name: "Variable", value: "setvar" }
 ];

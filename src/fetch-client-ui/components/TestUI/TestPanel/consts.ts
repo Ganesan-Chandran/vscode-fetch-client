@@ -5,6 +5,7 @@ export const ActionsParametersMapping = {
       { name: "equal", value: "equal" },
       { name: "notEqual", value: "notEqual" },
       { name: "contains", value: "contains" },
+      { name: "regex", value: "regex" },
     ]
   },
   "Content-Length": {
@@ -12,6 +13,7 @@ export const ActionsParametersMapping = {
       { name: "select", value: "", },
       { name: "equal", value: "equal" },
       { name: "notEqual", value: "notEqual" },
+      { name: "regex", value: "regex" },
     ]
   },
   "Content-Encoding": {
@@ -19,6 +21,7 @@ export const ActionsParametersMapping = {
       { name: "select", value: "", },
       { name: "equal", value: "equal" },
       { name: "notEqual", value: "notEqual" },
+      { name: "regex", value: "regex" },
     ]
   },
   "Header": {
@@ -28,6 +31,7 @@ export const ActionsParametersMapping = {
       { name: "notEqual", value: "notEqual" },
       { name: "contains", value: "contains" },
       { name: "type", value: "type" },
+      { name: "regex", value: "regex" },
     ]
   },
   "Response Code": {
@@ -39,14 +43,17 @@ export const ActionsParametersMapping = {
       { name: "<=", value: "<=" },
       { name: ">", value: ">" },
       { name: ">=", value: ">=" },
+      { name: "regex", value: "regex" },
     ]
   },
   "Response Body": {
     "action": [
       { name: "select", value: "", },
+      { name: "isJSON", value: "isJSON" },
       { name: "equal", value: "equal" },
       { name: "notEqual", value: "notEqual" },
       { name: "contains", value: "contains" },
+      { name: "regex", value: "regex" },
     ]
   },
   "Response Time": {
@@ -70,8 +77,10 @@ export const ActionsParametersMapping = {
       { name: ">", value: ">" },
       { name: ">=", value: ">=" },
       { name: "contains", value: "contains" },
+      { name: "notContains", value: "notContains" },
       { name: "length", value: "length" },
       { name: "type", value: "type" },
+      { name: "regex", value: "regex" },
     ]
   },
 };
@@ -85,6 +94,7 @@ export const ParametersModelMapping = {
   "Content-Encoding": "headers.Content-Encoding",
   "Header": "headers.[specific]",
   "JSON": "responseData.[specific]",
+  "Variable": "variable"
 };
 
 export const TestCaseParameters = [

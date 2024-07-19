@@ -3,6 +3,7 @@ import { sideBarProvider } from '../../extension';
 import { getNonce, requestTypes } from '../configuration';
 import { GetCollectionsByVariable } from '../db/collectionDBUtil';
 import { GetAllVariable, GetVariableById, SaveVariable, UpdateVariable } from '../db/varDBUtil';
+import { WebAppPanel } from './mainUIProvider';
 
 export const VariableUI = (extensionUri: any) => {
   const disposable = vscode.commands.registerCommand('fetch-client.newVar', (id?: string) => {

@@ -1,14 +1,11 @@
 import React from 'react';
 import { useSelector } from "react-redux";
 import { IRootState } from "../../../../reducer/combineReducer";
-import { requestOptions } from "../consts";
 import { ReactComponent as MenuLogo } from '../../../../../../icons/settings.svg';
-import { requestTypes } from '../../../../../utils/configuration';
-import vscode from '../../../Common/vscodeAPI';
 
 export const OptionsTab = (props: any) => {
 
-  const { selectedTab, setSelectedTab } = props;
+  const { selectedTab, setSelectedTab, options, settings } = props;
 
   const { headers } = useSelector((state: IRootState) => state.requestData);
 
@@ -19,7 +16,7 @@ export const OptionsTab = (props: any) => {
   return (
     <div className="tab-options">
       {
-        requestOptions.map((option) => (
+        options.map((option) => (
           <button
             key={option.value}
             onClick={() => setSelectedTab(option.value)}
@@ -43,7 +40,7 @@ export const OptionsTab = (props: any) => {
             </div>
           </button>
         ))}
-      <div className="settings-menu-panel"><MenuLogo className={settingsCss()} title="Menu" onClick={() => { setSelectedTab("settings"); }} /></div>
+      {settings && <div className="settings-menu-panel"><MenuLogo className={settingsCss()} title="Menu" onClick={() => { setSelectedTab("settings"); }} /></div>}
     </div>
   );
 };

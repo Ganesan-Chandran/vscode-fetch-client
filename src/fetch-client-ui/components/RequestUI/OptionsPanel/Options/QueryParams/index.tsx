@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { ITableData } from "../../../../Common/Table/types";
 import { Table } from "../../../../Common/Table/Table";
 import { useDispatch, useSelector } from "react-redux";

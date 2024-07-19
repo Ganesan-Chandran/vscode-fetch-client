@@ -91,7 +91,7 @@ export function executeTests(testData: ITest[], responseValue: IReponseModel, va
   let varData = {};
   let tests: ITest[];
 
-  if (variableData.length > 0) {
+  if (variableData?.length > 0) {
     variableData.forEach(item => {
       varData[item.key] = item.value;
     });
@@ -104,6 +104,18 @@ export function executeTests(testData: ITest[], responseValue: IReponseModel, va
   for (let i = 0; i < tests.length; i++) {
 
     if (tests[i].parameter === "") {
+      continue;
+    }
+
+    if (tests[i].parameter === "noCondition") {
+      let testResult: ITestResult = {
+        test: tests[i].parameter,
+        actualValue: "",
+        result: true
+      };
+
+      testResults.push(testResult);
+
       continue;
     }
 
@@ -126,6 +138,9 @@ export function executeTests(testData: ITest[], responseValue: IReponseModel, va
         responseData = "";
       }
       actualValue = findValueInResponse(responseData, mapping.replace("responseData.", ""));
+    } else if (mapping.includes("variable")) {
+      let item = variableData?.find(t => t.key === tests[i].expectedValue.replace("{{", "").replace("}}", "").trim());
+      actualValue = item?.value;
     } else {
       actualValue = findHeader(responseValue.headers, mapping.replace("headers.", ""));
     }
@@ -158,8 +173,13 @@ function getLinkedWord(action: string) {
   if (action === "type" || action === "length") {
     return action + " is ";
   }
+
   if (action === "contains") {
     return "contains ";
+  }
+
+  if (action === "regex") {
+    return " match with regex ";
   }
 
   return action + " to ";
@@ -172,7 +192,9 @@ function executeTestCase(action: string, actualValue: string | number | undefine
     case "notEqual":
       return actualValue != expectedValue;
     case "contains":
-      return (actualValue.toString()).includes(expectedValue.toString());
+      return (actualValue?.toString()).includes(expectedValue?.toString());
+    case "notContains":
+      return !((actualValue?.toString()).includes(expectedValue?.toString()));
     case "<":
       return actualValue < expectedValue;
     case "<=":
@@ -184,12 +206,34 @@ function executeTestCase(action: string, actualValue: string | number | undefine
     case "length":
       return actualValue == expectedValue;
     case "type":
-      return actualValue == (expectedValue.toString().trim().toLocaleLowerCase() === "undefined" ? undefined : expectedValue);
+      return actualValue == (expectedValue?.toString().trim().toLocaleLowerCase() === "undefined" ? undefined : expectedValue);
+    case "isJSON":
+      return isJson(actualValue) === (expectedValue ? expectedValue : "true");
+    case "regex":
+      return checkRegexMatch(expectedValue?.toString(), actualValue);
+    case "empty":
+      return actualValue === "" || actualValue === null || actualValue === undefined;
+    case "notEmpty":
+      return actualValue !== "" && actualValue !== null && actualValue !== undefined;
   }
 
   return false;
 }
 
+function checkRegexMatch(regex: string, value: string | number | undefined | null): boolean {
+  if (!regex) {
+    return false;
+  }
+
+  try {
+    value = value ? value.toString() : "";
+    let re = new RegExp(regex, "gm");
+    return re.test(value);
+  } catch {
+    return false;
+  }
+
+}
 
 function findHeader(headers: ITableData[], headerValue: string): string {
   try {
@@ -231,9 +275,20 @@ function findValueInResponse(responseValue: any, path: string) {
 
 export function replaceTestWithVariable(tests: ITest[], varData: any): ITest[] {
   tests.forEach(test => {
-    test.customParameter = replaceDataWithVariable(test.customParameter, varData);
-    test.expectedValue = replaceDataWithVariable(test.expectedValue, varData);
+    if (test.parameter !== "Variable") {
+      test.customParameter = replaceDataWithVariable(test.customParameter, varData);
+      test.expectedValue = replaceDataWithVariable(test.expectedValue, varData);
+    }
   });
 
   return tests;
+}
+
+export function isJson(str: any): string {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return "false";
+  }
+  return "true";
 }

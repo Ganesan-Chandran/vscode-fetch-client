@@ -11,6 +11,34 @@ export interface IAwsAuth {
   sessionToken: string;
 }
 
+export interface IAdvancedOAuth {
+  audience: string;
+  resource: string;
+}
+
+export interface IOAuth {
+  clientAuth: ClientAuth;
+  clientId: string;
+  clientSecret: string;
+  grantType: GrantType;
+  password?: string;
+  scope: string;
+  tokenName: string;
+  tokenUrl: string;
+  username?: string;
+  advancedOpt: IAdvancedOAuth;
+}
+
+export enum GrantType {
+  PWD_Crd = "password_credentials",
+  Client_Crd = "client_credentials"
+}
+
+export enum ClientAuth {
+  Header = "header",
+  Body = "body"
+}
+
 export interface IAuth {
   authType: string;
   userName: string;
@@ -19,6 +47,7 @@ export interface IAuth {
   showPwd: boolean;
   tokenPrefix: string;
   aws?: IAwsAuth;
+  oauth?: IOAuth;
 }
 
 export interface IBinaryFileData {
@@ -53,6 +82,18 @@ export interface ITest {
   customParameter?: string;
 }
 
+export interface IRunRequest {
+  reqId: string;
+  parentId: string;
+  colId: string;
+  order: number;
+  condition: ITest[];
+}
+
+export interface IPreFetch {
+  requests: IRunRequest[]
+}
+
 export interface IRequestModel {
   id: string;
   url: string;
@@ -66,6 +107,7 @@ export interface IRequestModel {
   tests: ITest[];
   setvar: ISetVar[];
   notes: string;
+  preFetch: IPreFetch;
 }
 
 export interface ISetVar {
@@ -74,10 +116,27 @@ export interface ISetVar {
   variableName: string;
 }
 
+export interface ICollection {
+  id: string;
+  name: string;
+}
+
+export interface IRequestList {
+  id: string;
+  name: string;
+}
+
+export interface IColRequest {
+  id: string;
+  reqs: IRequestList[];
+}
+
 export interface IReqColModel {
   colId: string;
   folderId: string;
   parentSettings: ISettings;
+  collectionList: ICollection[];
+  colRequestList: IColRequest[]
 }
 
 export const FETCH_CLIENT_SET_REQ_URL: "FETCH_CLIENT_SET_REQ_URL" = "FETCH_CLIENT_SET_REQ_URL";
@@ -97,6 +156,15 @@ export const FETCH_CLIENT_SET_NOTES: "FETCH_CLIENT_SET_NOTES" = "FETCH_CLIENT_SE
 export const FETCH_CLIENT_SET_SET_VAR: "FETCH_CLIENT_SET_SET_VAR" = "FETCH_CLIENT_SET_SET_VAR";
 export const FETCH_CLIENT_SET_REQ_COL_DETAILS: "FETCH_CLIENT_SET_REQ_COL_DETAILS" = "FETCH_CLIENT_SET_REQ_COL_DETAILS";
 export const FETCH_CLIENT_SET_REQ_PARENT_SETTINGS: "FETCH_CLIENT_SET_REQ_PARENT_SETTINGS" = "FETCH_CLIENT_SET_REQ_PARENT_SETTINGS";
+export const FETCH_CLIENT_SET_OAUTH_TOKEN: "FETCH_CLIENT_SET_OAUTH_TOKEN" = "FETCH_CLIENT_SET_OAUTH_TOKEN";
+export const FETCH_CLIENT_SET_PRECONDITION: "FETCH_CLIENT_SET_PRECONDITION" = "FETCH_CLIENT_SET_PRECONDITION";
+export const FETCH_CLIENT_SET_ADD_PREREQUEST: "FETCH_CLIENT_SET_ADD_PREREQUEST" = "FETCH_CLIENT_SET_ADD_PREREQUEST";
+export const FETCH_CLIENT_SET_DELETE_PREREQUEST: "FETCH_CLIENT_SET_DELETE_PREREQUEST" = "FETCH_CLIENT_SET_DELETE_PREREQUEST";
+export const FETCH_CLIENT_SET_DELETE_PRECONDITION: "FETCH_CLIENT_SET_DELETE_PRECONDITION" = "FETCH_CLIENT_SET_DELETE_PRECONDITION";
+export const FETCH_CLIENT_SET_COLLECTION_LIST: "FETCH_CLIENT_SET_COLLECTION_LIST" = "FETCH_CLIENT_SET_COLLECTION_LIST";
+export const FETCH_CLIENT_SET_COL_REQUEST_LIST: "FETCH_CLIENT_SET_COL_REQUEST_LIST" = "FETCH_CLIENT_SET_COL_REQUEST_LIST";
+export const FETCH_CLIENT_SET_COL_ID: "FETCH_CLIENT_SET_COL_ID" = "FETCH_CLIENT_SET_COL_ID";
+export const FETCH_CLIENT_SET_REQ_ID: "FETCH_CLIENT_SET_REQ_ID" = "FETCH_CLIENT_SET_REQ_ID";
 
 export interface ISetTest {
   type: typeof FETCH_CLIENT_SET_TEST;
@@ -219,4 +287,76 @@ export interface ISetReqParentSettings {
   }
 }
 
-export type RequestActionTypes = | ISetURL | ISetMethod | ISetParams | ISetAuth | ISetHeaders | ISetBody | ISetRequest | ISetTest | ISetRawLang | ISetResetBody | ISetRawValue | ISetBinaryData | ISetNotes | ISetAddVar | ISetReqColDetails | ISetReqParentSettings | ISetFormDataBody;
+export interface ISetOAuthToken {
+  type: typeof FETCH_CLIENT_SET_OAUTH_TOKEN;
+  payload: {
+    token: string;
+  }
+}
+
+export interface ISetPreCondition {
+  type: typeof FETCH_CLIENT_SET_PRECONDITION;
+  payload: {
+    condition: ITest;
+    reqIndex: number;
+    condIndex: number;
+  }
+}
+
+export interface ISetAddPreRequest {
+  type: typeof FETCH_CLIENT_SET_ADD_PREREQUEST;
+  payload: {
+    request: IRunRequest;
+  }
+}
+
+export interface ISetDeletePreRequest {
+  type: typeof FETCH_CLIENT_SET_DELETE_PREREQUEST;
+  payload: {
+    index: number;
+  }
+}
+
+export interface ISetDeletePreCondition {
+  type: typeof FETCH_CLIENT_SET_DELETE_PRECONDITION;
+  payload: {
+    reqIndex: number;
+    condIndex: number;
+  }
+}
+
+export interface ISetCollectionList {
+  type: typeof FETCH_CLIENT_SET_COLLECTION_LIST;
+  payload: {
+    colList: ICollection[];
+  }
+}
+
+export interface ISetColRequestList {
+  type: typeof FETCH_CLIENT_SET_COL_REQUEST_LIST;
+  payload: {
+    colReqList: IColRequest;
+  }
+}
+
+export interface ISetSelectedCol {
+  type: typeof FETCH_CLIENT_SET_COL_ID;
+  payload: {
+    colId: string;
+    index: number;
+  }
+}
+
+export interface ISetSelectedRequest {
+  type: typeof FETCH_CLIENT_SET_REQ_ID;
+  payload: {
+    reqId: string;
+    index: number;
+    parentId:string;
+  }
+}
+
+export type RequestActionTypes = | ISetURL | ISetMethod | ISetParams | ISetAuth | ISetHeaders | ISetBody | ISetRequest | ISetTest |
+  ISetRawLang | ISetResetBody | ISetRawValue | ISetBinaryData | ISetNotes | ISetAddVar | ISetReqColDetails | ISetReqParentSettings | ISetFormDataBody |
+  ISetOAuthToken | ISetPreCondition | ISetAddPreRequest | ISetDeletePreRequest | ISetDeletePreCondition | ISetCollectionList | ISetColRequestList |
+  ISetSelectedCol | ISetSelectedRequest;

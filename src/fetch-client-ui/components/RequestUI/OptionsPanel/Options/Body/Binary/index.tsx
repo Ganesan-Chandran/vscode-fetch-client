@@ -68,11 +68,13 @@ export const Binary = () => {
   };
 
   function onChanged(evt: React.ChangeEvent<HTMLInputElement>) {
-    if (evt.target.value === "application/octet-stream") {
-      updateContentType("application/octet-stream");
-    } else if (evt.target.value === contentType) {
-      updateContentType(contentType);
-    }
+    if(evt.target.id !== "manual"){
+      if (evt.target.value === "application/octet-stream") {
+        updateContentType("application/octet-stream");
+      } else if (evt.target.value === contentType) {
+        updateContentType(contentType);
+      }
+    }  
 
     dispatch(Actions.SetRequestBodyAction({
       ...body, binary: {
@@ -85,26 +87,22 @@ export const Binary = () => {
 
   function updateContentType(contentTypeValue: string) {
     let localHeaders = [...headers];
-    let isAvailable = false;
-    for (let index = 0; index < localHeaders.length; index++) {
-      if (localHeaders[index].key.trim().toLowerCase() === "content-type") {
-        if (localHeaders[index].value.trim().toLowerCase() === contentTypeValue) {
-          localHeaders[index].isChecked = true;
-          isAvailable = true;
-          break;
-        } else {
-          localHeaders[index].isChecked = false;
-        }
-      }
-    }
-
-    if (!isAvailable) {
-      localHeaders.splice(localHeaders.length - 1, 0, {
-        isChecked: true,
-        key: "Content-Type",
-        value: contentTypeValue,
-        isFixed: false
-      });
+    let index = headers.findIndex(item => item.isChecked && item.key.trim().toLocaleLowerCase() === "content-type");
+    if (index === -1) {
+      index = headers.findIndex(item => item.key.trim().toLocaleLowerCase() === "content-type");
+      if (index === -1) {
+        localHeaders.splice(localHeaders.length - 1, 0, {
+          isChecked: true,
+          key: "Content-Type",
+          value: contentTypeValue,
+          isFixed: false
+        });
+      } else {
+        localHeaders[index].isChecked = true;
+        localHeaders[index].value = contentTypeValue;
+      }      
+    } else {
+      localHeaders[index].value = contentTypeValue;
     }
 
     dispatch(Actions.SetRequestHeadersAction(localHeaders));

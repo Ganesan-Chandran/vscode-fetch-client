@@ -62,6 +62,6 @@ export const CookieUI = (extensionUri: any) => {
 };
 
 async function showConfirmationBox(text: string) {
-  const res = await vscode.window.showWarningMessage(text, "Yes", "No");
+  const res = await vscode.window.showWarningMessage(text, { modal: true }, "Yes", "No");
   return res;
 }

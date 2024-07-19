@@ -14,11 +14,11 @@
 .sidebar-panel-tabs {
   display        : flex;
   justify-content: space-around;
-  border-bottom  : 1px solid #555;
+  border-bottom  : 1px solid var(--vscode-sideBarSectionHeader-border);
 }
 
 .sidebar-panel {
-  height : calc(100vh - 130px);
+  height : calc(100vh - 131px);
   width  : 100%;
   display: block;
   padding: 0;
@@ -30,22 +30,28 @@
 }
 
 .activity-items-panel {
-  height    : calc(100% - 2px);
+  height    : calc(100% - 30px);
   overflow-y: auto;
   overflow-x: hidden;
   cursor    : pointer;
 }
 
-.activity-items,
-.folder-activity-items {
-  padding      : 0 5px 5px;
-  border-bottom: 0.25px solid #343434;
-  cursor       : pointer;
+.activity-items {
+  padding: 0 5px 5px;
+  cursor : pointer;
 }
+
+.dark-theme-boder {
+  border-bottom: 0.25px solid #343434;
+}
+
+.light-theme-boder {
+  border-bottom: 0.25px solid #cbcbcb;
+}
+
 
 .folder-activity-items {
   padding-left: var(--fpl) !important;
-  /* 15px !important; */
 }
 
 .activity-items:hover,
@@ -199,10 +205,20 @@
 }
 
 .more-icon {
-  float        : right;
-  padding-right: 5px;
-  font-size    : large;
-  display      : none;
+  float         : right;
+  display       : none;
+  /* padding-top: 2px; */
+}
+
+.plus-icon {
+  height         : 14px;
+  width          : 14px;
+  fill           : currentColor;
+  stroke         : currentColor;
+  stroke         : currentcolor;
+  stroke-linecap : round;
+  stroke-linejoin: round;
+  stroke-width   : 1.5;
 }
 
 .activity-items:hover .more-icon {
@@ -220,10 +236,9 @@
 
 .dropdown-more {
   position        : absolute;
-  width           : 150px;
+  width           : 140px;
   box-shadow      : 10px 8px 16px 0px rgba(0, 0, 0, 0.4);
   z-index         : 1;
-  /* border-radius: 5px; */
   color           : var(--text-color);
   background-color: var(--background-color);
   border          : 1px solid var(--border-color);
@@ -271,5 +286,33 @@
 }
 
 .selected-item {
-  border-left: 3px solid var(--button-background-color);
+  border-left     : 3px solid var(--button-background-color);
+  background-color: var(--list-hover-background-color);
+}
+
+.bottom-menu-panel {
+  padding         : 5px;
+  height          : 20px;
+  background-color: var(--vscode-dropdown-border);
+}
+
+.view-log {
+  align-items    : center;
+  flex-direction : row;
+  cursor         : pointer;
+  display        : flex;
+  justify-content: center;
+  color          : var(--text-color);
+}
+
+.log-span {
+  font-size: 13px;
+}
+
+.view-log:hover {
+  color: var(--vscode-textLink-activeForeground);
+}
+
+.log-icon {
+  transform: scale(0.3);
 }

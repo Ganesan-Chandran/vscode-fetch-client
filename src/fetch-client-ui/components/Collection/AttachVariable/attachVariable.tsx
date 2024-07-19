@@ -105,13 +105,13 @@ const AttachVariable = () => {
                   </select>
                 </td>
               </tr>
-              {errors["varId"] && <tr>
+              <tr>
                 <td className="col-1-size">
                 </td>
                 <td className="col-2-size">
-                  <div className="error-text">{errors["varId"]}</div>
+                  {errors["varId"] && <div className="error-text">{errors["varId"]}</div>}
                 </td>
-              </tr>}
+              </tr>
             </tbody>
           </table>
           <div className="button-panel">

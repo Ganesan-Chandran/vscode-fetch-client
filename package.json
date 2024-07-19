@@ -8,7 +8,7 @@
     "name": "Ganesan Chandran <https://ganesan-chandran.github.io/>"
   },
   "engines": {
-    "vscode": "^1.65.0"
+    "vscode": "^1.75.0"
   },
   "icon": "icons/fetch-client.png",
   "repository": {
@@ -120,7 +120,9 @@
               "Vertical Split",
               "Horizontal Split"
             ],
-            "description": "Select the layout of Fetch Client"
+            "scope": "resource",
+            "order": 1,
+            "markdownDescription": "Select the layout of Fetch Client"
           },
           "fetch-client.horizontalLayout": {
             "type": "string",
@@ -129,12 +131,15 @@
               "Split Style",
               "Accordion Style"
             ],
-            "description": "Select the style of horizontal split"
+            "scope": "resource",
+            "order": 2,
+            "markdownDescription": "Select the style of horizontal split"
           },
           "fetch-client.SSLCheck": {
             "type": "boolean",
             "default": true,
-            "description": "Enable Strict SSL Check for API Request"
+            "order": 3,
+            "markdownDescription": "Enable `Strict SSL Check` for API Request"
           },
           "fetch-client.historyLimit": {
             "type": "string",
@@ -146,20 +151,16 @@
               "75",
               "100"
             ],
-            "description": "Select the number of items to be displayed in the history"
+            "scope": "resource",
+            "order": 4,
+            "markdownDescription": "Select the number of items to be displayed in the history"
           },
           "fetch-client.timeOut": {
-            "type": "string",
-            "default": "5 min",
-            "enum": [
-              "30 sec",
-              "1 min",
-              "2 min",
-              "5 min",
-              "10 min",
-              "no timeout"
-            ],
-            "description": "Select the request timeout"
+            "type": "number",
+            "default": 120000,
+            "scope": "resource",
+            "order": 5,
+            "markdownDescription": "Select the request timeout (`in milliseconds`). 0 means no timeout"
           },
           "fetch-client.defaultProtocol": {
             "type": "string",
@@ -168,7 +169,37 @@
               "http",
               "https"
             ],
-            "description": "Select which protocol to add with url (if url has no protocol)."
+            "scope": "resource",
+            "order": 6,
+            "markdownDescription": "Select which protocol to be added with url (if url has no protocol)."
+          },
+          "fetch-client.headersCaseSensitive": {
+            "type": "boolean",
+            "default": true,
+            "scope": "resource",
+            "order": 7,
+            "markdownDescription": "By Default headers will send `same as in request`. If it is disabled, header will send in `lowercase`."
+          },
+          "fetch-client.separateRequestTab": {
+            "type": "boolean",
+            "default": false,
+            "scope": "resource",
+            "order": 8,
+            "markdownDescription": "By Default request will be open in `same tab`. If it is enabled, request will be open in `separate tab`."
+          },
+          "fetch-client.log": {
+            "type": "boolean",
+            "default": false,
+            "scope": "resource",
+            "order": 9,
+            "markdownDescription": "By Default `request details` will be logged. If it is enabled, both `request and response` details will be logged."
+          },
+          "fetch-client.runMainRequest": {
+            "type": "boolean",
+            "default": true,
+            "scope": "resource",
+            "order": 10,
+            "markdownDescription": "By Default `main request will run` even if pre-request(s)/pre-condition(s) are getting failed. If it is disabled, `main request won't run` if any pre-request/pre-condition are failed."
           }
         }
       }
@@ -182,7 +213,7 @@
         },
         {
           "command": "fetch-client.openErrorLog",
-          "when": "view == fetch-client.sideBar",
+          "when": "false",
           "group": "group2@1"
         },
         {
@@ -215,7 +246,9 @@
     "compile-tests": "tsc -p ./",
     "watch-tests": "tsc -watch -p ./",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
-    "lint": "eslint src --ext .ts,.tsx",
+    "lint-check": "eslint src --ext .ts,.tsx",
+    "lint-fix": "eslint src --ext .ts,.tsx --fix",
+    "pre-commit": "npm run eclint-check && npm run md-lint && npm run md-spellcheck",
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
@@ -226,10 +259,10 @@
     "@types/draft-js": "^0.11.9",
     "@types/glob": "^7.2.0",
     "@types/httpsnippet": "^1.23.1",
-    "@types/jest": "^27.4.1",
+    "@types/jest": "^27.5.2",
     "@types/lokijs": "^1.5.7",
     "@types/markdown-it": "^12.2.3",
-    "@types/mocha": "^9.0.0",
+    "@types/mocha": "^9.1.1",
     "@types/node": "^16.11.26",
     "@types/react": "^17.0.40",
     "@types/react-dom": "^17.0.13",
@@ -243,13 +276,13 @@
     "buffer": "^6.0.3",
     "cross-env": "^7.0.3",
     "draft-js": "^0.11.7",
-    "eslint": "^8.6.0",
+    "eslint": "^8.57.0",
     "fast-xml-parser": "^4.0.7",
     "glob": "^7.2.0",
     "httpsnippet": "^2.0.0",
     "lokijs": "^1.5.12",
     "mini-css-extract-plugin": "^2.6.0",
-    "mocha": "^9.1.3",
+    "mocha": "^9.2.2",
     "monaco-editor": "^0.33.0",
     "monaco-editor-webpack-plugin": "^7.0.1",
     "path-browserify": "^1.0.1",
@@ -279,9 +312,11 @@
     "aws4": "^1.11.0",
     "axios": "^0.26.1",
     "form-data": "^4.0.0",
+    "jest": "^29.7.0",
+    "moment-mini": "^2.29.4",
+    "quicktype-core": "^6.1.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-icons": "^4.3.1",
     "react-redux": "^7.2.6",
     "uuid": "^8.3.2",
     "yargs-parser": "^21.0.1"

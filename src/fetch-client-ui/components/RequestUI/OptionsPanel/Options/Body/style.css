@@ -81,3 +81,9 @@
 .format-button:hover {
   color: var(--button-hover-color);
 }
+
+.format-button:disabled,
+.format-button[disabled] {
+  color           : #666;
+  cursor          : not-allowed;
+}

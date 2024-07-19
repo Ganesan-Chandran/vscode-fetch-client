@@ -2,11 +2,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { ITableData } from "../../Common/Table/types";
 import { requestBodyRaw } from '../OptionsPanel/Options/Body/consts';
 import {
-  FETCH_CLIENT_SET_NOTES,
-  FETCH_CLIENT_SET_REQ,
-  FETCH_CLIENT_SET_REQ_AUTH, FETCH_CLIENT_SET_REQ_BINARY_DATA, FETCH_CLIENT_SET_REQ_BODY, FETCH_CLIENT_SET_REQ_FORM_DATA_BODY, FETCH_CLIENT_SET_REQ_HEADERS, FETCH_CLIENT_SET_REQ_METHOD,
-  FETCH_CLIENT_SET_REQ_PARAMS, FETCH_CLIENT_SET_REQ_RAW, FETCH_CLIENT_SET_REQ_RAW_LANG, FETCH_CLIENT_SET_REQ_RESET_BODY, FETCH_CLIENT_SET_REQ_URL,
-  FETCH_CLIENT_SET_SET_VAR, FETCH_CLIENT_SET_TEST, IAuth, IAwsAuth, IBinaryFileData, IBodyData, IRequestModel, ISetVar, ITest, RequestActionTypes
+  ClientAuth,
+  FETCH_CLIENT_SET_ADD_PREREQUEST, FETCH_CLIENT_SET_COL_ID, FETCH_CLIENT_SET_DELETE_PRECONDITION, FETCH_CLIENT_SET_DELETE_PREREQUEST,
+  FETCH_CLIENT_SET_NOTES, FETCH_CLIENT_SET_OAUTH_TOKEN, FETCH_CLIENT_SET_PRECONDITION, FETCH_CLIENT_SET_REQ,
+  FETCH_CLIENT_SET_REQ_AUTH, FETCH_CLIENT_SET_REQ_BINARY_DATA, FETCH_CLIENT_SET_REQ_BODY, FETCH_CLIENT_SET_REQ_FORM_DATA_BODY, FETCH_CLIENT_SET_REQ_HEADERS,
+  FETCH_CLIENT_SET_REQ_ID, FETCH_CLIENT_SET_REQ_METHOD, FETCH_CLIENT_SET_REQ_PARAMS, FETCH_CLIENT_SET_REQ_RAW, FETCH_CLIENT_SET_REQ_RAW_LANG,
+  FETCH_CLIENT_SET_REQ_RESET_BODY, FETCH_CLIENT_SET_REQ_URL, FETCH_CLIENT_SET_SET_VAR, FETCH_CLIENT_SET_TEST,
+  GrantType, IAuth, IAwsAuth, IBinaryFileData, IBodyData, IOAuth, IPreFetch, IRequestModel, IRunRequest, ISetVar, ITest, RequestActionTypes
 } from "./types";
 
 export const InitialRequestHeaders: ITableData[] = [
@@ -56,14 +58,31 @@ export const InitialAwsAuth: IAwsAuth = {
   sessionToken: "",
 };
 
+export const InitialOAuth: IOAuth = {
+  clientAuth: ClientAuth.Body,
+  clientId: "",
+  clientSecret: "",
+  grantType: GrantType.Client_Crd,
+  password: "",
+  scope: "",
+  tokenName: "access_token",
+  tokenUrl: "",
+  username: "",
+  advancedOpt: {
+    audience: "",
+    resource: ""
+  }
+};
+
 export const InitialAuth: IAuth = {
   authType: "noauth",
   userName: "",
   password: "",
   addTo: "queryparams",
   showPwd: false,
-  tokenPrefix: "",
-  aws: InitialAwsAuth
+  tokenPrefix: "Bearer",
+  aws: InitialAwsAuth,
+  oauth: InitialOAuth
 };
 
 export const InitialBinaryData: IBinaryFileData = {
@@ -81,17 +100,21 @@ export const InitialBody: IBodyData = {
   graphql: { query: "", variables: "" },
 };
 
-export const IntialTest: ITest[] = [{
+export const InitialTest: ITest[] = [{
   parameter: "",
   action: "",
   expectedValue: ""
 }];
 
-export const IntialSetVar: ISetVar[] = [{
+export const InitialSetVar: ISetVar[] = [{
   parameter: "",
   key: "",
   variableName: ""
 }];
+
+export const InitialPreFetch: IPreFetch = {
+  requests: []
+};
 
 export const InitialState: IRequestModel = {
   id: uuidv4(),
@@ -103,9 +126,10 @@ export const InitialState: IRequestModel = {
   auth: InitialAuth,
   headers: InitialRequestHeaders,
   body: InitialBody,
-  tests: IntialTest,
-  setvar: IntialSetVar,
-  notes: ""
+  tests: InitialTest,
+  setvar: InitialSetVar,
+  notes: "",
+  preFetch: InitialPreFetch
 };
 
 export const RequestReducer: (state?: IRequestModel,
@@ -170,8 +194,9 @@ export const RequestReducer: (state?: IRequestModel,
           headers: action.payload.req.headers,
           body: action.payload.req.body,
           tests: action.payload.req.tests,
-          setvar: action.payload.req.setvar ? action.payload.req.setvar : IntialSetVar,
+          setvar: action.payload.req.setvar ? action.payload.req.setvar : JSON.parse(JSON.stringify(InitialSetVar)),
           notes: action.payload.req.notes,
+          preFetch: action.payload.req.preFetch ?? InitialPreFetch
         };
       }
       case FETCH_CLIENT_SET_TEST: {
@@ -237,11 +262,118 @@ export const RequestReducer: (state?: IRequestModel,
           setvar: action.payload.data
         };
       }
+      case FETCH_CLIENT_SET_OAUTH_TOKEN: {
+        return {
+          ...state,
+          auth: {
+            ...state.auth,
+            password: action.payload.token,
+          }
+        };
+      }
+      case FETCH_CLIENT_SET_PRECONDITION: {
+        return {
+          ...state,
+          preFetch: {
+            ...state.preFetch,
+            requests: updateCondition(state.preFetch?.requests, action.payload.condition, action.payload.reqIndex, action.payload.condIndex)
+          }
+        };
+      }
+      case FETCH_CLIENT_SET_ADD_PREREQUEST: {
+        return {
+          ...state,
+          preFetch: {
+            ...state.preFetch,
+            requests: [...state.preFetch?.requests, action.payload.request]
+          }
+        };
+      }
+      case FETCH_CLIENT_SET_DELETE_PREREQUEST: {
+        return {
+          ...state,
+          preFetch: {
+            ...state.preFetch,
+            requests: deleteRequest(state.preFetch?.requests, action.payload.index)
+          }
+        };
+      }
+      case FETCH_CLIENT_SET_DELETE_PRECONDITION: {
+        return {
+          ...state,
+          preFetch: {
+            ...state.preFetch,
+            requests: deleteCondition(state.preFetch?.requests, action.payload.reqIndex, action.payload.condIndex)
+          }
+        };
+      }
+      case FETCH_CLIENT_SET_COL_ID: {
+        return {
+          ...state,
+          preFetch: {
+            ...state.preFetch,
+            requests: updateSelectedCol(state.preFetch?.requests, action.payload.index, action.payload.colId, "", "col")
+          }
+        };
+      }
+      case FETCH_CLIENT_SET_REQ_ID: {
+        return {
+          ...state,
+          preFetch: {
+            ...state.preFetch,
+            requests: updateSelectedCol(state.preFetch?.requests, action.payload.index, action.payload.reqId, action.payload.parentId, "req")
+          }
+        };
+      }
       default: {
         return state;
       }
     }
   };
+
+function updateSelectedCol(requests: IRunRequest[], reqIndex: number, id: string, parentId: string, type: string): IRunRequest[] {
+  let localRequests = [...requests];
+
+  if (type === "col") {
+    localRequests[reqIndex].colId = id;
+    localRequests[reqIndex].reqId = "";
+    localRequests[reqIndex].parentId = parentId;
+  } else {
+    localRequests[reqIndex].reqId = id;
+    localRequests[reqIndex].parentId = parentId;
+  }
+
+  return localRequests;
+}
+
+function updateCondition(requests: IRunRequest[], condition: ITest, reqIndex: number, condIndex: number): IRunRequest[] {
+  let localRequests = [...requests];
+  localRequests[reqIndex].condition[condIndex] = condition;
+
+  if (condIndex === requests[reqIndex].condition.length - 1 && requests[reqIndex].condition[condIndex].action) {
+    let newCondition: ITest = {
+      parameter: "",
+      action: "",
+      expectedValue: "",
+      customParameter: ""
+    };
+    localRequests[reqIndex].condition.push(newCondition);
+  }
+
+  return localRequests;
+}
+
+function deleteCondition(requests: IRunRequest[], reqIndex: number, condIndex: number): IRunRequest[] {
+  let localRequests = [...requests];
+  localRequests[reqIndex].condition.splice(condIndex, 1);
+  return localRequests;
+}
+
+function deleteRequest(requests: IRunRequest[], reqIndex: number): IRunRequest[] {
+  let localRequests = [...requests];
+  localRequests.splice(reqIndex, 1);
+  return localRequests;
+}
 
 function updateURL(url: string, params: ITableData[]): string {
   let searchParams = new URLSearchParams();

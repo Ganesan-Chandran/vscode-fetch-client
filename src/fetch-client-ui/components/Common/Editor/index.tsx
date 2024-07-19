@@ -12,6 +12,7 @@ export interface EditorProps {
   onContentChange?: any;
   className?: string;
   theme?: number;
+  wordWrap?:boolean;
 }
 
 const EditorProvider = React.lazy(() => import('./EditorProvider'));
@@ -31,6 +32,7 @@ export const MonacoEditor = (props: EditorProps) => {
         onContentChange={props.onContentChange}
         className={props.className}
         theme={theme}
+        wordWrap={props.wordWrap}
       />
     </React.Suspense>
   );

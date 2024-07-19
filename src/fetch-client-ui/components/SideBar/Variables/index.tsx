@@ -7,7 +7,6 @@ import { IVariable } from "../redux/types";
 import vscode from "../../Common/vscodeAPI";
 import { requestTypes } from "../../../../utils/configuration";
 import "./style.css";
-import { formatDate } from "../../../../utils/helper";
 
 export interface IVariableProps {
   filterCondition: string;

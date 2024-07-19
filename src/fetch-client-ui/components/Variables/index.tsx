@@ -38,11 +38,13 @@ const Variables = (props: IVariableProps) => {
     }
 
     setVariableItem({ ...variableItem, data: localTable });
+    setDone(false);
   }
 
   function onRowUpdate(event: React.ChangeEvent<HTMLInputElement>, index: number, isKey: boolean = true) {
     let localTable = addValue(event.target.value, index, isKey);
     setVariableItem({ ...variableItem, data: localTable });
+    setDone(false);
   }
 
   const addValue = (value: string, index: number, isKey: boolean): ITableData[] => {
@@ -62,6 +64,7 @@ const Variables = (props: IVariableProps) => {
     let localTable = [...variableItem.data];
     localTable.splice(index, 1);
     setVariableItem({ ...variableItem, data: localTable });
+    setDone(false);
   }
 
   useEffect(() => {
@@ -119,10 +122,6 @@ const Variables = (props: IVariableProps) => {
     }
 
     if (!defaultGlobal && variableItem.name.toUpperCase().trim() === "GLOBAL") {
-      return true;
-    }
-
-    if (isDone) {
       return true;
     }
 

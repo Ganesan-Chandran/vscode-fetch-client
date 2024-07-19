@@ -1,14 +1,15 @@
-import React, { useEffect, useRef, useState } from "react";
-import { ReactComponent as MenuLogo } from '../../../../icons/menu.svg';
-import { useDispatch } from "react-redux";
-import { requestTypes, responseTypes } from "../../../utils/configuration";
-import vscode from "../Common/vscodeAPI";
 import { CollectionBar } from "./Collection";
+import { getColFolDotMenu } from "../Common/icons";
 import { HistoryBar } from "./History";
-import { SideBarActions } from "./redux";
 import { ICollections, IHistory, IVariable } from "./redux/types";
-import "./style.css";
+import { pubSubTypes, requestTypes, responseTypes } from "../../../utils/configuration";
+import { SideBarActions } from "./redux";
+import { UIActions } from "../MainUI/redux";
+import { useDispatch } from "react-redux";
 import { VariableSection } from "./Variables";
+import React, { useEffect, useRef, useState } from "react";
+import vscode from "../Common/vscodeAPI";
+import "./style.css";
 
 const SideBar = () => {
 
@@ -21,6 +22,8 @@ const SideBar = () => {
   const [isHisLoading, setHisLoading] = useState(true);
   const [isColLoading, setColLoading] = useState(true);
   const [isVarLoading, setVarLoading] = useState(true);
+  const [isViewLogOpen, setViewLogOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState({ colId: "", foldId: "", itemId: "", });
 
   const wrapperRef = useRef(null);
 
@@ -118,7 +121,7 @@ const SideBar = () => {
         dispatch(SideBarActions.SetRenameVariableAction(event.data.params.id, event.data.params.name));
       } else if (event.data && event.data.type === responseTypes.deleteVariableResponse) {
         dispatch(SideBarActions.SetDeleteVariablection(event.data.id));
-        vscode.postMessage({ type: requestTypes.getAllCollectionsRequest });
+        vscode.postMessage({ type: requestTypes.removeVariableFromColRequest, data: { varId: event.data.id } });
       } else if (event.data && event.data.type === responseTypes.appendToVariableResponse) {
         dispatch(SideBarActions.SetNewVariableAction(event.data.collection as IVariable));
       } else if (event.data && event.data.type === responseTypes.attachVariableResponse) {
@@ -132,9 +135,20 @@ const SideBar = () => {
         vscode.postMessage({ type: requestTypes.openHistoryItemRequest, data: { colId: event.data.id, folderId: event.data.folderId, id: event.data.item.id, name: event.data.item.name, varId: event.data.variableId } });
       } else if (event.data && event.data.type === responseTypes.createNewFolderResponse) {
         dispatch(SideBarActions.SetFolderToCollectionAction(event.data.folder, event.data.colId, event.data.folderId));
+      } else if (event.data && event.data.type === requestTypes.selectItemRequest) {
+        setSelectedItem({
+          colId: event.data.colId,
+          foldId: event.data.folId,
+          itemId: event.data.id
+        });
+      } else if (event.data && event.data.type === responseTypes.themeResponse) {
+        dispatch(UIActions.SetThemeAction(event.data.theme));
+      } else if (event.data && event.data.type === pubSubTypes.themeChanged) {
+        vscode.postMessage({ type: requestTypes.themeRequest });
       }
     });
 
+    vscode.postMessage({ type: requestTypes.themeRequest });
     vscode.postMessage({ type: requestTypes.getAllHistoryRequest });
 
     setTimeout(() => {
@@ -176,6 +190,11 @@ const SideBar = () => {
     setFilterCondition(e.target.value);
   }
 
+  function onViewLogClick(e: any) {
+    setViewLogOpen(!isViewLogOpen);
+    vscode.postMessage({ type: requestTypes.viewLogRequest });
+  }
+
   function getBody() {
     return (
       <div className="sidebar-body">
@@ -186,7 +205,7 @@ const SideBar = () => {
             placeholder={selectedTab === "History" ? "filter history" : selectedTab === "Collection" ? "filter collection" : "filter variable"}
             onChange={onFilterChange} />
           <div className="hamburger-menu-panel dropdown" ref={wrapperRef} >
-            <MenuLogo className="hamburger-menu" onClick={(e) => setShowMenu(e)} />
+            {getColFolDotMenu("hamburger-menu", "Menu", "hamburger-menu", (e) => { e.stopPropagation(); e.preventDefault(); }, (e) => setShowMenu(e))}
             {menuShow && (<div id="myDropdown" className={"dropdown-content show"}>
               {selectedTab === "History" ? getHistoryMenuItems() : selectedTab === "Collection" ? getCollectionsMenuItems() : getVariableMenuItems()}
             </div>)}
@@ -196,14 +215,23 @@ const SideBar = () => {
           {
             selectedTab === "History"
               ?
-              <HistoryBar filterCondition={filterCondititon?.toLowerCase()} isLoading={isHisLoading} />
+              <HistoryBar filterCondition={filterCondititon?.toLowerCase()} isLoading={isHisLoading} selectedItem={selectedItem} />
               : selectedTab === "Collection"
                 ?
-                <CollectionBar filterCondition={filterCondititon?.toLowerCase()} isLoading={isColLoading} />
+                <CollectionBar filterCondition={filterCondititon?.toLowerCase()} isLoading={isColLoading} selectedItem={selectedItem} />
                 :
                 <VariableSection filterCondition={filterCondititon?.toLowerCase()} isLoading={isVarLoading} />
           }
         </div>
+        <footer className="bottom-menu-panel">
+          <a className="view-log" onClick={onViewLogClick}>
+            {isViewLogOpen ?
+              <span className="log-span">📝 Close Log</span>
+              :
+              <span className="log-span">📝 View Log</span>
+            }
+          </a>
+        </footer>
       </div>
     );
   }

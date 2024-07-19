@@ -1,16 +1,17 @@
-import React from "react";
-import { useState } from "react";
-import { useSelector } from "react-redux";
-import { IRootState } from "../../../reducer/combineReducer";
-import { TestPanel } from "../../TestUI/TestPanel";
-import ResToVariables from "../../Variables/resToVar";
-import { AuthPanel } from "./Options/Auth";
 import { allAuthTypes, basicAuthTypes } from "./Options/Auth/consts";
+import { AuthPanel } from "./Options/Auth";
 import { Body } from "./Options/Body";
 import { HeadersPanel } from "./Options/Headers";
-import { QueryParams } from "./Options/QueryParams";
-import { Settings } from "./Options/Settings";
+import { IRootState } from "../../../reducer/combineReducer";
 import { OptionsTab } from "./OptionTab";
+import { PostFetch } from "./Options/PostFetch";
+import { PreFetch } from "./Options/PreFetch";
+import { QueryParams } from "./Options/QueryParams";
+import { requestOptions } from "./consts";
+import { Settings } from "./Options/Settings";
+import { useSelector } from "react-redux";
+import { useState } from "react";
+import React from "react";
 import "./style.css";
 
 export const OptionsPanel = () => {
@@ -33,17 +34,17 @@ export const OptionsPanel = () => {
         return <Body />;
       case 'settings':
         return <Settings />;
-      case 'setvar':
-        return <ResToVariables />;
+      case 'preFetch':
+        return <PreFetch />;
       default:
-        return <TestPanel />;
+        return <PostFetch />;
     }
   };
 
   return (
     <div className="options-panel">
       <div className="options-container">
-        <OptionsTab selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+        <OptionsTab selectedTab={selectedTab} setSelectedTab={setSelectedTab} options={requestOptions} settings={true} />
         <div className="options-tab-panel">
           {renderOptionsUI(selectedTab)}
         </div>

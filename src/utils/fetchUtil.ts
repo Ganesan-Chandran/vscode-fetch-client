@@ -1,53 +1,73 @@
-import axios, { CancelTokenSource } from "axios";
-import * as https from "https";
-import fs from "fs";
-import { sign, Request as awsRequest } from 'aws4';
-import FormData from 'form-data';
-import { ITableData } from "../fetch-client-ui/components/Common/Table/types";
-import { IRequestModel } from "../fetch-client-ui/components/RequestUI/redux/types";
-import { responseTypes } from "./configuration";
-import { getProtocolConfiguration, getSSLConfiguration } from "./vscodeConfig";
 import { getErrorResponse, getFileType, getRandomNumber, isFileType, replaceAuthSettingsInRequest, replaceValueWithVariable } from "./helper";
-import { writeLog } from "./logger/logger";
+import { getProtocolConfiguration, getSSLConfiguration } from "./vscodeConfig";
+import { IRequestModel } from "../fetch-client-ui/components/RequestUI/redux/types";
 import { ISettings } from "../fetch-client-ui/components/SideBar/redux/types";
+import { ITableData } from "../fetch-client-ui/components/Common/Table/types";
+import { logDetails } from "./logger/requestLog";
+import { responseTypes } from "./configuration";
+import { sign, Request as awsRequest } from 'aws4';
+import { writeLog } from "./logger/logger";
+import * as https from "https";
+import axios, { CancelTokenSource } from "axios";
+import FormData from 'form-data';
+import fs from "fs";
 
-export const apiFetch = async (requestData: IRequestModel, timeOut: number, source?: CancelTokenSource, variableData?: ITableData[], settings?: ISettings) => {
+export interface FetchConfig {
+  timeOut: number,
+  headersCase: boolean,
+  runMainRequest?: boolean,
+  source?: CancelTokenSource
+}
+
+export const updateAuthSettings = (requestData: IRequestModel, settings?: ISettings): IRequestModel => {
+  if (settings && requestData.auth.authType === "inherit") {
+    let copyData = JSON.parse(JSON.stringify(requestData));
+    return replaceAuthSettingsInRequest(copyData, settings);
+  }
+  return requestData;
+};
+
+export const updateVariables = (requestData: IRequestModel, variableData?: ITableData[]): IRequestModel => {
+  let varData = {};
+  if (variableData?.length > 0) {
+    variableData.forEach(item => {
+      varData[item.key] = item.value;
+    });
+    let copy = JSON.parse(JSON.stringify(requestData));
+    return replaceValueWithVariable(copy, varData);
+  }
+
+  return requestData;
+};
+
+export const apiFetch = async (
+  requestData: IRequestModel,
+  variableData: ITableData[],
+  settings: ISettings,
+  fetchConfig: FetchConfig,
+  resType: string = responseTypes.apiResponse
+) => {
 
   const reqHeaders = {};
   let startTime: number, fetchDuration: number;
   let reqData: any = "";
   let apiResponse: any;
-  let varData = {};
-  let request: IRequestModel;
+
+  let request = updateAuthSettings(requestData, settings);
+  request = updateVariables(request, variableData);
 
   try {
-
-    if (settings && requestData.auth.authType === "inherit") {
-      let copyData = JSON.parse(JSON.stringify(requestData));
-      request = replaceAuthSettingsInRequest(copyData, settings);
-    }
-
-    if (variableData?.length > 0) {
-      variableData.forEach(item => {
-        varData[item.key] = item.value;
-      });
-      if (request) {
-        request = replaceValueWithVariable(request, varData);
-      } else {
-        let copy = JSON.parse(JSON.stringify(requestData));
-        request = replaceValueWithVariable(copy, varData);
-      }
-    } else {
-      request = request ? request : requestData;
-    }
-
     if (request.auth.authType === "bearertoken") {
-      reqHeaders["Authorization"] = `${request.auth.tokenPrefix} ${request.auth.password}`;
+      reqHeaders[fetchConfig.headersCase ? "Authorization" : "authorization"] = `${request.auth.tokenPrefix} ${request.auth.password}`;
+    }
+
+    if (request.auth.authType === "oauth2") {
+      reqHeaders[fetchConfig.headersCase ? "Authorization" : "authorization"] = `${request.auth.tokenPrefix} ${request.auth.password}`;
     }
 
     request.headers.forEach(({ isChecked, key, value }) => {
       if (isChecked && key) {
-        reqHeaders[key] = value;
+        reqHeaders[fetchConfig.headersCase ? key : key.toLocaleLowerCase()] = value;
       }
     });
 
@@ -90,12 +110,12 @@ export const apiFetch = async (requestData: IRequestModel, timeOut: number, sour
 
     if (request.body.bodyType === "formdata") {
       let header = reqData.getHeaders();
-      reqHeaders["Content-Type"] = header["content-type"] ? header["content-type"] : getContentType(request.body.bodyType, "");
+      reqHeaders[fetchConfig.headersCase ? "Content-Type" : "content-type"] = header["content-type"] ? header["content-type"] : getContentType(request.body.bodyType, "");
     } else {
       if (request.body.bodyType !== "none" && !reqHeaders["Content-Type"] && !reqHeaders["content-type"]) {
-        reqHeaders["Content-Type"] = getContentType(request.body.bodyType, request.body.bodyType === "raw" ? request.body.raw.lang : "");
+        reqHeaders[fetchConfig.headersCase ? "Content-Type" : "content-type"] = getContentType(request.body.bodyType, request.body.bodyType === "raw" ? request.body.raw.lang : "");
       }
-    }
+    }    
 
     https.globalAgent.options.rejectUnauthorized = getSSLConfiguration();
 
@@ -113,6 +133,7 @@ export const apiFetch = async (requestData: IRequestModel, timeOut: number, sour
 
     let requestconfig: any;
     let url = validateURL(request.url) ? request.url : getProtocolConfiguration() + "://" + request.url;
+    request.url = url;
 
     if (request.auth.authType === "aws") {
       const baseRequest: awsRequest = {
@@ -158,7 +179,7 @@ export const apiFetch = async (requestData: IRequestModel, timeOut: number, sour
         data: reqData,
         validateStatus: () => true,
         transformResponse: [function (data) { return data; }],
-        timeout: timeOut,
+        timeout: fetchConfig.timeOut,
         responseType: 'arraybuffer',
         maxContentLength: Infinity,
         maxBodyLength: Infinity,
@@ -173,15 +194,15 @@ export const apiFetch = async (requestData: IRequestModel, timeOut: number, sour
         data: reqData,
         validateStatus: () => true,
         transformResponse: [function (data) { return data; }],
-        timeout: timeOut,
+        timeout: fetchConfig.timeOut,
         responseType: 'arraybuffer',
         maxContentLength: Infinity,
         maxBodyLength: Infinity,
       };
     }
 
-    if (source) {
-      requestconfig.cancelToken = source.token;
+    if (fetchConfig.source) {
+      requestconfig.cancelToken = fetchConfig.source.token;
     }
 
     const resp = await axios(requestconfig);
@@ -234,8 +255,12 @@ export const apiFetch = async (requestData: IRequestModel, timeOut: number, sour
       }
     }
 
+    setTimeout(() => {
+      logDetails(request, reqHeaders, reqData, resp.status, respHeaders, isFile ? "View Response is not supported for 'file' type in the log window." : responseData);
+    }, 1000);
+
     return apiResponse = {
-      type: responseTypes.apiResponse,
+      type: resType,
       response: {
         responseData: isFile ? resp.data : responseData,
         status: resp.status,
@@ -256,6 +281,10 @@ export const apiFetch = async (requestData: IRequestModel, timeOut: number, sour
     writeLog("error::apiFetch(): " + err);
 
     apiResponse = getErrorResponse();
+
+    setTimeout(() => {
+      logDetails(request, reqHeaders, reqData, apiResponse.response.status, apiResponse.headers, err.message);
+    }, 1000);
 
     if (axios.isCancel(err)) {
       apiResponse.response.responseData = err.message;
@@ -312,13 +341,4 @@ function getHost(urlString: string) {
 function getPath(urlString: string) {
   const url = new URL(urlString);
   return url.pathname;
-}
-
-function arrayBufferToString(buffer: Uint8Array): string {
-  var binary = '';
-  var len = buffer.byteLength;
-  for (var i = 0; i < len; i++) {
-    binary += String.fromCharCode(buffer[i]);
-  }
-  return binary;
 }

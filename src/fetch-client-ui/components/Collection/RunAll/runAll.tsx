@@ -1,16 +1,15 @@
-import React, { useEffect, useRef, useState } from "react";
-import { requestTypes, responseTypes } from "../../../../utils/configuration";
-import vscode from "../../Common/vscodeAPI";
-import { IRequestModel } from "../../RequestUI/redux/types";
-import { IReponseModel } from "../../ResponseUI/redux/types";
-import { getMethodClassName } from "../../SideBar/util";
-import { FormatBytes, GetResponseTime } from "../../ResponseUI/OptionsPanel/OptionTab/util";
-import { IVariable } from "../../SideBar/redux/types";
-import { formatDate } from "../../../../utils/helper";
 import { executeTests, setVariable } from "../../TestUI/TestPanel/helper";
-import "../style.css";
-import { RunAllSettings } from "./runAllSettings";
 import { exportCSV, exportJson } from "./helper";
+import { FormatBytes, GetResponseTime } from "../../ResponseUI/OptionsPanel/OptionTab/util";
+import { getMethodClassName } from "../../SideBar/util";
+import { IReponseModel } from "../../ResponseUI/redux/types";
+import { IRequestModel } from "../../RequestUI/redux/types";
+import { IVariable } from "../../SideBar/redux/types";
+import { requestTypes, responseTypes } from "../../../../utils/configuration";
+import { RunAllSettings } from "./runAllSettings";
+import React, { useEffect, useRef, useState } from "react";
+import vscode from "../../Common/vscodeAPI";
+import "../style.css";
 
 const RunAll = () => {
 

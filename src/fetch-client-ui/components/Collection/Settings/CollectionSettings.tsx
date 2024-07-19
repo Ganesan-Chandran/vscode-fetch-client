@@ -6,6 +6,7 @@ import vscode from "../../Common/vscodeAPI";
 import { AuthPanel } from "../../RequestUI/OptionsPanel/Options/Auth";
 import { allAuthTypes, basicAuthTypes } from "../../RequestUI/OptionsPanel/Options/Auth/consts";
 import { Actions } from "../../RequestUI/redux";
+import { IResponse } from "../../ResponseUI/redux/types";
 import { InitialSettings } from "../../SideBar/redux/reducer";
 import { ISettings, IVariable } from "../../SideBar/redux/types";
 import { SettingsType } from "../consts";
@@ -48,6 +49,13 @@ const CollectionSettings = () => {
         setDone(true);
       } else if (event.data && event.data.type === responseTypes.getVariableItemResponse) {
         setVariableItem(event.data.data[0] as IVariable);
+      } if (event.data && event.data.type === responseTypes.tokenResponse) {
+        let tokenResponse: IResponse = event.data.response as IResponse;
+        if (!tokenResponse.isError && tokenResponse.status === 200) {
+          const responseData = JSON.parse(tokenResponse.responseData);
+          let tokenName = auth.oauth.tokenName ? auth.oauth.tokenName : "access_token";
+          dispatch(Actions.SetOAuthTokenAction(responseData[tokenName] ? responseData[tokenName] : ""));
+        }
       }
     });
 

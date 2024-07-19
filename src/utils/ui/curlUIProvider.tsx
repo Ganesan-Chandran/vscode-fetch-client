@@ -3,9 +3,9 @@ import { OpenExistingItem, sideBarProvider } from '../../extension';
 import { getNonce, requestTypes, responseTypes } from '../configuration';
 import { ConvertCurlToRequest } from '../curlToRequest';
 import { AddToCollection, GetAllCollectionName } from '../db/collectionDBUtil';
-import { apiFetch } from '../fetchUtil';
+import { apiFetch, FetchConfig } from '../fetchUtil';
 import { getErrorResponse } from '../helper';
-import { getTimeOut } from '../vscodeConfig';
+import { getHeadersConfiguration, getTimeOutConfiguration } from '../vscodeConfig';
 
 export const CurlProviderUI = (extensionUri: any) => {
   const disposable = vscode.commands.registerCommand('fetch-client.curlRequest', () => {
@@ -43,9 +43,14 @@ export const CurlProviderUI = (extensionUri: any) => {
       </body>
     </html>`;
 
+    let fetchConfig: FetchConfig = {
+      timeOut: getTimeOutConfiguration(),
+      headersCase: getHeadersConfiguration(),
+      source: null
+    };
+    
     curlPanel.webview.onDidReceiveMessage((reqData: any) => {
       if (reqData.type === requestTypes.runCurlRequest) {
-        const timeOut = getTimeOut();
         let req = ConvertCurlToRequest(reqData.data);
         if (!req || !req.url) {
           let apiResponse = getErrorResponse();
@@ -53,7 +58,7 @@ export const CurlProviderUI = (extensionUri: any) => {
           curlPanel.webview.postMessage({ type: responseTypes.runCurlResponse, request: null, response: apiResponse });
           return;
         }
-        apiFetch(req, timeOut, null, null, null).then((data) => {
+        apiFetch(req, null, null, fetchConfig).then((data) => {
           curlPanel.webview.postMessage({ type: responseTypes.runCurlResponse, request: req, response: data });
         });
       } else if (reqData.type === requestTypes.convertCurlToJsonRequest) {
@@ -84,8 +89,3 @@ export const CurlProviderUI = (extensionUri: any) => {
   return disposable;
 
 };
-
-async function showConfirmationBox(text: string) {
-  const res = await vscode.window.showWarningMessage(text, "Yes", "No");
-  return res;
-}

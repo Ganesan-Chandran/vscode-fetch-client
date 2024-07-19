@@ -29,7 +29,7 @@
 }
 
 .auth-token-text-panel {
-  max-width: 70%;
+  max-width: 100%;
   flex-grow: 1;
 }
 
@@ -114,7 +114,7 @@ label {
 
 .basic-auth-text-panel {
   padding  : 10px 10px 10px 0;
-  max-width: 70%;
+  max-width: 100%;
 }
 
 .apikey-add-select {
@@ -195,4 +195,7 @@ label {
 
 .inherit-auth-summary-panel {
   pointer-events: none;
+  background-color: var(--list-hover-background-color);
+  padding-left: 10px;
+  padding-bottom: 10px;
 }

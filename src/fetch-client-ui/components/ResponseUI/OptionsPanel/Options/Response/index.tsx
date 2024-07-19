@@ -18,20 +18,22 @@ import "./style.css";
 export const ResponseSection = (props: any) => {
 
   const { response, loading } = useSelector((state: IRootState) => state.responseData);
-  const { theme, horizontalLayout } = useSelector((state: IRootState) => state.uiData);
+  const { horizontalLayout } = useSelector((state: IRootState) => state.uiData);
 
   const [viewType, setType] = useState("raw");
   const [fullScreenMode, setFullScreenMode] = useState(false);
+  const [wordWrap, setWordWrap] = useState(false);
 
-  const editor = useMemo(() => {
+  const editor = useMemo(() => {    
     return <MonacoEditor
       value={response.responseData ?? ""}
       language={response.responseType?.format ? response.responseType.format : responseType[1].value}
       readOnly={true}
       copyButtonVisible={response.responseData ? true : false}
       format={response.responseData ? true : false}
+      wordWrap={wordWrap}
     />;
-  }, [response.responseData]);
+  }, [response.responseData, wordWrap]);
 
 
   function onDownloadFile() {
@@ -128,11 +130,19 @@ export const ResponseSection = (props: any) => {
   }
 
   function getPreviewHeaderSection() {
-    return (<div className="toggle">
+    return (<div className="res-prev-header"> {isPreViewVisible() && <div className="toggle">
       <input type="radio" name="sizeBy" value="weight" id="sizeWeight" onChange={onTextResponseClick} checked={viewType === "raw"} />
       <label htmlFor="sizeWeight">Raw View</label>
       <input type="radio" name="sizeBy" value="dimensions" onChange={onJsonViewResponseClick} checked={viewType !== "raw"} id="sizeDimensions" />
       <label htmlFor="sizeDimensions">{response.responseType?.format === "html" ? "HTML Preview" : "Tree View"}</label>
+    </div>}
+      {menuSection()}
+    </div>);
+  }
+
+  function menuSection() {
+    return (<div className="word-wrap-button">
+      <button className="format-button" onClick={() => { setWordWrap(!wordWrap); }}>Word warp {wordWrap ? "ON" : "OFF"}</button>
     </div>);
   }
 
@@ -172,9 +182,9 @@ export const ResponseSection = (props: any) => {
         {editor}
       </div>
       <div className={getViewerPanelCss()}>
-        {response.responseType?.format === "json" && <JSONViewer data={response.responseData} theme={theme} />}
+        {response.responseType?.format === "json" && <JSONViewer data={response.responseData} />}
         {response.responseType?.format === "html" && <HTMLViewer data={response.responseData} />}
-        {response.responseType?.format === "xml" && <XMLViewer data={response.responseData} theme={theme} />}
+        {response.responseType?.format === "xml" && <XMLViewer data={response.responseData} />}
       </div>
       {
         fullScreenMode ?
@@ -204,7 +214,8 @@ export const ResponseSection = (props: any) => {
                   getMaxSizeResponseSection()
                   :
                   <>
-                    {isPreViewVisible() && getPreviewHeaderSection()}
+                    {getPreviewHeaderSection()}
+
                     {getResponseSection()}
                   </>
               :

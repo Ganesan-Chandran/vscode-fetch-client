@@ -22,8 +22,8 @@
 
 .code-snippet-lang-select,
 .code-snippet-opt-select {
-  height: 30px;
-  width: 150px;
+  height: 25px;
+  width: 110px;
   outline: none;
   border-radius: 3px;
   background-color: var(--background-color);

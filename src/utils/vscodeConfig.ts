@@ -17,6 +17,11 @@ export function getConfiguration(): any {
   return { type: responseTypes.configResponse, configData: JSON.stringify(config), theme: theme };
 }
 
+export function getVSCodeTheme(): any {
+  const theme = vscode.window.activeColorTheme.kind;
+  return { type: responseTypes.themeResponse, theme: theme };
+}
+
 export function getSSLConfiguration(): boolean {
   let config = getFetchClientConfiguration();
   let sslCheck = config.get("SSLCheck", true);
@@ -29,10 +34,16 @@ export function getHistoryLimitConfiguration(): string {
   return limit;
 }
 
-export function getTimeOutConfiguration(): string {
+export function getTimeOutConfiguration(): number {
   let config = getFetchClientConfiguration();
-  let limit = config.get("timeOut", "5 min");
+  let limit = config.get("timeOut", 120000);
   return limit;
+}
+
+export function getHeadersConfiguration(): boolean {
+  let config = getFetchClientConfiguration();
+  let headerCase = config.get("headersCaseSensitive",  true);
+  return headerCase;
 }
 
 export function getProtocolConfiguration(): string {
@@ -41,20 +52,20 @@ export function getProtocolConfiguration(): string {
   return limit;
 }
 
-export function getTimeOut(): number {
-  const configTimout = getTimeOutConfiguration();
-  switch (configTimout) {
-    case "30 sec":
-      return 30000;
-    case "1 min":
-      return 60000;
-    case "2 min":
-      return 120000;
-    case "5 min":
-      return 300000;
-    case "10 min":
-      return 600000;
-    case "no timeout":
-      return 0;
-  }
+export function getRequestTabOption(): boolean {
+  let config = getFetchClientConfiguration();
+  let option = config.get("separateRequestTab", false);
+  return option;
+}
+
+export function getLogOption(): boolean {
+  let config = getFetchClientConfiguration();
+  let option = config.get("log", false);
+  return option;
+}
+
+export function getRunMainRequestOption(): boolean {
+  let config = getFetchClientConfiguration();
+  let option = config.get("runMainRequest", true);
+  return option;
 }

@@ -15,10 +15,10 @@
   border-radius: 5px;
   color: var(--button-text-color);
   cursor: pointer;
-  font-size: medium;
+  font-size: 14px;
   opacity: 0;
   outline: none;
-  padding: 0.4rem 0.5rem;
+  padding: 0.2rem;
   position: absolute;
   right: 1rem;
   top: 0.8rem;
