@@ -8,7 +8,7 @@
 }
 
 .selected {
-  border-bottom: 2.5px solid var(--button-background-color);
+  border-bottom: 2.5px solid var(--button-background-color) !important;
 }
 
 .sidebar-panel-tabs {
