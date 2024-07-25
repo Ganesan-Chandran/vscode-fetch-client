@@ -2,7 +2,7 @@
   "name": "fetch-client",
   "displayName": "Fetch Client",
   "description": "Rest API Client for VS Code which is used to test your API's within VS Code.",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "publisher": "GanesanChandran",
   "author": {
     "name": "Ganesan Chandran <https://ganesan-chandran.github.io/>"

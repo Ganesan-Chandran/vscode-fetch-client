@@ -115,6 +115,7 @@ const MainUI = () => {
         dispatch(Actions.SetRequestBinaryDataAction(event.data.fileData));
       } else if (event.data && event.data.type === responseTypes.getAllVariableResponse) {
         dispatch(VariableActions.SetReqAllVariableAction(event.data.variable as IVariable[]));
+        setLoadingApp(false);
       } else if (event.data && event.data.type === responseTypes.getRunItemDataResponse) {
         const reqData = event.data.reqData as IRequestModel;
         dispatch(Actions.SetRequestAction(reqData));

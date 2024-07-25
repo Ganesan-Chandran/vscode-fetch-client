@@ -2,6 +2,14 @@
 
 All notable changes to the "Fetch Client" extension will be documented in this file.
 
+## v1.5.2 - July, 2024
+### 🐛 Bug Fixes
+- New request fix
+
+### Requirements
+- Minimum required version of VSCode is v1.75.0
+- Minimum Node version is 18.20.3
+
 ## v1.5.1 - July, 2024
 ### 🐛 Bug Fixes
 - Fix the db file name
