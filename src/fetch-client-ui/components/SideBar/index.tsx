@@ -145,6 +145,13 @@ const SideBar = () => {
         dispatch(UIActions.SetThemeAction(event.data.theme));
       } else if (event.data && event.data.type === pubSubTypes.themeChanged) {
         vscode.postMessage({ type: requestTypes.themeRequest });
+      } else if (event.data && event.data.type === responseTypes.updateCollectionHistoryItem) {
+        if (event.data.colId) {
+          dispatch(SideBarActions.SetUpdateCollectionItemAction(event.data.item, event.data.colId));
+        }
+        else {
+          dispatch(SideBarActions.SetUpdateHistoryItemAction(event.data.item));
+        }
       }
     });
 
@@ -190,7 +197,7 @@ const SideBar = () => {
     setFilterCondition(e.target.value);
   }
 
-  function onViewLogClick(e: any) {
+  function onViewLogClick(_e: any) {
     setViewLogOpen(!isViewLogOpen);
     vscode.postMessage({ type: requestTypes.viewLogRequest });
   }

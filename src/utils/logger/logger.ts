@@ -1,23 +1,25 @@
 import fs from "fs";
-import { getGlobalPath } from "../../extension";
+import { getExtDbPath } from "../db/getExtDbPath";
 import { formatDate } from "../helper";
-import { logPath } from "./consts";
+import { logPath } from "./constants";
+import path from "path";
 
 export function createLogFile() {
-  fs.writeFileSync(getGlobalPath() + "\\" + logPath, "");
+  fs.writeFileSync(path.resolve(getExtDbPath(), logPath), "");
 }
 
 export function writeLog(err: any) {
   clearLog();
   const data = "\n" + formatDate() + "  " + err + "\n";
-  fs.appendFileSync(getGlobalPath() + "\\" + logPath, data);
+  fs.appendFileSync(path.resolve(getExtDbPath(), logPath), data);
 }
 
 function clearLog() {
-  const stats = fs.statSync(getGlobalPath() + "\\" + logPath);
+  const logFilePath = path.resolve(getExtDbPath(), logPath);
+  const stats = fs.statSync(logFilePath);
   const fileSizeInBytes = stats.size;
   const fileSizeInMegabytes = fileSizeInBytes / (1024 * 1024);
   if (fileSizeInMegabytes > 1) {
-    fs.writeFileSync(getGlobalPath() + "\\" + logPath, "");
+    fs.writeFileSync(logFilePath, "");
   }
 }

@@ -46,6 +46,7 @@ const MainUI = () => {
   const [horiLayout, setHoriLayout] = useState("");
 
   const [saveVisible, setVisible] = useState(false);
+  const [loadingApp, setLoadingApp] = useState(true);
 
   useEffect(() => {
     if (loading && resClass === "zero-height") {
@@ -97,16 +98,19 @@ const MainUI = () => {
         setLayout(layoutConfig);
         let hariLayoutConfig = config["horizontalLayout"];
         setHoriLayout(hariLayoutConfig);
+        let responseLimit = (config["responseLimit"] as number) * 1048576;
         dispatch(UIActions.SetLayoutAction(layoutConfig === "Horizontal Split" ? true : false, event.data.theme));
+        dispatch(UIActions.SetResponseLimitAction(responseLimit));
       } else if (event.data && event.data.type === responseTypes.openExistingItemResponse) {
-        const reqData = event.data.item[0] as IRequestModel;        
-        dispatch(Actions.SetRequestAction(reqData));        
+        const reqData = event.data.item[0] as IRequestModel;
+        dispatch(Actions.SetRequestAction(reqData));
         if (reqData.body.bodyType === "binary" && reqData.body.binary.fileName) {
           vscode.postMessage({ type: requestTypes.readFileRequest, path: reqData.body.binary.fileName });
         }
         if (reqData.auth.authType === "inherit") {
           vscode.postMessage({ type: requestTypes.getParentSettingsRequest, data: { colId: colId, folderId: folderId } });
         }
+        setLoadingApp(false);
       } else if (event.data && event.data.type === responseTypes.readFileResponse) {
         dispatch(Actions.SetRequestBinaryDataAction(event.data.fileData));
       } else if (event.data && event.data.type === responseTypes.getAllVariableResponse) {
@@ -123,6 +127,7 @@ const MainUI = () => {
         dispatch(ResponseActions.SetResponseAction(event.data.resData.response));
         dispatch(ResponseActions.SetResponseHeadersAction(event.data.resData.headers));
         dispatch(ResponseActions.SetResponseCookiesAction(event.data.resData.cookies));
+        setLoadingApp(false);
       } else if (event.data && event.data.type === responseTypes.saveResponse) {
         setVisible(true);
       } else if (event.data && event.data.type === responseTypes.getAllCookiesResponse) {
@@ -139,7 +144,7 @@ const MainUI = () => {
         vscode.postMessage({ type: requestTypes.themeRequest });
       } else if (event.data && event.data.type === responseTypes.themeResponse) {
         dispatch(UIActions.SetThemeAction(event.data.theme));
-      } else if (event.data && event.data.type === responseTypes.getAllCollectionNameResponse) {        
+      } else if (event.data && event.data.type === responseTypes.getAllCollectionNameResponse) {
         let col: ICollection[] = event.data.collectionNames?.map((item: { value: any; name: any; }) => {
           return {
             id: item.value,
@@ -147,7 +152,7 @@ const MainUI = () => {
           };
         });
         col.unshift({ id: "", name: "select" });
-        dispatch(Actions.SetCollectionListAction(col));        
+        dispatch(Actions.SetCollectionListAction(col));
       }
     });
 
@@ -197,7 +202,7 @@ const MainUI = () => {
           dispatch(Actions.SetRequestAction(reqData));
           isNew = true;
         }
-        vscode.postMessage({ type: requestTypes.saveRequest, data: { reqData: reqData, isNew: isNew, colId: colId } });
+        vscode.postMessage({ type: requestTypes.saveRequest, data: { reqData: reqData, isNew: isNew, colId: colId === "undefined" ? undefined : colId } });
       }
     });
 
@@ -354,56 +359,66 @@ const MainUI = () => {
   return (
     <>
       {
-        layout === "Horizontal Split" ?
-          horiLayout === "Split Style" ?
-            <Split className="split split-horizontal" gutterSize={2} direction="vertical" cursor="ns-resize" minSize={60}>
-              <div>
-                <RequestPanel />
-                <div className={saveVisible ? "save-text save-visible save-text-horizontal" : "save-text save-invisible"}>Saved Successfully</div>
-                <OptionsPanel />
-              </div>
-              <div>
-                <ReponsePanel isVerticalLayout={false} isCurl={false} />
-              </div>
-            </Split>
-            :
-            <>
-              <section id="req-section" className={"accordion " + reqClass}>
-                <input type="checkbox" name="collapse" id="handle1" onChange={() => { setOpenPanel(0); }} checked={open[0]} />
-                <h2 className="handle">
-                  <label className="accordion-title" htmlFor="handle1">
-                    Request
-                  </label>
-                </h2>
-                <div className={reqBorderClass + " content"}>
-                  <RequestPanel />
-                  <div className={saveVisible ? "save-text save-visible save-text-horizontal" : "save-text save-invisible"}>Saved Successfully</div>
-                  <OptionsPanel />
-                </div>
-              </section>
-              <section id="res-section" className={"accordion " + resClass}>
-                <input type="checkbox" name="collapse" id="handle3" onChange={() => { setOpenPanel(1); }} checked={open[1]} />
-                <h2 className="handle">
-                  <label className="accordion-title" htmlFor="handle3">
-                    Response
-                  </label>
-                </h2>
-                <div className={resBorderClass + " content"}>
-                  <ReponsePanel isVerticalLayout={false} isCurl={false} />
-                </div>
-              </section>
-            </>
+        loadingApp ?
+          <>
+            <div id="divSpinner" className="spinner loading"></div>
+            <div className="loading-history-text">{"Loading...."}</div>
+          </>
           :
-          <Split className="split split-vertical" gutterSize={1} cursor="ew-resize" minSize={230} >
-            <div>
-              <RequestPanel />
-              <div className={saveVisible ? "save-text save-visible" : "save-text save-invisible"}>Saved Successfully</div>
-              <OptionsPanel />
-            </div>
-            <div>
-              <ReponsePanel isVerticalLayout={true} isCurl={false} />
-            </div>
-          </Split>
+          <>
+            {
+              layout === "Horizontal Split" ?
+                horiLayout === "Split Style" ?
+                  <Split className="split split-horizontal" gutterSize={2} direction="vertical" cursor="ns-resize" minSize={60}>
+                    <div>
+                      <RequestPanel />
+                      <div className={saveVisible ? "save-text save-visible save-text-horizontal" : "save-text save-invisible"}>Saved Successfully</div>
+                      <OptionsPanel />
+                    </div>
+                    <div>
+                      <ReponsePanel isVerticalLayout={false} isCurl={false} />
+                    </div>
+                  </Split>
+                  :
+                  <>
+                    <section id="req-section" className={"accordion " + reqClass}>
+                      <input type="checkbox" name="collapse" id="handle1" onChange={() => { setOpenPanel(0); }} checked={open[0]} />
+                      <h2 className="handle">
+                        <label className="accordion-title" htmlFor="handle1">
+                          Request
+                        </label>
+                      </h2>
+                      <div className={reqBorderClass + " content"}>
+                        <RequestPanel />
+                        <div className={saveVisible ? "save-text save-visible save-text-horizontal" : "save-text save-invisible"}>Saved Successfully</div>
+                        <OptionsPanel />
+                      </div>
+                    </section>
+                    <section id="res-section" className={"accordion " + resClass}>
+                      <input type="checkbox" name="collapse" id="handle3" onChange={() => { setOpenPanel(1); }} checked={open[1]} />
+                      <h2 className="handle">
+                        <label className="accordion-title" htmlFor="handle3">
+                          Response
+                        </label>
+                      </h2>
+                      <div className={resBorderClass + " content"}>
+                        <ReponsePanel isVerticalLayout={false} isCurl={false} />
+                      </div>
+                    </section>
+                  </>
+                :
+                <Split className="split split-vertical" gutterSize={1} cursor="ew-resize" minSize={230} >
+                  <div>
+                    <RequestPanel />
+                    <div className={saveVisible ? "save-text save-visible" : "save-text save-invisible"}>Saved Successfully</div>
+                    <OptionsPanel />
+                  </div>
+                  <div>
+                    <ReponsePanel isVerticalLayout={true} isCurl={false} />
+                  </div>
+                </Split>
+            }
+          </>
       }
     </>
   );

@@ -8,7 +8,9 @@ import {
   FETCH_CLIENT_SET_NEW_HISTORY_TO_COLLECTION, FETCH_CLIENT_SET_NEW_REQUEST_TO_COLLECTION, FETCH_CLIENT_SET_NEW_VARIABLE,
   FETCH_CLIENT_SET_RENAME_COLLECTION, FETCH_CLIENT_SET_RENAME_COL_ITEM, FETCH_CLIENT_SET_RENAME_HISTORY,
   FETCH_CLIENT_SET_RENAME_VARIABLE, FETCH_CLIENT_SET_VARIABLE,
-  ICollections, ISettings, IFolder, IHistory, ISideBarModel, IVariable, SideBarActionTypes
+  ICollections, ISettings, IFolder, IHistory, ISideBarModel, IVariable, SideBarActionTypes,
+  FETCH_CLIENT_SET_UPDATE_COLLECTION_ITEM,
+  FETCH_CLIENT_SET_UPDATE_HISTORY_ITEM
 } from "./types";
 
 
@@ -153,6 +155,18 @@ export const SideBarReducer: (state?: ISideBarModel,
           collections: appendRequestToCollectionState(action.payload.folder, action.payload.colId, action.payload.folderId, state.collections)
         };
       }
+      case FETCH_CLIENT_SET_UPDATE_COLLECTION_ITEM: {
+        return {
+          ...state,
+          collections: updateItemInCollectionState(action.payload.item, action.payload.colId, state.collections)
+        };
+      }
+      case FETCH_CLIENT_SET_UPDATE_HISTORY_ITEM: {
+        return {
+          ...state,
+          history: updateItemInHistoryState(action.payload.item, state.history)
+        };
+      }
       default: {
         return state;
       }
@@ -179,26 +193,6 @@ function findItemById(id: string, items: IHistory[] | ICollections[] | IVariable
   return { found: found, index: findIndex };
 }
 
-function findItemInCollections(colId: string, folderId: string, historyId: string, isFolder: boolean, items: ICollections[]): { found: boolean, colIndex: number, folderIndex: number, hisIndex: number } {
-  let colIndex: number = -1;
-  let hisIndex: number = -1;
-  let folderIndex: number = -1;
-
-  let found = items.some(function (item: ICollections, index: number) { colIndex = index; return item.id === colId; });
-
-  if (found) {
-    if (folderId) {
-      found = items[colIndex].data.some(function (item: IHistory | IFolder, index: number) { folderIndex = index; return item.id === folderId; });
-      if (!isFolder && found) {
-        found = (items[colIndex].data[folderIndex] as IFolder).data.some(function (item: IHistory, index: number) { hisIndex = index; return item.id === historyId; });
-      }
-    } else {
-      found = items[colIndex].data.some(function (item: IHistory | IFolder, index: number) { hisIndex = index; return item.id === historyId; });
-    }
-  }
-
-  return { found: found, colIndex: colIndex, folderIndex: folderIndex, hisIndex: hisIndex };
-}
 
 function appendToCollectionState(item: ICollections, cols: ICollections[]): ICollections[] {
   const { found, index } = findItemById(item.id, cols);
@@ -211,7 +205,7 @@ function appendToCollectionState(item: ICollections, cols: ICollections[]): ICol
   return cols;
 }
 
-function renameColItemFromState(colId: string, folderId: string, historyId: string, name: string, isFolder: boolean, cols: ICollections[]): ICollections[] {
+function renameColItemFromState(colId: string, folderId: string, historyId: string, name: string, _isFolder: boolean, cols: ICollections[]): ICollections[] {
   const { found, index } = findItemById(colId, cols);
   if (found) {
     let item = findItem(cols[index], historyId ? historyId : folderId);
@@ -297,7 +291,7 @@ function attachVariableFromState(colId: string, varId: string, cols: ICollection
   return cols;
 }
 
-function updateStatusVariableFromState(id: string, status: boolean, vars: IVariable[]): IVariable[] {
+function updateStatusVariableFromState(_id: string, status: boolean, vars: IVariable[]): IVariable[] {
   vars[0].isActive = status;
   return vars;
 }
@@ -316,6 +310,23 @@ function appendRequestToCollectionState(item: IHistory | IFolder, colId: string,
   }
 
   return cols;
+}
+
+function updateItemInCollectionState(item: IHistory, colId: string, cols: ICollections[]): ICollections[] {
+  let { found, index } = findItemById(colId, cols);
+  if (found) {
+    cols[index] = updateItem(cols[index], item.id, item);
+  }
+  return cols;
+}
+
+function updateItemInHistoryState(item: IHistory, items: IHistory[]): IHistory[] {
+  let { found, index } = findItemById(item.id, items);
+  if (found) {
+    items[index] = item;
+  }
+
+  return items;
 }
 
 function findItem(source: any, searchId: string) {
@@ -347,4 +358,21 @@ function deleteItem(source: any, id: string) {
       deleteItem(source.data[i], id);
     }
   }
+}
+
+function updateItem(source: any, id: string, item: IHistory): any {
+  let pos = source.data.findIndex((el: any) => el.id === id);
+
+  if (pos !== -1) {
+    source.data[pos] = item;
+    return source;
+  }
+
+  for (let i = 0; i < source.data.length; i++) {
+    if (isFolder(source.data[i])) {
+      updateItem(source.data[i], id, item);
+    }
+  }
+
+  return source;
 }

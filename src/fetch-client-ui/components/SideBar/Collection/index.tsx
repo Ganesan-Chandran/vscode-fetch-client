@@ -72,7 +72,6 @@ export const CollectionBar = (props: ICollectionProps) => {
     });
 
     document.addEventListener("keydown", function (e) {
-      e.preventDefault();
       e.stopPropagation();
       if (e.key === 'Escape' && (refIndex.current || refHeadIndex.current)) {
         setCurrentIndex("");

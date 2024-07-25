@@ -132,6 +132,20 @@ export class WebAppPanel {
             } else {
               this._executeAPIRequest(message, fetchConfig);
             }
+
+            let item: IHistory = {
+              id: message.data.reqData.id,
+              method: message.data.reqData.method,
+              name: message.data.reqData.name ? message.data.reqData.name : message.data.reqData.url,
+              url: message.data.reqData.url,
+              createdTime: message.data.reqData.createdTime ? message.data.reqData.createdTime : formatDate()
+            };
+
+            if (message.data.colId) {
+              UpdateCollection(message.data.colId, item);
+            }
+            sideBarProvider.view.webview.postMessage({ type: responseTypes.updateCollectionHistoryItem, colId: message.data.colId, item: item });
+
           } else if (message.type === requestTypes.cancelRequest) {
             if (fetchConfig.source) {
               fetchConfig.source.cancel("The request has been cancelled by the user.");
@@ -231,6 +245,7 @@ export class WebAppPanel {
               }
             }
             this._panel.webview.postMessage({ type: responseTypes.saveResponse });
+            sideBarProvider.view.webview.postMessage({ type: responseTypes.updateCollectionHistoryItem, colId: message.data.colId, item: item });
           }
           else if (message.type === requestTypes.openVariableItemRequest) {
             OpenVariableUI(message.data);

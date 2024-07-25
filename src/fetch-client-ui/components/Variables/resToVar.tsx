@@ -142,7 +142,7 @@ const ResToVariables = () => {
           <span className="addto-var-label">Variable :</span>
           <span className="addto-var-label">{selectedVariable.name}</span>
         </div>
-        <div className="var-tbl-panel">
+        <div className="var-tbl-panel remove-overflow">
           <table className="test-table">
             <thead>
               <tr>

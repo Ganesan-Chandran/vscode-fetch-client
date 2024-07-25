@@ -2,6 +2,22 @@
 
 All notable changes to the "Fetch Client" extension will be documented in this file.
 
+## v1.5.0 - July, 2024
+### 🎉 New Features
+- Import Postman environment ([#7](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/7))
+- Save all requests data into custom workspace([#10](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/10))
+- Set the response limit as configurable([#11](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/11))
+
+### 🐛 Bug Fixes
+- import from Curl ([#5](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/5)).
+- POST method not properly set just after creating new Http Request in a collection ([#8](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/8))
+- Bug fix in RunAll section
+- Bug fix in filter search in collection section in the sidebar
+
+### Requirements
+- Minimum required version of VSCode is v1.75.0
+- Minimum Node version is 18.20.3
+
 ## v1.4.0 - July, 2024
 ### 🎉 New Features
 - Import Postman collection (Postman Collection v2.1).

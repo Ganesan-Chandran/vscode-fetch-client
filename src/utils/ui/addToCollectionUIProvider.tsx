@@ -67,7 +67,7 @@ export const AddToColUI = (extensionUri: any) => {
       } else if (message.type === requestTypes.getCollectionsByIdRequest) {
         GetAllCollectionsById(message.data.colId, message.data.folderId, message.data.type, colPanel.webview);
       } else if (message.type === requestTypes.apiRequest) {
-        if (message.data.message.auth.authType === "inherit") {
+        if (message.data.reqData.auth.authType === "inherit") {
           ExecuteRequest(message, fetchConfig, colPanel.webview);
         }
         else {
@@ -82,7 +82,7 @@ export const AddToColUI = (extensionUri: any) => {
       } else if (message.type === requestTypes.openRunRequest) {
         getStorageManager().setValue("run-request", message.data.reqData);
         getStorageManager().setValue("run-response", message.data.resData);
-        OpenExistingItem(message.data.message.id, message.data.message.name, message.data.colId, message.data.folderId, message.data.varId, "runopen");
+        OpenExistingItem(message.data.reqData.id, message.data.reqData.name, message.data.colId, message.data.folderId, message.data.varId, "runopen");
       } else if (message.type === requestTypes.exportRunTestJsonRequest) {
         vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file("fetch-client-collection-report-" + message.name + ".json"), filters: { 'Json Files': ['json'] } }).then((uri: vscode.Uri | undefined) => {
           if (uri) {

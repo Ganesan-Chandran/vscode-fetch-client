@@ -1,4 +1,4 @@
-import { FETCH_CLIENT_SET_ACC_OPEN, FETCH_CLIENT_SET_RUN_ITEM, FETCH_CLIENT_SET_UI_HORIZONTAL, FETCH_CLIENT_SET_UI_THEME, UIActionTypes } from "./types";
+import { FETCH_CLIENT_SET_ACC_OPEN, FETCH_CLIENT_SET_RESPONSE_LIMIT, FETCH_CLIENT_SET_RUN_ITEM, FETCH_CLIENT_SET_UI_HORIZONTAL, FETCH_CLIENT_SET_UI_THEME, UIActionTypes } from "./types";
 
 export const SetOpenAction = (value: boolean[]): UIActionTypes => {
   return {
@@ -34,6 +34,15 @@ export const SetRunItemAction = (value: boolean): UIActionTypes => {
     type: FETCH_CLIENT_SET_RUN_ITEM,
     payload: {
       runItem: value
+    }
+  };
+};
+
+export const SetResponseLimitAction = (value: number): UIActionTypes => {
+  return {
+    type: FETCH_CLIENT_SET_RESPONSE_LIMIT,
+    payload: {
+      responseLimit: value
     }
   };
 };

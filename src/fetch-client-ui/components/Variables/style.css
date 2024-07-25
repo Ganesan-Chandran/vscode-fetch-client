@@ -125,3 +125,7 @@
 .addto-var-label-note {
     padding-top: 10px;
 }
+
+.remove-overflow {
+  overflow: unset !important;
+}

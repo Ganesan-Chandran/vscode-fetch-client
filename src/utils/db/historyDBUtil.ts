@@ -1,17 +1,16 @@
-import * as vscode from 'vscode';
-import loki, { LokiFsAdapter } from 'lokijs';
+import * as vscode from "vscode";
+import loki, { LokiFsAdapter } from "lokijs";
 import { IHistory } from "../../fetch-client-ui/components/SideBar/redux/types";
-import { historyDBPath } from "./consts";
 import { responseTypes } from '../configuration';
 import { getHistoryLimitConfiguration } from '../vscodeConfig';
 import { DeleteExitingItem, DeleteExitingItems, RenameRequestItem } from './mainDBUtil';
 import { writeLog } from '../logger/logger';
-import { getGlobalPath } from '../../extension';
+import { historyDBPath } from "./dbPaths";
 
 
 function getDB(): loki {
   const idbAdapter = new LokiFsAdapter();
-  const db = new loki(getGlobalPath() + "\\" + historyDBPath, { adapter: idbAdapter });
+  const db = new loki(historyDBPath(), { adapter: idbAdapter });
   return db;
 }
 
@@ -20,7 +19,7 @@ export function SaveHistory(item: IHistory, webviewView: vscode.WebviewView) {
     const db = getDB();
 
     db.loadDatabase({}, function () {
-      const userHistory = db.getCollection('userHistory');
+      const userHistory = db.getCollection("userHistory");
       userHistory.insert(item);
       db.saveDatabase();
       webviewView.webview.postMessage({ type: responseTypes.newHistoryResponse, history: item });
@@ -36,7 +35,7 @@ export function UpdateHistory(item: IHistory) {
     const db = getDB();
 
     db.loadDatabase({}, function () {
-      const userHistory = db.getCollection('userHistory');
+      const userHistory = db.getCollection("userHistory");
       var req = userHistory.findOne({ 'id': item.id });
       if (req) {
         req.name = item.name;
@@ -58,7 +57,7 @@ export function GetHistoryById(id: string, webview: vscode.Webview) {
     const db = getDB();
 
     db.loadDatabase({}, function () {
-      const userHistory = db.getCollection('userHistory').find({ 'id': id });
+      const userHistory = db.getCollection("userHistory").find({ 'id': id });
       webview.postMessage({ type: responseTypes.getHistoryItemResponse, history: userHistory });
     });
 
@@ -75,17 +74,17 @@ export function GetAllHistory(webviewView: vscode.WebviewView) {
 
     db.loadDatabase({}, function () {
       let userHistory: any;
-      let len = db.getCollection('userHistory').find().length;
+      let len = db.getCollection("userHistory").find().length;
       switch (limit) {
         case "All":
-          userHistory = db.getCollection('userHistory').data.reverse();
+          userHistory = db.getCollection("userHistory").data.reverse();
           break;
         default:
           let intLimit = parseInt(limit);
           if (len > intLimit) {
-            userHistory = db.getCollection('userHistory').chain().offset(len - intLimit).limit(intLimit).data().reverse();
+            userHistory = db.getCollection("userHistory").chain().offset(len - intLimit).limit(intLimit).data().reverse();
           } else {
-            userHistory = db.getCollection('userHistory').chain().limit(intLimit).data().reverse();
+            userHistory = db.getCollection("userHistory").chain().limit(intLimit).data().reverse();
           }
           break;
       }
@@ -102,7 +101,7 @@ export function DeleteAllHistory(webviewView: vscode.WebviewView) {
     const db = getDB();
 
     db.loadDatabase({}, function () {
-      const userHistory = db.getCollection('userHistory');
+      const userHistory = db.getCollection("userHistory");
       let results = userHistory.chain().data({ forceClones: true, removeMeta: true });
 
       const ids = results.map(item => item.id);
@@ -125,7 +124,7 @@ export function DeleteHistory(webviewView: vscode.WebviewView, id: string) {
     const db = getDB();
 
     db.loadDatabase({}, function () {
-      db.getCollection('userHistory').findAndRemove({ 'id': id });
+      db.getCollection("userHistory").findAndRemove({ 'id': id });
       db.saveDatabase();
       DeleteExitingItem(id);
       webviewView.webview.postMessage({ type: responseTypes.deleteHistoryResponse, id: id });
@@ -141,7 +140,7 @@ export function RenameHistory(webviewView: vscode.WebviewView, id: string, name:
     const db = getDB();
 
     db.loadDatabase({}, function () {
-      db.getCollection('userHistory').findAndUpdate({ 'id': id }, item => { item.name = name; });
+      db.getCollection("userHistory").findAndUpdate({ 'id': id }, item => { item.name = name; });
       db.saveDatabase();
       RenameRequestItem(id, name);
       webviewView.webview.postMessage({ type: responseTypes.renameHistoryResponse, params: { id: id, name: name } });

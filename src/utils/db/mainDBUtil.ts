@@ -1,9 +1,9 @@
-import * as vscode from 'vscode';
-import { collectionDBPath, mainDBPath, variableDBPath } from "./consts";
+import * as vscode from "vscode";
+import fs from "fs";
+import loki, { LokiFsAdapter } from "lokijs";
 import { FetchClientDataProxy } from '../validators/fetchClientCollectionValidator';
 import { fetchClientImporter } from '../importers/fetchClientImporter_1_0';
 import { formatDate } from '../helper';
-import { getGlobalPath } from '../../extension';
 import { ICollections, IFolder, IHistory } from '../../fetch-client-ui/components/SideBar/redux/types';
 import { InitialSettings } from '../../fetch-client-ui/components/SideBar/redux/reducer';
 import { IRequestModel } from '../../fetch-client-ui/components/RequestUI/redux/types';
@@ -13,24 +13,24 @@ import { postmanImporter } from '../importers/postmanImporter_2_1';
 import { PostmanSchema_2_1, POSTMAN_SCHEMA_V2_1 } from '../importers/postman_2_1.types';
 import { responseTypes } from '../configuration';
 import { writeLog } from '../logger/logger';
-import fs from "fs";
-import loki, { LokiFsAdapter } from 'lokijs';
+import { collectionDBPath, mainDBPath, variableDBPath } from "./dbPaths";
+import { ImportType } from "./constants";
 
 function getDB(): loki {
   const idbAdapter = new LokiFsAdapter();
-  const db = new loki(getGlobalPath() + "\\" + mainDBPath, { adapter: idbAdapter });
+  const db = new loki(mainDBPath(), { adapter: idbAdapter });
   return db;
 }
 
 function getCollectionDB(): loki {
   const idbAdapter = new LokiFsAdapter();
-  const db = new loki(getGlobalPath() + "\\" + collectionDBPath, { adapter: idbAdapter });
+  const db = new loki(collectionDBPath(), { adapter: idbAdapter });
   return db;
 }
 
 function getVariableDB(): loki {
   const idbAdapter = new LokiFsAdapter();
-  const db = new loki(getGlobalPath() + "\\" + variableDBPath, { adapter: idbAdapter });
+  const db = new loki(variableDBPath(), { adapter: idbAdapter });
   return db;
 }
 
@@ -39,7 +39,7 @@ export function SaveRequest(reqData: IRequestModel) {
     const db = getDB();
 
     db.loadDatabase({}, function () {
-      const apiRequests = db.getCollection('apiRequests');
+      const apiRequests = db.getCollection("apiRequests");
       apiRequests.insert(reqData);
       db.saveDatabase();
     });
@@ -53,7 +53,7 @@ export function UpdateRequest(reqData: IRequestModel) {
   try {
     const db = getDB();
     db.loadDatabase({}, function () {
-      const apiRequests = db.getCollection('apiRequests');
+      const apiRequests = db.getCollection("apiRequests");
       var req = apiRequests.findOne({ 'id': reqData.id });
       req.url = reqData.url;
       req.name = reqData.name;
@@ -84,7 +84,7 @@ export function GetRequestItem(reqId: string) {
         if (err) {
           resolve(null);
         }
-        const results = db.getCollection('apiRequests').chain().find({ 'id': reqId }).data();
+        const results = db.getCollection("apiRequests").chain().find({ 'id': reqId }).data();
         resolve(results && results.length > 0 ? results[0] as IRequestModel : null);
       });
     });
@@ -98,7 +98,7 @@ export function GetExitingItem(webview: vscode.Webview, id: string, callback: an
     const db = getDB();
 
     db.loadDatabase({}, function () {
-      const results = db.getCollection('apiRequests').chain().find({ 'id': id }).data();
+      const results = db.getCollection("apiRequests").chain().find({ 'id': id }).data();
       if (webview) {
         webview.postMessage({ type: responseTypes.openExistingItemResponse, item: results });
       }
@@ -123,7 +123,7 @@ export function CopyExitingItems(oldIds: string[], ids: any) {
     const db = getDB();
 
     db.loadDatabase({}, function () {
-      let apiRequests = db.getCollection('apiRequests');
+      let apiRequests = db.getCollection("apiRequests");
       const results = apiRequests.chain().find({ 'id': { '$in': oldIds } }).data({ forceClones: true, removeMeta: true });
 
       if (results && results.length > 0) {
@@ -146,7 +146,7 @@ export function DeleteExitingItem(id: string) {
     const db = getDB();
 
     db.loadDatabase({}, function () {
-      db.getCollection('apiRequests').findAndRemove({ 'id': id });
+      db.getCollection("apiRequests").findAndRemove({ 'id': id });
       db.saveDatabase();
     });
 
@@ -165,7 +165,7 @@ export function DeleteExitingItems(ids: string[]) {
     const db = getDB();
 
     db.loadDatabase({}, function () {
-      db.getCollection('apiRequests').findAndRemove({ 'id': { '$in': ids } });
+      db.getCollection("apiRequests").findAndRemove({ 'id': { '$in': ids } });
       db.saveDatabase();
     });
 
@@ -220,7 +220,7 @@ export function Export(path: string, colId: string, hisId: string, folderId: str
       const cols = colDB.getCollection('userCollections').chain().find({ "id": colId }).data({ forceClones: true, removeMeta: true });
 
       db.loadDatabase({}, function () {
-        const apiRequests = db.getCollection('apiRequests');
+        const apiRequests = db.getCollection("apiRequests");
         let exportData = {
           app: "Fetch Client",
           id: cols[0].id,
@@ -280,7 +280,7 @@ export function RenameRequestItem(id: string, name: string) {
     const db = getDB();
 
     db.loadDatabase({}, function () {
-      let req = db.getCollection('apiRequests').find({ 'id': id });
+      let req = db.getCollection("apiRequests").find({ 'id': id });
       if (req && req.length > 0) {
         req[0].name = name;
         db.saveDatabase();
@@ -290,11 +290,6 @@ export function RenameRequestItem(id: string, name: string) {
   } catch (err) {
     writeLog("error::RenameRequestItem(): " + err);
   }
-}
-
-enum ImportType {
-  FetchClient_1_0 = "FetchClient_1_0",
-  Postman_2_1 = "Postman_2_1",
 }
 
 function ValidateData(data: string): ImportType | null {
@@ -365,7 +360,7 @@ function ImportPostman(webviewView: vscode.WebviewView, data: string) {
     const varDB = getVariableDB();
 
     db.loadDatabase({}, function () {
-      const apiRequests = db.getCollection('apiRequests');
+      const apiRequests = db.getCollection("apiRequests");
       apiRequests.insert(convertedData.fcRequests);
       db.saveDatabase();
 
@@ -400,12 +395,12 @@ function ImportFC(webviewView: vscode.WebviewView, data: string) {
     const colDB = getCollectionDB();
 
     db.loadDatabase({}, function () {
-      const apiRequests = db.getCollection('apiRequests');
+      const apiRequests = db.getCollection("apiRequests");
       apiRequests.insert(convertedData.fcRequests);
       db.saveDatabase();
 
       colDB.loadDatabase({}, function () {
-        const userCollections = colDB.getCollection('userCollections');
+        const userCollections = colDB.getCollection("userCollections");
         userCollections.insert(convertedData.fcCollection);
         colDB.saveDatabase();
 
@@ -424,7 +419,7 @@ export function GetColsRequests(ids: string[], paths: any, webview: vscode.Webvi
     const db = getDB();
 
     db.loadDatabase({}, function () {
-      const apiRequests = db.getCollection('apiRequests').find({ 'id': { '$in': ids } });
+      const apiRequests = db.getCollection("apiRequests").find({ 'id': { '$in': ids } });
       webview.postMessage({ type: responseTypes.getCollectionsByIdResponse, collections: apiRequests, paths: paths });
     });
 
