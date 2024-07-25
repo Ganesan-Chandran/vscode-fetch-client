@@ -4,7 +4,7 @@ All notable changes to the "Fetch Client" extension will be documented in this f
 
 ## v1.5.2 - July, 2024
 ### 🐛 Bug Fixes
-- New request fix
+- New request loadind fix
 
 ### Requirements
 - Minimum required version of VSCode is v1.75.0
