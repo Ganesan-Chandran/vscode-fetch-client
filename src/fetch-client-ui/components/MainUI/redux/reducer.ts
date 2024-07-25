@@ -1,16 +1,17 @@
-import { FETCH_CLIENT_SET_ACC_OPEN, FETCH_CLIENT_SET_RUN_ITEM, FETCH_CLIENT_SET_UI_HORIZONTAL, FETCH_CLIENT_SET_UI_THEME, IUIModel, UIActionTypes } from "./types";
+import { FETCH_CLIENT_SET_ACC_OPEN, FETCH_CLIENT_SET_RESPONSE_LIMIT, FETCH_CLIENT_SET_RUN_ITEM, FETCH_CLIENT_SET_UI_HORIZONTAL, FETCH_CLIENT_SET_UI_THEME, ICommonConfig, UIActionTypes } from "./types";
 
-export const InitialState: IUIModel = {
+export const InitialState: ICommonConfig = {
   open: [true, false],
   horizontalLayout: true,
   theme: 2,
-  runItem: false
+  runItem: false,
+  responseLimit: 5242880
 };
 
-export const UIReducer: (state?: IUIModel,
-  action?: UIActionTypes) => IUIModel =
-  (state: IUIModel = InitialState,
-    action: UIActionTypes = {} as UIActionTypes): IUIModel => {
+export const UIReducer: (state?: ICommonConfig,
+  action?: UIActionTypes) => ICommonConfig =
+  (state: ICommonConfig = InitialState,
+    action: UIActionTypes = {} as UIActionTypes): ICommonConfig => {
     switch (action.type) {
       case FETCH_CLIENT_SET_ACC_OPEN: {
         return {
@@ -35,6 +36,12 @@ export const UIReducer: (state?: IUIModel,
         return {
           ...state,
           theme: action.payload.theme
+        };
+      }
+      case FETCH_CLIENT_SET_RESPONSE_LIMIT: {
+        return {
+          ...state,
+          responseLimit: action.payload.responseLimit < 1 ? 5242880 : action.payload.responseLimit
         };
       }
       default: {

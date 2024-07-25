@@ -32,7 +32,7 @@ export const requestTypes = {
   getAllCookiesRequest: "getAllCookiesRequest",
   getAllHistoryRequest: "getAllHistoryRequest",
   getAllVariableRequest: "getAllVariableRequest",
-  getAttchedColIdsRequest: "getAttchedColIdsRequest",
+  getAttachedColIdsRequest: "getAttachedColIdsRequest",
   getCollectionsByIdRequest: "getCollectionsByIdRequest",
   getCollectionsByIdWithPathRequest: "getCollectionsByIdWithPathRequest",
   getColSettingsRequest: "getColSettingsRequest",
@@ -116,7 +116,7 @@ export const responseTypes = {
   getAllCookiesResponse: "getAllCookiesResponse",
   getAllHistoryResponse: "getAllHistoryResponse",
   getAllVariableResponse: "getAllVariableResponse",
-  getAttchedColIdsResponse: "getAttchedColIdsResponse",
+  getAttachedColIdsResponse: "getAttachedColIdsResponse",
   getCollectionsByIdResponse: "getCollectionsByIdResponse",
   getCollectionsByIdWithPathResponse: "getCollectionsByIdWithPathResponse",
   getColSettingsResponse: "getColSettingsResponse",
@@ -152,7 +152,8 @@ export const responseTypes = {
   setToVariableResponse: "setToVariableResponse",
   tokenResponse: "tokenResponse",
   themeResponse: "themeResponse",
-  updateVariableResponse: "updateVariableResponse"
+  updateVariableResponse: "updateVariableResponse",
+  updateCollectionHistoryItem:"updateCollectionHistoryItem"
 };
 
 export const pubSubTypes = {

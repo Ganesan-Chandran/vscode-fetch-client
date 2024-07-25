@@ -67,6 +67,9 @@ export const FETCH_CLIENT_SET_ATTACH_DETACH_VARIABLE: "FETCH_CLIENT_SET_ATTACH_D
 export const FETCH_CLIENT_SET_ACTIVE_INACTIVE_VARIABLE: "FETCH_CLIENT_SET_ACTIVE_INACTIVE_VARIABLE" = "FETCH_CLIENT_SET_ACTIVE_INACTIVE_VARIABLE";
 export const FETCH_CLIENT_SET_NEW_REQUEST_TO_COLLECTION: "FETCH_CLIENT_SET_NEW_REQUEST_TO_COLLECTION" = "FETCH_CLIENT_SET_NEW_REQUEST_TO_COLLECTION";
 export const FETCH_CLIENT_SET_NEW_FOLDER_TO_COLLECTION: "FETCH_CLIENT_SET_NEW_FOLDER_TO_COLLECTION" = "FETCH_CLIENT_SET_NEW_FOLDER_TO_COLLECTION";
+export const FETCH_CLIENT_SET_UPDATE_COLLECTION_ITEM: "FETCH_CLIENT_SET_UPDATE_COLLECTION_ITEM" = "FETCH_CLIENT_SET_UPDATE_COLLECTION_ITEM";
+export const FETCH_CLIENT_SET_UPDATE_HISTORY_ITEM: "FETCH_CLIENT_SET_UPDATE_HISTORY_ITEM" = "FETCH_CLIENT_SET_UPDATE_HISTORY_ITEM";
+
 
 export interface ISetHistory {
   type: typeof FETCH_CLIENT_SET_HISTORY;
@@ -246,7 +249,22 @@ export interface ISetNewFolderToCollection {
   };
 }
 
+export interface ISetUpdateCollectionItem {
+  type: typeof FETCH_CLIENT_SET_UPDATE_COLLECTION_ITEM;
+  payload: {
+    item: IHistory;
+    colId: string;
+  };
+}
+
+export interface ISetUpdateHistoryItem {
+  type: typeof FETCH_CLIENT_SET_UPDATE_HISTORY_ITEM;
+  payload: {
+    item: IHistory;
+  };
+}
+
 export type SideBarActionTypes = | ISetHistory | ISetCollection | ISetDeleteHistory | ISetRenameHistory | ISetNewHistory | ISetHistoryToCollection |
   ISetRenameColItem | ISetDeleteColItem | ISetRenameCollection | ISetDeleteCollection | ISetClearCollection | ISetImportCollection |
   ISetCopyToCollection | ISetVariable | ISetDeleteVariable | ISetRenameVariable | ISetNewVariable | ISetUpdateVariable | ISetAttachVariable | ISetActiveVariable | ISetNewRequestToCollection |
-  ISetNewFolderToCollection;
+  ISetNewFolderToCollection | ISetUpdateCollectionItem | ISetUpdateHistoryItem;

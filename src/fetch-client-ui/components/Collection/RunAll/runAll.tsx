@@ -17,6 +17,12 @@ const RunAll = () => {
   const [processing, setProcessing] = useState(false);
   const [start, setStart] = useState(false);
   const [done, setDone] = useState(false);
+  const [loading, _setLoading] = useState(false);
+  const refLoading = useRef(loading);
+  const setLoading = (data: boolean) => {
+    refLoading.current = data;
+    _setLoading(refLoading.current);
+  };
 
   const [req, _setReq] = useState<IRequestModel[]>([]);
   const refReq = useRef(req);
@@ -91,6 +97,7 @@ const RunAll = () => {
       if (event.data && event.data.type === responseTypes.getCollectionsByIdResponse) {
         setReq((event.data.collections as IRequestModel[]));
         setItemPaths(event.data.paths);
+        setLoading(false);
       } else if (event.data && event.data.type === responseTypes.apiResponse) {
         setResponse(event.data);
         setProcessing(false);
@@ -116,6 +123,7 @@ const RunAll = () => {
 
     vscode.postMessage({ type: requestTypes.getVariableItemRequest, data: { id: varId, isGlobal: varId ? false : true } });
     vscode.postMessage({ type: requestTypes.getCollectionsByIdRequest, data: { colId: colId, folderId: folderId, type: name.trim().includes("\\") ? "fol" : "col" } });
+    setLoading(true);
   }, []);
 
   function setResponse(data: any) {
@@ -702,8 +710,18 @@ const RunAll = () => {
       <div className="runall-header">Run Collection</div>
       <div className="runall-body center">
         {renderHeader()}
-        {renderBody()}
-        {renderButton()}
+        {
+          loading === true ?
+            <>
+              <div id="divSpinner" className="spinner loading"></div>
+              <div className="loading-history-text">{"Loading...."}</div>
+            </>
+            :
+            <>
+              {renderBody()}
+              {renderButton()}
+            </>
+        }
       </div>
     </div>
   );

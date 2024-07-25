@@ -5,7 +5,6 @@ import { IRootState } from "../../../../../reducer/combineReducer";
 import { MonacoEditor } from "../../../../Common/Editor";
 import { responseType } from "./consts";
 import FetchClientIcon from "../../../../../../../icons/fetch-client.png";
-import { maxDisplayResponseLimitInBytes } from '../../../ResponsePanel/consts';
 import { requestTypes } from '../../../../../../utils/configuration';
 import vscode from '../../../../Common/vscodeAPI';
 import { JSONViewer } from '../../../../Common/Viewer/JSONViewer';
@@ -18,7 +17,7 @@ import "./style.css";
 export const ResponseSection = (props: any) => {
 
   const { response, loading } = useSelector((state: IRootState) => state.responseData);
-  const { horizontalLayout } = useSelector((state: IRootState) => state.uiData);
+  const { horizontalLayout, responseLimit } = useSelector((state: IRootState) => state.uiData);
 
   const [viewType, setType] = useState("raw");
   const [fullScreenMode, setFullScreenMode] = useState(false);
@@ -210,7 +209,7 @@ export const ResponseSection = (props: any) => {
               response.responseType.isBinaryFile ?
                 getBinaryResponseSection()
                 :
-                parseInt(response.size) > maxDisplayResponseLimitInBytes ?
+                parseInt(response.size) > responseLimit ?
                   getMaxSizeResponseSection()
                   :
                   <>

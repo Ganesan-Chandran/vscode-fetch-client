@@ -1,5 +1,7 @@
+import * as vscode from 'vscode';
+import fs from "fs";
+import path from "path";
 import { AddToColUI } from './utils/ui/addToCollectionUIProvider';
-import { collectionDBPath, cookieDBPath, historyDBPath, mainDBPath, variableDBPath } from './utils/db/consts';
 import { CookieUI } from './utils/ui/cookieUIProvider';
 import { CreateCollectionDB, CreateCookieDB, CreateHistoryDB, CreateMainDB, CreateVariableDB } from './utils/db/dbUtil';
 import { createLogFile } from './utils/logger/logger';
@@ -7,14 +9,15 @@ import { CurlProviderUI } from './utils/ui/curlUIProvider';
 import { ErrorLogUI } from './utils/ui/errorLogUIProvider';
 import { IPubSubMessage, PubSub } from './utils/PubSub';
 import { LocalStorageService } from './utils/LocalStorageService';
-import { logPath } from './utils/logger/consts';
+import { logPath } from './utils/logger/constants';
 import { SideBarProvider } from './utils/ui/sideBarUIProvider';
 import { VariableUI } from './utils/ui/variableUIProvider';
 import { WebAppPanel } from './utils/ui/mainUIProvider';
-import * as vscode from 'vscode';
-import fs from "fs";
 import { VSCodeLogger } from './utils/logger/vsCodeLogger';
 import { pubSubTypes } from './utils/configuration';
+import { collectionDBPath, cookieDBPath, historyDBPath, mainDBPath, variableDBPath } from "./utils/db/dbPaths";
+import { getExtDbPath, setGlobalStorageUri } from './utils/db/getExtDbPath';
+import { transferDbConfig } from './utils/db/transferDBConfig';
 
 export var pubSub: PubSub<IPubSubMessage>;
 export var vsCodeLogger: VSCodeLogger;
@@ -61,37 +64,38 @@ export function OpenColSettings(colId: string, folderId: string, name: string, t
 
 export function activate(context: vscode.ExtensionContext) {
 
-  extPath = context.globalStorageUri.fsPath;
+  setGlobalStorageUri(context.globalStorageUri.fsPath);
+  extPath = getExtDbPath();
   extensionUri = context.extensionUri;
 
   pubSub = new PubSub<IPubSubMessage>();
   vsCodeLogger = new VSCodeLogger();
 
   if (!fs.existsSync(extPath)) {
-    fs.mkdirSync(extPath);
+    fs.mkdirSync(extPath, { recursive: true });
   }
 
-  if (!fs.existsSync(extPath + "\\" + historyDBPath)) {
+  if (!fs.existsSync(historyDBPath())) {
     CreateHistoryDB();
   }
 
-  if (!fs.existsSync(extPath + "\\" + mainDBPath)) {
+  if (!fs.existsSync(mainDBPath())) {
     CreateMainDB();
   }
 
-  if (!fs.existsSync(extPath + "\\" + collectionDBPath)) {
+  if (!fs.existsSync(collectionDBPath())) {
     CreateCollectionDB();
   }
 
-  if (!fs.existsSync(extPath + "\\" + variableDBPath)) {
+  if (!fs.existsSync(variableDBPath())) {
     CreateVariableDB();
   }
 
-  if (!fs.existsSync(extPath + "\\" + cookieDBPath)) {
+  if (!fs.existsSync(cookieDBPath())) {
     CreateCookieDB();
   }
 
-  if (!fs.existsSync(extPath + "\\" + logPath)) {
+  if (!fs.existsSync(path.resolve(extPath, logPath))) {
     createLogFile();
   }
 
@@ -114,10 +118,14 @@ export function activate(context: vscode.ExtensionContext) {
   }));
   context.subscriptions.push(ErrorLogUI(context.extensionUri));
   context.subscriptions.push(CurlProviderUI(context.extensionUri));
-}
 
-export function getGlobalPath() {
-  return extPath;
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("fetch-client.saveToWorkspace")) {
+        transferDbConfig();
+      }
+    })
+  );
 }
 
 export function getStorageManager(): LocalStorageService {

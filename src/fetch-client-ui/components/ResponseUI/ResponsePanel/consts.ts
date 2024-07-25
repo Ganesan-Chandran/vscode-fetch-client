@@ -11,5 +11,3 @@ export const curlResponseOptions = [
   { name: "Headers", value: "headers", },
   { name: "Cookies", value: "cookies", }
 ];
-
-export const maxDisplayResponseLimitInBytes = 5242880;

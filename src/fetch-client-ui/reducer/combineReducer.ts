@@ -2,7 +2,7 @@ import { combineReducers, Reducer } from "redux";
 import { CookieReducer } from "../components/Cookies/redux/reducer";
 import { ICookiesModel } from "../components/Cookies/redux/types";
 import { UIReducer } from "../components/MainUI/redux/reducer";
-import { IUIModel } from "../components/MainUI/redux/types";
+import { ICommonConfig } from "../components/MainUI/redux/types";
 import { ReqColReducer } from "../components/RequestUI/redux/colReducer";
 import { RequestReducer } from "../components/RequestUI/redux/reducer";
 import { IReqColModel, IRequestModel } from "../components/RequestUI/redux/types";
@@ -16,7 +16,7 @@ import { IVariableModel } from "../components/Variables/redux/types";
 export interface IRootState {
   requestData: IRequestModel,
   responseData: IReponseModel,
-  uiData: IUIModel,
+  uiData: ICommonConfig,
   sideBarData: ISideBarModel,
   variableData: IVariableModel,
   cookieData: ICookiesModel,

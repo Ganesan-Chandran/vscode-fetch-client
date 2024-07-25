@@ -5,7 +5,7 @@ import {
   FETCH_CLIENT_SET_HISTORY, FETCH_CLIENT_SET_IMPORT_COLLECTION, FETCH_CLIENT_SET_NEW_FOLDER_TO_COLLECTION,
   FETCH_CLIENT_SET_NEW_HISTORY, FETCH_CLIENT_SET_NEW_HISTORY_TO_COLLECTION, FETCH_CLIENT_SET_NEW_REQUEST_TO_COLLECTION,
   FETCH_CLIENT_SET_NEW_VARIABLE, FETCH_CLIENT_SET_RENAME_COLLECTION, FETCH_CLIENT_SET_RENAME_COL_ITEM,
-  FETCH_CLIENT_SET_RENAME_HISTORY, FETCH_CLIENT_SET_RENAME_VARIABLE, FETCH_CLIENT_SET_VARIABLE,
+  FETCH_CLIENT_SET_RENAME_HISTORY, FETCH_CLIENT_SET_RENAME_VARIABLE, FETCH_CLIENT_SET_UPDATE_COLLECTION_ITEM, FETCH_CLIENT_SET_UPDATE_HISTORY_ITEM, FETCH_CLIENT_SET_VARIABLE,
   ICollections, IFolder, IHistory, IVariable, SideBarActionTypes
 } from "./types";
 
@@ -212,6 +212,25 @@ export const SetFolderToCollectionAction = (value: IFolder, value1: string, valu
       folder: value,
       colId: value1,
       folderId: value2
+    }
+  };
+};
+
+export const SetUpdateCollectionItemAction = (value: IHistory, value1: string): SideBarActionTypes => {
+  return {
+    type: FETCH_CLIENT_SET_UPDATE_COLLECTION_ITEM,
+    payload: {
+      item: value,
+      colId: value1
+    }
+  };
+};
+
+export const SetUpdateHistoryItemAction = (value: IHistory): SideBarActionTypes => {
+  return {
+    type: FETCH_CLIENT_SET_UPDATE_HISTORY_ITEM,
+    payload: {
+      item: value
     }
   };
 };

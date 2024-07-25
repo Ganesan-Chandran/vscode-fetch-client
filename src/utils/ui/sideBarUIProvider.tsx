@@ -185,7 +185,7 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
           vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file("fetch-client-" + reqData.vars.name + ".json") }).then((uri: vscode.Uri | undefined) => {
             if (uri) {
               const value = uri.fsPath;
-              ExportVariable(value, reqData.vars);
+              ExportVariable(value, reqData.vars.id);
             }
           });
           break;

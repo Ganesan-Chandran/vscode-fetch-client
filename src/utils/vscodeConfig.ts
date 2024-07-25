@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { responseTypes } from './configuration';
+import { getExtLocalDbPath } from './db/getExtDbPath';
 
 function getFetchClientConfiguration(): vscode.WorkspaceConfiguration {
   return vscode.workspace.getConfiguration('fetch-client');
@@ -42,7 +43,7 @@ export function getTimeOutConfiguration(): number {
 
 export function getHeadersConfiguration(): boolean {
   let config = getFetchClientConfiguration();
-  let headerCase = config.get("headersCaseSensitive",  true);
+  let headerCase = config.get("headersCaseSensitive", true);
   return headerCase;
 }
 
@@ -68,4 +69,39 @@ export function getRunMainRequestOption(): boolean {
   let config = getFetchClientConfiguration();
   let option = config.get("runMainRequest", true);
   return option;
+}
+
+export function getSaveToWorkspaceConfiguration(): boolean {
+  let config = getFetchClientConfiguration();
+  let keepInLocal = config.get("saveToWorkspace", false);
+  return keepInLocal;
+}
+
+export function getWorkspacePathConfiguration(): string {
+  let config = getFetchClientConfiguration();
+  let localPath = config.get("workspacePath", "");
+  return localPath;
+}
+
+export function updateSaveToWorkspaceConfiguration(value: boolean) {
+  let config = getFetchClientConfiguration();
+  config.update("saveToWorkspace", value);
+
+  if (value) {
+    updateWorkspacePathConfiguration(getExtLocalDbPath());
+  }
+  else {
+    updateWorkspacePathConfiguration("");
+  }
+}
+
+export function updateWorkspacePathConfiguration(value: string) {
+  let config = getFetchClientConfiguration();
+  config.update("workspacePath", value);
+}
+
+export function responseLimitConfiguration() {
+  let config = getFetchClientConfiguration();
+  let responseLimit = config.get("responseLimit", 5);
+  return responseLimit * 1048576;
 }

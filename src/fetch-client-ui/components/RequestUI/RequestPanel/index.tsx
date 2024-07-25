@@ -28,7 +28,7 @@ export const RequestPanel = () => {
   const responseData = useSelector((state: IRootState) => state.responseData);
   const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
   const { cookies } = useSelector((state: IRootState) => state.cookieData);
-  const { parentSettings } = useSelector((state: IRootState) => state.reqColData);
+  const { parentSettings, colId } = useSelector((state: IRootState) => state.reqColData);
 
   const selectRequestMethod = (evt: React.ChangeEvent<HTMLSelectElement>): void => {
     dispatch(Actions.SetRequestMethodAction(evt.target.value as MethodType));
@@ -122,7 +122,7 @@ export const RequestPanel = () => {
     const data = GetDataFromHTML(reqData.notes);
     reqData.notes = data.length > notesMaxLimit ? "" : reqData.notes;
 
-    vscode.postMessage({ type: requestTypes.apiRequest, data: { reqData: reqData, isNew: newReq, variableData: selectedVariable?.data, settings: parentSettings } });
+    vscode.postMessage({ type: requestTypes.apiRequest, data: { reqData: reqData, isNew: newReq, variableData: selectedVariable?.data, settings: parentSettings, colId: colId } });
     setNewReq(false);
   };
 

@@ -10,10 +10,8 @@ export class VSCodeLogger {
   }
 
   public showLog() {
-    if (this._logChannel) {
-      this._isOpen ? this._logChannel.hide() : this._logChannel.show();
+      this._isOpen ? this._logChannel?.hide() : this._logChannel?.show();
       this._isOpen = !this._isOpen;
-    }
   }
 
   public log(category: string, ...o: any) {

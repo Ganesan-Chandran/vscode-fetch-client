@@ -2,27 +2,27 @@ import * as vscode from 'vscode';
 import loki, { LokiFsAdapter } from 'lokijs';
 import { v4 as uuidv4 } from 'uuid';
 import { ICollections, ISettings, IFolder, IHistory } from "../../fetch-client-ui/components/SideBar/redux/types";
-import { collectionDBPath, mainDBPath } from "./consts";
 import { pubSubTypes, responseTypes } from '../configuration';
 import { CopyExitingItems, DeleteExitingItems, GetColsRequests, RenameRequestItem } from './mainDBUtil';
 import { IRequestModel } from '../../fetch-client-ui/components/RequestUI/redux/types';
 import { writeLog } from '../logger/logger';
 import { formatDate } from '../helper';
-import { getGlobalPath, pubSub } from '../../extension';
+import { pubSub } from '../../extension';
 import { isFolder } from '../../fetch-client-ui/components/SideBar/util';
 import { SettingsType } from '../../fetch-client-ui/components/Collection/consts';
 import { InitialSettings } from '../../fetch-client-ui/components/SideBar/redux/reducer';
 import { apiFetch, FetchConfig } from '../fetchUtil';
+import { collectionDBPath, mainDBPath } from './dbPaths';
 
 function getDB(): loki {
   const idbAdapter = new LokiFsAdapter();
-  const db = new loki(getGlobalPath() + "\\" + collectionDBPath, { adapter: idbAdapter });
+  const db = new loki(collectionDBPath(), { adapter: idbAdapter });
   return db;
 }
 
 function getRequestDB(): loki {
   const idbAdapter = new LokiFsAdapter();
-  const db = new loki(getGlobalPath() + "\\" + mainDBPath, { adapter: idbAdapter });
+  const db = new loki(mainDBPath(), { adapter: idbAdapter });
   return db;
 }
 
@@ -711,7 +711,7 @@ export function GetCollectionsByVariable(varId: string, webview: vscode.Webview)
       if (cols && cols.length > 0) {
         colNames = cols.map((item) => { return item.name; });
       }
-      webview.postMessage({ type: responseTypes.getAttchedColIdsResponse, colNames: colNames });
+      webview.postMessage({ type: responseTypes.getAttachedColIdsResponse, colNames: colNames });
     });
 
   } catch (err) {
