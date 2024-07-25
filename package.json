@@ -298,7 +298,7 @@
     "@types/react-dom": "^17.0.13",
     "@types/react-redux": "^7.1.23",
     "@types/uuid": "^8.3.4",
-    "@types/vscode": "^1.65.0",
+    "@types/vscode": "^1.91.0",
     "@types/yargs-parser": "^21.0.0",
     "@typescript-eslint/eslint-plugin": "^5.9.1",
     "@typescript-eslint/parser": "^5.9.1",
