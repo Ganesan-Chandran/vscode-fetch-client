@@ -1,22 +1,23 @@
-import * as vscode from 'vscode';
 import loki, { LokiFsAdapter } from 'lokijs';
 import { v4 as uuidv4 } from 'uuid';
-import { ICollections, ISettings, IFolder, IHistory } from "../../fetch-client-ui/components/SideBar/redux/types";
-import { pubSubTypes, responseTypes } from '../configuration';
-import { CopyExitingItems, DeleteExitingItems, GetColsRequests, RenameRequestItem } from './mainDBUtil';
-import { IRequestModel } from '../../fetch-client-ui/components/RequestUI/redux/types';
-import { writeLog } from '../logger/logger';
-import { formatDate } from '../helper';
+import * as vscode from 'vscode';
 import { pubSub } from '../../extension';
-import { isFolder } from '../../fetch-client-ui/components/SideBar/util';
 import { SettingsType } from '../../fetch-client-ui/components/Collection/consts';
+import { IRequestModel } from '../../fetch-client-ui/components/RequestUI/redux/types';
 import { InitialSettings } from '../../fetch-client-ui/components/SideBar/redux/reducer';
+import { ICollections, IFolder, IHistory, ISettings } from "../../fetch-client-ui/components/SideBar/redux/types";
+import { isFolder } from '../../fetch-client-ui/components/SideBar/util';
+import { pubSubTypes, responseTypes } from '../configuration';
 import { apiFetch, FetchConfig } from '../fetchUtil';
+import { formatDate } from '../helper';
+import { writeLog } from '../logger/logger';
 import { collectionDBPath, mainDBPath } from './dbPaths';
+import { CopyExitingItems, DeleteExitingItems, GetColsRequests, RenameRequestItem } from './mainDBUtil';
 
 function getDB(): loki {
   const idbAdapter = new LokiFsAdapter();
   const db = new loki(collectionDBPath(), { adapter: idbAdapter });
+  db.autosaveDisable();
   return db;
 }
 
@@ -62,8 +63,7 @@ function findParent(source: any, id: string) {
   }
 }
 
-
-function findParentSettings(source: any, id: string, prevSettings: any) {
+function findParentSettings(source: any, id: string, prevSettings: any = null) {
 
   let pos = source.data.findIndex((el: any) => el.id === id);
   let curSettings = source.settings;
@@ -79,7 +79,8 @@ function findParentSettings(source: any, id: string, prevSettings: any) {
   if (pos !== -1) {
     if (source.data[pos].settings) {
       if (source.data[pos].settings.auth.authType === "inherit") {
-        return curSettings;
+        source.data[pos].settings.auth = curSettings.auth;
+        return source.data[pos].settings;
       } else {
         return source.data[pos].settings;
       }
@@ -88,7 +89,7 @@ function findParentSettings(source: any, id: string, prevSettings: any) {
     }
   }
 
-  let folders = source.data.filter(item => item.data !== undefined);
+  let folders = source.data.filter((item: any) => item.data !== undefined);
 
   for (let i = 0; i < folders.length; i++) {
     const result: any = findParentSettings(folders[i], id, curSettings);
@@ -497,7 +498,7 @@ export function GetAllCollectionName(webview: vscode.Webview, from: string) {
     });
 
   } catch (err) {
-    writeLog("error::GetAllHistory(): " + err);
+    writeLog("error::GetAllCollectionName(): " + err);
   }
 }
 
@@ -511,7 +512,7 @@ export function GetAllCollections(webview: vscode.Webview) {
     });
 
   } catch (err) {
-    writeLog("error::GetAllHistory(): " + err);
+    writeLog("error::GetAllCollections(): " + err);
   }
 }
 
@@ -740,15 +741,32 @@ export function GetAllCollectionsById(colId: string, folderId: string, type: str
     db.loadDatabase({}, function () {
       let ids = [];
       let paths: any;
-      let results = db.getCollection('userCollections').by('id', colId);
+      let settings: ISettings;
+
+      let colItem = db.getCollection('userCollections').by('id', colId);
       if (type === "col") {
-        ({ paths, ids } = getPath(results, "", {}, [], "source"));
+        ({ paths, ids } = getPath(colItem, "", {}, [], "source"));
       } else {
-        let item = findItem(results, folderId);
+        let item = findItem(colItem, folderId);
         ({ paths, ids } = getPath(item, "", {}, [], "source"));
       }
       ids = ids.reverse();
-      GetColsRequests(ids, paths, webview);
+      GetColsRequests(ids, paths, webview);      
+
+      if (colItem) {
+        if (folderId) {
+          settings = findParentSettings(colItem, folderId);
+          if (!settings) {
+            settings = JSON.parse(JSON.stringify(InitialSettings)) as ISettings;
+          }
+        } else {
+          settings = colItem.settings ? colItem.settings : JSON.parse(JSON.stringify(InitialSettings));;
+        }
+
+        if (webview) {
+          webview.postMessage({ type: responseTypes.getParentSettingsResponse, settings: settings });
+        }
+      }
     });
 
   } catch (err) {
@@ -883,7 +901,7 @@ export function GetCollectionSettings(webview: vscode.Webview, colId: string, fo
         }
 
         if (webview) {
-          webview.postMessage({ type: responseTypes.getColSettingsResponse, data: { settings: settings, type: folderId ? SettingsType.Folder : SettingsType.Collection } });
+          webview.postMessage({ type: responseTypes.getColSettingsResponse, data: { settings: settings, type: folderId ? SettingsType.Folder : SettingsType.Collection, variableId: colItem.variableId } });
         }
       }
     });
@@ -898,15 +916,15 @@ export function GetParentSettings(colId: string, folderId: string, webview: vsco
     const db = getDB();
 
     db.loadDatabase({}, function () {
-      let settings: any;
+      let settings: ISettings;
 
       const colItem = db.getCollection('userCollections').by("id", colId);
 
       if (colItem) {
         if (folderId) {
-          settings = findParentSettings(colItem, folderId, null);
+          settings = findParentSettings(colItem, folderId);
           if (!settings) {
-            settings = JSON.parse(JSON.stringify(InitialSettings));
+            settings = JSON.parse(JSON.stringify(InitialSettings)) as ISettings;
           }
         } else {
           settings = colItem.settings ? colItem.settings : JSON.parse(JSON.stringify(InitialSettings));;
@@ -940,7 +958,7 @@ export function GetParentSettingsSync(colId: string, folderId: string) {
 
         if (colItem) {
           if (folderId) {
-            settings = findParentSettings(colItem, folderId, null);
+            settings = findParentSettings(colItem, folderId);
             if (!settings) {
               settings = JSON.parse(JSON.stringify(InitialSettings));
             }
@@ -970,7 +988,7 @@ export function ExecuteRequest(reqData: any, fetchConfig: FetchConfig, webview: 
 
       if (colItem) {
         if (reqData.data.folderId) {
-          settings = findParentSettings(colItem, reqData.data.folderId, null);
+          settings = findParentSettings(colItem, reqData.data.folderId);
           if (!settings) {
             settings = JSON.parse(JSON.stringify(InitialSettings));
           }
@@ -978,7 +996,7 @@ export function ExecuteRequest(reqData: any, fetchConfig: FetchConfig, webview: 
           settings = colItem.settings ? colItem.settings : JSON.parse(JSON.stringify(InitialSettings));;
         }
 
-        apiFetch(reqData.data.reqData, reqData.data.variableData, settings, fetchConfig).then((data) => {
+        apiFetch(reqData.data.reqData, reqData.data.variableData, settings, null, fetchConfig).then((data) => {
           webview.postMessage(data);
         });
       }
@@ -1009,7 +1027,7 @@ export function ExecuteMultipleRequest(reqData: any, fetchConfig: FetchConfig, w
             }
 
             if (id) {
-              settings = findParentSettings(colItem, id, null);
+              settings = findParentSettings(colItem, id);
               if (!settings) {
                 settings = JSON.parse(JSON.stringify(InitialSettings));
               }
@@ -1017,10 +1035,10 @@ export function ExecuteMultipleRequest(reqData: any, fetchConfig: FetchConfig, w
               settings = colItem.settings ? colItem.settings : JSON.parse(JSON.stringify(InitialSettings));;
             }
 
-            requests.push(apiFetch(item, reqData.data.variableData, settings, fetchConfig));
+            requests.push(apiFetch(item, reqData.data.variableData, settings, null, fetchConfig));
           }
         } else {
-          requests.push(apiFetch(item, reqData.data.variableData, null, fetchConfig));
+          requests.push(apiFetch(item, reqData.data.variableData, null, null, fetchConfig));
         }
       });
 

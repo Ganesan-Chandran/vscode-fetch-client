@@ -1,14 +1,14 @@
-import { ICollections, IFolder, IHistory, ISettings, IVariable } from "../../fetch-client-ui/components/SideBar/redux/types";
-import { Auth, Header, Items, PostmanSchema_2_1, RequestObject, URLObject, Variable, Body, POSTMAN_SCHEMA_V2_1 } from "./postman_2_1.types";
-import { v4 as uuidv4 } from "uuid";
-import { formatDate } from "../helper";
-import { InitialSettings } from "../../fetch-client-ui/components/SideBar/redux/reducer";
-import { ClientAuth, GrantType, IAuth, IBodyData, IRequestModel, MethodType } from "../../fetch-client-ui/components/RequestUI/redux/types";
-import { InitialAuth, InitialBody, InitialPreFetch, InitialSetVar, InitialTest } from "../../fetch-client-ui/components/RequestUI/redux/reducer";
-import { ITableData } from "../../fetch-client-ui/components/Common/Table/types";
-import { isJson } from "../../fetch-client-ui/components/TestUI/TestPanel/helper";
 import { XMLValidator } from "fast-xml-parser";
-import { writeLog } from "../logger/logger";
+import { v4 as uuidv4 } from "uuid";
+import { ITableData } from "../../../fetch-client-ui/components/Common/Table/types";
+import { InitialAuth, InitialBody, InitialPreFetch, InitialSetVar, InitialTest } from "../../../fetch-client-ui/components/RequestUI/redux/reducer";
+import { ClientAuth, GrantType, IAuth, IBodyData, IRequestModel, MethodType } from "../../../fetch-client-ui/components/RequestUI/redux/types";
+import { InitialSettings } from "../../../fetch-client-ui/components/SideBar/redux/reducer";
+import { ICollections, IFolder, IHistory, ISettings, IVariable } from "../../../fetch-client-ui/components/SideBar/redux/types";
+import { isJson } from "../../../fetch-client-ui/components/TestUI/TestPanel/helper";
+import { formatDate } from "../../helper";
+import { writeLog } from "../../logger/logger";
+import { Auth, Body, Header, Items, POSTMAN_SCHEMA_V2_1, PostmanSchema_2_1, RequestObject, URLObject, Variable } from "./postman_2_1.types";
 
 export class PostmanImport {
   private collection: PostmanSchema_2_1;
@@ -400,9 +400,21 @@ export class PostmanImport {
     };
   };
 
-  importSettings = (auth: Auth | undefined | null) : ISettings => {
+  importSettings = (auth: Auth | undefined | null): ISettings => {
     let settings: ISettings = {
-      auth: this.getAuthDetails(auth)
+      auth: this.getAuthDetails(auth),
+      preFetch: {
+        requests: []
+      },
+      headers: [{
+        key: "User-Agent",
+        value: "Fetch Client",
+        isChecked: true,
+      }, {
+        key: "",
+        value: "",
+        isChecked: false,
+      }]
     };
 
     return settings;

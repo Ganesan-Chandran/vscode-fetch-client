@@ -4,14 +4,18 @@ import { Table } from "../../../../Common/Table/Table";
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "../../../../../reducer/combineReducer";
 import { Actions } from "../../../redux";
+import { IVariable } from '../../../../SideBar/redux/types';
 
-export const HeadersPanel = () => {
+export interface IHeadersPanelProps {
+  selectedVariable: IVariable;
+}
+
+export const HeadersPanel = (props: IHeadersPanelProps) => {
 
   const dispatch = useDispatch();
 
   const { headers } = useSelector((state: IRootState) => state.requestData);
-  const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
-
+  
   const onSelectChange = (index: number) => {
     let localTable = [...headers];
     let rowData = localTable[index];
@@ -97,7 +101,7 @@ export const HeadersPanel = () => {
       deleteData={deleteParam}
       readOnly={false}
       type="reqHeaders"
-      selectedVariable={selectedVariable}
+      selectedVariable={props.selectedVariable}
       headers={{ key: "Header", value: "Value" }}
     />
   );

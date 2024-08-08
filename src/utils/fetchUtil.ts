@@ -1,6 +1,6 @@
-import { getErrorResponse, getFileType, getRandomNumber, isFileType, replaceAuthSettingsInRequest, replaceValueWithVariable } from "./helper";
+import { getErrorResponse, getFileType, getRandomNumber, isFileType, replaceAuthSettingsInRequest, replaceHeaderSettingsInRequest, replaceValueWithVariable } from "./helper";
 import { getProtocolConfiguration, getSSLConfiguration } from "./vscodeConfig";
-import { IRequestModel } from "../fetch-client-ui/components/RequestUI/redux/types";
+import { IReqSettings, IRequestModel } from "../fetch-client-ui/components/RequestUI/redux/types";
 import { ISettings } from "../fetch-client-ui/components/SideBar/redux/types";
 import { ITableData } from "../fetch-client-ui/components/Common/Table/types";
 import { logDetails } from "./logger/requestLog";
@@ -27,27 +27,33 @@ export const updateAuthSettings = (requestData: IRequestModel, settings?: ISetti
   return requestData;
 };
 
+export const updateHeaderSettings = (requestData: IRequestModel, settings?: ISettings): IRequestModel => {
+  if (settings?.headers && settings?.headers?.length > 0) {
+    let copyData = JSON.parse(JSON.stringify(requestData));
+    return replaceHeaderSettingsInRequest(copyData, settings);
+  }
+  return requestData;
+};
+
 export const updateVariables = (requestData: IRequestModel, variableData?: ITableData[]): IRequestModel => {
   let varData = {};
   if (variableData?.length > 0) {
     variableData.forEach(item => {
       varData[item.key] = item.value;
     });
-    let copy = JSON.parse(JSON.stringify(requestData));
-    return replaceValueWithVariable(copy, varData);
   }
-
-  return requestData;
+  let copy = JSON.parse(JSON.stringify(requestData));
+  return replaceValueWithVariable(copy, varData);
 };
 
 export const apiFetch = async (
   requestData: IRequestModel,
   variableData: ITableData[],
   settings: ISettings,
+  reqSettings: IReqSettings,
   fetchConfig: FetchConfig,
   resType: string = responseTypes.apiResponse
 ) => {
-
   const reqHeaders = {};
   let startTime: number, fetchDuration: number;
   let reqData: any = "";
@@ -55,6 +61,10 @@ export const apiFetch = async (
 
   let request = updateAuthSettings(requestData, settings);
   request = updateVariables(request, variableData);
+
+  if (!reqSettings || reqSettings?.skipParentHeaders === false) {
+    request = updateHeaderSettings(request, settings);
+  }
 
   try {
     if (request.auth.authType === "bearertoken") {
@@ -115,7 +125,7 @@ export const apiFetch = async (
       if (request.body.bodyType !== "none" && !reqHeaders["Content-Type"] && !reqHeaders["content-type"]) {
         reqHeaders[fetchConfig.headersCase ? "Content-Type" : "content-type"] = getContentType(request.body.bodyType, request.body.bodyType === "raw" ? request.body.raw.lang : "");
       }
-    }    
+    }
 
     https.globalAgent.options.rejectUnauthorized = getSSLConfiguration();
 
@@ -256,8 +266,8 @@ export const apiFetch = async (
     }
 
     setTimeout(() => {
-      logDetails(request, reqHeaders, reqData, resp.status, respHeaders, isFile ? "View Response is not supported for 'file' type in the log window." : responseData);
-    }, 1000);
+      logDetails(request, reqHeaders, reqData, resp.status, respHeaders, isFile ? "View Response is not supported for 'file' type in the log window." : responseData, fetchDuration);
+    }, 500);
 
     return apiResponse = {
       type: resType,
@@ -283,7 +293,7 @@ export const apiFetch = async (
     apiResponse = getErrorResponse();
 
     setTimeout(() => {
-      logDetails(request, reqHeaders, reqData, apiResponse.response.status, apiResponse.headers, err.message);
+      logDetails(request, reqHeaders, reqData, apiResponse.response.status, apiResponse.headers, err.message, fetchDuration);
     }, 1000);
 
     if (axios.isCancel(err)) {

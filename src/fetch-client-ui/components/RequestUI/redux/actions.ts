@@ -6,7 +6,10 @@ import {
   FETCH_CLIENT_SET_REQ_BINARY_DATA, FETCH_CLIENT_SET_REQ_BODY, FETCH_CLIENT_SET_REQ_COL_DETAILS, FETCH_CLIENT_SET_REQ_FORM_DATA_BODY,
   FETCH_CLIENT_SET_REQ_HEADERS, FETCH_CLIENT_SET_REQ_ID, FETCH_CLIENT_SET_REQ_METHOD, FETCH_CLIENT_SET_REQ_PARAMS, FETCH_CLIENT_SET_REQ_PARENT_SETTINGS,
   FETCH_CLIENT_SET_REQ_RAW, FETCH_CLIENT_SET_REQ_RAW_LANG, FETCH_CLIENT_SET_REQ_RESET_BODY, FETCH_CLIENT_SET_REQ_URL, FETCH_CLIENT_SET_SET_VAR,
-  FETCH_CLIENT_SET_TEST, IAuth, IBodyData, ICollection, IColRequest, IRequestModel, IRunRequest, ISetVar, ITest, MethodType, RequestActionTypes
+  FETCH_CLIENT_SET_TEST, IAuth, IBodyData, ICollection, IColRequest, IRequestModel, IRunRequest, ISetVar, ITest, MethodType, RequestActionTypes,
+  FETCH_CLIENT_SET_PREFETCH, IPreFetch,
+  FETCH_CLIENT_SET_SKIP_PARENT_PREFETCH,
+  FETCH_CLIENT_SET_SKIP_PARENT_HEADERS
 } from "./types";
 
 export const SetRequestAction = (value: IRequestModel): RequestActionTypes => {
@@ -250,6 +253,34 @@ export const SetSelectedReqAction = (reqId: string, reqIndex: number, parentId: 
       reqId: reqId,
       index: reqIndex,
       parentId: parentId
+    }
+  };
+};
+
+export const SetPreFetchAction = (value: IPreFetch): RequestActionTypes => {
+  return {
+    type: FETCH_CLIENT_SET_PREFETCH,
+    payload: {
+      preFetch: value
+    }
+  };
+};
+
+
+export const SetSkipPreFetchAction = (value: boolean): RequestActionTypes => {
+  return {
+    type: FETCH_CLIENT_SET_SKIP_PARENT_PREFETCH,
+    payload: {
+      skip: value
+    }
+  };
+};
+
+export const SetSkipHeadersAction = (value: boolean): RequestActionTypes => {
+  return {
+    type: FETCH_CLIENT_SET_SKIP_PARENT_HEADERS,
+    payload: {
+      skip: value
     }
   };
 };

@@ -21,7 +21,7 @@ export const CookieUI = (extensionUri: any) => {
     cookiePanel.iconPath = iconUri;
 
     const nonce = getNonce();
-    const title = `managecookies:${id}`;
+    const title = `managecookies@:@${id}`;
 
     cookiePanel.webview.html = `<!DOCTYPE html>
     <html lang="en">

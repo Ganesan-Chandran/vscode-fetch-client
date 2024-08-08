@@ -1,5 +1,5 @@
 import { ITableData } from "../../Common/Table/types";
-import { IAuth } from "../../RequestUI/redux/types";
+import { IAuth, IPreFetch } from "../../RequestUI/redux/types";
 
 export interface IHistory {
   id: string;
@@ -11,6 +11,8 @@ export interface IHistory {
 
 export interface ISettings {
   auth: IAuth;
+  preFetch?: IPreFetch;
+  headers?: ITableData[];
 }
 
 export interface ICollections {

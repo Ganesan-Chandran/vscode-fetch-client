@@ -1,5 +1,5 @@
 /* eslint-disable eqeqeq */
-import { replaceDataWithVariable, replaceValueWithVariable } from "../../../../utils/helper";
+import { replaceDataWithVariable } from "../../../../utils/helper";
 import { ITableData } from "../../Common/Table/types";
 import { ISetVar, ITest } from "../../RequestUI/redux/types";
 import { IReponseModel, ITestResult } from "../../ResponseUI/redux/types";

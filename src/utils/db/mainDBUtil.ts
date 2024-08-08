@@ -1,36 +1,41 @@
-import * as vscode from "vscode";
 import fs from "fs";
 import loki, { LokiFsAdapter } from "lokijs";
-import { FetchClientDataProxy } from '../validators/fetchClientCollectionValidator';
-import { fetchClientImporter } from '../importers/fetchClientImporter_1_0';
-import { formatDate } from '../helper';
-import { ICollections, IFolder, IHistory } from '../../fetch-client-ui/components/SideBar/redux/types';
-import { InitialSettings } from '../../fetch-client-ui/components/SideBar/redux/reducer';
+import * as vscode from "vscode";
 import { IRequestModel } from '../../fetch-client-ui/components/RequestUI/redux/types';
+import { InitialSettings } from '../../fetch-client-ui/components/SideBar/redux/reducer';
+import { ICollections, IFolder, IHistory } from '../../fetch-client-ui/components/SideBar/redux/types';
 import { isFolder } from '../../fetch-client-ui/components/SideBar/util';
 import { isJson } from '../../fetch-client-ui/components/TestUI/TestPanel/helper';
-import { postmanImporter } from '../importers/postmanImporter_2_1';
-import { PostmanSchema_2_1, POSTMAN_SCHEMA_V2_1 } from '../importers/postman_2_1.types';
 import { responseTypes } from '../configuration';
+import { formatDate } from '../helper';
+import { fetchClientImporter } from '../importers/fetchClient/fetchClientImporter_1_0';
+import { postmanImporter } from '../importers/postman/postmanImporter_2_1';
+import { POSTMAN_SCHEMA_V2_1, PostmanSchema_2_1 } from '../importers/postman/postman_2_1.types';
 import { writeLog } from '../logger/logger';
-import { collectionDBPath, mainDBPath, variableDBPath } from "./dbPaths";
+import { FetchClientDataProxy } from '../validators/fetchClientCollectionValidator';
 import { ImportType } from "./constants";
+import { collectionDBPath, mainDBPath, variableDBPath } from "./dbPaths";
+import { thunderClientImporter } from "../importers/thunderClient/thunderClientImporter_1_2";
+import { ThunderClient_Schema_1_2 } from "../importers/thunderClient/thunderClient_1_2_types";
 
 function getDB(): loki {
   const idbAdapter = new LokiFsAdapter();
   const db = new loki(mainDBPath(), { adapter: idbAdapter });
+  db.autosaveDisable();
   return db;
 }
 
 function getCollectionDB(): loki {
   const idbAdapter = new LokiFsAdapter();
   const db = new loki(collectionDBPath(), { adapter: idbAdapter });
+  db.autosaveDisable();
   return db;
 }
 
 function getVariableDB(): loki {
   const idbAdapter = new LokiFsAdapter();
   const db = new loki(variableDBPath(), { adapter: idbAdapter });
+  db.autosaveDisable();
   return db;
 }
 
@@ -93,14 +98,14 @@ export function GetRequestItem(reqId: string) {
   }
 }
 
-export function GetExitingItem(webview: vscode.Webview, id: string, callback: any = null) {
+export function GetExitingItem(webview: vscode.Webview, id: string, callback: any = null, type: string = null) {
   try {
     const db = getDB();
 
     db.loadDatabase({}, function () {
       const results = db.getCollection("apiRequests").chain().find({ 'id': id }).data();
       if (webview) {
-        webview.postMessage({ type: responseTypes.openExistingItemResponse, item: results });
+        webview.postMessage({ type: type === "OpenAndRun" ? responseTypes.getOpenAndRunItemDataResponse : responseTypes.openExistingItemResponse, item: results });
       }
 
       if (callback) {
@@ -129,6 +134,7 @@ export function CopyExitingItems(oldIds: string[], ids: any) {
       if (results && results.length > 0) {
         results.forEach(item => {
           item.id = ids[item.id];
+          item.name = item.name + " (Copy)";
         });
 
         apiRequests.insert(results);
@@ -308,6 +314,16 @@ function ValidateData(data: string): ImportType | null {
       if (postmanData.info?._postman_id && postmanData.info?.schema === POSTMAN_SCHEMA_V2_1) {
         return ImportType.Postman_2_1;
       }
+
+      let thunderClientData = JSON.parse(data) as ThunderClient_Schema_1_2;
+      if (thunderClientData.clientName = "Thunder Client") {
+        if (thunderClientData.version !== "1.2") {
+          vscode.window.showErrorMessage("Could not import the variable - Invalid version.", { modal: true });
+          return null;
+        }
+        return ImportType.ThunderClient_1_2;
+      }
+
       return null;
     }
   }
@@ -337,6 +353,9 @@ export function Import(webviewView: vscode.WebviewView, path: string) {
         break;
       case ImportType.Postman_2_1:
         ImportPostman(webviewView, data);
+        break;
+      case ImportType.ThunderClient_1_2:
+        ImportThunderClient(webviewView, data);
         break;
       default:
         vscode.window.showErrorMessage("Could not import the collection - Invalid data.", { modal: true });
@@ -379,6 +398,29 @@ function ImportPostman(webviewView: vscode.WebviewView, data: string) {
   } catch (err) {
     vscode.window.showErrorMessage("Could not import the collection - Invalid data.", { modal: true });
     writeLog("error::ImportPostman(): - Error Message : " + err);
+  }
+}
+
+function ImportThunderClient(webviewView: vscode.WebviewView, data: string) {
+  try {
+    const convertedData = thunderClientImporter(data);
+    if (!convertedData || !convertedData.fcCollection || !convertedData.fcRequests) {
+      return;
+    }
+
+    const db = getDB();
+    const colDB = getCollectionDB();
+
+    db.loadDatabase({}, function () {
+      const apiRequests = db.getCollection("apiRequests");
+      apiRequests.insert(convertedData.fcRequests);
+      db.saveDatabase();
+
+      insertCollections(colDB, webviewView, convertedData.fcCollection);
+    });
+  } catch (err) {
+    vscode.window.showErrorMessage("Could not import the collection - Invalid data.", { modal: true });
+    writeLog("error::ImportThunderClient(): - Error Message : " + err);
   }
 }
 

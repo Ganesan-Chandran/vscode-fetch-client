@@ -1,19 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ReactComponent as DotsLogo } from '../../../../../icons/dots.svg';
 import { useSelector } from "react-redux";
+import { v4 as uuidv4 } from 'uuid';
+import { ReactComponent as DotsLogo } from '../../../../../icons/dots.svg';
 import { requestTypes, responseTypes } from "../../../../utils/configuration";
+import { formatDate } from "../../../../utils/helper";
 import { IRootState } from "../../../reducer/combineReducer";
+import { SettingsType } from "../../Collection/consts";
+import { getColFolDotMenu, getPlusIconSVG } from "../../Common/icons";
 import vscode from "../../Common/vscodeAPI";
+import { InitialState } from "../../RequestUI/redux/reducer";
+import { IRequestModel } from "../../RequestUI/redux/types";
+import { InitialSettings } from "../redux/reducer";
 import { ICollections, IFolder, IHistory } from "../redux/types";
 import { getDays, getMethodClassName, getMethodName, isFolder } from "../util";
-import { v4 as uuidv4 } from 'uuid';
-import { formatDate } from "../../../../utils/helper";
-import { IRequestModel } from "../../RequestUI/redux/types";
-import { InitialState } from "../../RequestUI/redux/reducer";
 import "./style.css";
-import { SettingsType } from "../../Collection/consts";
-import { InitialSettings } from "../redux/reducer";
-import { getColFolDotMenu, getPlusIconSVG } from "../../Common/icons";
 
 export interface ICollectionProps {
   filterCondition: string;
@@ -260,6 +260,15 @@ export const CollectionBar = (props: ICollectionProps) => {
     vscode.postMessage({ type: requestTypes.openHistoryItemRequest, data: { colId: colId, folderId: folderId, id: itemId, name: name, varId: variableId, isNewTab: isNewTab } });
   }
 
+  function onRunClick(evt: React.MouseEvent<HTMLElement>, colId: string, folderId: string, itemId: string, name: string, variableId: string) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    setSelectedItem(itemId);
+    vscode.postMessage({ type: requestTypes.openAndRunItemRequest, data: { colId: colId, folderId: folderId, id: itemId, name: name, varId: variableId, isNewTab: false } });
+    setCurrentIndex("");
+    setCurrentHeadIndex("");
+  }
+
   function findData(source: any, dest: any) {
     let folders = source.data.filter((item: any) => item.data !== undefined);
     let histories = source.data.filter((item: any) => item.data === undefined);
@@ -475,6 +484,9 @@ export const CollectionBar = (props: ICollectionProps) => {
                         <DotsLogo id={"three-dots-" + listItem.id} onContextMenu={(e) => { e.stopPropagation(); e.preventDefault(); }} onClick={(e) => openMoreMenu(e, listItem.id, true)} />
                         <input type="checkbox" className="dd-input" checked={listItem.id === currentIndex} readOnly />
                         <div id={"drop-down-menu-" + listItem.id} className="dropdown-more" style={styles.bottomStyle}>
+                          <button onClick={(e) => onClickNewTab(e, cols.id, item.id, listItem.id, listItem.name, cols.variableId)}>Open in New Tab</button>
+                          <button onClick={(e) => onRunClick(e, cols.id, item.id, listItem.id, listItem.name, cols.variableId)}>Run Request</button>
+                          <div className="divider"></div>
                           <button onClick={(e) => onRename(e, cols.id, listItem.id, item.id, false)}>Rename</button>
                           <button onClick={(e) => onCopy(e, listItem as IHistory)}>Copy</button>
                           <button onClick={(e) => onDelete(e, cols.id, item.id, listItem.id, false, listItem.name)}>Delete</button>
@@ -554,6 +566,7 @@ export const CollectionBar = (props: ICollectionProps) => {
                             <input type="checkbox" className="dd-input" checked={listItem.id === currentIndex} readOnly />
                             <div id={"drop-down-menu-" + listItem.id} className="dropdown-more" style={styles.bottomStyle}>
                               <button onClick={(e) => onClickNewTab(e, item.id, "", listItem.id, listItem.name, item.variableId)}>Open in New Tab</button>
+                              <button onClick={(e) => onRunClick(e, item.id, "", listItem.id, listItem.name, item.variableId)}>Run Request</button>
                               <div className="divider"></div>
                               <button onClick={(e) => onRename(e, item.id, listItem.id, "", false)}>Rename</button>
                               <button onClick={(e) => onCopy(e, listItem as IHistory)}>Copy</button>

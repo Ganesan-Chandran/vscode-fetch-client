@@ -23,7 +23,13 @@ const SideBar = () => {
   const [isColLoading, setColLoading] = useState(true);
   const [isVarLoading, setVarLoading] = useState(true);
   const [isViewLogOpen, setViewLogOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState({ colId: "", foldId: "", itemId: "", });
+  const [selectedItem, _setSelectedItem] = useState({ colId: "", foldId: "", itemId: "", });
+
+  const refSelectedItem = useRef(selectedItem);
+  const setSelectedItem = (data: { colId: string; foldId: string; itemId: string; }) => {
+    refSelectedItem.current = data;
+    _setSelectedItem(refSelectedItem.current);
+  };
 
   const wrapperRef = useRef(null);
 
@@ -141,6 +147,14 @@ const SideBar = () => {
           foldId: event.data.folId,
           itemId: event.data.id
         });
+      } else if (event.data && event.data.type === requestTypes.closeItemRequest) {
+        if (event.data.id && refSelectedItem.current.itemId === event.data.id) {
+          setSelectedItem({
+            colId: "",
+            foldId: "",
+            itemId: ""
+          });
+        }
       } else if (event.data && event.data.type === responseTypes.themeResponse) {
         dispatch(UIActions.SetThemeAction(event.data.theme));
       } else if (event.data && event.data.type === pubSubTypes.themeChanged) {

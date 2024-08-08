@@ -82,7 +82,7 @@ const Variables = (props: IVariableProps) => {
       }
     });
 
-    let id = document.title.split(":")[1];
+    let id = document.title.split("@:@")[1];
     if (id !== "undefined") {
       vscode.postMessage({ type: requestTypes.getVariableItemRequest, data: { id: id, isGlobal: false } });
       setNew(false);

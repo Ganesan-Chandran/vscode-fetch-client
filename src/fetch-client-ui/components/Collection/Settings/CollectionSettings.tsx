@@ -5,7 +5,10 @@ import { IRootState } from "../../../reducer/combineReducer";
 import vscode from "../../Common/vscodeAPI";
 import { AuthPanel } from "../../RequestUI/OptionsPanel/Options/Auth";
 import { allAuthTypes, basicAuthTypes } from "../../RequestUI/OptionsPanel/Options/Auth/consts";
+import { ParentHeadersPanel } from "../../RequestUI/OptionsPanel/Options/Headers/parentHeaders";
+import { PreFetch } from "../../RequestUI/OptionsPanel/Options/PreFetch";
 import { Actions } from "../../RequestUI/redux";
+import { ICollection } from "../../RequestUI/redux/types";
 import { IResponse } from "../../ResponseUI/redux/types";
 import { InitialSettings } from "../../SideBar/redux/reducer";
 import { ISettings, IVariable } from "../../SideBar/redux/types";
@@ -16,20 +19,17 @@ const CollectionSettings = () => {
 
   const dispatch = useDispatch();
 
-  const [tabOptions] = useState(["Authorization"]);
-  const [selectedTab, setSelectedTab] = useState("Authorization");
-  
-  const [type, setType] = useState(SettingsType.Collection);
+  const { auth, preFetch, headers } = useSelector((state: IRootState) => state.requestData);
 
+  const [tabOptions] = useState(["Headers", "Authorization", "PreRequest"]);
+  const [selectedTab, setSelectedTab] = useState("Headers");
+  const [type, setType] = useState(SettingsType.Collection);
   const [colId, setColId] = useState("");
   const [folderId, setFolderId] = useState("");
   const [name, setName] = useState("");
-
+  const [loading, setLoading] = useState(true);
   const [isDone, setDone] = useState(false);
-  
   const [variableItem, setVariableItem] = useState<IVariable>(null);
-
-  const { auth } = useSelector((state: IRootState) => state.requestData);
 
   useEffect(() => {
     window.addEventListener("message", (event) => {
@@ -45,6 +45,8 @@ const CollectionSettings = () => {
           }
         }
         dispatch(Actions.SetRequestAuthAction(settings.auth));
+        settings.preFetch && dispatch(Actions.SetPreFetchAction(settings.preFetch));
+        settings.headers && dispatch(Actions.SetRequestHeadersAction(settings.headers));
       } else if (event.data && event.data.type === responseTypes.saveColSettingsResponse) {
         setDone(true);
       } else if (event.data && event.data.type === responseTypes.getVariableItemResponse) {
@@ -56,10 +58,19 @@ const CollectionSettings = () => {
           let tokenName = auth.oauth.tokenName ? auth.oauth.tokenName : "access_token";
           dispatch(Actions.SetOAuthTokenAction(responseData[tokenName] ? responseData[tokenName] : ""));
         }
+      } else if (event.data && event.data.type === responseTypes.getAllCollectionNameResponse) {
+        let col: ICollection[] = event.data.collectionNames?.map((item: { value: any; name: any; }) => {
+          return {
+            id: item.value,
+            name: item.name
+          };
+        });
+        col.unshift({ id: "", name: "select" });
+        dispatch(Actions.SetCollectionListAction(col));
       }
     });
 
-    let splitData = document.title.split(":");
+    let splitData = document.title.split("@:@");
     const type = splitData[1];
     const colId = splitData[2];
     const folderId = splitData[3];
@@ -72,7 +83,14 @@ const CollectionSettings = () => {
 
     vscode.postMessage({ type: requestTypes.getVariableItemRequest, data: { id: varId, isGlobal: (varId !== "undefined" && varId !== undefined && varId !== "") ? false : true } });
     vscode.postMessage({ type: requestTypes.getColSettingsRequest, data: { colId: colId, folderId: folderId } });
+    vscode.postMessage({ type: requestTypes.getAllCollectionNameRequest, data: "addtocol" });
   }, []);
+
+  useEffect(() => {
+    if (variableItem && headers) {
+      setLoading(false);
+    }
+  }, [variableItem, headers]);
 
   function onSelectedTab(tab: string) {
     setSelectedTab(tab);
@@ -81,7 +99,9 @@ const CollectionSettings = () => {
   function getBody() {
     return (
       <div className="col-settings-body">
-        {variableItem && <AuthPanel settingsMode={true} authTypes={type === SettingsType.Collection ? basicAuthTypes : allAuthTypes} selectedVariable={variableItem} />}
+        {selectedTab === "Authorization" && variableItem && <AuthPanel settingsMode={true} authTypes={type === SettingsType.Collection ? basicAuthTypes : allAuthTypes} selectedVariable={variableItem} />}
+        {selectedTab === "PreRequest" && <PreFetch settingsMode={true} />}
+        {selectedTab === "Headers" && variableItem && <ParentHeadersPanel selectedVariable={variableItem} />}
       </div>
     );
   }
@@ -90,7 +110,7 @@ const CollectionSettings = () => {
     return (
       tabOptions.map((tab) => {
         return (
-          <button key={tab} className={selectedTab === tab ? "sidebar-tab-menu selected" : "sidebar-tab-menu"} onClick={() => onSelectedTab(tab)}>{tab}</button>
+          <button key={tab} className={selectedTab === tab ? "sidebar-tab-menu sidebar-tab-menu-settings selected" : "sidebar-tab-menu sidebar-tab-menu-settings"} onClick={() => onSelectedTab(tab)}>{tab}</button>
         );
       })
     );
@@ -98,7 +118,9 @@ const CollectionSettings = () => {
 
   function onSubmitClick() {
     let settings: ISettings = {
-      auth: { ...auth }
+      auth: { ...auth },
+      preFetch: { ...preFetch },
+      headers: [...headers]
     };
 
     vscode.postMessage({ type: requestTypes.saveColSettingsRequest, data: { colId: colId, folderId: folderId, settings: settings } });
@@ -116,23 +138,31 @@ const CollectionSettings = () => {
           getTabRender()
         }
       </div>
-      <div className="sidebar-panel-body">
-        {
-          getBody()
-        }
-        <div className="button-panel">
-          <button
-            type="submit"
-            className="submit-button"
-            onClick={onSubmitClick}
-          >
-            Submit
-          </button>
-        </div>
-        <div className="message-panel">
-          {isDone && (<span className="success-message">Settings are updated successfully</span>)}
-        </div>
-      </div>
+      {
+        loading ?
+          <>
+            <div id="divSpinner" className="spinner loading"></div>
+            <div className="loading-history-text">{"Loading...."}</div>
+          </>
+          :
+          <div className="sidebar-panel-body">
+            {
+              getBody()
+            }
+            <div className="button-panel">
+              <button
+                type="submit"
+                className="submit-button"
+                onClick={onSubmitClick}
+              >
+                Submit
+              </button>
+            </div>
+            <div className="message-panel">
+              {isDone && (<span className="success-message">Settings are updated successfully</span>)}
+            </div>
+          </div>
+      }
     </div>
   );
 };

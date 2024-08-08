@@ -2,7 +2,7 @@
   "name": "fetch-client",
   "displayName": "Fetch Client",
   "description": "Rest API Client for VS Code which is used to test your API's within VS Code.",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "publisher": "GanesanChandran",
   "author": {
     "name": "Ganesan Chandran <https://ganesan-chandran.github.io/>"
@@ -34,7 +34,14 @@
     "api testing",
     "rest testing",
     "http",
-    "rest api"
+    "rest api",
+    "fetchclient",
+    "apiclient",
+    "restclient",
+    "httpclient",
+    "apitesting",
+    "resttesting",
+    "restapi"
   ],
   "license": "MIT",
   "homepage": "https://github.com/Ganesan-Chandran/vscode-fetch-client",
@@ -74,14 +81,25 @@
       },
       {
         "command": "fetch-client.openSettings",
-        "title": "Extension Settings",
+        "title": "Fetch Client Settings",
         "category": "Fetch Client"
       },
       {
         "command": "fetch-client.openErrorLog",
         "title": "View Error Log",
         "category": "Fetch Client"
-      }
+      },
+			{
+				"command": "fetch-client.reloadData",
+				"title": "Reload",
+				"icon": "$(refresh)",
+				"category": "Fetch Client"
+			},
+			{
+				"command": "fetch-client.documentation",
+				"title": "Documentation",
+				"category": "Fetch Client"
+			}
     ],
     "viewsContainers": {
       "activitybar": [
@@ -221,7 +239,7 @@
             "type": "boolean",
             "default": false,
             "scope": "resource",
-            "markdownDescription": "Save all the data into the current workspace location",
+            "markdownDescription": "Save all the data into the `current workspace` location",
             "order": 12
           },
           "fetch-client.workspacePath": {
@@ -250,7 +268,17 @@
           "command": "fetch-client.openSettings",
           "when": "view == fetch-client.sideBar",
           "group": "group2@2"
-        }
+        },
+        {
+					"command": "fetch-client.reloadData",					
+					"when": "view == fetch-client.sideBar",
+          "group": "navigation"
+				},
+				{
+					"command": "fetch-client.documentation",
+					"group": "group2@3",
+					"when": "view == fetch-client.sideBar"
+				}
       ],
       "commandPalette": [
         {
@@ -264,7 +292,15 @@
         {
           "command": "fetch-client.openErrorLog",
           "when": "false"
-        }
+        },
+				{
+					"command": "fetch-client.reloadData",
+					"when": "false"
+				},
+				{
+					"command": "fetch-client.documentation",
+					"when": "false"
+				}
       ]
     }
   },
@@ -278,7 +314,10 @@
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint-check": "eslint src --ext .ts,.tsx",
     "lint-fix": "eslint src --ext .ts,.tsx --fix",
-    "pre-commit": "npm run eclint-check && npm run md-lint && npm run md-spellcheck",
+    "md-lint": "markdownlint *.md ./**/*.md ./**/**/*.md --ignore node_modules --ignore CHANGELOG.md",
+    "md-lint-fix": "markdownlint *.md ./**/*.md ./**/**/*.md --ignore node_modules --ignore CHANGELOG.md --fix",
+    "md-spellcheck": "spellchecker -f *.md ./**/*.md -d dictionary.txt --language en-GB",
+    "pre-commit": "npm run lint-check && npm run md-lint && npm run md-spellcheck",
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {

@@ -1,13 +1,14 @@
-import * as vscode from 'vscode';
 import loki, { LokiFsAdapter } from 'lokijs';
+import * as vscode from 'vscode';
+import { ICookie } from '../../fetch-client-ui/components/Cookies/redux/types';
 import { responseTypes } from '../configuration';
 import { writeLog } from '../logger/logger';
-import { ICookie } from '../../fetch-client-ui/components/Cookies/redux/types';
 import { cookieDBPath } from './dbPaths';
 
 function getDB(): loki {
   const idbAdapter = new LokiFsAdapter();
-  const db = new loki(cookieDBPath(), { adapter: idbAdapter });
+  const db = new loki(cookieDBPath(), { adapter: idbAdapter, autosave: true, autosaveInterval: 1000 });
+  db.autosaveEnable();
   return db;
 }
 

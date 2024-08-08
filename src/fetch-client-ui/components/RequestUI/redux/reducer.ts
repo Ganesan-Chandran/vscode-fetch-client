@@ -4,7 +4,7 @@ import { requestBodyRaw } from '../OptionsPanel/Options/Body/consts';
 import {
   ClientAuth,
   FETCH_CLIENT_SET_ADD_PREREQUEST, FETCH_CLIENT_SET_COL_ID, FETCH_CLIENT_SET_DELETE_PRECONDITION, FETCH_CLIENT_SET_DELETE_PREREQUEST,
-  FETCH_CLIENT_SET_NOTES, FETCH_CLIENT_SET_OAUTH_TOKEN, FETCH_CLIENT_SET_PRECONDITION, FETCH_CLIENT_SET_REQ,
+  FETCH_CLIENT_SET_NOTES, FETCH_CLIENT_SET_OAUTH_TOKEN, FETCH_CLIENT_SET_PRECONDITION, FETCH_CLIENT_SET_PREFETCH, FETCH_CLIENT_SET_REQ,
   FETCH_CLIENT_SET_REQ_AUTH, FETCH_CLIENT_SET_REQ_BINARY_DATA, FETCH_CLIENT_SET_REQ_BODY, FETCH_CLIENT_SET_REQ_FORM_DATA_BODY, FETCH_CLIENT_SET_REQ_HEADERS,
   FETCH_CLIENT_SET_REQ_ID, FETCH_CLIENT_SET_REQ_METHOD, FETCH_CLIENT_SET_REQ_PARAMS, FETCH_CLIENT_SET_REQ_RAW, FETCH_CLIENT_SET_REQ_RAW_LANG,
   FETCH_CLIENT_SET_REQ_RESET_BODY, FETCH_CLIENT_SET_REQ_URL, FETCH_CLIENT_SET_SET_VAR, FETCH_CLIENT_SET_TEST,
@@ -325,6 +325,12 @@ export const RequestReducer: (state?: IRequestModel,
           }
         };
       }
+      case FETCH_CLIENT_SET_PREFETCH: {
+        return {
+          ...state,
+          preFetch: action.payload.preFetch
+        };
+      }
       default: {
         return state;
       }
@@ -375,16 +381,30 @@ function deleteRequest(requests: IRunRequest[], reqIndex: number): IRunRequest[]
   return localRequests;
 }
 
-function updateURL(url: string, params: ITableData[]): string {
-  let searchParams = new URLSearchParams();
+// function updateURL(url: string, params: ITableData[]): string {
+//   let searchParams = new URLSearchParams();
 
-  params.forEach((param: ITableData, index) => {
+//   params.forEach((param: ITableData, index) => {
+//     if (param.key.trim() && param.isChecked && !param.isFixed) {
+//       searchParams.append(param.key.trim(), param.value.trim());
+//     }
+//   });
+
+//   let combineUrl = searchParams.toString().length > 0 ? decodeURIComponent(url.split("?")[0] + "?" + searchParams.toString()) : decodeURIComponent(url.split("?")[0]);
+
+//   return combineUrl;
+// }
+
+function updateURL(url: string, params: ITableData[]): string {
+  let searchParams: string = "";
+
+  params.forEach((param: ITableData) => {
     if (param.key.trim() && param.isChecked && !param.isFixed) {
-      searchParams.append(param.key.trim(), param.value.trim());
+      searchParams = (searchParams ? (searchParams + "&") : searchParams) + param.key.trim() + (param.value ? "=" + param.value.trim() : "");
     }
   });
 
-  let combineUrl = searchParams.toString().length > 0 ? decodeURIComponent(url.split("?")[0] + "?" + searchParams.toString()) : decodeURIComponent(url.split("?")[0]);
+  let combineUrl = searchParams ? url.split("?")[0] + "?" + searchParams : url.split("?")[0];
 
   return combineUrl;
 }
@@ -403,7 +423,7 @@ function updateQueryParams(url: string, params: ITableData[]) {
             key: p[0] ? p[0].trim() : "",
             value: p[1] ? p[1].trim() : "",
           };
-          queryParams.splice(params.length === 0 ? 0 : params.length - 1, 0, queryParam);
+          queryParams.splice(queryParams.length === 0 ? 0 : queryParams.length, 0, queryParam);
         }
       }
     }

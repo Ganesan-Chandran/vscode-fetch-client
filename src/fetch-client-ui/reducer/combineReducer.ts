@@ -5,13 +5,14 @@ import { UIReducer } from "../components/MainUI/redux/reducer";
 import { ICommonConfig } from "../components/MainUI/redux/types";
 import { ReqColReducer } from "../components/RequestUI/redux/colReducer";
 import { RequestReducer } from "../components/RequestUI/redux/reducer";
-import { IReqColModel, IRequestModel } from "../components/RequestUI/redux/types";
+import { IReqColModel, IReqSettings, IRequestModel } from "../components/RequestUI/redux/types";
 import { ResponseReducer } from "../components/ResponseUI/redux";
 import { IReponseModel } from "../components/ResponseUI/redux/types";
 import { SideBarReducer } from "../components/SideBar/redux";
 import { ISideBarModel } from "../components/SideBar/redux/types";
 import { VariableReducer } from "../components/Variables/redux/reducer";
 import { IVariableModel } from "../components/Variables/redux/types";
+import { ReqSettingsReducer } from "../components/RequestUI/redux/reqSettingsReducer";
 
 export interface IRootState {
   requestData: IRequestModel,
@@ -20,7 +21,8 @@ export interface IRootState {
   sideBarData: ISideBarModel,
   variableData: IVariableModel,
   cookieData: ICookiesModel,
-  reqColData: IReqColModel
+  reqColData: IReqColModel,
+  reqSettings: IReqSettings
 }
 
 const createRootReducer: () => Reducer<IRootState> =
@@ -31,7 +33,8 @@ const createRootReducer: () => Reducer<IRootState> =
     sideBarData: SideBarReducer,
     variableData: VariableReducer,
     cookieData: CookieReducer,
-    reqColData: ReqColReducer
+    reqColData: ReqColReducer,
+    reqSettings: ReqSettingsReducer
   });
 
 export default createRootReducer;

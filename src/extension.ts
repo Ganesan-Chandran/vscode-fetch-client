@@ -18,6 +18,9 @@ import { pubSubTypes } from './utils/configuration';
 import { collectionDBPath, cookieDBPath, historyDBPath, mainDBPath, variableDBPath } from "./utils/db/dbPaths";
 import { getExtDbPath, setGlobalStorageUri } from './utils/db/getExtDbPath';
 import { transferDbConfig } from './utils/db/transferDBConfig';
+import { GetAllCollections } from './utils/db/collectionDBUtil';
+import { GetAllHistory } from './utils/db/historyDBUtil';
+import { GetAllVariable } from './utils/db/varDBUtil';
 
 export var pubSub: PubSub<IPubSubMessage>;
 export var vsCodeLogger: VSCodeLogger;
@@ -59,7 +62,7 @@ export function OpenCurlUI() {
 }
 
 export function OpenColSettings(colId: string, folderId: string, name: string, type: string, varId: string) {
-  vscode.commands.executeCommand("fetch-client.addToCol", colId, folderId, name, "colsettings:" + type, varId);
+  vscode.commands.executeCommand("fetch-client.addToCol", colId, folderId, name, "colsettings@:@" + type, varId);
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -126,6 +129,16 @@ export function activate(context: vscode.ExtensionContext) {
       }
     })
   );
+
+  context.subscriptions.push(vscode.commands.registerCommand('fetch-client.reloadData', () => {
+    GetAllCollections(sideBarProvider?.view?.webview);
+    GetAllHistory(sideBarProvider?.view);
+    GetAllVariable(sideBarProvider?.view?.webview);
+  }));
+
+  context.subscriptions.push(vscode.commands.registerCommand('fetch-client.documentation', () => {
+    vscode.env.openExternal(vscode.Uri.parse('https://github.com/Ganesan-Chandran/vscode-fetch-client/wiki'));
+  }));
 }
 
 export function getStorageManager(): LocalStorageService {

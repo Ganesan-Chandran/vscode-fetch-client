@@ -5,6 +5,7 @@ export const requestTypes = {
   attachVariableRequest: "attachVariableRequest",
   cancelRequest: "cancelRequest",
   clearRequest: "clearRequest",
+  closeItemRequest: "closeItemRequest",
   configRequest: "configRequest",
   convertCurlToJsonRequest: "convertCurlToJsonRequest",
   copyItemRequest: "copyItemRequest",
@@ -39,6 +40,7 @@ export const requestTypes = {
   getCookiesByIdRequest: "getCookiesByIdRequest",
   getErrorLogRequest: "getErrorLogRequest",
   getHistoryItemRequest: "getHistoryItemRequest",
+  getOpenAndRunItemDataRequest: "getOpenAndRunItemDataRequest",
   getParentSettingsRequest: "getParentSettingsRequest",
   getRunItemDataRequest: "getRunItemDataRequest",
   getVariableItemRequest: "getVariableItemRequest",
@@ -50,6 +52,7 @@ export const requestTypes = {
   newCollectionRequest: "newCollectionRequest",
   newRequest: "newRequest",
   newVariableRequest: "newVariableRequest",
+  openAndRunItemRequest: "openAndRunItemRequest",
   openColSettingsRequest: "openColSettingsRequest",
   openExistingItemRequest: "openExistingItemRequest",
   openHistoryItemRequest: "openHistoryItemRequest",
@@ -80,7 +83,7 @@ export const requestTypes = {
   themeRequest: "themeRequest",
   tokenRequest: "tokenRequest",
   updateVariableRequest: "updateVariableRequest",
-  viewLogRequest: "viewLogRequest",
+  viewLogRequest: "viewLogRequest"  
 };
 
 export const responseTypes = {
@@ -123,6 +126,7 @@ export const responseTypes = {
   getCookiesByIdResponse: "getCookiesByIdResponse",
   getErrorLogResponse: "getErrorLogResponse",
   getHistoryItemResponse: "getHistoryItemResponse",
+  getOpenAndRunItemDataResponse: "getOpenAndRunItemDataResponse",
   getParentSettingsResponse: "getParentSettingsResponse",
   getRunItemDataResponse: "getRunItemDataResponse",
   getVariableItemResponse: "getVariableItemResponse",

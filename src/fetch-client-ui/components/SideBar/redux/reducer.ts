@@ -1,4 +1,4 @@
-import { InitialAuth } from "../../RequestUI/redux/reducer";
+import { InitialAuth, InitialPreFetch, InitialRequestHeaders } from "../../RequestUI/redux/reducer";
 import { isFolder } from "../util";
 import {
   FETCH_CLIENT_SET_ACTIVE_INACTIVE_VARIABLE, FETCH_CLIENT_SET_ATTACH_DETACH_VARIABLE, FETCH_CLIENT_SET_CLEAR_COLLECTION,
@@ -15,7 +15,9 @@ import {
 
 
 export const InitialSettings: ISettings = {
-  auth: InitialAuth
+  auth: InitialAuth,
+  preFetch: InitialPreFetch,
+  headers: InitialRequestHeaders
 };
 
 export const InitialState: ISideBarModel = {

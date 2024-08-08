@@ -46,7 +46,7 @@ const ManageCookies = () => {
 
   useEffect(() => {
     if (cookies && cookies.length > 0) {
-      let id = document.title.split(":")[1];
+      let id = document.title.split("@:@")[1];
       if (id !== "undefined" && id !== '[object Object]') {
         setSelecetdCookieId(id);
         setCurrentCookie(cookies.find(item => item.id === id));

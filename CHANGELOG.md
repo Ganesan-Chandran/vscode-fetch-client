@@ -2,9 +2,31 @@
 
 All notable changes to the "Fetch Client" extension will be documented in this file.
 
+## v1.6.0 - August, 2024
+### 🎉 New Features
+- Added menu for directly run the requests
+- Added headers and pre-requests in the collection settings.
+- Added headers in the folder settings.
+- Added option for skip parent headers and parent pre-requests in the request panel.
+- Implemented run the parent(collection/folder) pre-requests for all requests in "Run All" section.
+- Added support for import "Thunder Client" collection(v1.2) and variables(v1.2).
+- Added backup for change location from global storage to workspace path.
+- By default response code and time will be logged in the logs.
+- New menu added for navigate to `Fetch Client` documentation.
+
+### 🐛 Bug Fixes
+- URL issue fixed when url has query parameter.
+
+### 🔗 Miscellaneous
+- Documentation updated about the `Fetch Client`.
+
+### Requirements
+- Minimum required version of **VSCode** is `v1.75.0`
+- Minimum **Node** version is `18.20.3`
+
 ## v1.5.2 - July, 2024
 ### 🐛 Bug Fixes
-- New request loadind fix
+- New request loading fix
 
 ### Requirements
 - Minimum required version of VSCode is v1.75.0
@@ -27,7 +49,7 @@ All notable changes to the "Fetch Client" extension will be documented in this f
 ### 🐛 Bug Fixes
 - import from Curl ([#5](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/5)).
 - POST method not properly set just after creating new Http Request in a collection ([#8](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/8))
-- Bug fix in RunAll section
+- Bug fix in "Run All" section
 - Bug fix in filter search in collection section in the sidebar
 
 ### Requirements
@@ -40,7 +62,7 @@ All notable changes to the "Fetch Client" extension will be documented in this f
 - OAuth2 added for request authorization.
 - Pre-requests(Pre-Fetch) and conditions are added for Request execution.
 - Tests and Variables are moved to PostFetch section.
-- Types genreation added for JSON response.
+- Types generation added for JSON response.
 - Added auto refresh in the request tabs when variables are modified.
 - Added log for request and response in the output window.
 - Added "View Log" button in the sidebar panel to open the log output window.
@@ -84,7 +106,7 @@ All notable changes to the "Fetch Client" extension will be documented in this f
 - "Inherit auth from parent" option added in the Auth section.
 - Support Reorder and disable the request in the "Run All" Collection.
 - File option added in Form in the request body.
-- Full screen mode is added for resonse section.
+- Full screen mode is added for response section.
 
 ### 🐛 Bug Fixes
 
@@ -119,11 +141,11 @@ All notable changes to the "Fetch Client" extension will be documented in this f
 - Various post body which are Form, Form-Encoded, Raw (Json, Plain Text, XML), Binary File and GraphQL.
 - Syntax highlight for Response data.
 - Tree view for JSON and XML responses and HTML preview for HTML responses.
-- History, Collection, Enivronment Variable are supported.
+- History, Collection, Environment Variable are supported.
 - Test the API request and response data without any scripts/code.
 - Generate code snippet for various languages.
 - Save response and test results as File.
-- Export/Import the Fecth Client's collections and environment variables.
+- Export/Import the Fetch Client's collections and environment variables.
 - Add documentation/feedback for each request. 
 
 ### 🐛 Bug Fixes

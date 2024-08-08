@@ -60,3 +60,15 @@
 .settings-menu-clicked  path {
   fill: var(--button-background-color);
 }
+
+.request-header-panel {
+  padding-top: 10px;
+}
+
+.request-header-panel-text{
+  display: flex;
+}
+
+.request-header-panel-option{
+  margin-right: 5px;
+}

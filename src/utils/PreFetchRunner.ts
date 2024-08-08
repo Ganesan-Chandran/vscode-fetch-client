@@ -1,12 +1,12 @@
-import { apiFetch, FetchConfig } from "./fetchUtil";
+import { IPreFetch, IRequestModel } from "../fetch-client-ui/components/RequestUI/redux/types";
+import { InitialResponse } from "../fetch-client-ui/components/ResponseUI/redux/reducer";
+import { IReponseModel } from "../fetch-client-ui/components/ResponseUI/redux/types";
+import { ISettings, IVariable } from "../fetch-client-ui/components/SideBar/redux/types";
 import { executeTests, setVariable } from "../fetch-client-ui/components/TestUI/TestPanel/helper";
 import { GetParentSettingsSync, GetVariableByColId } from "./db/collectionDBUtil";
 import { GetRequestItem } from "./db/mainDBUtil";
-import { GetVariableByIdSync, UpdateVariable } from "./db/varDBUtil";
-import { InitialResponse } from "../fetch-client-ui/components/ResponseUI/redux/reducer";
-import { IPreFetch, IRequestModel } from "../fetch-client-ui/components/RequestUI/redux/types";
-import { IReponseModel } from "../fetch-client-ui/components/ResponseUI/redux/types";
-import { ISettings, IVariable } from "../fetch-client-ui/components/SideBar/redux/types";
+import { GetVariableByIdSync, UpdateVariable, UpdateVariableSync } from "./db/varDBUtil";
+import { apiFetch, FetchConfig } from "./fetchUtil";
 
 
 export class PreFetchRunner {
@@ -28,7 +28,7 @@ export class PreFetchRunner {
     this.fetchConfig = fetchConfig;
   }
 
-  RunPreRequests = async (preFetch: IPreFetch, fetchIndex: number, reqIndex: number, parentName: string) => {
+  RunPreRequests = async (preFetch: IPreFetch, fetchIndex: number, reqIndex: number, parentName: string, isCollectionPreRequest: boolean) => {
     let request: IRequestModel;
     let parentSettings: ISettings;
     let updateVariable: IVariable;
@@ -81,11 +81,11 @@ export class PreFetchRunner {
         parentSettings = await GetParentSettingsSync(colId, parentId);
       }
 
-      request = await GetRequestItem(reqId);      
+      request = await GetRequestItem(reqId);
 
       if (request && this.allow) {
-        if (request.preFetch?.requests?.length > 0) {
-          await this.RunPreRequests(request.preFetch, fetchIndex + 1, 0, request.name);
+        if (request.preFetch?.requests?.length > 0 && !isCollectionPreRequest) {
+          await this.RunPreRequests(request.preFetch, fetchIndex + 1, 0, request.name, isCollectionPreRequest);
           if (!this.allow) {
             return;
           }
@@ -93,30 +93,29 @@ export class PreFetchRunner {
           if (index !== -1) {
             this.executingRequests.splice(index);
           }
-          let res = await apiFetch(request, variable.data, parentSettings, this.fetchConfig);
+          let res = await apiFetch(request, variable?.data, parentSettings, null, this.fetchConfig);
           this.response.response = res.response;
           this.response.headers = res.headers;
           this.response.cookies = res.cookies;
-          updateVariable = this.updateVariable(request, variable);
+          updateVariable = await this.updateVariable(request, variable);
         } else {
-          let res = await apiFetch(request, variable.data, parentSettings, this.fetchConfig);
+          let res = await apiFetch(request, variable?.data, parentSettings, null, this.fetchConfig);
           this.response.response = res.response;
           this.response.headers = res.headers;
           this.response.cookies = res.cookies;
-          updateVariable = this.updateVariable(request, variable);
+          updateVariable = await this.updateVariable(request, variable);
         }
       }
     }
   };
 
-  updateVariable = (request: IRequestModel, variable: IVariable): IVariable => {
+  updateVariable = async (request: IRequestModel, variable: IVariable): Promise<IVariable> => {
     if (this.response.response.status !== 0 && this.response.response.status <= 399 && request.setvar.length - 1 > 0 && variable?.id) {
-      let variableResult = setVariable(variable, request.setvar, this.response);
-      UpdateVariable(variableResult, null);
+      let variables = setVariable(variable, request.setvar, this.response);
+      let variableResult = await UpdateVariableSync(variables);
       return variableResult;
-    } else {
-      return variable;
     }
+    return variable;
   };
 }
 

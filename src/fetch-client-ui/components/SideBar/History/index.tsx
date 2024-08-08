@@ -120,6 +120,14 @@ export const HistoryBar = (props: IHistoryProps) => {
     openContextMenu(index);
   }
 
+  function onRunClick(evt: React.MouseEvent<HTMLElement>, itemId: string, name: string) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    setSelectedItem(itemId);
+    vscode.postMessage({ type: requestTypes.openAndRunItemRequest, data: { id: itemId, name: name, isNewTab: false } });
+    setCurrentIndex(-1);
+  }
+
   function getActivityBody() {
     if (props.filterCondition) {
       return (
@@ -163,6 +171,7 @@ export const HistoryBar = (props: IHistoryProps) => {
             <input type="checkbox" className="dd-input" checked={index === currentIndex} readOnly={true} />
             <div id={"drop-down-menu-" + history.id} className="dropdown-more" style={styles.bottomStyle}>
               <button onClick={(e) => onClickNewTab(e, history.id, history.name)}>Open in New Tab</button>
+              <button onClick={(e) => onRunClick(e, history.id, history.name)}>Run Request</button>
               <div className="divider"></div>
               <button onClick={(e) => onSaveToCollection(e, history.id)}>Save to Collection</button>
               <button onClick={(e) => onRename(e, history.id)}>Rename</button>

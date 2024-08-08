@@ -18,9 +18,9 @@ const CopyTo = () => {
   const [isDone, setDone] = useState(false);
 
   useEffect(() => {
-    const id = document.title.split(":")[1];
+    const id = document.title.split("@:@")[1];
     setSourceColId(id);
-    const name = document.title.split(":")[3];
+    const name = document.title.split("@:@")[3];
     setSourceColName(name);
 
     window.addEventListener("message", (event) => {

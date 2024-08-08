@@ -139,6 +139,11 @@ export interface IReqColModel {
   colRequestList: IColRequest[]
 }
 
+export interface IReqSettings {
+  skipParentHeaders: boolean;
+  skipParentPreFetch: boolean;
+}
+
 export const FETCH_CLIENT_SET_REQ_URL: "FETCH_CLIENT_SET_REQ_URL" = "FETCH_CLIENT_SET_REQ_URL";
 export const FETCH_CLIENT_SET_REQ_METHOD: "FETCH_CLIENT_SET_REQ_METHOD" = "FETCH_CLIENT_SET_REQ_METHOD";
 export const FETCH_CLIENT_SET_REQ_PARAMS: "FETCH_CLIENT_SET_REQ_PARAMS" = "FETCH_CLIENT_SET_REQ_PARAMS";
@@ -165,6 +170,9 @@ export const FETCH_CLIENT_SET_COLLECTION_LIST: "FETCH_CLIENT_SET_COLLECTION_LIST
 export const FETCH_CLIENT_SET_COL_REQUEST_LIST: "FETCH_CLIENT_SET_COL_REQUEST_LIST" = "FETCH_CLIENT_SET_COL_REQUEST_LIST";
 export const FETCH_CLIENT_SET_COL_ID: "FETCH_CLIENT_SET_COL_ID" = "FETCH_CLIENT_SET_COL_ID";
 export const FETCH_CLIENT_SET_REQ_ID: "FETCH_CLIENT_SET_REQ_ID" = "FETCH_CLIENT_SET_REQ_ID";
+export const FETCH_CLIENT_SET_PREFETCH: "FETCH_CLIENT_SET_PREFETCH" = "FETCH_CLIENT_SET_PREFETCH";
+export const FETCH_CLIENT_SET_SKIP_PARENT_PREFETCH: "FETCH_CLIENT_SET_SKIP_PARENT_PREFETCH" = "FETCH_CLIENT_SET_SKIP_PARENT_PREFETCH";
+export const FETCH_CLIENT_SET_SKIP_PARENT_HEADERS: "FETCH_CLIENT_SET_SKIP_PARENT_HEADERS" = "FETCH_CLIENT_SET_SKIP_PARENT_HEADERS";
 
 export interface ISetTest {
   type: typeof FETCH_CLIENT_SET_TEST;
@@ -352,11 +360,32 @@ export interface ISetSelectedRequest {
   payload: {
     reqId: string;
     index: number;
-    parentId:string;
+    parentId: string;
+  }
+}
+
+export interface ISetPreFetch {
+  type: typeof FETCH_CLIENT_SET_PREFETCH;
+  payload: {
+    preFetch: IPreFetch;
+  }
+}
+
+export interface ISetSkipPreFetch {
+  type: typeof FETCH_CLIENT_SET_SKIP_PARENT_PREFETCH;
+  payload: {
+    skip: boolean;
+  }
+}
+
+export interface ISetSkipHeaders {
+  type: typeof FETCH_CLIENT_SET_SKIP_PARENT_HEADERS
+  payload: {
+    skip: boolean;
   }
 }
 
 export type RequestActionTypes = | ISetURL | ISetMethod | ISetParams | ISetAuth | ISetHeaders | ISetBody | ISetRequest | ISetTest |
   ISetRawLang | ISetResetBody | ISetRawValue | ISetBinaryData | ISetNotes | ISetAddVar | ISetReqColDetails | ISetReqParentSettings | ISetFormDataBody |
   ISetOAuthToken | ISetPreCondition | ISetAddPreRequest | ISetDeletePreRequest | ISetDeletePreCondition | ISetCollectionList | ISetColRequestList |
-  ISetSelectedCol | ISetSelectedRequest;
+  ISetSelectedCol | ISetSelectedRequest | ISetPreFetch | ISetSkipPreFetch | ISetSkipHeaders;

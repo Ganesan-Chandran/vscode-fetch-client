@@ -1,23 +1,24 @@
-import * as vscode from 'vscode';
-import loki, { LokiFsAdapter } from 'lokijs';
 import fs from "fs";
+import loki, { LokiFsAdapter } from 'lokijs';
 import { v4 as uuidv4 } from 'uuid';
+import * as vscode from 'vscode';
+import { pubSub } from '../../extension';
+import { ITableData } from '../../fetch-client-ui/components/Common/Table/types';
 import { IVariable } from "../../fetch-client-ui/components/SideBar/redux/types";
 import { pubSubTypes, responseTypes } from '../configuration';
-import { writeLog } from '../logger/logger';
-import { pubSub } from '../../extension';
-import { FetchClientVariableProxy } from '../validators/fetchClientVariableValidator';
 import { formatDate } from '../helper';
+import { PostmanVariableSchema_2_1 } from '../importers/postman/postman_2_1.variable_types';
+import { writeLog } from '../logger/logger';
+import { FetchClientVariableProxy } from '../validators/fetchClientVariableValidator';
 import { RemoveVariable } from './collectionDBUtil';
+import { VariableImportType } from './constants';
 import { variableDBPath } from './dbPaths';
-import { ImportType, VariableImportType } from './constants';
-import { IValue, PostmanVariableSchema_2_1 } from '../importers/postman_2_1.variable_types';
-import { ITableData } from '../../fetch-client-ui/components/Common/Table/types';
-
+import { ThunderClientVariableSchema_1_2 } from "../importers/thunderClient/thunderClient_1_2.variable_types";
 
 function getDB(): loki {
   const idbAdapter = new LokiFsAdapter();
   const db = new loki(variableDBPath(), { adapter: idbAdapter });
+  db.autosaveDisable();
   return db;
 }
 
@@ -87,19 +88,40 @@ export function UpdateVariable(item: IVariable, webview: vscode.Webview) {
 
     db.loadDatabase({}, function () {
       db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; });
-      db.saveDatabase();
+      db.saveDatabase(function (err) {
+        if (!err) {
+          if (webview) {
+            webview.postMessage({ type: responseTypes.updateVariableResponse });
+          }
 
-      if (webview) {
-        webview.postMessage({ type: responseTypes.updateVariableResponse });
-      }
-
-      if (pubSub.size > 0) {
-        pubSub.publish({ messageType: pubSubTypes.updateVariables });
-      }
+          if (pubSub.size > 0) {
+            pubSub.publish({ messageType: pubSubTypes.updateVariables });
+          }
+        }
+      });
     });
 
   } catch (err) {
     writeLog("error::SaveVariable(): " + err);
+  }
+}
+
+export function UpdateVariableSync(item: IVariable) {
+  try {
+    return new Promise<IVariable>(async (resolve, _reject) => {
+      const db = getDB();
+      db.loadDatabase({}, function () {
+        db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; });
+        db.saveDatabase(function (err) {
+          if (!err) {
+            let vars = db.getCollection("userVariables").find({ 'id': item.id });
+            resolve(vars && vars.length > 0 ? vars[0] as IVariable : null);
+          }
+        });
+      });
+    });
+  } catch (err) {
+    writeLog("error::UpdateVariableSync(): " + err);
   }
 }
 
@@ -133,17 +155,14 @@ export function GetVariableById(id: string, isGlobal: boolean, webview: vscode.W
 
 export function GetVariableByIdSync(id: string) {
   try {
-    return new Promise<IVariable>((resolve, _reject) => {
+    return new Promise<IVariable>(async (resolve, _reject) => {
       const db = getDB();
-
-      db.loadDatabase({}, function (err: any) {
-        if (err) {
-          resolve(null);
-        }
-        let userVariables = db.getCollection("userVariables").find(id ? { 'id': id } : { 'name': 'Global' });
+      db.loadDatabase({}, function () {
+        let userVariables = db.getCollection("userVariables").find({ 'id': id });
         resolve(userVariables && userVariables.length > 0 ? userVariables[0] as IVariable : null);
       });
     });
+
   } catch (err) {
     writeLog("error::GetVariableByIdSync(): " + err);
   }
@@ -249,9 +268,19 @@ function ValidateData(data: string): VariableImportType | null {
       return VariableImportType.FetchClient_Variable_1_0;
     } catch (err) {
       let postmanData = JSON.parse(data) as PostmanVariableSchema_2_1;
-      if (postmanData._postman_variable_scope && postmanData._postman_exported_using) {
+      if (postmanData?._postman_variable_scope && postmanData?._postman_exported_using) {
         return VariableImportType.Postman_Variable_2_1;
       }
+
+      let thunderClientData = JSON.parse(data) as ThunderClientVariableSchema_1_2;
+      if (thunderClientData?.clientName === "Thunder Client" && thunderClientData?.ref) {
+        if (thunderClientData?.version !== "1.2") {
+          vscode.window.showErrorMessage("Could not import the variable - Invalid version.", { modal: true });
+          return null;
+        }
+        return VariableImportType.ThunderClient_Variable_1_2;
+      }
+
       return null;
     }
   }
@@ -273,6 +302,9 @@ export function ImportVariableFromJsonFile(webviewView: vscode.WebviewView, path
       case VariableImportType.Postman_Variable_2_1:
         ImportPostmanVariable(webviewView, data);
         break;
+      case VariableImportType.ThunderClient_Variable_1_2:
+        ImportThunderClientVariable(webviewView, data);
+        break;
       default:
         vscode.window.showErrorMessage("Could not import the collection - Invalid type.", { modal: true });
     }
@@ -292,30 +324,56 @@ function ImportFetchClientVariable(webviewView: vscode.WebviewView, data: string
 
 function ImportPostmanVariable(webviewView: vscode.WebviewView, data: string) {
   const parsedData = JSON.parse(data) as PostmanVariableSchema_2_1;
-  let convertedData: IVariable;
-
   let varData: ITableData[] = [];
 
-  for (let i = 0; i < parsedData.values.length; i++) {
-    varData.push({
-      isChecked: parsedData.values[i].enabled,
-      key: parsedData.values[i].key,
-      value: parsedData.values[i].value
-    });
-  }
-
-  if (parsedData._postman_exported_using.includes("Postman/") && parsedData._postman_variable_scope.includes("environment")) {
-    convertedData = {
-      id: uuidv4(),
-      createdTime: formatDate(),
-      name: parsedData.name,
-      isActive: true,
-      data: varData
-    };
-  } else {
+  if (!parsedData?._postman_exported_using?.includes("Postman/") || !parsedData?._postman_variable_scope?.includes("environment")) {
     writeLog("error::ImportPostmanVariable(): - Error Mesaage : Could not import the variable - Invalid data.");
     throw new Error("Could not import the variable - Invalid data.");
   }
+
+  for (let i = 0; i < parsedData.values?.length; i++) {
+    if (parsedData.values[i].key) {
+      varData.push({
+        isChecked: parsedData.values[i].enabled,
+        key: parsedData.values[i].key,
+        value: parsedData.values[i].value
+      });
+    }
+  }
+
+  let convertedData: IVariable = {
+    id: uuidv4(),
+    createdTime: formatDate(),
+    name: parsedData.name,
+    isActive: true,
+    data: varData
+  };
+
+  ImportVariable(webviewView, convertedData);
+}
+
+function ImportThunderClientVariable(webviewView: vscode.WebviewView, data: string) {
+  const parsedData = JSON.parse(data) as ThunderClientVariableSchema_1_2;
+
+  let varData: ITableData[] = [];
+
+  for (let i = 0; i < parsedData.variables?.length; i++) {
+    if (parsedData.variables[i].name) {
+      varData.push({
+        isChecked: true,
+        key: parsedData.variables[i].name,
+        value: parsedData.variables[i].value
+      });
+    }
+  }
+
+  let convertedData: IVariable = {
+    id: uuidv4(),
+    createdTime: formatDate(),
+    name: parsedData.environmentName,
+    isActive: true,
+    data: varData
+  };
 
   ImportVariable(webviewView, convertedData);
 }
