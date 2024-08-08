@@ -375,7 +375,7 @@
     "web-vitals": "^2.1.4",
     "webpack": "^5.66.0",
     "webpack-bundle-analyzer": "^4.5.0",
-    "webpack-cli": "^4.9.2",
+    "webpack-cli": "^5.1.4",
     "markdownlint": "^0.34.0",
     "markdownlint-cli": "^0.41.0",
     "spellchecker-cli": "^6.2.0",
