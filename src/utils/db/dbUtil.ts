@@ -20,7 +20,7 @@ export function CreateHistoryDB(): any {
       autoload: true,
       autoloadCallback: dbInitialize,
       autosave: true,
-      autosaveInterval: 4000,
+      autosaveInterval: 1000,
       serializationMethod: "normal",
       adapter: idbAdapter,
     });
@@ -53,7 +53,7 @@ export function CreateCollectionDB(): any {
       autoload: true,
       autoloadCallback: dbInitialize,
       autosave: true,
-      autosaveInterval: 4000,
+      autosaveInterval: 1000,
       serializationMethod: "normal",
       adapter: idbAdapter,
     });
@@ -87,7 +87,7 @@ export function CreateMainDB(): any {
       autoload: true,
       autoloadCallback: dbInitialize,
       autosave: true,
-      autosaveInterval: 4000,
+      autosaveInterval: 1000,
       serializationMethod: "normal",
       adapter: idbAdapter,
     });
@@ -118,7 +118,7 @@ export function CreateVariableDB(): any {
       autoload: true,
       autoloadCallback: dbInitialize,
       autosave: true,
-      autosaveInterval: 4000,
+      autosaveInterval: 1000,
       serializationMethod: "normal",
       adapter: idbAdapter,
     });
@@ -150,7 +150,7 @@ export function CreateCookieDB(): any {
       autoload: true,
       autoloadCallback: dbInitialize,
       autosave: true,
-      autosaveInterval: 4000,
+      autosaveInterval: 1000,
       serializationMethod: "normal",
       adapter: idbAdapter,
     });

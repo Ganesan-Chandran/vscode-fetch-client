@@ -24,7 +24,7 @@ export const VariableUI = (extensionUri: any) => {
     varPanel.iconPath = iconUri;
 
     const nonce = getNonce();
-    const title = `newvar:${id}`;
+    const title = `newvar@:@${id}`;
 
     varPanel.webview.html = `<!DOCTYPE html>
     <html lang="en">

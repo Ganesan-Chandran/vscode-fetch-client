@@ -47,7 +47,7 @@ const AddToCollection = () => {
     });
 
     vscode.postMessage({ type: requestTypes.getAllCollectionNameRequest, data: "addtocol" });
-    let id = document.title.split(":")[1];
+    let id = document.title.split("@:@")[1];
     vscode.postMessage({ type: requestTypes.getHistoryItemRequest, data: id });
   }, []);
 
@@ -164,7 +164,7 @@ const AddToCollection = () => {
                 </td>
                 <td className="col-2-size details-col">
                   <div className={"req-details method-label " + getMethodClassName(history.method.toUpperCase())}>{history.method.toUpperCase()}</div>
-                  <div className="req-details">{history.url}</div>
+                  <div className="req-details" title={history.url}>{history.url?.length > 50 ? history.url.substring(0, 50) + "..." : history.url}</div>
                   <div className="req-details">{formatDate(history.createdTime)}</div>
                 </td>
               </tr>

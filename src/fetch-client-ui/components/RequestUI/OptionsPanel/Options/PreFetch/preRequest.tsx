@@ -1,13 +1,13 @@
-import { Actions } from "../../../redux";
-import { IColRequest, IRequestList, IRunRequest, ITest } from "../../../redux/types";
-import { IRootState } from "../../../../../reducer/combineReducer";
-import { preConditionActions, preConditions } from "./consts";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { ReactComponent as BinLogo } from '../../../../../../../icons/bin.svg';
 import { requestTypes, responseTypes } from "../../../../../../utils/configuration";
+import { IRootState } from "../../../../../reducer/combineReducer";
 import { TextEditor } from "../../../../Common/TextEditor/TextEditor";
-import { useDispatch, useSelector } from "react-redux";
-import React, { useEffect, useState } from "react";
 import vscode from "../../../../Common/vscodeAPI";
+import { Actions } from "../../../redux";
+import { IColRequest, IRequestList, IRunRequest, ITest } from "../../../redux/types";
+import { preConditionActions, preConditions } from "./consts";
 import "./style.css";
 
 export interface IPreRequestProps {

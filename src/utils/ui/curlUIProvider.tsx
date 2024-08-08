@@ -58,7 +58,7 @@ export const CurlProviderUI = (extensionUri: any) => {
           curlPanel.webview.postMessage({ type: responseTypes.runCurlResponse, request: null, response: apiResponse });
           return;
         }
-        apiFetch(req, null, null, fetchConfig).then((data) => {
+        apiFetch(req, null, null, null, fetchConfig).then((data) => {
           curlPanel.webview.postMessage({ type: responseTypes.runCurlResponse, request: req, response: data });
         });
       } else if (reqData.type === requestTypes.convertCurlToJsonRequest) {

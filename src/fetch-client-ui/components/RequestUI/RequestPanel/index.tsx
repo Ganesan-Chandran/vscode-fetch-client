@@ -1,34 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
+import { requestTypes } from '../../../../utils/configuration';
+import { formatDate } from '../../../../utils/helper';
 import { IRootState } from "../../../reducer/combineReducer";
+import { GetDataFromHTML, GetDomainName, notesMaxLimit } from '../../Common/helper';
+import { ITableData } from '../../Common/Table/types';
+import { TextEditor } from '../../Common/TextEditor/TextEditor';
+import vscode from '../../Common/vscodeAPI';
+import { CookiesActions } from '../../Cookies/redux';
+import { ICookie } from '../../Cookies/redux/types';
 import { ResponseActions } from "../../ResponseUI/redux";
+import { executeTests, setVariable } from '../../TestUI/TestPanel/helper';
 import { Actions } from "../redux";
 import { MethodType } from "../redux/types";
+import { SendRequest } from './common';
 import { requestMethods } from "./consts";
-import vscode from '../../Common/vscodeAPI';
 import "./style.css";
-import { requestTypes } from '../../../../utils/configuration';
-import { executeTests, setVariable } from '../../TestUI/TestPanel/helper';
-import { formatDate } from '../../../../utils/helper';
-import { GetDataFromHTML, GetDomainName, notesMaxLimit } from '../../Common/helper';
-import { TextEditor } from '../../Common/TextEditor/TextEditor';
-import { ICookie } from '../../Cookies/redux/types';
-import { CookiesActions } from '../../Cookies/redux';
-import { ITableData } from '../../Common/Table/types';
 
 export const RequestPanel = () => {
 
   const dispatch = useDispatch();
 
   const [newReq, setNewReq] = useState(false);
-  const [forceUpdate, setForceUpdate] = useState(false);
 
   const requestData = useSelector((state: IRootState) => state.requestData);
   const responseData = useSelector((state: IRootState) => state.responseData);
   const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
   const { cookies } = useSelector((state: IRootState) => state.cookieData);
   const { parentSettings, colId } = useSelector((state: IRootState) => state.reqColData);
+  const reqSettings = useSelector((state: IRootState) => state.reqSettings);
 
   const selectRequestMethod = (evt: React.ChangeEvent<HTMLSelectElement>): void => {
     dispatch(Actions.SetRequestMethodAction(evt.target.value as MethodType));
@@ -108,21 +109,7 @@ export const RequestPanel = () => {
   }, [cookies]);
 
   const onSendClick = () => {
-    dispatch(ResponseActions.SetResponseLoadingAction(true));
-
-    let reqData = { ...requestData };
-
-    if (newReq) {
-      reqData.id = uuidv4();
-      reqData.name = reqData.url.trim();
-      reqData.createdTime = formatDate();
-      dispatch(Actions.SetRequestAction(reqData));
-    }
-
-    const data = GetDataFromHTML(reqData.notes);
-    reqData.notes = data.length > notesMaxLimit ? "" : reqData.notes;
-
-    vscode.postMessage({ type: requestTypes.apiRequest, data: { reqData: reqData, isNew: newReq, variableData: selectedVariable?.data, settings: parentSettings, colId: colId } });
+    SendRequest(dispatch, newReq, colId, requestData, selectedVariable, parentSettings, reqSettings);
     setNewReq(false);
   };
 
@@ -170,7 +157,7 @@ export const RequestPanel = () => {
   }, [responseData.cookies]);
 
   useEffect(() => {
-    let reqId = document.title.split(":")[0];
+    let reqId = document.title.split("@:@")[0];
     if (reqId === "undefined") {
       setNewReq(true);
     }
@@ -215,7 +202,7 @@ export const RequestPanel = () => {
           </select>
         </div>
         <div className="request-url-panel">
-          {            
+          {
             selectedVariable.id && <TextEditor
               varWords={selectedVariable.data.map(item => item.key)}
               placeholder="Enter request URL"

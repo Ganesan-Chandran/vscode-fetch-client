@@ -4,13 +4,18 @@ import { InitialTest } from "../../../redux/reducer";
 import { IRootState } from "../../../../../reducer/combineReducer";
 import { PreRequest } from "./preRequest";
 import { useDispatch, useSelector } from "react-redux";
-import React from "react";
+import React, { useEffect } from "react";
 import "./style.css";
 
-export const PreFetch = () => {
+export interface IPreFecthProps {
+  settingsMode?: boolean;
+}
+
+export const PreFetch = (props: IPreFecthProps) => {
 
   const dispatch = useDispatch();
   const { preFetch } = useSelector((state: IRootState) => state.requestData);
+  const { skipParentPreFetch } = useSelector((state: IRootState) => state.reqSettings);
 
   function onAddReqClick() {
     let newPreReq: IRunRequest = {
@@ -23,6 +28,18 @@ export const PreFetch = () => {
     dispatch(Actions.SetAddPreRequestAction(newPreReq));
   };
 
+  useEffect(() => {
+    if (preFetch?.requests?.length <= 0) {
+      let newPreReq: IRunRequest = {
+        reqId: "",
+        parentId: "",
+        colId: "",
+        order: preFetch && preFetch?.requests ? preFetch.requests.length + 1 : 1,
+        condition: JSON.parse(JSON.stringify(InitialTest))
+      };
+      dispatch(Actions.SetAddPreRequestAction(newPreReq));
+    }
+  }, []);
 
   const makeRequests = (reqs: IRunRequest[]) => {
     return (
@@ -32,9 +49,36 @@ export const PreFetch = () => {
     );
   };
 
+  const isDisabled = () => {
+    return props.settingsMode ? preFetch?.requests?.length > 1 : preFetch?.requests?.length > 4;
+  };
+
+  function onSelectChange(evt: React.ChangeEvent<HTMLInputElement>) {
+    dispatch(Actions.SetSkipPreFetchAction(evt.currentTarget.checked));
+  }
+
   return (
     <div className="preReq-container">
-      <div><div className="max-req">* Max 5 request</div><button onClick={onAddReqClick} disabled={preFetch?.requests?.length > 4} className="format-button">Add Pre-request</button></div>
+      <div>
+        <div className="max-req">
+          {props?.settingsMode ? "* Max 2 request (It is recommended that each request does not contain any PreFetch requests. If there are any PreFetch requests, then they won't be executed.)" : "* Max 5 request"}
+        </div>
+        <button onClick={onAddReqClick} disabled={isDisabled()} className="format-button">Add Pre-request
+        </button>
+      </div>
+      {!props?.settingsMode ?
+        <div className="request-prefetch-panel">
+          <label className="request-header-panel-text">
+            <input type="checkbox"
+              className="request-header-panel-option"
+              checked={skipParentPreFetch}
+              onChange={(e) => onSelectChange(e)}
+            /> Skip parent pre-requests</label>
+        </div>
+        :
+        <>
+        </>
+      }
       {
         makeRequests(preFetch?.requests)
       }

@@ -2,12 +2,14 @@ import * as vscode from 'vscode';
 import fs from "fs";
 import { getStorageManager, OpenExistingItem, sideBarProvider } from '../../extension';
 import { getNonce, requestTypes, responseTypes } from '../configuration';
-import { AddToCollection, AttachVariable, CopyToCollection, ExecuteMultipleRequest, ExecuteRequest, GetAllCollectionName, GetAllCollectionsById, GetCollectionSettings, GetParentSettings, SaveCollectionSettings } from '../db/collectionDBUtil';
+import { AddToCollection, AttachVariable, CopyToCollection, ExecuteMultipleRequest, ExecuteRequest, GetAllCollectionName, GetAllCollectionsById, GetAllCollectionsByIdWithPath, GetCollectionSettings, GetParentSettings, SaveCollectionSettings } from '../db/collectionDBUtil';
 import { GetHistoryById } from '../db/historyDBUtil';
 import { GetAllVariable, GetVariableById, UpdateVariable } from '../db/varDBUtil';
 import { apiFetch, FetchConfig } from '../fetchUtil';
 import { getHeadersConfiguration, getTimeOutConfiguration } from '../vscodeConfig';
 import { writeLog } from '../logger/logger';
+import axios from 'axios';
+import { ExecuteAPIRequest } from './helper';
 
 export const AddToColUI = (extensionUri: any) => {
   const disposable = vscode.commands.registerCommand('fetch-client.addToCol', (colId: string, folderId: string, name: string, type: string, varId?: string) => {
@@ -28,7 +30,7 @@ export const AddToColUI = (extensionUri: any) => {
     colPanel.iconPath = iconUri;
 
     const nonce = getNonce();
-    const title = `${type}:${colId}:${folderId}:${name}:${varId}`;
+    const title = `${type}@:@${colId}@:@${folderId}@:@${name}@:@${varId}`;
 
     colPanel.webview.html = `<!DOCTYPE html>
     <html lang="en">
@@ -51,7 +53,7 @@ export const AddToColUI = (extensionUri: any) => {
       source: null
     };
 
-    colPanel.webview.onDidReceiveMessage((message: any) => {
+    colPanel.webview.onDidReceiveMessage(async (message: any) => {
       if (message.type === requestTypes.getAllCollectionNameRequest) {
         GetAllCollectionName(colPanel.webview, message.data);
       } else if (message.type === requestTypes.getHistoryItemRequest) {
@@ -67,14 +69,9 @@ export const AddToColUI = (extensionUri: any) => {
       } else if (message.type === requestTypes.getCollectionsByIdRequest) {
         GetAllCollectionsById(message.data.colId, message.data.folderId, message.data.type, colPanel.webview);
       } else if (message.type === requestTypes.apiRequest) {
-        if (message.data.reqData.auth.authType === "inherit") {
-          ExecuteRequest(message, fetchConfig, colPanel.webview);
-        }
-        else {
-          apiFetch(message.data.reqData, message.data.variableData, null, fetchConfig).then((data) => {
-            colPanel.webview.postMessage(data);
-          });
-        }
+        const CancelToken = axios.CancelToken;
+        fetchConfig.source = CancelToken.source();
+        await ExecuteAPIRequest(message, fetchConfig, colPanel.webview);
       } else if (message.type === requestTypes.multipleApiRequest) {
         ExecuteMultipleRequest(message, fetchConfig, colPanel.webview);
       } else if (message.type === requestTypes.getAllVariableRequest) {
@@ -120,9 +117,13 @@ export const AddToColUI = (extensionUri: any) => {
       } else if (message.type === requestTypes.getVariableItemRequest) {
         GetVariableById(message.data.id, message.data.isGlobal, colPanel.webview);
       } else if (message.type === requestTypes.tokenRequest) {
-        apiFetch(message.data.reqData, message.data.variableData, message.data.settings, fetchConfig, responseTypes.tokenResponse).then((data) => {
+        apiFetch(message.data.reqData, message.data.variableData, message.data.settings, null, fetchConfig, responseTypes.tokenResponse).then((data) => {
           colPanel.webview.postMessage(data);
         });
+      } else if (message.type === requestTypes.getCollectionsByIdWithPathRequest) {
+        GetAllCollectionsByIdWithPath(message.data, colPanel.webview);
+      } else if (message.type === requestTypes.getParentSettingsRequest) {
+        GetParentSettings(message.data.colId, message.data.folderId, colPanel.webview);
       }
     });
   });

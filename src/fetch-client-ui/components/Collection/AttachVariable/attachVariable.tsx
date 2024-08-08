@@ -15,9 +15,9 @@ const AttachVariable = () => {
   const [isDone, setDone] = useState(false);
 
   useEffect(() => {
-    const id = document.title.split(":")[1];
+    const id = document.title.split("@:@")[1];
     setColId(id);
-    const name = document.title.split(":")[3];
+    const name = document.title.split("@:@")[3];
     setColName(name);
 
     window.addEventListener("message", (event) => {
@@ -71,7 +71,7 @@ const AttachVariable = () => {
             <tbody>
               <tr>
                 <td className="col-1-size">
-                  <span className="addto-label">Selected Collection :</span>
+                  <span className="addto-label">Selected Collection</span>
                 </td>
                 <td className="col-2-size">
                   <input className="addto-text disabled" type="text" title="Name" value={colName} disabled={true}></input>
@@ -79,7 +79,7 @@ const AttachVariable = () => {
               </tr>
               <tr>
                 <td className="col-1-size">
-                  <span className="addto-label">Variable :</span>
+                  <span className="addto-label">Variable</span>
                 </td>
                 <td className="col-2-size block-display">
                   <select

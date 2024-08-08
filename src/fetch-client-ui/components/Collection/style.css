@@ -18,6 +18,10 @@
   padding-top: 50px;
 }
 
+.addto-body-settings {
+  padding-top: 15px;
+}
+
 .center {
   margin: 0 auto;
 }
@@ -430,8 +434,9 @@
 .col-settings-body {
   font-size  : var(--font-size);
   max-height : calc(100% - 60px);
-  overflow   : scroll;
+  overflow   : auto;
   padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .addto-title-label {
@@ -593,4 +598,8 @@ select.runall-order-select option {
   float       : left;
   margin      : 10px;
   padding-left: 5px;
+}
+
+.table-padding-left {
+  padding-left : 10px;
 }

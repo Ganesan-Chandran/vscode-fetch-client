@@ -1,25 +1,28 @@
+import * as vscode from 'vscode';
+import {
+  getStorageManager, OpenAddToColUI, OpenAttachVariableUI, OpenColSettings, OpenCopyToColUI,
+  OpenCurlUI, OpenExistingItem, OpenRunAllUI, OpenVariableUI, pubSub, vsCodeLogger
+} from '../../extension';
+import { ICollections, IFolder, IHistory } from '../../fetch-client-ui/components/SideBar/redux/types';
+import { getNonce, pubSubTypes, requestTypes, responseTypes } from '../../utils/configuration';
 import {
   AddToCollection, AttachVariable, CreateNewCollection,
   DeleteAllCollectionItems, DeleteCollection, DeleteCollectionItem,
   DuplicateItem, GetAllCollections, NewFolderToCollection, NewRequestToCollection,
   RemoveVariableByVariableId, RenameCollection, RenameCollectionItem
 } from '../../utils/db/collectionDBUtil';
-import {
-  ChangeVariableStatus, DeleteVariable, DuplicateVariable, ExportVariable,
-  GetAllVariable, ImportVariableFromJsonFile, ImportVariableFromEnvFile, RenameVariable
-} from '../db/varDBUtil';
 import { DeleteAllHistory, DeleteHistory, GetAllHistory, RenameHistory } from '../../utils/db/historyDBUtil';
 import { Export, Import, SaveRequest } from '../db/mainDBUtil';
-import { formatDate } from '../helper';
-import { getNonce, pubSubTypes, requestTypes, responseTypes } from '../../utils/configuration';
 import {
-  getStorageManager, OpenAddToColUI, OpenAttachVariableUI, OpenColSettings, OpenCopyToColUI,
-  OpenCurlUI, OpenExistingItem, OpenRunAllUI, OpenVariableUI, pubSub, vsCodeLogger
-} from '../../extension';
-import { getVSCodeTheme } from '../vscodeConfig';
-import { ICollections, IFolder, IHistory } from '../../fetch-client-ui/components/SideBar/redux/types';
+  ChangeVariableStatus, DeleteVariable, DuplicateVariable, ExportVariable,
+  GetAllVariable,
+  ImportVariableFromEnvFile,
+  ImportVariableFromJsonFile,
+  RenameVariable
+} from '../db/varDBUtil';
+import { formatDate } from '../helper';
 import { IPubSubMessage, Subscription } from '../PubSub';
-import * as vscode from 'vscode';
+import { getVSCodeTheme } from '../vscodeConfig';
 
 export class SideBarProvider implements vscode.WebviewViewProvider {
 
@@ -78,6 +81,9 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
           break;
         case requestTypes.openHistoryItemRequest:
           OpenExistingItem(reqData.data.id, reqData.data.name, reqData.data.colId, reqData.data.folderId, reqData.data.varId, undefined, reqData.data.isNewTab);
+          break;
+        case requestTypes.openAndRunItemRequest:
+          OpenExistingItem(reqData.data.id, reqData.data.name, reqData.data.colId, reqData.data.folderId, reqData.data.varId, "OpenAndRun", reqData.data.isNewTab);
           break;
         case requestTypes.addToCollectionsRequest:
           OpenAddToColUI(reqData.data);

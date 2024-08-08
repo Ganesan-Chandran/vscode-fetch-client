@@ -1,21 +1,21 @@
-import { apiFetch, FetchConfig } from "../fetchUtil";
-import { formatDate, getErrorResponse } from "../helper";
-import { getLayoutConfiguration, getConfiguration, getHeadersConfiguration, getTimeOutConfiguration, getRequestTabOption, getVSCodeTheme, getRunMainRequestOption } from "../vscodeConfig";
-import { getNonce, pubSubTypes, requestTypes, responseTypes } from "../configuration";
-import { GetVariableById, GetAllVariable, UpdateVariable } from "../db/varDBUtil";
-import { IHistory } from "../../fetch-client-ui/components/SideBar/redux/types";
-import { IRequestModel } from "../../fetch-client-ui/components/RequestUI/redux/types";
-import { SaveCookie, GetAllCookies } from "../db/cookieDBUtil";
-import { SaveHistory, UpdateHistory } from "../db/historyDBUtil";
-import { SaveRequest, UpdateRequest, GetExitingItem } from "../db/mainDBUtil";
-import { sideBarProvider, getStorageManager, OpenVariableUI, OpenCookieUI, pubSub, vsCodeLogger } from "../../extension";
-import { IPubSubMessage, Subscription } from "../PubSub";
-import { UpdateCollection, GetParentSettings, GetAllCollectionsByIdWithPath, GetAllCollectionName } from "../db/collectionDBUtil";
-import { writeLog } from "../logger/logger";
-import * as vscode from "vscode";
 import axios from "axios";
 import fs from "fs";
-import { PreFetchRunner } from "../PreFetchRunner";
+import * as vscode from "vscode";
+import { getStorageManager, OpenCookieUI, OpenVariableUI, pubSub, sideBarProvider, vsCodeLogger } from "../../extension";
+import { IRequestModel } from "../../fetch-client-ui/components/RequestUI/redux/types";
+import { IHistory, ISettings } from "../../fetch-client-ui/components/SideBar/redux/types";
+import { IPubSubMessage, Subscription } from "../PubSub";
+import { getNonce, pubSubTypes, requestTypes, responseTypes } from "../configuration";
+import { GetAllCollectionName, GetAllCollectionsByIdWithPath, GetParentSettings, UpdateCollection } from "../db/collectionDBUtil";
+import { GetAllCookies, SaveCookie } from "../db/cookieDBUtil";
+import { SaveHistory, UpdateHistory } from "../db/historyDBUtil";
+import { GetExitingItem, SaveRequest, UpdateRequest } from "../db/mainDBUtil";
+import { GetAllVariable, GetVariableById, UpdateVariable } from "../db/varDBUtil";
+import { apiFetch, FetchConfig } from "../fetchUtil";
+import { formatDate, getErrorResponse } from "../helper";
+import { writeLog } from "../logger/logger";
+import { getConfiguration, getHeadersConfiguration, getLayoutConfiguration, getRequestTabOption, getRunMainRequestOption, getTimeOutConfiguration, getVSCodeTheme } from "../vscodeConfig";
+import { ExecuteAPIRequest } from "./helper";
 
 export class WebAppPanel {
 
@@ -83,7 +83,7 @@ export class WebAppPanel {
 
     this._panel.onDidDispose(() => {
       this._scriptionId.unsubscribe();
-      this.dispose();
+      this.dispose(id, colId, folderId);
     }, null, this._disposables);
 
     this._panel.onDidChangeViewState(function (event) {
@@ -98,40 +98,16 @@ export class WebAppPanel {
       runMainRequest: getRunMainRequestOption()
     };
 
+
     // Handle messages from the webview  
     this._panel.webview.onDidReceiveMessage(
-      message => {
+      async message => {
         try {
           if (message.type === requestTypes.apiRequest) {
             const CancelToken = axios.CancelToken;
             fetchConfig.source = CancelToken.source();
 
-            let request = message.data.reqData as IRequestModel;
-            let preFetch = request.preFetch;
-
-            if (preFetch?.requests?.length > 0 && preFetch?.requests[0].reqId) {
-              let preFetchRunner = new PreFetchRunner(fetchConfig, request.id);
-              preFetchRunner.RunPreRequests(preFetch, 0, 0, request.name).then(() => {
-                if (preFetchRunner.message) {
-                  if (fetchConfig.runMainRequest === true) {
-                    setTimeout(() => {
-                      vsCodeLogger.log("INFO", "\n\n" + preFetchRunner.message + "\n");
-                    }, 1000);
-                    this._executeAPIRequest(message, fetchConfig);
-                  } else {
-                    fetchConfig.source = null;
-                    let errorResponse = getErrorResponse();
-                    errorResponse.response.responseData = preFetchRunner.message;
-                    this._panel.webview.postMessage(errorResponse);
-                    return;
-                  }
-                } else {
-                  this._executeAPIRequest(message, fetchConfig);
-                }
-              });
-            } else {
-              this._executeAPIRequest(message, fetchConfig);
-            }
+            await ExecuteAPIRequest(message, fetchConfig, this._panel.webview);
 
             let item: IHistory = {
               id: message.data.reqData.id,
@@ -144,6 +120,7 @@ export class WebAppPanel {
             if (message.data.colId) {
               UpdateCollection(message.data.colId, item);
             }
+
             sideBarProvider.view.webview.postMessage({ type: responseTypes.updateCollectionHistoryItem, colId: message.data.colId, item: item });
 
           } else if (message.type === requestTypes.cancelRequest) {
@@ -156,6 +133,8 @@ export class WebAppPanel {
             this._panel.webview.postMessage(getConfiguration());
           } else if (message.type === requestTypes.openExistingItemRequest) {
             GetExitingItem(this._panel.webview, message.data);
+          } else if (message.type === requestTypes.getOpenAndRunItemDataRequest) {
+            GetExitingItem(this._panel.webview, message.data, null, "OpenAndRun");
           } else if (message.type === requestTypes.saveResponseRequest) {
             vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file("fetch-client-response." + message.fileType) }).then((uri: vscode.Uri | undefined) => {
               if (uri) {
@@ -267,7 +246,7 @@ export class WebAppPanel {
               }
             });
           } else if (message.type === requestTypes.tokenRequest) {
-            apiFetch(message.data.reqData, message.data.variableData, message.data.settings, fetchConfig, responseTypes.tokenResponse).then((data) => {
+            apiFetch(message.data.reqData, message.data.variableData, message.data.settings, null, fetchConfig, responseTypes.tokenResponse).then((data) => {
               this._panel.webview.postMessage(data);
             });
           } else if (message.type === requestTypes.themeRequest) {
@@ -279,8 +258,7 @@ export class WebAppPanel {
           }
         }
         catch (error) {
-          vscode.window.showErrorMessage("Couldn't fetch the api", { modal: true });
-          writeLog("error::onDidReceiveMessage()" + error.message);
+          writeLog("error::mainUIProvider::onDidReceiveMessage()" + error);
         }
       },
       null,
@@ -288,7 +266,10 @@ export class WebAppPanel {
     );
   }
 
-  public dispose() {
+  public dispose(id?: string, colId?: string, folderId?: string) {
+
+    sideBarProvider.view.webview.postMessage({ type: requestTypes.closeItemRequest, id: id, colId: colId, folderId: folderId });
+
     WebAppPanel.currentPanel = undefined;
 
     // Clean up our resources  
@@ -319,34 +300,6 @@ export class WebAppPanel {
     }
   }
 
-  private _executeAPIRequest(message: any, fetchConfig: FetchConfig) {
-    apiFetch(message.data.reqData, message.data.variableData, message.data.settings, fetchConfig).then((data) => {
-      fetchConfig.source = null;
-      this._panel.webview.postMessage(data);
-
-      let item: IHistory = {
-        id: message.data.reqData.id,
-        method: message.data.reqData.method,
-        name: message.data.reqData.name ? message.data.reqData.name : message.data.reqData.url,
-        url: message.data.reqData.url,
-        createdTime: message.data.reqData.createdTime ? message.data.reqData.createdTime : formatDate()
-      };
-
-      let reqData = message.data.reqData as IRequestModel;
-      if (reqData.body.bodyType === "binary") {
-        reqData.body.binary.data = "";
-      }
-
-      if (message.data.isNew) {
-        SaveRequest(reqData);
-        SaveHistory(item, sideBarProvider.view);
-      } else {
-        UpdateRequest(reqData);
-        UpdateHistory(item);
-      }
-    });
-  }
-
   private _getHtmlForWebview(webview: vscode.Webview, id?: string, colId?: string, varId?: string, type?: string, folderId?: string) {
 
     const scriptUri = webview.asWebviewUri(
@@ -364,7 +317,7 @@ export class WebAppPanel {
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link href="${styleUri}" rel="stylesheet" type="text/css"/>
-          <title>${id}:${colId}:${varId}:${type}:${folderId}</title>
+          <title>${id}@:@${colId}@:@${varId}@:@${type}@:@${folderId}</title>
         </head>
         <body>
           <noscript>You need to enable JavaScript to run this app.</noscript>

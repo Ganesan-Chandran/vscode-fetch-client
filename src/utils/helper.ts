@@ -1,4 +1,4 @@
-import { checkSysVariable, getSysVariableWithValue, SysVariables } from "../fetch-client-ui/components/Common/Consts/sysVariables";
+import { checkSysVariable, getSysVariableWithValue } from "../fetch-client-ui/components/Common/Consts/sysVariables";
 import { ITableData } from "../fetch-client-ui/components/Common/Table/types";
 import { IRequestModel } from "../fetch-client-ui/components/RequestUI/redux/types";
 import { ISettings } from "../fetch-client-ui/components/SideBar/redux/types";
@@ -221,6 +221,21 @@ export function replaceAuthSettingsInRequest(request: IRequestModel, settings: I
   return request;
 }
 
+export function replaceHeaderSettingsInRequest(request: IRequestModel, settings: ISettings): IRequestModel {
+  if (settings.headers) {
+    settings.headers.forEach((header) => {
+      if (header.isChecked && header.key) {
+        let index = request.headers.findIndex(item => (item.key.toLowerCase() === header.key.toLowerCase()) && item.isChecked);
+        if (index === -1) {
+          request.headers.push(header);
+        }
+      }
+    });
+  }
+
+  return request;
+}
+
 function replaceTableDataWithVariable(data: ITableData[], varData: any) {
   const re = new RegExp("({{([^}}]+)}})");
   data.forEach(item => {
@@ -261,11 +276,13 @@ function updateVariable(item: string, data: string, varData: any) {
       data = data.replace(item, value?.toString());
     }
   } else {
-    let replacedValue = varData[item.replace("{{", "").replace("}}", "")];
-    if (replacedValue && checkVariableMatch(replacedValue)) {
-      data = data.replace(item, replaceDataWithVariable(replacedValue, varData));
-    } else {
-      data = data.replace(item, varData[item.replace("{{", "").replace("}}", "")]);
+    if (varData && Object.keys(varData).length > 0) {
+      let replacedValue = varData[item.replace("{{", "").replace("}}", "")];
+      if (replacedValue && checkVariableMatch(replacedValue)) {
+        data = data.replace(item, replaceDataWithVariable(replacedValue, varData));
+      } else {
+        data = data.replace(item, varData[item.replace("{{", "").replace("}}", "")]);
+      }
     }
   }
 

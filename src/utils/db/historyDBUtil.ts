@@ -1,16 +1,17 @@
-import * as vscode from "vscode";
 import loki, { LokiFsAdapter } from "lokijs";
+import * as vscode from "vscode";
 import { IHistory } from "../../fetch-client-ui/components/SideBar/redux/types";
 import { responseTypes } from '../configuration';
-import { getHistoryLimitConfiguration } from '../vscodeConfig';
-import { DeleteExitingItem, DeleteExitingItems, RenameRequestItem } from './mainDBUtil';
 import { writeLog } from '../logger/logger';
+import { getHistoryLimitConfiguration } from '../vscodeConfig';
 import { historyDBPath } from "./dbPaths";
+import { DeleteExitingItem, DeleteExitingItems, RenameRequestItem } from './mainDBUtil';
 
 
 function getDB(): loki {
   const idbAdapter = new LokiFsAdapter();
-  const db = new loki(historyDBPath(), { adapter: idbAdapter });
+  const db = new loki(historyDBPath(), { adapter: idbAdapter, autosave: true, autosaveInterval: 1000 });
+  db.autosaveEnable();
   return db;
 }
 

@@ -1,23 +1,23 @@
-import { Actions } from "../RequestUI/redux";
-import { CookiesActions } from "../Cookies/redux";
-import { formatDate } from "../../../utils/helper";
-import { ICookie } from "../Cookies/redux/types";
-import { ICollection, IRequestModel } from "../RequestUI/redux/types";
-import { IRootState } from '../../reducer/combineReducer';
-import { ISettings, IVariable } from "../SideBar/redux/types";
-import { OptionsPanel } from "../RequestUI/OptionsPanel";
-import { ReponsePanel } from "../ResponseUI/ResponsePanel";
-import { RequestPanel } from "../RequestUI/RequestPanel";
-import { pubSubTypes, requestTypes, responseTypes } from "../../../utils/configuration";
-import { ResponseActions } from "../ResponseUI/redux";
-import { UIActions } from './redux';
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { useEffect, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { VariableActions } from "../Variables/redux";
-import React, { useRef } from "react";
 import Split from 'react-split';
+import { v4 as uuidv4 } from 'uuid';
+import { pubSubTypes, requestTypes, responseTypes } from "../../../utils/configuration";
+import { formatDate } from "../../../utils/helper";
+import { IRootState } from '../../reducer/combineReducer';
 import vscode from "../Common/vscodeAPI";
+import { CookiesActions } from "../Cookies/redux";
+import { ICookie } from "../Cookies/redux/types";
+import { OptionsPanel } from "../RequestUI/OptionsPanel";
+import { Actions } from "../RequestUI/redux";
+import { ICollection, IRequestModel } from "../RequestUI/redux/types";
+import { RequestPanel } from "../RequestUI/RequestPanel";
+import { SendRequest } from "../RequestUI/RequestPanel/common";
+import { ResponseActions } from "../ResponseUI/redux";
+import { ReponsePanel } from "../ResponseUI/ResponsePanel";
+import { ISettings, IVariable } from "../SideBar/redux/types";
+import { VariableActions } from "../Variables/redux";
+import { UIActions } from './redux';
 import "./style.css";
 
 const MainUI = () => {
@@ -29,6 +29,8 @@ const MainUI = () => {
   const requestData = useSelector((state: IRootState) => state.requestData);
   const { variables } = useSelector((state: IRootState) => state.variableData);
   const { parentSettings, collectionList } = useSelector((state: IRootState) => state.reqColData);
+  const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
+  const reqSettings = useSelector((state: IRootState) => state.reqSettings);
 
   const refReq = useRef(requestData);
   const setReq = (data: IRequestModel) => {
@@ -47,6 +49,7 @@ const MainUI = () => {
 
   const [saveVisible, setVisible] = useState(false);
   const [loadingApp, setLoadingApp] = useState(true);
+  const [waitForSend, setWaitForSend] = useState(false);
 
   useEffect(() => {
     if (loading && resClass === "zero-height") {
@@ -101,18 +104,26 @@ const MainUI = () => {
         let responseLimit = (config["responseLimit"] as number) * 1048576;
         dispatch(UIActions.SetLayoutAction(layoutConfig === "Horizontal Split" ? true : false, event.data.theme));
         dispatch(UIActions.SetResponseLimitAction(responseLimit));
-      } else if (event.data && event.data.type === responseTypes.openExistingItemResponse) {
+      } else if (event.data && (event.data.type === responseTypes.openExistingItemResponse || event.data.type === responseTypes.getOpenAndRunItemDataResponse)) {
         const reqData = event.data.item[0] as IRequestModel;
         dispatch(Actions.SetRequestAction(reqData));
         if (reqData.body.bodyType === "binary" && reqData.body.binary.fileName) {
           vscode.postMessage({ type: requestTypes.readFileRequest, path: reqData.body.binary.fileName });
         }
-        if (reqData.auth.authType === "inherit") {
-          vscode.postMessage({ type: requestTypes.getParentSettingsRequest, data: { colId: colId, folderId: folderId } });
-        }
         setLoadingApp(false);
+        if (event.data.type === responseTypes.getOpenAndRunItemDataResponse) {
+          if ((reqData.body.bodyType === "binary" && reqData.body.binary.fileName) || reqData.auth.authType === "inherit") {
+            setWaitForSend(true);
+          } else {
+            SendRequest(dispatch, false, colId, reqData, selectedVariable, parentSettings, reqSettings);
+          }
+        }
       } else if (event.data && event.data.type === responseTypes.readFileResponse) {
         dispatch(Actions.SetRequestBinaryDataAction(event.data.fileData));
+        if (waitForSend === true) {
+          setWaitForSend(false);
+          SendRequest(dispatch, false, colId, requestData, selectedVariable, parentSettings, reqSettings);
+        }
       } else if (event.data && event.data.type === responseTypes.getAllVariableResponse) {
         dispatch(VariableActions.SetReqAllVariableAction(event.data.variable as IVariable[]));
         setLoadingApp(false);
@@ -121,9 +132,6 @@ const MainUI = () => {
         dispatch(Actions.SetRequestAction(reqData));
         if (reqData.body.bodyType === "binary" && reqData.body.binary.fileName) {
           vscode.postMessage({ type: requestTypes.readFileRequest, path: reqData.body.binary.fileName });
-        }
-        if (reqData.auth.authType === "inherit") {
-          vscode.postMessage({ type: requestTypes.getParentSettingsRequest, data: { colId: colId, folderId: folderId } });
         }
         dispatch(ResponseActions.SetResponseAction(event.data.resData.response));
         dispatch(ResponseActions.SetResponseHeadersAction(event.data.resData.headers));
@@ -135,6 +143,10 @@ const MainUI = () => {
         dispatch(CookiesActions.SetAllCookiesAction(event.data.cookies as ICookie[]));
       } else if (event.data && event.data.type === responseTypes.getParentSettingsResponse) {
         dispatch(Actions.SetReqParentSettingsAction(event.data.settings as ISettings));
+        if (waitForSend === true) {
+          setWaitForSend(false);
+          SendRequest(dispatch, false, colId, requestData, selectedVariable, event.data.settings as ISettings, reqSettings);
+        }
       } else if (event.data && event.data.type === pubSubTypes.updateVariables) {
         vscode.postMessage({ type: requestTypes.getAllVariableRequest });
       } else if (event.data && event.data.type === pubSubTypes.removeCurrentVariable) {
@@ -159,18 +171,25 @@ const MainUI = () => {
 
     vscode.postMessage({ type: requestTypes.configRequest });
 
-    let reqId = document.title.split(":")[0];
-    let colId = document.title.split(":")[1];
-    let varId = document.title.split(":")[2];
-    let isRunItem = document.title.split(":")[3];
-    let folderId = document.title.split(":")[4];
+    let reqId = document.title.split("@:@")[0];
+    let colId = document.title.split("@:@")[1];
+    let varId = document.title.split("@:@")[2];
+    let isRunItem = document.title.split("@:@")[3];
+    let folderId = document.title.split("@:@")[4];
+
+    vscode.postMessage({ type: requestTypes.getAllVariableRequest });
 
     if (reqId !== "undefined" && isRunItem === "undefined") {
       vscode.postMessage({ type: requestTypes.openExistingItemRequest, data: reqId });
-      setTimeout(vscode.postMessage({ type: requestTypes.getAllVariableRequest }), 1000);
-    } else {
-      vscode.postMessage({ type: requestTypes.getAllVariableRequest });
+    } else if (reqId !== "undefined" && isRunItem !== "undefined" && isRunItem === "OpenAndRun") {
+      dispatch(UIActions.SetRunItemAction(true));      
+      vscode.postMessage({ type: requestTypes.getOpenAndRunItemDataRequest, data: reqId });
+    } else if (isRunItem !== "undefined" && isRunItem !== "OpenAndRun") {
+      dispatch(UIActions.SetRunItemAction(true));
+      vscode.postMessage({ type: requestTypes.getRunItemDataRequest });
     }
+
+    vscode.postMessage({ type: requestTypes.getParentSettingsRequest, data: { colId: colId, folderId: folderId } });
 
     if (collectionList.length === 0) {
       setTimeout(vscode.postMessage({ type: requestTypes.getAllCollectionNameRequest, data: "addtocol" }), 1000);
@@ -180,11 +199,6 @@ const MainUI = () => {
 
     if (varId !== "undefined") {
       setVarId(varId);
-    }
-
-    if (isRunItem !== "undefined") {
-      dispatch(UIActions.SetRunItemAction(true));
-      vscode.postMessage({ type: requestTypes.getRunItemDataRequest });
     }
 
     document.addEventListener("keydown", function (e) {

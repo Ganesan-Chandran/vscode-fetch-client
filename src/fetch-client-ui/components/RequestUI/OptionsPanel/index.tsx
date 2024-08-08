@@ -1,17 +1,16 @@
-import { allAuthTypes, basicAuthTypes } from "./Options/Auth/consts";
-import { AuthPanel } from "./Options/Auth";
-import { Body } from "./Options/Body";
-import { HeadersPanel } from "./Options/Headers";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import { IRootState } from "../../../reducer/combineReducer";
 import { OptionsTab } from "./OptionTab";
+import { AuthPanel } from "./Options/Auth";
+import { allAuthTypes, basicAuthTypes } from "./Options/Auth/consts";
+import { Body } from "./Options/Body";
+import { RequestHeadersPanel } from "./Options/Headers/requestHeaders";
 import { PostFetch } from "./Options/PostFetch";
 import { PreFetch } from "./Options/PreFetch";
 import { QueryParams } from "./Options/QueryParams";
-import { requestOptions } from "./consts";
 import { Settings } from "./Options/Settings";
-import { useSelector } from "react-redux";
-import { useState } from "react";
-import React from "react";
+import { requestOptions } from "./consts";
 import "./style.css";
 
 export const OptionsPanel = () => {
@@ -20,7 +19,7 @@ export const OptionsPanel = () => {
   const { colId } = useSelector((state: IRootState) => state.reqColData);
   const { runItem } = useSelector((state: IRootState) => state.uiData);
 
-  const [selectedTab, setSelectedTab] = useState(runItem ? "tests" : "params");
+  const [selectedTab, setSelectedTab] = useState(runItem ? "postFetch" : "params");
 
   const renderOptionsUI = (tab: string) => {
     switch (tab) {
@@ -29,7 +28,7 @@ export const OptionsPanel = () => {
       case 'authorization':
         return <AuthPanel authTypes={colId ? allAuthTypes : basicAuthTypes} selectedVariable={selectedVariable} />;
       case 'headers':
-        return <HeadersPanel />;
+        return <RequestHeadersPanel />;
       case 'body':
         return <Body />;
       case 'settings':

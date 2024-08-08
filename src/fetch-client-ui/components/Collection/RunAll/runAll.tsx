@@ -1,15 +1,15 @@
-import { executeTests, setVariable } from "../../TestUI/TestPanel/helper";
-import { exportCSV, exportJson } from "./helper";
-import { FormatBytes, GetResponseTime } from "../../ResponseUI/OptionsPanel/OptionTab/util";
-import { getMethodClassName } from "../../SideBar/util";
-import { IReponseModel } from "../../ResponseUI/redux/types";
-import { IRequestModel } from "../../RequestUI/redux/types";
-import { IVariable } from "../../SideBar/redux/types";
-import { requestTypes, responseTypes } from "../../../../utils/configuration";
-import { RunAllSettings } from "./runAllSettings";
 import React, { useEffect, useRef, useState } from "react";
+import { requestTypes, responseTypes } from "../../../../utils/configuration";
 import vscode from "../../Common/vscodeAPI";
+import { IRequestModel } from "../../RequestUI/redux/types";
+import { FormatBytes, GetResponseTime } from "../../ResponseUI/OptionsPanel/OptionTab/util";
+import { IReponseModel } from "../../ResponseUI/redux/types";
+import { ISettings, IVariable } from "../../SideBar/redux/types";
+import { getMethodClassName } from "../../SideBar/util";
+import { executeTests, setVariable } from "../../TestUI/TestPanel/helper";
 import "../style.css";
+import { exportCSV, exportJson } from "./helper";
+import { RunAllSettings } from "./runAllSettings";
 
 const RunAll = () => {
 
@@ -17,6 +17,11 @@ const RunAll = () => {
   const [processing, setProcessing] = useState(false);
   const [start, setStart] = useState(false);
   const [done, setDone] = useState(false);
+  const [varId, setVarId] = useState("");
+  const [colId, setColId] = useState("");
+  const [folderId, setFolderId] = useState("");
+  const [itemPaths, setItemPaths] = useState(null);
+
   const [loading, _setLoading] = useState(false);
   const refLoading = useRef(loading);
   const setLoading = (data: boolean) => {
@@ -31,10 +36,12 @@ const RunAll = () => {
     _setReq(refReq.current);
   };
 
-  const [varId, setVarId] = useState("");
-  const [colId, setColId] = useState("");
-  const [folderId, setFolderId] = useState("");
-  const [itemPaths, setItemPaths] = useState(null);
+  const [parentSettings, _setParentSettings] = useState<ISettings>();
+  const refParentSettings = useRef(parentSettings);
+  const setParentSettings = (data: ISettings) => {
+    refParentSettings.current = data;
+    _setParentSettings(refParentSettings.current);
+  };
 
   const [selectedVariable, _setSelectedVariable] = useState<IVariable>();
   const refSelectedVariable = useRef(selectedVariable);
@@ -83,10 +90,10 @@ const RunAll = () => {
   const [cancelled, setCancelled] = useState(false);
 
   useEffect(() => {
-    const colId = document.title.split(":")[1];
-    const folderId = document.title.split(":")[2];
-    const name = document.title.split(":")[3];
-    const varId = document.title.split(":")[4];
+    const colId = document.title.split("@:@")[1];
+    const folderId = document.title.split("@:@")[2];
+    const name = document.title.split("@:@")[3];
+    const varId = document.title.split("@:@")[4];
 
     setSourceColName(name.trim());
     setVarId(varId?.trim());
@@ -97,7 +104,6 @@ const RunAll = () => {
       if (event.data && event.data.type === responseTypes.getCollectionsByIdResponse) {
         setReq((event.data.collections as IRequestModel[]));
         setItemPaths(event.data.paths);
-        setLoading(false);
       } else if (event.data && event.data.type === responseTypes.apiResponse) {
         setResponse(event.data);
         setProcessing(false);
@@ -118,6 +124,9 @@ const RunAll = () => {
           });
           setProcessing(false);
         }
+      } else if (event.data && event.data.type === responseTypes.getParentSettingsResponse) {
+        setParentSettings(event.data.settings as ISettings);
+        setLoading(false);
       }
     });
 
@@ -182,7 +191,7 @@ const RunAll = () => {
         id = "";
       }
       setProcessing(true);
-      vscode.postMessage({ type: requestTypes.apiRequest, data: { reqData: req[enabledIndex], variableData: selectedVariable ? selectedVariable.data : null, colId: colId, folderId: id } });
+      vscode.postMessage({ type: requestTypes.apiRequest, data: { settings: parentSettings, reqData: req[enabledIndex], variableData: selectedVariable, colId: colId, folderId: id } });
     }
   }
 
@@ -253,7 +262,7 @@ const RunAll = () => {
             }
             setTimeout(() => {
               setProcessing(true);
-              vscode.postMessage({ type: requestTypes.apiRequest, data: { reqData: req[enabledIndex], variableData: selectedVariable ? selectedVariable.data : null, colId: colId, folderId: id } });
+              vscode.postMessage({ type: requestTypes.apiRequest, data: { reqData: req[enabledIndex], variableData: selectedVariable, colId: colId, folderId: id, settings: parentSettings } });
               setCurIndex(enabledIndex);
             }, requestDelay);
 
