@@ -8,24 +8,24 @@ import "./style.css";
 
 export const Raw = (props: any) => {
 
-  const dispatch = useDispatch();
+	const dispatch = useDispatch();
 
-  const requestData = useSelector((state: IRootState) => state.requestData);
+	const requestData = useSelector((state: IRootState) => state.requestData);
 
-  const onContentChange = (value: string) => {
-    dispatch(Actions.SetRequestRawAction(value));
-  };
+	const onContentChange = (value: string) => {
+		dispatch(Actions.SetRequestRawAction(value));
+	};
 
-  return (
-    <div className="raw-panel">
-      <MonacoEditor
-        value={requestData.body.raw.data}
-        language={requestData.body.raw.lang ?? requestBodyRaw[1].value}
-        readOnly={false}
-        copyButtonVisible={false}
-        format={props.format}
-        onContentChange={onContentChange}
-      />
-    </div>
-  );
+	return (
+		<div className="raw-panel">
+			<MonacoEditor
+				value={requestData.body.raw.data}
+				language={requestData.body.raw.lang ?? requestBodyRaw[1].value}
+				readOnly={false}
+				copyButtonVisible={false}
+				format={props.format}
+				onContentChange={onContentChange}
+			/>
+		</div>
+	);
 };

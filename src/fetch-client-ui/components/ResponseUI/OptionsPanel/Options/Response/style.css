@@ -1,237 +1,237 @@
 .response-content-panel {
-  height: 100%;
+	height: 100%;
 }
 
 .response-editor {
-  height     : calc(100% - 33px);
-  padding-top: 10px;
+	height     : calc(100% - 33px);
+	padding-top: 10px;
 }
 
 .response-editor-without-preview {
-  height     : 100%;
-  padding-top: 10px;
+	height     : 100%;
+	padding-top: 10px;
 }
 
 .response-header-label {
-  position  : relative;
-  top       : 15%;
-  text-align: center;
-  margin    : 0 auto;
-  height    : 75%;
+	position  : relative;
+	top       : 15%;
+	text-align: center;
+	margin    : 0 auto;
+	height    : 75%;
 }
 
 .arrow-4 {
-  width        : 40px;
-  height       : 30px;
-  display      : grid;
-  margin       : 0 auto;
-  margin-bottom: 20px;
+	width        : 40px;
+	height       : 30px;
+	display      : grid;
+	margin       : 0 auto;
+	margin-bottom: 20px;
 }
 
 .arrow-4:before,
 .arrow-4:after {
-  content   : "";
-  grid-area : 1/1;
-  background: var(--border-color);
-  clip-path : polygon(0 10px, calc(100% - 15px) 10px, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, calc(100% - 15px) calc(100% - 10px), 0 calc(100% - 10px));
-  animation : a4 0.5s infinite alternate;
+	content   : "";
+	grid-area : 1/1;
+	background: var(--border-color);
+	clip-path : polygon(0 10px, calc(100% - 15px) 10px, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, calc(100% - 15px) calc(100% - 10px), 0 calc(100% - 10px));
+	animation : a4 0.5s infinite alternate;
 }
 
 .arrow-4:after {
-  --s: -1;
+	--s: -1;
 }
 
 @keyframes a4 {
-  0% {
-    transform: scale(var(--s, 1)) translate(12px, -6px) translate(4px);
-  }
+	0% {
+		transform: scale(var(--s, 1)) translate(12px, -6px) translate(4px);
+	}
 
-  100% {
-    transform: scale(var(--s, 1)) translate(12px, -6px) translate(-4px);
-  }
+	100% {
+		transform: scale(var(--s, 1)) translate(12px, -6px) translate(-4px);
+	}
 }
 
 .fetch-data-text {
-  font-size  : medium;
-  font-weight: 400;
+	font-size  : medium;
+	font-weight: 400;
 }
 
 .fetch-client-image {
-  width        : 60px;
-  height       : 60px;
-  margin-bottom: 20px;
-  filter       : brightness(85%);
+	width        : 60px;
+	height       : 60px;
+	margin-bottom: 20px;
+	filter       : brightness(85%);
 }
 
 .fetch-image-panel {
-  position      : relative;
-  top           : 40%;
-  text-align    : center;
-  margin        : 0 auto;
-  display       : flex;
-  flex-direction: column;
-  align-items   : center;
+	position      : relative;
+	top           : 40%;
+	text-align    : center;
+	margin        : 0 auto;
+	display       : flex;
+	flex-direction: column;
+	align-items   : center;
 }
 
 .res-not-support-panel {
-  position  : relative;
-  top       : 40%;
-  text-align: center;
-  margin    : 0 auto;
+	position  : relative;
+	top       : 40%;
+	text-align: center;
+	margin    : 0 auto;
 }
 
 .res-not-support-text {
-  font-size: medium;
-  word-wrap: break-word;
-  padding  : 5px;
+	font-size: medium;
+	word-wrap: break-word;
+	padding  : 5px;
 }
 
 .res-not-support-download {
-  margin-top: 10px;
-  width     : auto !important;
+	margin-top: 10px;
+	width     : auto !important;
 }
 
 .cancel-button-panel {
-  position  : absolute;
-  bottom    : 10%;
-  text-align: center;
-  left      : 45%;
+	position  : absolute;
+	bottom    : 10%;
+	text-align: center;
+	left      : 45%;
 }
 
 .error-text {
-  color: #ea5b5b !important;
+	color: #ea5b5b !important;
 }
 
 .viewer-option-button-panel {
-  padding-top: 10px;
+	padding-top: 10px;
 }
 
 .viewer-option-button {
-  background-color: transparent;
-  outline         : none;
-  border          : 0;
-  color           : var(--button-background-color);
-  cursor          : pointer;
-  font-weight     : bolder;
-  padding-left    : 5px;
+	background-color: transparent;
+	outline         : none;
+	border          : 0;
+	color           : var(--button-background-color);
+	cursor          : pointer;
+	font-weight     : bolder;
+	padding-left    : 5px;
 }
 
 .viewer-option-button:hover,
 .viewer-option-button:focus {
-  background-color: transparent;
-  outline         : none;
-  border          : 0;
+	background-color: transparent;
+	outline         : none;
+	border          : 0;
 }
 
 .viewer-option-button:hover {
-  color: var(--button-hover-color);
+	color: var(--button-hover-color);
 }
 
 .toggle,
 .word-wrap-button {
-  box-sizing     : border-box;
-  font-size      : 0;
-  display        : flex;
-  flex-flow      : row nowrap;
-  justify-content: flex-start;
-  align-items    : stretch;
-  margin-top     : 10px;
-  outline        : none;
+	box-sizing     : border-box;
+	font-size      : 0;
+	display        : flex;
+	flex-flow      : row nowrap;
+	justify-content: flex-start;
+	align-items    : stretch;
+	margin-top     : 10px;
+	outline        : none;
 }
 
 .toggle input {
-  width   : 0;
-  height  : 0;
-  position: absolute;
-  left    : -9999px;
-  outline : none;
+	width   : 0;
+	height  : 0;
+	position: absolute;
+	left    : -9999px;
+	outline : none;
 }
 
 .toggle input+label {
-  margin    : 0;
-  padding   : 0.1rem 1rem;
-  box-sizing: border-box;
-  position  : relative;
-  display   : inline-block;
-  border    : solid 1px var(--text-color);
-  ;
-  background-color: transparent;
-  font-weight     : 600;
-  text-align      : center;
-  transition      : border-color 0.15s ease-out, color 0.25s ease-out, background-color 0.15s ease-out, box-shadow 0.15s ease-out;
-  color           : var(--text-color);
-  outline         : none;
+	margin    : 0;
+	padding   : 0.1rem 1rem;
+	box-sizing: border-box;
+	position  : relative;
+	display   : inline-block;
+	border    : solid 1px var(--text-color);
+	;
+	background-color: transparent;
+	font-weight     : 600;
+	text-align      : center;
+	transition      : border-color 0.15s ease-out, color 0.25s ease-out, background-color 0.15s ease-out, box-shadow 0.15s ease-out;
+	color           : var(--text-color);
+	outline         : none;
 }
 
 .toggle input+label:first-of-type {
-  border-radius: 6px 0 0 6px;
-  border-right : none;
+	border-radius: 6px 0 0 6px;
+	border-right : none;
 }
 
 .toggle input+label:last-of-type {
-  border-radius: 0 6px 6px 0;
-  border-left  : none;
+	border-radius: 0 6px 6px 0;
+	border-left  : none;
 }
 
 .toggle input:hover+label {
-  border-color: #213140;
+	border-color: #213140;
 }
 
 .toggle input:checked+label {
-  background-color: var(--button-background-color);
-  color           : var(--button-text-color);
-  border-color    : var(--button-background-color);
-  z-index         : 1;
+	background-color: var(--button-background-color);
+	color           : var(--button-text-color);
+	border-color    : var(--button-background-color);
+	z-index         : 1;
 }
 
 .expand-btn {
-  position: fixed;
-  bottom  : 28px;
-  right   : 40px;
-  z-index : 20;
-  width   : 17px;
-  cursor  : pointer;
+	position: fixed;
+	bottom  : 28px;
+	right   : 40px;
+	z-index : 20;
+	width   : 17px;
+	cursor  : pointer;
 }
 
 .expand-btn path {
-  fill: var(--text-color);
+	fill: var(--text-color);
 }
 
 .collapse-btn {
-  position: fixed;
-  bottom  : 15px;
-  right   : 25px;
-  z-index : 20;
-  cursor  : pointer;
+	position: fixed;
+	bottom  : 15px;
+	right   : 25px;
+	z-index : 20;
+	cursor  : pointer;
 }
 
 .collapse-btn path {
-  fill: var(--text-color);
+	fill: var(--text-color);
 }
 
 .response-section-panel-full-screen {
-  height          : auto;
-  width           : auto;
-  border          : 0;
-  margin          : 0;
-  position        : fixed !important;
-  top             : 0;
-  bottom          : 1px;
-  left            : 0;
-  right           : 0;
-  z-index         : 15;
-  background-color: var(--vscode-editor-background);
+	height          : auto;
+	width           : auto;
+	border          : 0;
+	margin          : 0;
+	position        : fixed !important;
+	top             : 0;
+	bottom          : 1px;
+	left            : 0;
+	right           : 0;
+	z-index         : 15;
+	background-color: var(--vscode-editor-background);
 }
 
 .fullscreen-btn-invisible {
-  visibility: hidden;
+	visibility: hidden;
 }
 
 .word-wrap-button {
-  margin-left: auto;
-  order      : 2;
+	margin-left: auto;
+	order      : 2;
 }
 
 .res-prev-header {
-  display: flex;
+	display: flex;
 }

@@ -390,7 +390,7 @@ Fetch client provides the quick access of History, collection and Environment va
 <div align="center">
   <br/>
   <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/import-curl-menu.png?raw=true" alt="Import Curl Menu"/>
-  <br/>  
+  <br/>
   <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/import-curl.png?raw=true" alt="Import Curl"/>
   <br/>
   <sup><b>Import Curl Request</b></sup>
@@ -498,7 +498,7 @@ DO NOT ENTER/EDIT MANUALLY in the below settings. Configuration will be done aut
 
 <div align="center">
   <br/>
-  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/fetch-client-setting.png?raw=true" alt="Fetch Client settings"/>  
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/fetch-client-setting.png?raw=true" alt="Fetch Client settings"/>
 </div>
 
 ## 🚀 Tech Stack

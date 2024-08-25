@@ -1,102 +1,102 @@
 .file-upload-button {
-  display: none;
+	display: none;
 }
 
 .file-upload-panel {
-  display: flex;
-  margin-top: 20px;
+	display: flex;
+	margin-top: 20px;
 }
 
 .file-upload-text {
-  background-color: var(--background-color);
-  border-radius: 3px;
-  color: var(--text-color);
-  cursor: pointer;
-  padding: 5px;
-  border: var(--border-size) solid var(--border-color);
+	background-color: var(--background-color);
+	border-radius: 3px;
+	color: var(--text-color);
+	cursor: pointer;
+	padding: 5px;
+	border: var(--border-size) solid var(--border-color);
 }
 
 .file-upload-text:hover {
-  background-color: var(--input-hover);
+	background-color: var(--input-hover);
 }
 
 .filename-text {
-  color: var(--text-color);
-  font-size: var(--font-size);
-  padding-top: 5px;
-  margin-left: 10px;
+	color: var(--text-color);
+	font-size: var(--font-size);
+	padding-top: 5px;
+	margin-left: 10px;
 }
 
 .file-reset-panel {
-  margin-left: auto;
-  order: 2;
-  padding: 5px;
+	margin-left: auto;
+	order: 2;
+	padding: 5px;
 }
 
 .file-reset-text {
-  background-color: transparent;
-  outline: none;
-  border: 0;
-  color: var(--button-background-color);
-  cursor: pointer;
-  font-weight: bolder;
-  padding-left: 5px;
+	background-color: transparent;
+	outline: none;
+	border: 0;
+	color: var(--button-background-color);
+	cursor: pointer;
+	font-weight: bolder;
+	padding-left: 5px;
 }
 
 .file-reset-text:hover,
 .file-reset-text:focus {
-  background-color: transparent;
-  outline: none;
-  border: 0;
+	background-color: transparent;
+	outline: none;
+	border: 0;
 }
 
 .file-reset-text:hover {
-  color: var(--button-hover-color);
+	color: var(--button-hover-color);
 }
 
 .content-type-panel {
-  margin-top: 15px;
+	margin-top: 15px;
 }
 
 .content-type-radio-button-panel {
-  display: grid;
-  padding: 5px;
+	display: grid;
+	padding: 5px;
 }
 
 .content-type-radio-button-wrapper {
-  padding: 5px;
+	padding: 5px;
 }
 
 .content-type-radio-button {
-  padding: 5px;
+	padding: 5px;
 }
 
 .content-type-radio-button-text {
-  font-weight: bold;
+	font-weight: bold;
 }
 
 .content-type-info {
-  padding-left: 5px;
-  cursor: pointer;
-  width: 16px;
-  height: 16px;
+	padding-left: 5px;
+	cursor: pointer;
+	width: 16px;
+	height: 16px;
 }
 
 .content-type-info path {
-  fill: gray;
+	fill: gray;
 }
 
 .file-not-available {
-  padding: 15px 5px 5px 0;
-  display: block;
-  color: #ea5b5b;
-  font-size: medium;
+	padding: 15px 5px 5px 0;
+	display: block;
+	color: #ea5b5b;
+	font-size: medium;
 }
 
 .note-text {
-  padding: 10px;
+	padding: 10px;
 }
 
 .note-text-part {
-  padding-top: 5px;
+	padding-top: 5px;
 }

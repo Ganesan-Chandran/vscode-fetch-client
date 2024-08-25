@@ -15,39 +15,39 @@ import "./style.css";
 
 export const OptionsPanel = () => {
 
-  const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
-  const { colId } = useSelector((state: IRootState) => state.reqColData);
-  const { runItem } = useSelector((state: IRootState) => state.uiData);
+	const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
+	const { colId } = useSelector((state: IRootState) => state.reqColData);
+	const { runItem } = useSelector((state: IRootState) => state.uiData);
 
-  const [selectedTab, setSelectedTab] = useState(runItem ? "postFetch" : "params");
+	const [selectedTab, setSelectedTab] = useState(runItem ? "postFetch" : "params");
 
-  const renderOptionsUI = (tab: string) => {
-    switch (tab) {
-      case 'params':
-        return <QueryParams />;
-      case 'authorization':
-        return <AuthPanel authTypes={colId ? allAuthTypes : basicAuthTypes} selectedVariable={selectedVariable} />;
-      case 'headers':
-        return <RequestHeadersPanel />;
-      case 'body':
-        return <Body />;
-      case 'settings':
-        return <Settings />;
-      case 'preFetch':
-        return <PreFetch />;
-      default:
-        return <PostFetch />;
-    }
-  };
+	const renderOptionsUI = (tab: string) => {
+		switch (tab) {
+			case 'params':
+				return <QueryParams />;
+			case 'authorization':
+				return <AuthPanel authTypes={colId ? allAuthTypes : basicAuthTypes} selectedVariable={selectedVariable} />;
+			case 'headers':
+				return <RequestHeadersPanel />;
+			case 'body':
+				return <Body />;
+			case 'settings':
+				return <Settings />;
+			case 'preFetch':
+				return <PreFetch />;
+			default:
+				return <PostFetch />;
+		}
+	};
 
-  return (
-    <div className="options-panel">
-      <div className="options-container">
-        <OptionsTab selectedTab={selectedTab} setSelectedTab={setSelectedTab} options={requestOptions} settings={true} />
-        <div className="options-tab-panel">
-          {renderOptionsUI(selectedTab)}
-        </div>
-      </div>
-    </div>
-  );
+	return (
+		<div className="options-panel">
+			<div className="options-container">
+				<OptionsTab selectedTab={selectedTab} setSelectedTab={setSelectedTab} options={requestOptions} settings={true} />
+				<div className="options-tab-panel">
+					{renderOptionsUI(selectedTab)}
+				</div>
+			</div>
+		</div>
+	);
 };

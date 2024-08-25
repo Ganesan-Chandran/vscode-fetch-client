@@ -3,6 +3,6 @@ import { CookieReducer } from "./reducer";
 
 
 export {
-  CookiesActions,
-  CookieReducer
+	CookiesActions,
+	CookieReducer
 };

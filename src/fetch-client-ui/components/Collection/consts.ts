@@ -1,4 +1,4 @@
 export const SettingsType = {
-    Folder: "Folder",
-    Collection: "Collection"
+		Folder: "Folder",
+		Collection: "Collection"
 };

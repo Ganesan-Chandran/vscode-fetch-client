@@ -4,14 +4,14 @@ import { Store } from "redux";
 import { IChildrenProp } from "./types";
 
 interface IProps extends IChildrenProp {
-  store: Store;
+	store: Store;
 }
 
 export const StateAndRouterProvider: React.FC<IProps> = (props: IProps) => {
 
-  return (
-    <Provider store={props.store}>
-      {props.children}
-    </Provider>
-  );
+	return (
+		<Provider store={props.store}>
+			{props.children}
+		</Provider>
+	);
 };

@@ -43,3 +43,4 @@ UI
 url
 VSCode
 vscode-fetch-client
+vsix

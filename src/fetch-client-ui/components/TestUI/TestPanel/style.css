@@ -1,12 +1,12 @@
 .test-table {
-  border-collapse: collapse;
-  width          : 100%;
-  margin-top     : 10px;
-  table-layout   : fixed;
+	border-collapse: collapse;
+	width          : 100%;
+	margin-top     : 10px;
+	table-layout   : fixed;
 }
 
 .test-table thead {
-  background-color: var(--list-hover-background-color);
+	background-color: var(--list-hover-background-color);
 }
 
 .test-table,
@@ -15,21 +15,21 @@
 .test-table td,
 .test-table th,
 .test-table tr {
-  border: var(--border-size) solid var(--border-color) !important;
+	border: var(--border-size) solid var(--border-color) !important;
 }
 
 .testvalue-text,
 .test-parameter-select,
 .test-action-select,
 .parameter-value-text {
-  background-color: transparent;
-  border          : 0;
-  box-sizing      : border-box;
-  color           : var(--text-color);
-  font-size       : var(--font-size);
-  outline         : none;
-  padding         : 10px;
-  width           : 100%;
+	background-color: transparent;
+	border          : 0;
+	box-sizing      : border-box;
+	color           : var(--text-color);
+	font-size       : var(--font-size);
+	outline         : none;
+	padding         : 10px;
+	width           : 100%;
 }
 
 .testvalue-text:focus,
@@ -40,28 +40,28 @@
 .test-parameter-select:hover,
 .test-action-select:hover,
 .parameter-value-text:hover {
-  outline: none;
+	outline: none;
 }
 
 .test-parameter-select option,
 .test-action-select option {
-  color: black;
+	color: black;
 }
 
 select:required:invalid {
-  color: gray;
+	color: gray;
 }
 
 option[value=""][disabled] {
-  display: none;
+	display: none;
 }
 
 .test-action-cell {
-  text-align: center;
-  width: 50px;
+	text-align: center;
+	width: 50px;
 }
 
 .test-table>tbody>tr:hover .DraftEditor-editorContainer,
 .test-table>tbody>tr:focus .DraftEditor-editorContainer {
-  background-color: var(--list-hover-background-color) !important;
+	background-color: var(--list-hover-background-color) !important;
 }

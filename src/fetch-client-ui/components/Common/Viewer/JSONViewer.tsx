@@ -7,33 +7,33 @@ import { ViewerProps } from './types';
 
 export const JSONViewer = (props: ViewerProps) => {
 
-  const { theme } = useSelector((state: IRootState) => state.uiData);
-  
-  const [jsonData, setJsonData] = useState({});
-  const [isValid, setValid] = useState(false);
+	const { theme } = useSelector((state: IRootState) => state.uiData);
 
-  useEffect(() => {
-    try {
-      setJsonData(JSON.parse(props.data));
-      setValid(true);
-    } catch {
-      setValid(false);
-    }
-  }, []);
+	const [jsonData, setJsonData] = useState({});
+	const [isValid, setValid] = useState(false);
 
-  return (
-    <div className="json-viewer-panel">
-      {
-        isValid ?
-          <ReactJson
-            src={jsonData}
-            theme={theme === 1 ? "summerfruit:inverted" : theme === 2 ? "summerfruit" : "brewer"}
-            enableClipboard={false}
-            displayDataTypes={false}
-          />
-          :
-          <span className="file-not-available json-viewer-error">{"Invalid JSON."}</span>
-      }
-    </div>
-  );
+	useEffect(() => {
+		try {
+			setJsonData(JSON.parse(props.data));
+			setValid(true);
+		} catch {
+			setValid(false);
+		}
+	}, []);
+
+	return (
+		<div className="json-viewer-panel">
+			{
+				isValid ?
+					<ReactJson
+						src={jsonData}
+						theme={theme === 1 ? "summerfruit:inverted" : theme === 2 ? "summerfruit" : "brewer"}
+						enableClipboard={false}
+						displayDataTypes={false}
+					/>
+					:
+					<span className="file-not-available json-viewer-error">{"Invalid JSON."}</span>
+			}
+		</div>
+	);
 };

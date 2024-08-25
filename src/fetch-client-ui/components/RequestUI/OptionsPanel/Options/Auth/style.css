@@ -1,99 +1,99 @@
 .auth-panel {
-  padding: 7px 10px 5px;
+	padding: 7px 10px 5px;
 }
 
 .auth-type-panel {
-  display      : flex;
-  padding-right: 20px;
+	display      : flex;
+	padding-right: 20px;
 }
 
 .auth-type-select {
-  height          : 30px;
-  outline         : none;
-  margin          : 5px 10px;
-  border-radius   : 3px;
-  background-color: var(--background-color);
-  color           : var(--text-color);
-  display         : inline-block;
-  font-weight     : 600;
+	height          : 30px;
+	outline         : none;
+	margin          : 5px 10px;
+	border-radius   : 3px;
+	background-color: var(--background-color);
+	color           : var(--text-color);
+	display         : inline-block;
+	font-weight     : 600;
 }
 
 .auth-type-select option {
-  color           : var(--text-color);
-  background-color: var(--background-color);
+	color           : var(--text-color);
+	background-color: var(--background-color);
 }
 
 .auth-type-select:focus,
 .auth-type-select:hover {
-  outline: none;
+	outline: none;
 }
 
 .auth-token-text-panel {
-  max-width: 100%;
-  flex-grow: 1;
+	max-width: 100%;
+	flex-grow: 1;
 }
 
 .auth-type-label {
-  padding: 7px 10px 5px 0;
+	padding: 7px 10px 5px 0;
 }
 
 .auth-token-text {
-  width        : calc(100% - 105px);
-  height       : 250px;
-  outline      : none;
-  margin       : 10px;
-  padding      : 10px;
-  border-radius: 3px;
-  resize       : none;
-  font-size    : var(--vscode-editor-font-size) !important;
-  font-family  : var(--vscode-editor-font-family) !important;
-  font-weight  : var(--vscode-font-weight);
+	width        : calc(100% - 105px);
+	height       : 250px;
+	outline      : none;
+	margin       : 10px;
+	padding      : 10px;
+	border-radius: 3px;
+	resize       : none;
+	font-size    : var(--vscode-editor-font-size) !important;
+	font-family  : var(--vscode-editor-font-family) !important;
+	font-weight  : var(--vscode-font-weight);
 }
 
 .auth-token-prefix-text,
 .auth-token-text-panel .DraftEditor-editorContainer {
-  width        : calc(100% - 83px);
-  height       : 30px;
-  outline      : none;
-  margin       : 10px;
-  padding      : 5px;
-  border-radius: 3px;
+	width        : calc(100% - 83px);
+	height       : 30px;
+	outline      : none;
+	margin       : 10px;
+	padding      : 5px;
+	border-radius: 3px;
 }
 
 .auth-token-text:focus,
 .auth-token-prefix-text:focus,
 .basic-auth-username:focus,
 .basic-auth-password:focus {
-  outline: none;
+	outline: none;
 }
 
 .auth-token-label {
-  display: block;
-  float  : left;
-  height : 30px;
-  width  : 50px;
-  padding: 15px 10px 10px 0;
+	display: block;
+	float  : left;
+	height : 30px;
+	width  : 50px;
+	padding: 15px 10px 10px 0;
 }
 
 label {
-  font-size: var(--font-size);
+	font-size: var(--font-size);
 }
 
 .basic-auth-username,
 .basic-auth-text-panel .DraftEditor-editorContainer {
-  width        : calc(100% - 110px);
-  height       : 30px;
-  outline      : none;
-  padding      : 5px;
-  border-radius: 3px;
+	width        : calc(100% - 110px);
+	height       : 30px;
+	outline      : none;
+	padding      : 5px;
+	border-radius: 3px;
 }
 
 .basic-auth-password {
-  width        : calc(100% - 120px);
-  height       : 28px;
-  outline      : none;
-  padding      : 0 4px;
-  border-radius: 3px
+	width        : calc(100% - 120px);
+	height       : 28px;
+	outline      : none;
+	padding      : 0 4px;
+	border-radius: 3px
 }
 
 .basic-auth-username:focus,
@@ -102,100 +102,100 @@ label {
 .basic-auth-password:hover,
 .auth-token-text:focus,
 .auth-token-text:hover {
-  outline: none;
+	outline: none;
 }
 
 .basic-auth-label {
-  display: block;
-  float  : left;
-  width  : 80px;
-  padding: 5px 0 0;
+	display: block;
+	float  : left;
+	width  : 80px;
+	padding: 5px 0 0;
 }
 
 .basic-auth-text-panel {
-  padding  : 10px 10px 10px 0;
-  max-width: 100%;
+	padding  : 10px 10px 10px 0;
+	max-width: 100%;
 }
 
 .apikey-add-select {
-  height          : 30px;
-  outline         : none;
-  border-radius   : 3px;
-  background-color: var(--background-color);
-  color           : var(--text-color);
+	height          : 30px;
+	outline         : none;
+	border-radius   : 3px;
+	background-color: var(--background-color);
+	color           : var(--text-color);
 }
 
 .apikey-add-select option {
-  background-color: var(--background-color);
-  color           : var(--text-color);
+	background-color: var(--background-color);
+	color           : var(--text-color);
 }
 
 .apikey-add-select:focus,
 .apikey-add-select:hover {
-  outline: none;
+	outline: none;
 }
 
 .basic-auth-check {
-  padding-top  : 10px;
-  margin-left  : 96px;
-  border-radius: 3px;
-  font-size    : var(--font-size);
+	padding-top  : 10px;
+	margin-left  : 96px;
+	border-radius: 3px;
+	font-size    : var(--font-size);
 }
 
 .basic-auth-check-box {
-  margin-right: 10px;
+	margin-right: 10px;
 }
 
 .basic-auth-check-box:focus,
 .basic-auth-check-box.hover {
-  outline: none;
+	outline: none;
 }
 
 .auth-text,
 .basic-auth-text-panel .DraftEditor-editorContainer,
 .auth-token-text-panel .DraftEditor-editorContainer {
-  background: var(--background-color);
-  border    : 0.25px solid var(--border-color);
-  color     : var(--text-color);
+	background: var(--background-color);
+	border    : 0.25px solid var(--border-color);
+	color     : var(--text-color);
 }
 
 .var-available {
-  color: rgb(18, 187, 18);
+	color: rgb(18, 187, 18);
 }
 
 .var-notavailable {
-  color: #f05348;
+	color: #f05348;
 }
 
 .setting-mode {
-  width  : calc(100% - 131px) !important;
-  height : 28px !important;
-  padding: 0 10px !important;
+	width  : calc(100% - 131px) !important;
+	height : 28px !important;
+	padding: 0 10px !important;
 }
 
 .auth-token-setting-mode {
-  width: calc(100% - 131px) !important;
+	width: calc(100% - 131px) !important;
 }
 
 .auth-no-label {
-  padding-top: 10px;
+	padding-top: 10px;
 }
 
 .auth-label {
-  font-size: medium;
+	font-size: medium;
 }
 
 .inherit-auth-summary {
-  padding-left: 5px;
+	padding-left: 5px;
 }
 
 .inherit-auth-details {
-  padding-top: 15px;
+	padding-top: 15px;
 }
 
 .inherit-auth-summary-panel {
-  pointer-events: none;
-  background-color: var(--list-hover-background-color);
-  padding-left: 10px;
-  padding-bottom: 10px;
+	pointer-events: none;
+	background-color: var(--list-hover-background-color);
+	padding-left: 10px;
+	padding-bottom: 10px;
 }

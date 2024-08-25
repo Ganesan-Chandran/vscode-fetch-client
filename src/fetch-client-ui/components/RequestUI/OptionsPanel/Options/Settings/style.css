@@ -1,60 +1,60 @@
 .settings-panel {
-    display: flex;
-    flex-wrap: wrap;
-    padding: 20px 10px;
-    width: 100%;
-    border-top: 1px solid #5e5e5e;
-    margin-top: 5px;
+		display: flex;
+		flex-wrap: wrap;
+		padding: 20px 10px;
+		width: 100%;
+		border-top: 1px solid #5e5e5e;
+		margin-top: 5px;
 }
 
 .settings-panel>div {
-    margin-bottom: 20px;
+		margin-bottom: 20px;
 }
 
 .settings-item-left {
-    width: 15%;
+		width: 15%;
 }
 
 .settings-item-right {
-    width: 85%;
+		width: 85%;
 }
 
 .settings-var-select {
-    background-color: var(--background-color);
-    box-sizing: border-box;
-    color: var(--text-color);
-    padding: 5px;
-    font-size: small;
-    outline: none;
-    width: 50%;
+		background-color: var(--background-color);
+		box-sizing: border-box;
+		color: var(--text-color);
+		padding: 5px;
+		font-size: small;
+		outline: none;
+		width: 50%;
 }
 
 .settings-var-select:focus {
-    outline: none;
+		outline: none;
 }
 
 .settings-var-select:required:invalid {
-    color: var(--input-unchecked);
+		color: var(--input-unchecked);
 }
 
 .settings-var-select option[value=""][disabled] {
-    display: none;
+		display: none;
 }
 
 .settings-var-select option {
-    color: var(--text-color) !important;
-    background: var(--background-color) !important;
+		color: var(--text-color) !important;
+		background: var(--background-color) !important;
 }
 
 .global-var-text {
-    color: gray;
+		color: gray;
 }
 
 .open-var-button {
-    float: none !important;
-    padding-left: 20px;
+		float: none !important;
+		padding-left: 20px;
 }
 
 .manage-cookie-button{
-    padding-left: 0 !important;
+		padding-left: 0 !important;
 }
