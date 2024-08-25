@@ -1,18 +1,18 @@
 .test-result-table {
-  border-collapse: collapse;
-  width          : 100%;
-  margin-top     : 10px;
+	border-collapse: collapse;
+	width          : 100%;
+	margin-top     : 10px;
 }
 
 /* .test-result-table,
 td,
 th,
 tr {
-  border: var(--border-size) solid var(--border-color);
+	border: var(--border-size) solid var(--border-color);
 } */
 
 .test-result-table thead {
-  background-color: var(--list-hover-background-color);
+	background-color: var(--list-hover-background-color);
 }
 
 .test-result-table,
@@ -21,98 +21,98 @@ tr {
 .test-result-table td,
 .test-result-table th,
 .test-result-table tr {
-  border: var(--border-size) solid var(--border-color);
+	border: var(--border-size) solid var(--border-color);
 }
 
 tbody>tr:hover {
-  background-color: var(--list-hover-background-color);
+	background-color: var(--list-hover-background-color);
 }
 
 .test-result-table-input {
-  background-color: transparent;
-  border          : 0;
-  box-sizing      : border-box;
-  color           : var(--text-color);
-  font-size       : var(--font-size);
-  outline         : none;
-  padding         : 10px;
-  width           : 100%;
-  text-overflow   : ellipsis;
+	background-color: transparent;
+	border          : 0;
+	box-sizing      : border-box;
+	color           : var(--text-color);
+	font-size       : var(--font-size);
+	outline         : none;
+	padding         : 10px;
+	width           : 100%;
+	text-overflow   : ellipsis;
 }
 
 .test-result-test-case-col {
-  width         : 50%;
-  vertical-align: top;
+	width         : 50%;
+	vertical-align: top;
 }
 
 .test-result-actual-val-col {
-  width         : 40%;
-  vertical-align: top;
+	width         : 40%;
+	vertical-align: top;
 }
 
 .center-text {
-  text-align: center;
+	text-align: center;
 }
 
 .top-align {
-  vertical-align: top;
+	vertical-align: top;
 }
 
 .test-result-label {
-  display      : block;
-  width        : 50px;
-  border-radius: 3px;
-  height       : 23px;
-  margin       : 5px;
-  padding      : 4px 0 0;
-  text-align   : center;
-  font-weight  : bold;
+	display      : block;
+	width        : 50px;
+	border-radius: 3px;
+	height       : 23px;
+	margin       : 5px;
+	padding      : 4px 0 0;
+	text-align   : center;
+	font-weight  : bold;
 }
 
 .pass {
-  background-color: rgb(2, 151, 2);
-  color           : var(--button-text-color);
+	background-color: rgb(2, 151, 2);
+	color           : var(--button-text-color);
 }
 
 .fail {
-  background-color: rgb(240, 22, 22);
-  color           : var(--button-text-color);
+	background-color: rgb(240, 22, 22);
+	color           : var(--button-text-color);
 }
 
 .short-content {
-  height       : 50px;
-  overflow     : hidden;
-  text-overflow: ellipsis;
-  margin-bottom: 10px;
+	height       : 50px;
+	overflow     : hidden;
+	text-overflow: ellipsis;
+	margin-bottom: 10px;
 }
 
 .show-more-btn {
-  background   : transparent;
-  border       : 0;
-  color        : var(--button-background-color);
-  text-align   : center;
-  float        : right;
-  margin-bottom: 2px;
-  cursor       : pointer;
+	background   : transparent;
+	border       : 0;
+	color        : var(--button-background-color);
+	text-align   : center;
+	float        : right;
+	margin-bottom: 2px;
+	cursor       : pointer;
 }
 
 .show-more-btn:hover {
-  color: var(--button-hover-color);
+	color: var(--button-hover-color);
 }
 
 .test-result-title {
-  font-size: 14px;
-  display  : block;
-  margin   : 5px 10px 5px 0;
-  padding  : 5px 10px 5px 0;
+	font-size: 14px;
+	display  : block;
+	margin   : 5px 10px 5px 0;
+	padding  : 5px 10px 5px 0;
 }
 
 .test-result-title-panel {
-  display    : flex;
-  font-weight: 400;
+	display    : flex;
+	font-weight: 400;
 }
 
 .test-result-panel {
-  padding-right : 5px;
-  padding-bottom: 5px;
+	padding-right : 5px;
+	padding-bottom: 5px;
 }

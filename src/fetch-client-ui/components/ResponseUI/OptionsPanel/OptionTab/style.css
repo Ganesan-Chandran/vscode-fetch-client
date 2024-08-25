@@ -1,80 +1,80 @@
 .response-params-panel {
-  float          : right;
-  margin-left    : auto;
-  display        : flex;
-  width          : auto;
-  justify-content: space-around;
+	float          : right;
+	margin-left    : auto;
+	display        : flex;
+	width          : auto;
+	justify-content: space-around;
 }
 
 .response-params {
-  color      : #4bb543;
-  padding    : 0 10px;
-  font-weight: bolder;
+	color      : #4bb543;
+	padding    : 0 10px;
+	font-weight: bolder;
 }
 
 .response-params-panel-vertical {
-  display       : flex;
-  margin        : 5px;
-  padding-bottom: 20px;
+	display       : flex;
+	margin        : 5px;
+	padding-bottom: 20px;
 }
 
 .menu-panel {
-  margin-left: auto !important;
-  padding-top: 4px;
+	margin-left: auto !important;
+	padding-top: 4px;
 }
 
 .code-snippet-icon,
 .code-snippet-icon-disabled {
-  cursor      : pointer;
-  transform   : scale(1.2);
-  margin-right: 5px;
+	cursor      : pointer;
+	transform   : scale(1.2);
+	margin-right: 5px;
 
 }
 
 .code-snippet-icon path {
-  fill: var(--text-color);
+	fill: var(--text-color);
 }
 
 .res-menu {
-  margin-left  : 10px;
-  cursor       : pointer;
-  width        : 16px;
-  margin-bottom: 3px;
+	margin-left  : 10px;
+	cursor       : pointer;
+	width        : 16px;
+	margin-bottom: 3px;
 }
 
 .res-menu path {
-  fill: var(--text-color);
+	fill: var(--text-color);
 }
 
 .code-snippet-icon-clicked path {
-  fill: var(--button-background-color);
+	fill: var(--button-background-color);
 }
 
 .save-to-file-button:disabled,
 .save-to-file-button[disabled],
 .save-to-file-button:disabled:hover,
 .save-to-file-button[disabled]:hover {
-  color           : #666;
-  cursor          : not-allowed;
-  background-color: lightgrey;
+	color           : #666;
+	cursor          : not-allowed;
+	background-color: lightgrey;
 }
 
 .save-to-file-button:hover {
-  color: var(--button-text-color);
+	color: var(--button-text-color);
 }
 
 .code-snippet-icon-disabled {
-  cursor: not-allowed;
+	cursor: not-allowed;
 }
 
 .code-snippet-icon-disabled path {
-  fill: #666;
+	fill: #666;
 }
 
 .res-drop-down-menu {
-  width: 175px !important;
+	width: 175px !important;
 }
 
 .res-code-drop-down-menu {
-  width: 125px !important;
+	width: 125px !important;
 }

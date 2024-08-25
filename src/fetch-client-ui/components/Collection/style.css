@@ -1,29 +1,29 @@
 .tab-menu {
-  padding         : 10px;
-  background-color: transparent;
-  color           : var(--text-color);
-  border          : 0;
-  cursor          : pointer;
-  margin-left     : 10px;
+	padding         : 10px;
+	background-color: transparent;
+	color           : var(--text-color);
+	border          : 0;
+	cursor          : pointer;
+	margin-left     : 10px;
 }
 
 .addto-header {
-  font-style : normal;
-  font-size  : x-large;
-  padding-top: 30px;
-  text-align : center;
+	font-style : normal;
+	font-size  : x-large;
+	padding-top: 20px;
+	text-align : center;
 }
 
 .addto-body {
-  padding-top: 50px;
+	padding-top: 50px;
 }
 
 .addto-body-settings {
-  padding-top: 15px;
+	padding-top: 15px;
 }
 
 .center {
-  margin: 0 auto;
+	margin: 0 auto;
 }
 
 .addto-table thead,
@@ -31,575 +31,576 @@
 .addto-table th,
 .addto-table tr,
 .addto-table td {
-  border: none !important;
+	border: none !important;
 }
 
 .addto-table {
-  width: 50%;
+	width: 50%;
 }
 
 .addto-table tr {
-  height: 60px;
+	height: 60px;
 }
 
 .addto-table td,
 .addto-table tr {
-  display: flex;
+	display: flex;
 }
 
 .addto-table tr:hover {
-  background-color: transparent !important;
+	background-color: transparent !important;
 }
 
 .block-display {
-  display: block !important;
+	display: block !important;
 }
 
 .col-1-size {
-  width: 250px;
+	width: 250px;
 }
 
 .col-2-size {
-  width: 100%;
+	width: 100%;
 }
 
 .details-col {
-  display   : grid !important;
-  text-align: left !important;
+	display   : grid !important;
+	text-align: left !important;
 }
 
 .details-row {
-  height: 130px !important;
+	height: 130px !important;
 }
 
 .button-panel {
-  text-align: center;
+	text-align: center;
 }
 
 .addto-label {
-  font-weight  : 500;
-  color        : var(--text-color);
-  padding-right: 20px;
+	font-weight  : 500;
+	color        : var(--text-color);
+	padding-right: 20px;
 }
 
 .addto-text {
-  color           : var(--text-color);
-  font-size       : 14px;
-  border          : 1px solid var(--border-color);
-  background-color: transparent;
-  outline         : 0;
-  height          : 25px;
-  width           : 100%;
-  padding         : 5px 10px;
+	color           : var(--text-color);
+	font-size       : 14px;
+	border          : 1px solid var(--border-color);
+	background-color: transparent;
+	outline         : 0;
+	height          : 25px;
+	width           : 100%;
+	padding         : 5px 10px;
 }
 
 .addto-text:focus {
-  outline: none;
+	outline: none;
 }
 
 .required-value {
-  border: 1px solid var(--required-color) !important;
+	border: 1px solid var(--required-color) !important;
 }
 
 .addto-select {
-  background-color: var(--background-color);
-  box-sizing      : border-box;
-  color           : var(--text-color);
-  font-size       : small;
-  outline         : none;
-  padding         : 10px;
-  width           : 100%;
+	background-color: var(--background-color);
+	box-sizing      : border-box;
+	color           : var(--text-color);
+	font-size       : small;
+	outline         : none;
+	padding         : 10px;
+	width           : 100%;
 }
 
 .addto-select:focus {
-  outline: none;
+	outline: none;
 }
 
 .addto-select:required:invalid {
-  color: var(--input-unchecked);
+	color: var(--input-unchecked);
 }
 
 .addto-select option[value=""][disabled] {
-  display: none;
+	display: none;
 }
 
 .addto-select option {
-  color     : var(--text-color) !important;
-  background: var(--background-color) !important;
+	color     : var(--text-color) !important;
+	background: var(--background-color) !important;
 }
 
 .col-2-size select {
-  height: 37px;
+	height: 37px;
 }
 
 .disabled {
-  color: var(--input-unchecked);
+	color: var(--input-unchecked);
 }
 
 .success-message {
-  color    : #2fb12f !important;;
-  font-size: medium;
+	color    : #2fb12f !important;;
+	font-size: medium;
 }
 
 .message-panel {
-  width      : 50%;
-  margin     : 0 auto;
-  padding-top: 15px;
-  text-align : center;
+	width      : 50%;
+	margin     : 0 auto;
+	padding-top: 15px;
+	text-align : center;
 }
 
 .addto-text:disabled,
 .addto-text[disabled],
 .addto-text:disabled:hover,
 .addto-text[disabled]:hover {
-  background-color: var(--list-hover-background-color);
-  cursor          : not-allowed;
+	background-color: var(--list-hover-background-color);
+	cursor          : not-allowed;
 }
 
 .error-select {
-  border: 1px solid red !important;
+	border: 1px solid red !important;
 }
 
 .runall-panel {
-  overflow: hidden;
-  height  : 100%;
+	overflow: hidden;
+	height  : 100%;
 }
 
 .runall-header {
-  font-style : normal;
-  font-size  : x-large;
-  padding-top: 5px;
-  text-align : center;
+	font-style : normal;
+	font-size  : x-large;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	text-align : center;
 }
 
 .runall-body {
-  height: calc(100% - 70px);
+	height: calc(100% - 90px);
 }
 
 .runall-tbl {
-  width          : 100%;
-  table-layout   : fixed;
-  border-collapse: collapse;
-  text-align     : center;
+	width          : 100%;
+	table-layout   : fixed;
+	border-collapse: collapse;
+	text-align     : center;
 }
 
 .runall-tbl-panel {
-  margin-top   : 20px;
-  width        : 100%;
-  padding-left : 10px;
-  padding-right: 10px;
-  box-sizing   : border-box;
-  overflow     : auto;
-  max-height   : calc(100% - 30px);
+	margin-top   : 20px;
+	width        : 100%;
+	padding-left : 10px;
+	padding-right: 10px;
+	box-sizing   : border-box;
+	overflow     : auto;
+	max-height   : calc(100% - 30px);
 }
 
 .runall-tbl tbody,
 .runall-tbl td {
-  border    : var(--border-size) solid var(--border-color);
-  border-top: none !important;
+	border    : var(--border-size) solid var(--border-color);
+	border-top: none !important;
 }
 
 .runall-tbl th {
-  padding         : 7px;
-  background-color: var(--list-hover-background-color);
+	padding         : 7px;
+	background-color: var(--list-hover-background-color);
 }
 
 .runall-tbl>tbody>tr:first-child>td {
-  border-top  : none !important;
-  border-right: var(--border-size) solid var(--border-color) !important;
-  border-left : var(--border-size) solid var(--border-color) !important;
+	border-top  : none !important;
+	border-right: var(--border-size) solid var(--border-color) !important;
+	border-left : var(--border-size) solid var(--border-color) !important;
 }
 
 .runall-tbl-panel thead th {
-  position     : sticky;
-  top          : 0;
-  z-index      : 1;
-  border-top   : none !important;
-  border-bottom: none !important;
-  border-right : var(--border-size) solid var(--border-color) !important;
-  border-left  : var(--border-size) solid var(--border-color) !important;
-  box-shadow   : inset 0 1px 0 var(--border-color), inset 0 -1px 0 var(--border-color);
-  box-shadow   : inset 0 1px 0 var(--border-color), inset 0 -1px 0 var(--border-color);
+	position     : sticky;
+	top          : 0;
+	z-index      : 1;
+	border-top   : none !important;
+	border-bottom: none !important;
+	border-right : var(--border-size) solid var(--border-color) !important;
+	border-left  : var(--border-size) solid var(--border-color) !important;
+	box-shadow   : inset 0 1px 0 var(--border-color), inset 0 -1px 0 var(--border-color);
+	box-shadow   : inset 0 1px 0 var(--border-color), inset 0 -1px 0 var(--border-color);
 }
 
 .runall-tbl td {
-  padding: 10px;
+	padding: 10px;
 }
 
 .runall-col-name {
-  margin-left   : 20px;
-  position      : relative;
-  padding-bottom: 15px;
+	margin-left   : 20px;
+	position      : relative;
+	padding-bottom: 15px;
 }
 
 .runall-col-last-row {
-  padding-bottom: 0;
+	padding-bottom: 0;
 }
 
 .runall-method-label,
 .method-label {
-  width        : 60px;
-  text-align   : center;
-  height       : 25px;
-  border-radius: 5px;
-  font-weight  : bold;
+	width        : 60px;
+	text-align   : center;
+	height       : 25px;
+	border-radius: 5px;
+	font-weight  : bold;
 }
 
 .runall-method-label {
-  color: var(--text-color);
+	color: var(--text-color);
 }
 
 .method-label {
-  padding: 5px 5px 0;
+	padding: 5px 5px 0;
 }
 
 .runall-method-label {
-  padding: 3px;
+	padding: 3px;
 }
 
 .runall-col-0 {
-  width: 5%;
+	width: 5%;
 }
 
 .runall-col-1 {
-  width: 10%;
+	width: 10%;
 }
 
 .runall-col-2 {
-  width: 30%;
+	width: 30%;
 }
 
 .runall-col-5 {
-  width        : 10%;
-  padding-left : 5px !important;
-  padding-right: 5px !important;
+	width        : 10%;
+	padding-left : 5px !important;
+	padding-right: 5px !important;
 }
 
 .runall-label {
-  color     : inherit;
-  word-break: break-word;
+	color     : inherit;
+	word-break: break-word;
 }
 
 .runall-btn-panel {
-  margin-top: 15px;
-  text-align: center;
+	margin-top: 15px;
+	text-align: center;
 }
 
 .runall-btn {
-  width: fit-content;
-  margin-right: 10px;
-  height      : 30px;
-  padding     : 5px !important;
+	width: fit-content;
+	margin-right: 10px;
+	height      : 30px;
+	padding     : 5px !important;
 }
 
 .runall-cancel-btn {
-  width: 100px !important;
+	width: 100px !important;
 }
 
 .runall-status-success {
-  color      : #4bb543;
-  font-weight: bolder;
+	color      : #4bb543;
+	font-weight: bolder;
 }
 
 .runall-status-error {
-  color      : #ea5b5b !important;
-  font-weight: bolder;
+	color      : #ea5b5b !important;
+	font-weight: bolder;
 }
 
 .runall-tbl tbody {
-  cursor: pointer;
+	cursor: pointer;
 }
 
 
 /* Style The Dropdown Button */
 .runall-dropbtn {
-  margin-right: 10px;
-  height      : 30px;
-  padding     : 5px !important;
-  width       : max-content;
+	margin-right: 10px;
+	height      : 30px;
+	padding     : 5px !important;
+	width       : max-content;
 }
 
 .runall-dropdown {
-  position: relative;
-  display : inline-block;
+	position: relative;
+	display : inline-block;
 }
 
 .runall-dropdown-content {
-  display         : none;
-  position        : fixed;
-  width           : 125px;
-  min-width       : 100px;
-  overflow        : auto;
-  box-shadow      : 10px 8px 16px 0 rgba(0, 0, 0, 0.4);
-  color           : var(--text-color);
-  background-color: var(--background-color);
-  border          : 1px solid var(--border-color);
-  z-index         : 1;
-  position        : absolute;
-  bottom          : 100%;
+	display         : none;
+	position        : fixed;
+	width           : 125px;
+	min-width       : 100px;
+	overflow        : auto;
+	box-shadow      : 10px 8px 16px 0 rgba(0, 0, 0, 0.4);
+	color           : var(--text-color);
+	background-color: var(--background-color);
+	border          : 1px solid var(--border-color);
+	z-index         : 1;
+	position        : absolute;
+	bottom          : 100%;
 }
 
 .runall-dropdown-content a {
-  padding         : 5px 10px;
-  text-decoration : none;
-  cursor          : pointer;
-  background-color: var(--background-color);
-  color           : var(--text-color);
-  outline         : none;
-  border          : 3px solid transparent;
-  border-radius   : 0;
-  text-align      : left;
-  display         : block;
+	padding         : 5px 10px;
+	text-decoration : none;
+	cursor          : pointer;
+	background-color: var(--background-color);
+	color           : var(--text-color);
+	outline         : none;
+	border          : 3px solid transparent;
+	border-radius   : 0;
+	text-align      : left;
+	display         : block;
 }
 
 .runall-dropdown-content a:hover {
-  background-color: var(--button-hover-color);
-  color           : var(--button-text-color);
+	background-color: var(--button-hover-color);
+	color           : var(--button-text-color);
 }
 
 .runall-test-normal,
 .runall-test-pass,
 .runall-test-fail,
 .runall-test-disabled {
-  color        : #fff;
-  display      : inline-block;
-  padding      : 2px 8px;
-  font-weight  : 500;
-  border-radius: 3px;
-  width        : 100%;
-  word-break   : break-word;
-  box-sizing   : border-box;
-  font-size    : 12px;
+	color        : #fff;
+	display      : inline-block;
+	padding      : 2px 8px;
+	font-weight  : 500;
+	border-radius: 3px;
+	width        : 100%;
+	word-break   : break-word;
+	box-sizing   : border-box;
+	font-size    : 12px;
 }
 
 .runall-test-normal {
-  background-color: #555;
+	background-color: #555;
 }
 
 .runall-test-pass {
-  background-color: green;
+	background-color: green;
 }
 
 .runall-test-fail {
-  background-color: red;
+	background-color: red;
 }
 
 .runall-test-disabled {
-  background-color: transparent;
-  color           : var(--input-unchecked) !important;
+	background-color: transparent;
+	color           : var(--input-unchecked) !important;
 }
 
 .addto-text:disabled,
 .addto-text[disabled],
 .addto-text:disabled:hover,
 .addto-text[disabled]:hover {
-  background-color: var(--list-hover-background-color);
-  cursor          : not-allowed;
+	background-color: var(--list-hover-background-color);
+	cursor          : not-allowed;
 }
 
 .runall-dropdown:hover .runall-dropdown-content {
-  display: block !important;
+	display: block !important;
 }
 
 .a-disabled {
-  pointer-events: none;
-  opacity       : 0.7;
+	pointer-events: none;
+	opacity       : 0.7;
 }
 
 .col-settings-panel-tabs {
-  display        : flex;
-  justify-content: start;
-  border-bottom  : 1px solid #555;
+	display        : flex;
+	justify-content: start;
+	border-bottom  : 1px solid #555;
 }
 
 .col-settings-panel {
-  height : calc(100% - 150px);
-  width  : 98%;
-  display: block;
-  padding: 10px;
+	height : calc(100% - 150px);
+	width  : 98%;
+	display: block;
+	padding: 10px;
 }
 
 .col-settings-header {
-  font-style : normal;
-  font-size  : x-large;
-  padding-top: 10px;
-  text-align : center;
+	font-style : normal;
+	font-size  : x-large;
+	padding-top: 10px;
+	text-align : center;
 }
 
 .col-settings-name-panel {
-  padding  : 10px 210px 20px 10px;
-  font-size: medium;
+	padding  : 10px 210px 20px 10px;
+	font-size: medium;
 }
 
 .col-settings-body {
-  font-size  : var(--font-size);
-  max-height : calc(100% - 60px);
-  overflow   : auto;
-  padding-top: 10px;
-  padding-bottom: 10px;
+	font-size  : var(--font-size);
+	max-height : calc(100% - 60px);
+	overflow   : auto;
+	padding-top: 10px;
+	padding-bottom: 10px;
 }
 
 .addto-title-label {
-  color        : var(--text-color);
-  padding-right: 20px;
+	color        : var(--text-color);
+	padding-right: 20px;
 }
 
 .submit-button {
-  background-color: var(--button-background-color);
-  border          : 0;
-  border-radius   : 3px;
-  color           : var(--button-text-color);
-  cursor          : pointer;
-  display         : inline-block;
-  font-weight     : bold;
-  outline         : none;
-  width           : 75px;
-  height          : 30px;
+	background-color: var(--button-background-color);
+	border          : 0;
+	border-radius   : 3px;
+	color           : var(--button-text-color);
+	cursor          : pointer;
+	display         : inline-block;
+	font-weight     : bold;
+	outline         : none;
+	width           : 75px;
+	height          : 30px;
 }
 
 .submit-button:disabled,
 .submit-button[disabled] {
-  background-color: #ccc;
-  color           : #666;
-  cursor          : not-allowed;
+	background-color: #ccc;
+	color           : #666;
+	cursor          : not-allowed;
 }
 
 .order-btn-panel {
-  display: flex;
+	display: flex;
 }
 
 .order-btn {
-  background-color: transparent;
-  outline         : none;
-  border          : 0;
-  color           : var(--button-text-color);
-  font-size       : large;
-  cursor          : pointer;
+	background-color: transparent;
+	outline         : none;
+	border          : 0;
+	color           : var(--button-text-color);
+	font-size       : large;
+	cursor          : pointer;
 }
 
 .runall-order-select {
-  background-color: transparent;
-  color           : var(--button-text-color);
-  width           : 95%;
-  font-size       : large
+	background-color: transparent;
+	color           : var(--button-text-color);
+	width           : 95%;
+	font-size       : large
 }
 
 select.runall-order-select option {
-  background-color: var(--background-color);
-  color           : var(--button-text-color);
+	background-color: var(--background-color);
+	color           : var(--button-text-color);
 }
 
 .runall-disabled {
-  color: var(--input-unchecked) !important;
+	color: var(--input-unchecked) !important;
 }
 
 .runall-enabled {
-  color: var(--text-color) !important;
+	color: var(--text-color) !important;
 }
 
 .runall-btn:disabled,
 .runall-btn[disabled],
 .runall-dropbtn:disabled,
 .runall-dropbtn[disabled] {
-  background-color: #ccc;
-  color           : #666;
-  cursor          : not-allowed;
+	background-color: #ccc;
+	color           : #666;
+	cursor          : not-allowed;
 }
 
 .runall-order-select:disabled,
 .runall-order-select[disabled] {
-  color: var(--input-unchecked) !important;
+	color: var(--input-unchecked) !important;
 }
 
 .runall-tab-items-panel {
-  max-height: calc(100% - 95px);
-  overflow-y: auto;
-  overflow-x: hidden;
-  cursor    : pointer;
+	max-height: calc(100% - 95px);
+	overflow-y: auto;
+	overflow-x: hidden;
+	cursor    : pointer;
 }
 
 .runall-settings-option {
-  padding: 20px 10px 10px 10px;
+	padding: 20px 10px 10px 10px;
 }
 
 .settings-option {
-  margin-left: 20px;
+	margin-left: 20px;
 }
 
 .runall-settings-delay-panel {
-  margin-left: 15px;
+	margin-left: 15px;
 }
 
 .runall-delay-text {
-  width: 100px;
+	width: 100px;
 }
 
 .runall-settings-label {
-  width  : 165px;
-  display: inline-block;
+	width  : 165px;
+	display: inline-block;
 }
 
 .runall-settings-info-label {
-  margin-left: 5px;
-  cursor     : pointer;
+	margin-left: 5px;
+	cursor     : pointer;
 }
 
 .runall-delay-text:disabled,
 .runall-delay-text[disabled],
 .runall-delay-text:disabled:hover,
 .runall-delay-text[disabled]:hover {
-  background-color: var(--list-hover-background-color);
-  cursor          : not-allowed;
+	background-color: var(--list-hover-background-color);
+	cursor          : not-allowed;
 }
 
 .runall-iteration-selector-panel {
-  float        : right;
-  margin-bottom: 10px;
-  margin-right : 12px;
+	float        : right;
+	margin-bottom: 10px;
+	margin-right : 12px;
 }
 
 .runall-iteration-prevButton {
-  background-color: var(--button-background-color);
-  border          : 1px;
-  border-radius   : 3px 0 0 3px;
-  color           : var(--button-text-color);
-  cursor          : pointer;
-  display         : inline-block;
-  height          : 20px;
-  margin-left     : 10px;
+	background-color: var(--button-background-color);
+	border          : 1px;
+	border-radius   : 3px 0 0 3px;
+	color           : var(--button-text-color);
+	cursor          : pointer;
+	display         : inline-block;
+	height          : 20px;
+	margin-left     : 10px;
 }
 
 .runall-iteration-nextButton {
-  background-color: var(--button-background-color);
-  border          : 1px;
-  border-radius   : 0 3px 3px 0;
-  color           : var(--button-text-color);
-  cursor          : pointer;
-  display         : inline-block;
-  height          : 20px;
+	background-color: var(--button-background-color);
+	border          : 1px;
+	border-radius   : 0 3px 3px 0;
+	color           : var(--button-text-color);
+	cursor          : pointer;
+	display         : inline-block;
+	height          : 20px;
 }
 
 .runall-iteration-prevButton:disabled,
 .runall-iteration-prevButton[disabled],
 .runall-iteration-nextButton:disabled,
 .runall-iteration-nextButton[disabled] {
-  background-color: #ccc;
-  color           : #666;
-  cursor          : not-allowed;
+	background-color: #ccc;
+	color           : #666;
+	cursor          : not-allowed;
 }
 
 .runall-iteration-text {
-  width     : 30px;
-  height    : 14px;
-  text-align: center;
+	width     : 30px;
+	height    : 14px;
+	text-align: center;
 }
 
 .runall-iteration-process-text {
-  float       : left;
-  margin      : 10px;
-  padding-left: 5px;
+	float       : left;
+	margin      : 10px;
+	padding-left: 5px;
 }
 
 .table-padding-left {
-  padding-left : 10px;
+	padding-left : 10px;
 }

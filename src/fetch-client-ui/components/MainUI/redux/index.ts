@@ -3,6 +3,6 @@ import { UIReducer } from "./reducer";
 
 
 export {
-  UIActions,
-  UIReducer
+	UIActions,
+	UIReducer
 };

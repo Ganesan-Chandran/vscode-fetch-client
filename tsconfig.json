@@ -13,11 +13,16 @@
     "rootDir": ".",
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "strict": false /* enable all strict type-checking options */
-    /* Additional Checks */
-    // "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
-    // "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
-    // "noUnusedParameters": true,  /* Report errors on unused parameters. */
+    "strict": false,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noImplicitOverride": true,
+    "noImplicitThis": true,
+    // "strictNullChecks": true
+    "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
   },
   "exclude": [
     "node_modules",

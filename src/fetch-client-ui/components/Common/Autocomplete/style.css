@@ -1,25 +1,25 @@
 .suggestions {
-  background-color: var(--background-color);
-  border-bottom: none;
-  border-top: none;
-  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.4);
-  color: var(--text-color);
-  list-style: none;
-  margin-top: 0;
-  max-height: 200px;
-  overflow-y: auto;
-  padding-left: 0;
-  position: absolute;
+	background-color: var(--background-color);
+	border-bottom: none;
+	border-top: none;
+	box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.4);
+	color: var(--text-color);
+	list-style: none;
+	margin-top: 0;
+	max-height: 200px;
+	overflow-y: auto;
+	padding-left: 0;
+	position: absolute;
 }
 
 .suggestions li {
-  background-color: var(--background-color);
-  color: var(--text-color);
-  cursor: pointer;
-  padding: 10px;
+	background-color: var(--background-color);
+	color: var(--text-color);
+	cursor: pointer;
+	padding: 10px;
 }
 
 .suggestion-active,
 .suggestions li:hover {
-  background-color: var(--list-hover-background-color) !important;
+	background-color: var(--list-hover-background-color) !important;
 }

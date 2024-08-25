@@ -1,18 +1,18 @@
 .option-table {
-  border-collapse: collapse;
-  width          : 100%;
-  margin-top     : 10px;
-  table-layout   : fixed;
-  margin-bottom  : 10px;
+	border-collapse: collapse;
+	width          : 100%;
+	margin-top     : 10px;
+	table-layout   : fixed;
+	margin-bottom  : 10px;
 }
 
 .option-table tr,
 .option-table thead {
-  width: 100%;
+	width: 100%;
 }
 
 .option-table thead {
-  background-color: var(--list-hover-background-color);
+	background-color: var(--list-hover-background-color);
 }
 
 .option-table,
@@ -21,79 +21,83 @@
 .option-table th,
 .option-table tr,
 .option-table td {
-  border: var(--border-size) solid var(--border-color) !important;
+	border: var(--border-size) solid var(--border-color) !important;
 }
 
 .table-input {
-  background-color: transparent;
-  border          : 0;
-  box-sizing      : border-box;
-  color           : var(--text-color);
-  font-size       : var(--font-size);
-  outline         : none;
-  padding         : 10px;
-  width           : 100%;
+	background-color: transparent;
+	border          : 0;
+	box-sizing      : border-box;
+	color           : var(--text-color);
+	font-size       : var(--font-size);
+	outline         : none;
+	padding         : 10px;
+	width           : 100%;
 }
 
 .table-input:focus {
-  outline: none;
+	outline: none;
 }
 
 .action-cell {
-  text-align: center;
-  width     : 50px;
+	text-align: center;
+	width     : 50px;
 }
 
 .type-action-cell {
-  width: 150px;
+	width: 150px;
 }
 
 .delete-button {
-  cursor: pointer;
-  height: 16px;
-  width : 16px;
+	cursor: pointer;
+	height: 16px;
+	width : 16px;
 }
 
 .delete-button path {
-  fill: #f05348;
+	fill: #f05348;
 }
 
 .option-names {
-  display: flex;
+	display: flex;
 }
 
 .disabled {
-  color: var(--input-unchecked);
+	color: var(--input-unchecked);
 }
 
 .option-table>tbody>tr:hover,
 .option-table>tbody>tr:focus {
-  background-color: var(--list-hover-background-color);
-  border          : var(--border-size) solid var(--border-color);
+	background-color: var(--list-hover-background-color);
+	border          : var(--border-size) solid var(--border-color);
 }
 
 .option-table>tbody>tr:hover .DraftEditor-editorContainer,
 .option-table>tbody>tr:focus .DraftEditor-editorContainer {
-  background-color: var(--list-hover-background-color);
+	background-color: var(--list-hover-background-color);
 }
 
 .res-table-input {
-  background-color: transparent;
-  border          : 0;
-  box-sizing      : border-box;
-  color           : var(--text-color);
-  font-size       : var(--font-size);
-  outline         : none;
-  padding         : 10px;
-  width           : 100%;
-  word-break      : break-word;
+	background-color: transparent;
+	border          : 0;
+	box-sizing      : border-box;
+	color           : var(--text-color);
+	font-size       : var(--font-size);
+	outline         : none;
+	padding         : 10px;
+	width           : 100%;
+	word-break      : break-word;
 }
 
 .file-select {
-  width      : 52px;
-  margin-left: 5px;
+	width      : 52px;
+	margin-left: 5px;
 }
 
 .file-name {
-  margin-left: 5px;
+	margin-left: 5px;
+}
+
+.password-textbox {
+	width: 85%;
 }

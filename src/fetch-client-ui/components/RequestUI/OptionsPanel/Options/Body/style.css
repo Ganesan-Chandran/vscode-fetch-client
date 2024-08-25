@@ -1,89 +1,89 @@
 .reqest-body-options-panel {
-  align-items: center;
-  display: flex;
+	align-items: center;
+	display: flex;
 }
 
 .reqest-body-options {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  margin: 0 10px 0 0;
-  padding: 5px 0;
+	align-items: center;
+	display: flex;
+	justify-content: center;
+	margin: 0 10px 0 0;
+	padding: 5px 0;
 }
 
 .reqest-body-option {
-  border-radius: 0;
-  cursor: pointer;
-  margin: 0 8px;
-  outline: none;
+	border-radius: 0;
+	cursor: pointer;
+	margin: 0 8px;
+	outline: none;
 }
 
 .body-option-label {
-  color: var(--text-color);
-  font-size: var(--font-size);
+	color: var(--text-color);
+	font-size: var(--font-size);
 }
 
 .raw-lang-select {
-  height: 25px;
-  outline: none;
-  border-radius: 3px;
-  background-color: var(--background-color);
-  color: var(--text-color);
-  display: inline-block;
-  font-weight: 600;
-  margin-left: 5px;
+	height: 25px;
+	outline: none;
+	border-radius: 3px;
+	background-color: var(--background-color);
+	color: var(--text-color);
+	display: inline-block;
+	font-weight: 600;
+	margin-left: 5px;
 }
 
 .raw-lang-select option {
-  background-color: var(--background-color);
-  color: var(--text-color);
+	background-color: var(--background-color);
+	color: var(--text-color);
 }
 
 .raw-lang-select:focus,
 .raw-lang-select:hover {
-  outline: none;
+	outline: none;
 }
 
 .raw-type {
-  height: calc(100% - 95px) !important;
+	height: calc(100% - 95px) !important;
 }
 
 .request-body-details-panel {
-  height: calc(100% - 70px);
+	height: calc(100% - 70px);
 }
 
 .reqest-body-raw-type {
-  margin: 5px;
+	margin: 5px;
 }
 
 .reqest-body-raw-type-text {
-  margin-left: 5px;
+	margin-left: 5px;
 }
 
 .format-button {
-  background-color: transparent;
-  outline: none;
-  border: 0;
-  color: var(--button-background-color);
-  cursor: pointer;
-  float: right;
-  font-weight: bolder;
-  padding-left: 5px;
+	background-color: transparent;
+	outline: none;
+	border: 0;
+	color: var(--button-background-color);
+	cursor: pointer;
+	float: right;
+	font-weight: bolder;
+	padding-left: 5px;
 }
 
 .format-button:hover,
 .format-button:focus {
-  background-color: transparent;
-  outline: none;
-  border: 0;
+	background-color: transparent;
+	outline: none;
+	border: 0;
 }
 
 .format-button:hover {
-  color: var(--button-hover-color);
+	color: var(--button-hover-color);
 }
 
 .format-button:disabled,
 .format-button[disabled] {
-  color           : #666;
-  cursor          : not-allowed;
+	color           : #666;
+	cursor          : not-allowed;
 }

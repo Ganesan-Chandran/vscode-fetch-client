@@ -1,0 +1,75 @@
+.bulk-export-title {
+	font-size: 17px;
+	margin-bottom: 15px;
+}
+
+.bulk-export-list-container {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	overflow-y: scroll;
+	height: 250px;
+	padding-bottom: 15px;
+	width: 100%;
+	border: 1px solid;
+}
+
+.bulk-panel {
+	padding-left: 10%;
+	padding-top: 20px;
+}
+
+.bulk-list {
+	padding-top: 2.5px;
+	padding-bottom: 2.5px;
+	padding-left: 5px;
+}
+
+/* container */
+.responsive-three-column-grid {
+	display: block;
+}
+
+/* columns */
+.responsive-three-column-grid>* {
+	padding: 1rem;
+}
+
+/* tablet breakpoint */
+@media (min-width:768px) {
+	.responsive-three-column-grid {
+		display: grid;
+		grid-auto-rows: 1fr;
+		grid-template-columns: 0.3fr 1fr 1fr;
+	}
+
+	.bulk-text-title{
+		text-align: right !important;
+	}
+}
+
+.bulk-path-select-panel {
+	display: flex;
+}
+
+.bulk-path-btn {
+	width: 75px;
+	height: 30px;
+}
+
+.bulk-filename-text {
+	color: var(--text-color);
+	font-size: var(--font-size);
+	margin-left: 10px;
+	width: calc(100% - 85px);
+}
+
+.bulk-message-panel {
+	margin     : 0 auto;
+	padding-top: 15px;
+	text-align : center;
+}
+
+.bulk-text-title{
+	text-align: left;
+}

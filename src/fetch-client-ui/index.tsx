@@ -8,10 +8,10 @@ import { StateAndRouterProvider } from './store/stateAndRouterProvider';
 const store = getAppStore();
 
 ReactDOM.render(
-  <StateAndRouterProvider store={store}>
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  </StateAndRouterProvider>,
-  document.getElementById('root')
+	<StateAndRouterProvider store={store}>
+		<React.StrictMode>
+			<App />
+		</React.StrictMode>
+	</StateAndRouterProvider>,
+	document.getElementById('root')
 );

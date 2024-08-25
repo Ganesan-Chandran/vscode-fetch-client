@@ -3,6 +3,6 @@ import { SideBarReducer } from "./reducer";
 
 
 export {
-  SideBarActions,
-  SideBarReducer
+	SideBarActions,
+	SideBarReducer
 };

@@ -1,19 +1,34 @@
 .delete-all-button {
-    margin-left: 20px;
-    width      : fit-content;
+		margin-left: 20px;
+		width      : fit-content;
 }
 
 .cookie-panel {
-    padding: 25px 40px;
-    margin : 0 auto;
-    height : 92%;
+		padding: 25px 40px;
+		margin : 0 auto;
+		height : 92%;
 }
 
 .no-cookie-text {
-    padding: 20px;
-    padding-left: 100px;
+		padding: 20px;
+		padding-left: 100px;
 }
 
 .cookie-select {
-    width: 80% !important;
+		width: 80% !important;
+}
+
+.cookie-align-parent {
+	display: table;
+	vertical-align: middle;
+}
+
+.cookie-align-child {
+	vertical-align: middle;
+}
+
+.cookie-button-panel {
+	padding-left: 10px;
+	display: table-cell;
+		width: 40%;
 }

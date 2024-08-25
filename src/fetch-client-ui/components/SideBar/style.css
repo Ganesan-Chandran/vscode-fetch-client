@@ -1,322 +1,322 @@
 .sidebar-tab-menu {
-  float           : left;
-  padding         : 10px;
-  background-color: transparent;
-  color           : var(--text-color);
-  border          : 0;
-  cursor          : pointer;
+	float           : left;
+	padding         : 10px;
+	background-color: transparent;
+	color           : var(--text-color);
+	border          : 0;
+	cursor          : pointer;
 }
 
 .sidebar-tab-menu-settings {
-  padding         : 10px 20px 10px 20px;
+	padding         : 10px 20px 10px 20px;
 }
 
 .selected {
-  border-bottom: 2.5px solid var(--button-background-color) !important;
+	border-bottom: 2.5px solid var(--button-background-color) !important;
 }
 
 .sidebar-panel-tabs {
-  display        : flex;
-  justify-content: space-around;
-  border-bottom  : 1px solid var(--vscode-sideBarSectionHeader-border);
+	display        : flex;
+	justify-content: space-around;
+	border-bottom  : 1px solid var(--vscode-sideBarSectionHeader-border);
 }
 
 .sidebar-panel {
-  height : calc(100vh - 131px);
-  width  : 100%;
-  display: block;
-  padding: 0;
+	height : calc(100vh - 131px);
+	width  : 100%;
+	display: block;
+	padding: 0;
 }
 
 .sidebar-body {
-  font-size: smaller;
-  height   : 100%;
+	font-size: smaller;
+	height   : 100%;
 }
 
 .activity-items-panel {
-  height    : calc(100% - 30px);
-  overflow-y: auto;
-  overflow-x: hidden;
-  cursor    : pointer;
+	height    : calc(100% - 30px);
+	overflow-y: auto;
+	overflow-x: hidden;
+	cursor    : pointer;
 }
 
 .activity-items {
-  padding: 0 5px 5px;
-  cursor : pointer;
+	padding: 0 5px 5px;
+	cursor : pointer;
 }
 
 .dark-theme-boder {
-  border-bottom: 0.25px solid #343434;
+	border-bottom: 0.25px solid #343434;
 }
 
 .light-theme-boder {
-  border-bottom: 0.25px solid #cbcbcb;
+	border-bottom: 0.25px solid #cbcbcb;
 }
 
 
 .folder-activity-items {
-  padding-left: var(--fpl) !important;
+	padding-left: var(--fpl) !important;
 }
 
 .activity-items:hover,
 .folder-activity-items:hover {
-  background-color: var(--list-hover-background-color);
+	background-color: var(--list-hover-background-color);
 }
 
 .activity-method {
-  display      : block;
-  width        : fit-content;
-  padding      : 2px 5px 0;
-  border-radius: 5px;
-  height       : 15px;
-  text-align   : center;
-  font-weight  : bold;
-  font-size    : smaller;
-  cursor       : pointer;
-  color        : var(--button-text-color);
+	display      : block;
+	width        : fit-content;
+	padding      : 2px 5px 0;
+	border-radius: 5px;
+	height       : 15px;
+	text-align   : center;
+	font-weight  : bold;
+	font-size    : smaller;
+	cursor       : pointer;
+	color        : var(--button-text-color);
 }
 
 .pass {
-  background-color: rgb(2, 151, 2);
+	background-color: rgb(2, 151, 2);
 }
 
 .get-mtd {
-  background-color: rgb(2, 151, 2);
+	background-color: rgb(2, 151, 2);
 }
 
 .post-mtd {
-  background-color: #c5830b;
+	background-color: #c5830b;
 }
 
 .put-mtd {
-  background-color: #247bc1;
+	background-color: #247bc1;
 }
 
 .patch-mtd {
-  background-color: #767676;
+	background-color: #767676;
 }
 
 .delete-mtd {
-  background-color: #bd2b2b;
+	background-color: #bd2b2b;
 }
 
 .other-mtd {
-  background-color: #404040;
+	background-color: #404040;
 }
 
 .disabled-mtd {
-  background-color: var(--input-unchecked);
+	background-color: var(--input-unchecked);
 }
 
 .activity-item-row-1 {
-  padding: 10px 10px 5px;
-  display: flex;
-  cursor : pointer;
+	padding: 10px 10px 5px;
+	display: flex;
+	cursor : pointer;
 }
 
 .activity-url {
-  padding-left: 6px;
-  cursor      : pointer;
-  word-break  : break-word;
+	padding-left: 6px;
+	cursor      : pointer;
+	word-break  : break-word;
 }
 
 .activity-item-row-2 {
-  padding: 0 5px 2px 10px;
-  color  : gray;
-  cursor : pointer;
+	padding: 0 5px 2px 10px;
+	color  : gray;
+	cursor : pointer;
 }
 
 .activity-item-row-2 label {
-  cursor: pointer;
+	cursor: pointer;
 }
 
 .activity-search {
-  background-color: transparent;
-  color           : var(--text-color);
-  border          : 1px solid gray;
-  outline         : none;
-  border-radius   : 5px;
-  padding         : 5px 10px;
-  margin          : 10px 2px 5px 10px;
-  width           : 80%;
+	background-color: transparent;
+	color           : var(--text-color);
+	border          : 1px solid gray;
+	outline         : none;
+	border-radius   : 5px;
+	padding         : 5px 10px;
+	margin          : 10px 2px 5px 10px;
+	width           : 80%;
 }
 
 .activity-search:focus {
-  outline: none;
+	outline: none;
 }
 
 .activity-filter {
-  display: flex;
+	display: flex;
 }
 
 .hamburger-menu-panel {
-  padding: 15px 5px 0;
+	padding: 15px 5px 0;
 }
 
 .hamburger-menu {
-  width : 16px;
-  height: 16px;
-  cursor: pointer;
+	width : 16px;
+	height: 16px;
+	cursor: pointer;
 }
 
 .hamburger-menu path {
-  fill: var(--text-color);
+	fill: var(--text-color);
 }
 
 .dropdown {
-  position: relative;
-  display : inline-block;
+	position: relative;
+	display : inline-block;
 }
 
 .dropdown-content {
-  display         : none;
-  position        : absolute;
-  width           : 125px;
-  overflow        : auto;
-  box-shadow      : 10px 8px 16px 0 rgba(0, 0, 0, 0.4);
-  right           : 0;
-  z-index         : 1;
-  /* border-radius: 5px; */
-  color           : var(--text-color);
-  background-color: var(--background-color);
-  border          : 1px solid var(--border-color);
-  top             : 32px;
+	display         : none;
+	position        : absolute;
+	width           : 125px;
+	overflow        : auto;
+	box-shadow      : 10px 8px 16px 0 rgba(0, 0, 0, 0.4);
+	right           : 0;
+	z-index         : 1;
+	/* border-radius: 5px; */
+	color           : var(--text-color);
+	background-color: var(--background-color);
+	border          : 1px solid var(--border-color);
+	top             : 32px;
 }
 
 .dropdown-content button,
 .dropdown-more button {
-  padding         : 5px 10px;
-  text-decoration : none;
-  width           : 100%;
-  cursor          : pointer;
-  background-color: var(--background-color);
-  color           : var(--text-color);
-  outline         : none;
-  border          : 3px solid transparent;
-  border-radius   : 0;
-  text-align      : left;
+	padding         : 5px 10px;
+	text-decoration : none;
+	width           : 100%;
+	cursor          : pointer;
+	background-color: var(--background-color);
+	color           : var(--text-color);
+	outline         : none;
+	border          : 3px solid transparent;
+	border-radius   : 0;
+	text-align      : left;
 }
 
 .dropdown-content button:hover,
 .dropdown button:hover,
 .dropdown-more button:hover {
-  background-color: var(--button-hover-color);
-  color           : var(--button-text-color);
+	background-color: var(--button-hover-color);
+	color           : var(--button-text-color);
 }
 
 .show {
-  display: block;
+	display: block;
 }
 
 .more-icon {
-  float         : right;
-  display       : none;
-  /* padding-top: 2px; */
+	float         : right;
+	display       : none;
+	/* padding-top: 2px; */
 }
 
 .plus-icon {
-  height         : 14px;
-  width          : 14px;
-  fill           : currentColor;
-  stroke         : currentColor;
-  stroke         : currentcolor;
-  stroke-linecap : round;
-  stroke-linejoin: round;
-  stroke-width   : 1.5;
+	height         : 14px;
+	width          : 14px;
+	fill           : currentColor;
+	stroke         : currentColor;
+	stroke         : currentcolor;
+	stroke-linecap : round;
+	stroke-linejoin: round;
+	stroke-width   : 1.5;
 }
 
 .activity-items:hover .more-icon {
-  display: block;
+	display: block;
 }
 
 .display-block {
-  position: relative;
-  display : inline-block;
+	position: relative;
+	display : inline-block;
 }
 
 .dd-input {
-  display: none;
+	display: none;
 }
 
 .dropdown-more {
-  position        : absolute;
-  width           : 140px;
-  box-shadow      : 10px 8px 16px 0px rgba(0, 0, 0, 0.4);
-  z-index         : 1;
-  color           : var(--text-color);
-  background-color: var(--background-color);
-  border          : 1px solid var(--border-color);
-  text-align      : left;
-  right           : 0;
+	position        : absolute;
+	width           : 140px;
+	box-shadow      : 10px 8px 16px 0px rgba(0, 0, 0, 0.4);
+	z-index         : 1;
+	color           : var(--text-color);
+	background-color: var(--background-color);
+	border          : 1px solid var(--border-color);
+	text-align      : left;
+	right           : 0;
 }
 
 .dd-input+.dropdown-more {
-  display: none;
+	display: none;
 }
 
 .dd-input:checked+.dropdown-more {
-  display: block;
+	display: block;
 }
 
 .new-request-button {
-  border          : 0;
-  box-sizing      : border-box;
-  display         : flex;
-  width           : 100%;
-  padding         : 4px;
-  text-align      : center;
-  cursor          : pointer;
-  justify-content : center;
-  align-items     : center;
-  max-width       : 300px;
-  color           : var(--button-text-color);
-  background-color: var(--button-background-color);
-  height          : 26px;
+	border          : 0;
+	box-sizing      : border-box;
+	display         : flex;
+	width           : 100%;
+	padding         : 4px;
+	text-align      : center;
+	cursor          : pointer;
+	justify-content : center;
+	align-items     : center;
+	max-width       : 300px;
+	color           : var(--button-text-color);
+	background-color: var(--button-background-color);
+	height          : 26px;
 }
 
 .new-request-button:hover {
-  background-color: var(--button-hover-color);
+	background-color: var(--button-hover-color);
 }
 
 .new-request-panel {
-  margin    : 0 auto;
-  max-width : 300px;
-  transition: max-width .2s ease-out;
-  padding   : 10px 20px 1em;
+	margin    : 0 auto;
+	max-width : 300px;
+	transition: max-width .2s ease-out;
+	padding   : 10px 20px 1em;
 }
 
 .sidebar-panel-body {
-  height: 100%;
+	height: 100%;
 }
 
 .selected-item {
-  border-left     : 3px solid var(--button-background-color);
-  background-color: var(--list-hover-background-color);
+	border-left     : 3px solid var(--button-background-color);
+	background-color: var(--list-hover-background-color);
 }
 
 .bottom-menu-panel {
-  padding         : 5px;
-  height          : 20px;
-  background-color: var(--vscode-dropdown-border);
+	padding         : 5px;
+	height          : 20px;
+	background-color: var(--vscode-dropdown-border);
 }
 
 .view-log {
-  align-items    : center;
-  flex-direction : row;
-  cursor         : pointer;
-  display        : flex;
-  justify-content: center;
-  color          : var(--text-color);
+	align-items    : center;
+	flex-direction : row;
+	cursor         : pointer;
+	display        : flex;
+	justify-content: center;
+	color          : var(--text-color);
 }
 
 .log-span {
-  font-size: 13px;
+	font-size: 13px;
 }
 
 .view-log:hover {
-  color: var(--vscode-textLink-activeForeground);
+	color: var(--vscode-textLink-activeForeground);
 }
 
 .log-icon {
-  transform: scale(0.3);
+	transform: scale(0.3);
 }

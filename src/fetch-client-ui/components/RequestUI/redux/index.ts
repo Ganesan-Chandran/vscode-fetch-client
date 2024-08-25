@@ -3,7 +3,7 @@ import { InitialBinaryData, RequestReducer } from "./reducer";
 
 
 export {
-  Actions,
-  RequestReducer,
-  InitialBinaryData
+	Actions,
+	RequestReducer,
+	InitialBinaryData
 };

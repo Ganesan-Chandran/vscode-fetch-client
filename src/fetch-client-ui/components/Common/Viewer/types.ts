@@ -1,4 +1,4 @@
 export interface ViewerProps {
-    data: string;
-    theme?: number;
-  }
+		data: string;
+		theme?: number;
+	}

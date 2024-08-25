@@ -1,131 +1,143 @@
 .variable-panel {
-    padding: 25px 50px;
-    margin : 0 auto;
-    height : 91%;
+		padding: 25px 50px;
+		margin : 0 auto;
+		height : 91%;
 }
 
 .var-header {
-    font-style: normal;
-    font-size : x-large;
-    text-align: center;
+		font-style: normal;
+		font-size : x-large;
+		text-align: center;
 }
 
 .var-btn-panel {
-    margin-top: 20px;
+		margin-top: 20px;
 }
 
 .variable-panel-name {
-    margin-top: 20px;
-    display   : flex;
-    width     : 90%;
+		margin-top: 20px;
+		display   : flex;
+		width     : 90%;
 }
 
 .variable-text-label {
-    width      : 55px;
-    display    : flex;
-    align-items: center;
+		width      : 55px;
+		display    : flex;
+		align-items: center;
 }
 
 .variable-text {
-    color           : var(--text-color);
-    border          : 1px solid var(--border-color);
-    background-color: transparent;
-    outline         : 0;
-    height          : 30px;
-    width           : 50%;
-    padding         : 0 10px 0 10px;
+		color           : var(--text-color);
+		border          : 1px solid var(--border-color);
+		background-color: transparent;
+		outline         : 0;
+		height          : 30px;
+		width           : 50%;
+		padding         : 0 10px 0 10px;
 }
 
 .variable-text:disabled,
 .variable-text[disabled],
 .variable-text:disabled:hover,
 .variable-text[disabled]:hover {
-    background-color: var(--list-hover-background-color);
-    cursor          : not-allowed;
+		background-color: var(--list-hover-background-color);
+		cursor          : not-allowed;
 }
 
 .variable-text:focus {
-    outline: none;
+		outline: none;
 }
 
 .var-tbl-panel {
-    margin-top   : 10px;
-    max-height   : calc(100% - 185px);
-    overflow     : scroll;
-    padding-right: 5px;
+		margin-top   : 10px;
+		max-height   : calc(100% - 185px);
+		overflow     : scroll;
+		padding-right: 5px;
 }
 
 .variable-col-panel {
-    margin-top: 10px;
+		margin-top: 10px;
 }
 
 .variable-col-label,
 .variable-col-list-label {
-    font-size: medium !important;
+		font-size: medium !important;
 }
 
 .variable-col-list-label {
-    color: var(--button-background-color) !important;
+		color: var(--button-background-color) !important;
 }
 
 .var-name-valid {
-    margin-left: 10px;
-    padding-top: 5px;
+		margin-left: 10px;
+		padding-top: 5px;
 }
 
 .var-error {
-    font-weight: bolder;
+		font-weight: bolder;
 }
 
 .addto-var-label {
-    font-weight  : 500;
-    color        : var(--text-color);
-    padding-right: 20px;
-    width        : fit-content;
-    padding-top  : 8px;
+		font-weight  : 500;
+		color        : var(--text-color);
+		padding-right: 20px;
+		width        : fit-content;
+		padding-top  : 8px;
 }
 
 .addto-var-select {
-    background-color: var(--background-color);
-    box-sizing      : border-box;
-    color           : var(--text-color);
-    font-size       : small;
-    outline         : none;
-    padding         : 10px;
-    width           : 50%;
+		background-color: var(--background-color);
+		box-sizing      : border-box;
+		color           : var(--text-color);
+		font-size       : small;
+		outline         : none;
+		padding         : 10px;
+		width           : 50%;
 }
 
 .addto-var-select:focus {
-    outline: none;
+		outline: none;
 }
 
 .addto-var-select:required:invalid {
-    color: var(--input-unchecked);
+		color: var(--input-unchecked);
 }
 
 .addto-var-select option[value=""][disabled] {
-    display: none;
+		display: none;
 }
 
 .addto-var-select option {
-    color     : var(--text-color) !important;
-    background: var(--background-color) !important;
+		color     : var(--text-color) !important;
+		background: var(--background-color) !important;
 }
 
 .set-variable-panel {
-    padding: 0 5px 5px 5px;
-    width  : 100%;
+		padding: 0 5px 5px 5px;
+		width  : 100%;
 }
 
 .set-variable-panel-name {
-    display: flex;
-    width  : 100%;
+		display: flex;
+		width  : 100%;
 }
 
 .addto-var-label-note {
-    padding-top: 10px;
+		padding-top: 10px;
 }
 
 .remove-overflow {
-  overflow: unset !important;
+	overflow: unset !important;
+}
+
+.view-variable {
+	margin-left: auto;
+	margin-right: 0;
+	padding-right: 25px;
+}
+
+.view-variable-panel-name {
+	margin-top: 20px;
+	display   : flex;
+	width     : 100%;
 }

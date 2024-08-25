@@ -1,110 +1,112 @@
 summary {
-  word-break  : break-all;
-  padding     : 5px;
-  cursor      : pointer;
-  position    : relative;
-  padding-left: 15px;
-  font-size   : 14px;
+	word-break  : break-all;
+	padding     : 5px;
+	cursor      : pointer;
+	position    : relative;
+	padding-left: 15px;
+	font-size   : 14px;
 }
 
 summary::-webkit-details-marker {
-  display: none;
+	display: none;
 }
 
 summary:before {
-  position        : absolute;
-  top             : 50%;
-  transform       : translateY(-50%);
-  background-color: transparent;
-  color           : var(--text-color);
-  display         : inline-flex;
-  flex-shrink     : 0;
-  left            : 0.75rem;
+	position        : absolute;
+	top             : 50%;
+	transform       : translateY(-50%);
+	background-color: transparent;
+	color           : var(--text-color);
+	display         : inline-flex;
+	flex-shrink     : 0;
+	left            : 0.75rem;
 }
 
 summary:hover {
-  background-color: var(--vscode-dropdown-border);
+	background-color: var(--vscode-dropdown-border);
 }
 
 details[open] summary {
-  background-color: var(--vscode-dropdown-border);
+	background-color: var(--vscode-dropdown-border);
 }
 
 .collection-items:hover .more-icon,
 .folder-items:hover .more-icon {
-  display: block;
+	display: block;
 }
 
 .collection-items {
-  padding-right: 0 !important;
-  min-width    : 220px;
+	padding-right : 0 !important;
+	min-width     : 220px;
+	padding-top   : 8px;
+	padding-bottom: 9px;
 }
 
 .folder-items {
-  padding-right: 0 !important;
+	padding-right: 0 !important;
 }
 
 .divider {
-  border-top: 0.3pt solid var(--border-color);
-  margin    : 1px 12px 1px 12px;
-  opacity   : .6;
+	border-top: 0.3pt solid var(--border-color);
+	margin    : 1px 12px 1px 12px;
+	opacity   : .6;
 }
 
 details.folder-details-items>summary {
-  list-style      : none;
-  padding-left    : var(--pl);
-  background-color: transparent !important;
+	list-style      : none;
+	padding-left    : var(--pl);
+	background-color: transparent !important;
 }
 
 details.folder-details-items>summary:before {
-  content     : "🗀";
-  padding-left: var(--b-pl);
-  color       : var(--text-color);
+	content     : "🗀";
+	padding-left: var(--b-pl);
+	color       : var(--text-color);
 }
 
 details[open].folder-details-items>summary:before {
-  content: "🗁";
-  color  : var(--text-color);
+	content: "🗁";
+	color  : var(--text-color);
 }
 
 details.folder-details-items>summary:hover {
-  background-color: var(--list-hover-background-color) !important;
+	background-color: var(--list-hover-background-color) !important;
 }
 
 .add-req-button {
-  color       : currentColor;
-  fill        : currentColor;
-  transform   : scale(0.70);
-  color       : currentColor;
-  margin-right: 5px;
-  padding     : 0 3px 0 3px;
-  filter      : contrast(0.50);
+	color       : currentColor;
+	fill        : currentColor;
+	transform   : scale(0.70);
+	color       : currentColor;
+	margin-right: 5px;
+	padding     : 0 3px 0 3px;
+	filter      : contrast(0.50);
 }
 
 .add-req-button:hover {
-  background-color: var(--list-hover-background-color) !important;
-  border-radius   : 3px;
-  filter          : none;
+	background-color: var(--list-hover-background-color) !important;
+	border-radius   : 3px;
+	filter          : none;
 }
 
 .col-fol-title {
-  width  : 70%;
-  display: inline-flex;
+	width  : 70%;
+	display: inline-flex;
 }
 
 .col-fol-icon-panel {
-  margin-left: 2px;
-  text-align : right;
+	margin-left: 2px;
+	text-align : right;
 }
 
 .col-fol-icon {
-  transform: scale(0.75);
-  padding  : 0 3px 0 3px;
+	transform: scale(0.75);
+	padding  : 0 3px 0 3px;
 }
 
 .col-fol-icon:hover {
-  background-color: var(--list-hover-background-color);
-  border-radius   : 3px;
+	background-color: var(--list-hover-background-color);
+	border-radius   : 3px;
 }
 
 details,
@@ -117,33 +119,33 @@ summary:hover,
 summary:focus,
 summary :focus-visible,
 summary:focus-within {
-  outline: none;
+	outline: none;
 }
 
 .sub-menu {
-  display: none;
+	display: none;
 }
 
 .parent-menu:hover .sub-menu {
-  display: block;
-  left   : -88px;
-  width  : 90px !important;
-  top    : 0;
+	display: block;
+	left   : -88px;
+	width  : 90px !important;
+	top    : 0;
 }
 
 .parent-menu {
-  padding         : 5px 10px;
-  text-decoration : none;
-  cursor          : pointer;
-  background-color: var(--background-color);
-  color           : var(--text-color);
-  outline         : none;
-  border          : 3px solid transparent;
-  border-radius   : 0;
-  text-align      : left;
+	padding         : 5px 10px;
+	text-decoration : none;
+	cursor          : pointer;
+	background-color: var(--background-color);
+	color           : var(--text-color);
+	outline         : none;
+	border          : 3px solid transparent;
+	border-radius   : 0;
+	text-align      : left;
 }
 
 .parent-menu:hover {
-  background-color: var(--button-hover-color);
-  color           : var(--button-text-color);
+	background-color: var(--button-hover-color);
+	color           : var(--button-text-color);
 }

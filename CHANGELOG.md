@@ -2,6 +2,26 @@
 
 All notable changes to the "Fetch Client" extension will be documented in this file.
 
+## v1.7.0 - September, 2024
+### 🎉 New Features
+- `Encrypted` environment variables. Variables are stored in the encrypted format.
+- New settings are added for the encrypted environment and encryption in exporting the variables.
+- Bulk export option added in the collections and variables.
+- Bulk import for the collections and variables.
+- Variables are hided in the variable screen.
+
+### 🐛 Bug Fixes
+- Cookie name is not parsed correctly.
+- "Manage Cookie" button is added in the cookie section in Response panel.
+
+### 🔗 Miscellaneous
+- Added menu options for raise the requests/issues and write a review about `Fetch Client`
+- GitHub action added for build vsix package and publish the extension.
+
+### Requirements
+- Minimum required version of **VSCode** is `v1.75.0`
+- Minimum **Node** version is `18.20.3`
+
 ## v1.6.0 - August, 2024
 ### 🎉 New Features
 - Added menu for directly run the requests
@@ -117,7 +137,7 @@ All notable changes to the "Fetch Client" extension will be documented in this f
 - Folder added to the Collection.
 - Set environment variable from json response, headers and cookies.
 - Support AWS Signature auth type.
-- Support Cookies and Manage cookies feature ([#1](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/1)) added. 
+- Support Cookies and Manage cookies feature ([#1](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/1)) added.
 - Support Copy and Paste the item between Collection/Folder.
 - Support Variables highlight ([#3](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/3)).
 - New test case options (Length and Type) are added.
@@ -146,7 +166,7 @@ All notable changes to the "Fetch Client" extension will be documented in this f
 - Generate code snippet for various languages.
 - Save response and test results as File.
 - Export/Import the Fetch Client's collections and environment variables.
-- Add documentation/feedback for each request. 
+- Add documentation/feedback for each request.
 
 ### 🐛 Bug Fixes
 

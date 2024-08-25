@@ -2,49 +2,49 @@ import { ITableData } from "../../Common/Table/types";
 import { IAuth, IPreFetch } from "../../RequestUI/redux/types";
 
 export interface IHistory {
-  id: string;
-  method: string;
-  name: string;
-  url: string;
-  createdTime: string;
+	id: string;
+	method: string;
+	name: string;
+	url: string;
+	createdTime: string;
 }
 
 export interface ISettings {
-  auth: IAuth;
-  preFetch?: IPreFetch;
-  headers?: ITableData[];
+	auth: IAuth;
+	preFetch?: IPreFetch;
+	headers?: ITableData[];
 }
 
 export interface ICollections {
-  id: string;
-  name: string;
-  createdTime: string;
-  data?: (IHistory | IFolder)[];
-  variableId: string;
-  settings: ISettings;
+	id: string;
+	name: string;
+	createdTime: string;
+	data?: (IHistory | IFolder)[];
+	variableId: string;
+	settings: ISettings;
 }
 
 export interface IFolder {
-  id: string;
-  name: string;
-  createdTime: string;
-  type: "folder";
-  data?: (IHistory | IFolder)[];
-  settings: ISettings;
+	id: string;
+	name: string;
+	createdTime: string;
+	type: "folder";
+	data?: (IHistory | IFolder)[];
+	settings: ISettings;
 }
 
 export interface IVariable {
-  id: string;
-  name: string;
-  createdTime: string;
-  isActive: boolean;
-  data: ITableData[];
+	id: string;
+	name: string;
+	createdTime: string;
+	isActive: boolean;
+	data: ITableData[];
 }
 
 export interface ISideBarModel {
-  history: IHistory[];
-  collections: ICollections[];
-  variable: IVariable[];
+	history: IHistory[];
+	collections: ICollections[];
+	variable: IVariable[];
 }
 
 export const FETCH_CLIENT_SET_HISTORY: "FETCH_CLIENT_SET_HISTORY" = "FETCH_CLIENT_SET_HISTORY";
@@ -74,199 +74,199 @@ export const FETCH_CLIENT_SET_UPDATE_HISTORY_ITEM: "FETCH_CLIENT_SET_UPDATE_HIST
 
 
 export interface ISetHistory {
-  type: typeof FETCH_CLIENT_SET_HISTORY;
-  payload: {
-    history: IHistory[];
-  };
+	type: typeof FETCH_CLIENT_SET_HISTORY;
+	payload: {
+		history: IHistory[];
+	};
 }
 
 export interface ISetNewHistory {
-  type: typeof FETCH_CLIENT_SET_NEW_HISTORY;
-  payload: {
-    history: IHistory;
-  };
+	type: typeof FETCH_CLIENT_SET_NEW_HISTORY;
+	payload: {
+		history: IHistory;
+	};
 }
 
 export interface ISetCollection {
-  type: typeof FETCH_CLIENT_SET_COLLECTION;
-  payload: {
-    collections: ICollections[];
-  };
+	type: typeof FETCH_CLIENT_SET_COLLECTION;
+	payload: {
+		collections: ICollections[];
+	};
 }
 
 export interface ISetHistoryToCollection {
-  type: typeof FETCH_CLIENT_SET_NEW_HISTORY_TO_COLLECTION;
-  payload: {
-    collection: ICollections;
-  };
+	type: typeof FETCH_CLIENT_SET_NEW_HISTORY_TO_COLLECTION;
+	payload: {
+		collection: ICollections;
+	};
 }
 
 export interface ISetDeleteHistory {
-  type: typeof FETCH_CLIENT_SET_DELETE_HISTORY;
-  payload: {
-    id: string;
-  };
+	type: typeof FETCH_CLIENT_SET_DELETE_HISTORY;
+	payload: {
+		id: string;
+	};
 }
 
 export interface ISetRenameHistory {
-  type: typeof FETCH_CLIENT_SET_RENAME_HISTORY;
-  payload: {
-    id: string;
-    name: string;
-  };
+	type: typeof FETCH_CLIENT_SET_RENAME_HISTORY;
+	payload: {
+		id: string;
+		name: string;
+	};
 }
 
 export interface ISetRenameColItem {
-  type: typeof FETCH_CLIENT_SET_RENAME_COL_ITEM;
-  payload: {
-    colId: string;
-    folderId: string;
-    historyId: string;
-    isFolder: boolean;
-    name: string;
-  };
+	type: typeof FETCH_CLIENT_SET_RENAME_COL_ITEM;
+	payload: {
+		colId: string;
+		folderId: string;
+		historyId: string;
+		isFolder: boolean;
+		name: string;
+	};
 }
 
 export interface ISetDeleteColItem {
-  type: typeof FETCH_CLIENT_SET_DELETE_COL_ITEM;
-  payload: {
-    colId: string;
-    folderId: string;
-    historyId: string;
-    isFolder: boolean;
-  };
+	type: typeof FETCH_CLIENT_SET_DELETE_COL_ITEM;
+	payload: {
+		colId: string;
+		folderId: string;
+		historyId: string;
+		isFolder: boolean;
+	};
 }
 
 export interface ISetRenameCollection {
-  type: typeof FETCH_CLIENT_SET_RENAME_COLLECTION;
-  payload: {
-    colId: string;
-    name: string;
-  };
+	type: typeof FETCH_CLIENT_SET_RENAME_COLLECTION;
+	payload: {
+		colId: string;
+		name: string;
+	};
 }
 
 export interface ISetDeleteCollection {
-  type: typeof FETCH_CLIENT_SET_DELETE_COLLECTION;
-  payload: {
-    colId: string;
-  };
+	type: typeof FETCH_CLIENT_SET_DELETE_COLLECTION;
+	payload: {
+		colId: string;
+	};
 }
 
 export interface ISetClearCollection {
-  type: typeof FETCH_CLIENT_SET_CLEAR_COLLECTION;
-  payload: {
-    colId: string;
-    folderId: string;
-  };
+	type: typeof FETCH_CLIENT_SET_CLEAR_COLLECTION;
+	payload: {
+		colId: string;
+		folderId: string;
+	};
 }
 
 export interface ISetImportCollection {
-  type: typeof FETCH_CLIENT_SET_IMPORT_COLLECTION;
-  payload: {
-    collection: ICollections;
-  };
+	type: typeof FETCH_CLIENT_SET_IMPORT_COLLECTION;
+	payload: {
+		collection: ICollections;
+	};
 }
 
 export interface ISetCopyToCollection {
-  type: typeof FETCH_CLIENT_SET_COPY_TO_COLLECTION;
-  payload: {
-    collection: ICollections;
-  };
+	type: typeof FETCH_CLIENT_SET_COPY_TO_COLLECTION;
+	payload: {
+		collection: ICollections;
+	};
 }
 
 export interface ISetVariable {
-  type: typeof FETCH_CLIENT_SET_VARIABLE;
-  payload: {
-    variable: IVariable[];
-  };
+	type: typeof FETCH_CLIENT_SET_VARIABLE;
+	payload: {
+		variable: IVariable[];
+	};
 }
 
 export interface ISetDeleteVariable {
-  type: typeof FETCH_CLIENT_SET_DELETE_VARIABLE;
-  payload: {
-    varId: string;
-  };
+	type: typeof FETCH_CLIENT_SET_DELETE_VARIABLE;
+	payload: {
+		varId: string;
+	};
 }
 
 export interface ISetRenameVariable {
-  type: typeof FETCH_CLIENT_SET_RENAME_VARIABLE;
-  payload: {
-    varId: string;
-    name: string;
-  };
+	type: typeof FETCH_CLIENT_SET_RENAME_VARIABLE;
+	payload: {
+		varId: string;
+		name: string;
+	};
 }
 
 export interface ISetNewVariable {
-  type: typeof FETCH_CLIENT_SET_NEW_VARIABLE;
-  payload: {
-    variable: IVariable;
-  };
+	type: typeof FETCH_CLIENT_SET_NEW_VARIABLE;
+	payload: {
+		variable: IVariable;
+	};
 }
 
 export interface ISetUpdateVariable {
-  type: typeof FETCH_CLIENT_SET_UPDATE_VARIABLE;
-  payload: {
-    variable: IVariable;
-  };
+	type: typeof FETCH_CLIENT_SET_UPDATE_VARIABLE;
+	payload: {
+		variable: IVariable;
+	};
 }
 
 export interface ISetUpdateVariable {
-  type: typeof FETCH_CLIENT_SET_UPDATE_VARIABLE;
-  payload: {
-    variable: IVariable;
-  };
+	type: typeof FETCH_CLIENT_SET_UPDATE_VARIABLE;
+	payload: {
+		variable: IVariable;
+	};
 }
 
 export interface ISetAttachVariable {
-  type: typeof FETCH_CLIENT_SET_ATTACH_DETACH_VARIABLE;
-  payload: {
-    colId: string;
-    varId: string;
-  };
+	type: typeof FETCH_CLIENT_SET_ATTACH_DETACH_VARIABLE;
+	payload: {
+		colId: string;
+		varId: string;
+	};
 }
 
 export interface ISetActiveVariable {
-  type: typeof FETCH_CLIENT_SET_ACTIVE_INACTIVE_VARIABLE;
-  payload: {
-    varId: string;
-    status: boolean;
-  };
+	type: typeof FETCH_CLIENT_SET_ACTIVE_INACTIVE_VARIABLE;
+	payload: {
+		varId: string;
+		status: boolean;
+	};
 }
 
 export interface ISetNewRequestToCollection {
-  type: typeof FETCH_CLIENT_SET_NEW_REQUEST_TO_COLLECTION;
-  payload: {
-    item: IHistory;
-    id: string;
-    folId: string;
-  };
+	type: typeof FETCH_CLIENT_SET_NEW_REQUEST_TO_COLLECTION;
+	payload: {
+		item: IHistory;
+		id: string;
+		folId: string;
+	};
 }
 
 export interface ISetNewFolderToCollection {
-  type: typeof FETCH_CLIENT_SET_NEW_FOLDER_TO_COLLECTION;
-  payload: {
-    folder: IFolder;
-    colId: string;
-    folderId: string;
-  };
+	type: typeof FETCH_CLIENT_SET_NEW_FOLDER_TO_COLLECTION;
+	payload: {
+		folder: IFolder;
+		colId: string;
+		folderId: string;
+	};
 }
 
 export interface ISetUpdateCollectionItem {
-  type: typeof FETCH_CLIENT_SET_UPDATE_COLLECTION_ITEM;
-  payload: {
-    item: IHistory;
-    colId: string;
-  };
+	type: typeof FETCH_CLIENT_SET_UPDATE_COLLECTION_ITEM;
+	payload: {
+		item: IHistory;
+		colId: string;
+	};
 }
 
 export interface ISetUpdateHistoryItem {
-  type: typeof FETCH_CLIENT_SET_UPDATE_HISTORY_ITEM;
-  payload: {
-    item: IHistory;
-  };
+	type: typeof FETCH_CLIENT_SET_UPDATE_HISTORY_ITEM;
+	payload: {
+		item: IHistory;
+	};
 }
 
 export type SideBarActionTypes = | ISetHistory | ISetCollection | ISetDeleteHistory | ISetRenameHistory | ISetNewHistory | ISetHistoryToCollection |
-  ISetRenameColItem | ISetDeleteColItem | ISetRenameCollection | ISetDeleteCollection | ISetClearCollection | ISetImportCollection |
-  ISetCopyToCollection | ISetVariable | ISetDeleteVariable | ISetRenameVariable | ISetNewVariable | ISetUpdateVariable | ISetAttachVariable | ISetActiveVariable | ISetNewRequestToCollection |
-  ISetNewFolderToCollection | ISetUpdateCollectionItem | ISetUpdateHistoryItem;
+	ISetRenameColItem | ISetDeleteColItem | ISetRenameCollection | ISetDeleteCollection | ISetClearCollection | ISetImportCollection |
+	ISetCopyToCollection | ISetVariable | ISetDeleteVariable | ISetRenameVariable | ISetNewVariable | ISetUpdateVariable | ISetAttachVariable | ISetActiveVariable | ISetNewRequestToCollection |
+	ISetNewFolderToCollection | ISetUpdateCollectionItem | ISetUpdateHistoryItem;

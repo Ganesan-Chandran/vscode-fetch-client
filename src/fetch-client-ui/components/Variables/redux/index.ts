@@ -3,6 +3,6 @@ import { VariableReducer } from "./reducer";
 
 
 export {
-  VariableActions,
-  VariableReducer
+	VariableActions,
+	VariableReducer
 };

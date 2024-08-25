@@ -3,6 +3,7 @@ import { ResponseReducer } from "./reducer";
 
 
 export {
-  ResponseActions,
-  ResponseReducer
+	ResponseActions,
+	ResponseReducer
 };
+
