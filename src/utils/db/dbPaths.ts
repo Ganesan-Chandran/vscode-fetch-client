@@ -15,3 +15,6 @@ export const mainDBPath = () =>
 
 export const variableDBPath = () =>
 	path.resolve(getExtDbPath(), "fetchClientVariable.db");
+
+export const autoRequestDBPath = () =>
+	path.resolve(getExtDbPath(), "fetchAutoRequest.db");

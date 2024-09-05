@@ -33,8 +33,8 @@ export interface RequestsEntity {
 	params?: ParamsEntity[];
 	body?: BodyEntity;
 	auth?: Auth;
+	tests?: TestsEntity[];
 }
-
 export interface ParamsEntity {
 	name: string;
 	value: string;
@@ -55,6 +55,13 @@ export interface HeadersEntityOrFormEntity {
 	name: string;
 	value: string;
 	isDisabled?: boolean;
+}
+
+export interface TestsEntity {
+	type: string;
+	custom: string;
+	action: string;
+	value: string;
 }
 
 export interface Graphql {

@@ -166,6 +166,8 @@ const MainUI = () => {
 				});
 				col.unshift({ id: "", name: "select" });
 				dispatch(Actions.SetCollectionListAction(col));
+			} else if (event.data && event.data.type === responseTypes.preFetchResponse) {
+				dispatch(ResponseActions.SetPreFetchResponseAction(event.data.preFetchResponse));
 			}
 		});
 

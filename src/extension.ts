@@ -1,28 +1,30 @@
-import * as vscode from 'vscode';
 import fs from "fs";
 import path from "path";
-import { AddToColUI } from './utils/ui/addToCollectionUIProvider';
-import { CookieUI } from './utils/ui/cookieUIProvider';
-import { CreateCollectionDB, CreateCookieDB, CreateHistoryDB, CreateMainDB, CreateVariableDB } from './utils/db/dbUtil';
-import { createLogFile } from './utils/logger/logger';
-import { CurlProviderUI } from './utils/ui/curlUIProvider';
-import { ErrorLogUI } from './utils/ui/errorLogUIProvider';
-import { IPubSubMessage, PubSub } from './utils/PubSub';
+import * as vscode from 'vscode';
+import { FCScheduler } from "./utils/autoRequest/scheduler";
+import { pubSubTypes } from './utils/configuration';
+import { GetAllCollections } from './utils/db/collectionDBUtil';
+import { autoRequestDBPath, collectionDBPath, cookieDBPath, historyDBPath, mainDBPath, variableDBPath } from "./utils/db/dbPaths";
+import { CreateAutoRequestDB, CreateCollectionDB, CreateCookieDB, CreateHistoryDB, CreateMainDB, CreateVariableDB } from './utils/db/dbUtil';
+import { getExtDbPath, setGlobalStorageUri } from './utils/db/getExtDbPath';
+import { GetAllHistory } from './utils/db/historyDBUtil';
+import { transferDbConfig } from './utils/db/transferDBConfig';
+import { GetAllVariable, UpdateToDecryptedVariables, UpdateToEncryptedVariables } from './utils/db/varDBUtil';
 import { LocalStorageService } from './utils/LocalStorageService';
 import { logPath } from './utils/logger/constants';
+import { createLogFile } from './utils/logger/logger';
+import { VSCodeLogger } from './utils/logger/vsCodeLogger';
+import { IPubSubMessage, PubSub } from './utils/PubSub';
+import { AddToColUI } from './utils/ui/addToCollectionUIProvider';
+import { AutoRequestProviderUI } from './utils/ui/autoRequestUIProvider';
+import { BulkExportProviderUI } from './utils/ui/bulkExportUIProvider';
+import { CookieUI } from './utils/ui/cookieUIProvider';
+import { CurlProviderUI } from './utils/ui/curlUIProvider';
+import { ErrorLogUI } from './utils/ui/errorLogUIProvider';
+import { WebAppPanel } from './utils/ui/mainUIProvider';
 import { SideBarProvider } from './utils/ui/sideBarUIProvider';
 import { VariableUI } from './utils/ui/variableUIProvider';
-import { WebAppPanel } from './utils/ui/mainUIProvider';
-import { VSCodeLogger } from './utils/logger/vsCodeLogger';
-import { pubSubTypes } from './utils/configuration';
-import { collectionDBPath, cookieDBPath, historyDBPath, mainDBPath, variableDBPath } from "./utils/db/dbPaths";
-import { getExtDbPath, setGlobalStorageUri } from './utils/db/getExtDbPath';
-import { transferDbConfig } from './utils/db/transferDBConfig';
-import { GetAllCollections } from './utils/db/collectionDBUtil';
-import { GetAllHistory } from './utils/db/historyDBUtil';
-import { GetAllVariable, UpdateToDecryptedVariables, UpdateToEncryptedVariables } from './utils/db/varDBUtil';
 import { getVariableEncryptionFCConfiguration, setVariableEncryptionConfiguration } from './utils/vscodeConfig';
-import { BulkExportProviderUI } from './utils/ui/bulkExportUIProvider';
 
 export var pubSub: PubSub<IPubSubMessage>;
 export var vsCodeLogger: VSCodeLogger;
@@ -67,6 +69,10 @@ export function OpenBulkExportUI(type: string) {
 	vscode.commands.executeCommand("fetch-client.bulkExport", type);
 }
 
+export function OpenAutoRequestUI() {
+	vscode.commands.executeCommand("fetch-client.autoRequest");
+}
+
 export function OpenColSettings(colId: string, folderId: string, name: string, type: string, varId: string) {
 	vscode.commands.executeCommand("fetch-client.addToCol", colId, folderId, name, "colsettings@:@" + type, varId);
 }
@@ -106,6 +112,10 @@ export function activate(context: vscode.ExtensionContext) {
 		CreateCookieDB();
 	}
 
+	if (!fs.existsSync(autoRequestDBPath())) {
+		CreateAutoRequestDB();
+	}
+
 	if (!fs.existsSync(path.resolve(extPath, logPath))) {
 		createLogFile();
 	}
@@ -130,6 +140,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(ErrorLogUI(context.extensionUri));
 	context.subscriptions.push(CurlProviderUI(context.extensionUri));
 	context.subscriptions.push(BulkExportProviderUI(context.extensionUri));
+	context.subscriptions.push(AutoRequestProviderUI(context.extensionUri));
 
 	context.subscriptions.push(
 		vscode.workspace.onDidChangeConfiguration((e) => {
@@ -171,5 +182,6 @@ export function getStorageManager(): LocalStorageService {
 }
 
 export function deactivate() {
+	FCScheduler.Instance.StopAllJobs();
 	pubSub.clear();
 }

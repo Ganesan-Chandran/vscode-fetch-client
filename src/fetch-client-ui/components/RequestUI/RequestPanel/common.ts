@@ -11,6 +11,7 @@ import { IReqSettings, IRequestModel } from "../redux/types";
 
 export const SendRequest = (dispatch: Dispatch<any>, newReq: boolean, colId: string, requestData: IRequestModel, selectedVariable: IVariable, parentSettings: ISettings, reqSettings: IReqSettings) => {
 	dispatch(ResponseActions.SetResponseLoadingAction(true));
+	dispatch(ResponseActions.SetPreFetchResponseAction([]));
 
 	let reqData = { ...requestData };
 

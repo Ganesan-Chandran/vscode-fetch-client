@@ -1,0 +1,47 @@
+.prefetch-test-result-label {
+	display: block;
+	width: 50px;
+	border-radius: 3px;
+	height: 19px;
+	margin: 10px 5px 5px 5px;
+	text-align: center;
+	font-weight: bold;
+}
+
+.prefetch-response-items {
+	padding-right: 0 !important;
+	min-width: 220px;
+}
+
+.prefetch-result-panel {
+	padding-top: 35px;
+	padding-bottom: 15px;
+}
+
+.prefetch-condition-result-label {
+	display: inline-block;
+	width: 50px;
+	border-radius: 3px;
+	height: 19px;
+	margin-left: 10px;
+	text-align: center;
+	font-weight: bold;
+}
+
+.prefecth-child-panel {
+	padding: 10px 20px 10px 20px;
+}
+
+.prefetch-collction-item {
+	display: grid;
+}
+
+details[open].prefetch-result-details-items>summary>label.pass {
+	background-color: transparent;
+	color: rgb(2, 151, 2);
+}
+
+details[open].prefetch-result-details-items>summary>label.fail {
+	background-color: transparent;
+	color: rgb(240, 22, 22);
+}

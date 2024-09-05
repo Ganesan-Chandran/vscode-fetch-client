@@ -111,7 +111,7 @@ const ResToVariables = () => {
 						className="table-input"
 						value={row.variableName}
 						onChange={(event) => index === setvar.length - 1 ? onRowAdd(event, index, "variableName") : onRowUpdate(event, index, "variableName")}
-						placeholder="variable name"
+						placeholder="variable name without {{ and }}"
 					/>
 				</td>
 				<td className="test-action-cell">

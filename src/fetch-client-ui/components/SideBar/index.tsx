@@ -105,6 +105,12 @@ const SideBar = () => {
 		setMenuShow(false);
 	}
 
+	function onAutoRequest(evt: any) {
+		evt.preventDefault();
+		vscode.postMessage({ type: requestTypes.openAutoRequest });
+		setMenuShow(false);
+	}
+
 	useEffect(() => {
 		window.addEventListener("message", (event) => {
 			if (event.data && event.data.type === responseTypes.getAllHistoryResponse) {
@@ -217,6 +223,8 @@ const SideBar = () => {
 		return (
 			<>
 				<button onClick={(e) => onNewCollection(e)}>New Collection</button>
+				<button onClick={(e) => onAutoRequest(e)}>Auto Request</button>
+				<hr />
 				<button onClick={(e) => onImportCurl(e)}>Import/Run Curl</button>
 				<button onClick={(e) => onImportData(e)}>Import</button>
 				<button onClick={(e) => onBulkExportData(e, "col")}>Bulk Export</button>

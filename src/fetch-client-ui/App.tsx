@@ -14,6 +14,7 @@ const RunAll = React.lazy(() => import('./components/Collection/RunAll/runAll'))
 const ErrorLog = React.lazy(() => import('./components/ErrorLog/ErrorLog'));
 const CurlUI = React.lazy(() => import('./components/Curl'));
 const BulkExportUI = React.lazy(() => import('./components/Collection/BulkExport/bulkExport'));
+const AutoRequestUI = React.lazy(() => import('./components/AutoRequest'));
 
 function ErrorFallback({ error }) {
 	const errorData = " Name : " + error.name + "\n\n" + " Message : " + error.message + "\n\n" + " Stack : " + error.stack;
@@ -71,6 +72,8 @@ function renderUI() {
 		return <ErrorLog />;
 	} else if (document.title.includes('bulkexport')) {
 		return <BulkExportUI />;
+	} else if (document.title.includes('autorequest')) {
+		return <AutoRequestUI />;
 	} else {
 		return <MainUI />;
 	}

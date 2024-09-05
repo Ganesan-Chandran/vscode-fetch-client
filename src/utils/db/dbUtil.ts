@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { formatDate } from "../helper";
 import { writeLog } from "../logger/logger";
 import {
+	autoRequestDBPath,
 	collectionDBPath,
 	cookieDBPath,
 	historyDBPath,
@@ -168,6 +169,36 @@ export function CreateCookieDB(): any {
 			db.saveDatabase();
 		} catch (err: any) {
 			writeLog("error::CreateCookieDB()::dbInitialize(): " + err);
+		}
+	}
+}
+
+export function CreateAutoRequestDB(): any {
+	let db: LokiConstructor;
+	try {
+		const idbAdapter = new LokiFsAdapter();
+		db = new loki(autoRequestDBPath(), {
+			autoload: true,
+			autoloadCallback: dbInitialize,
+			autosave: true,
+			autosaveInterval: 1000,
+			serializationMethod: "normal",
+			adapter: idbAdapter,
+		});
+	} catch (err: any) {
+		writeLog("error::CreateAutoRequestDB(): " + err);
+	}
+
+
+	function dbInitialize() {
+		try {
+			let userCookies = db.getCollection("autoRequests");
+			if (userCookies === null) {
+				userCookies = db.addCollection("autoRequests", { autoupdate: true, disableMeta: true, unique: ["id"], indices: ["id"] });
+			}
+			db.saveDatabase();
+		} catch (err: any) {
+			writeLog("error::CreateAutoRequestDB()::dbInitialize(): " + err);
 		}
 	}
 }

@@ -61,7 +61,7 @@ export const PreFetch = (props: IPreFecthProps) => {
 		<div className="preReq-container">
 			<div>
 				<div className="max-req">
-					{props?.settingsMode ? "* Max 2 request (It is recommended that each request does not contain any PreFetch requests. If there are any PreFetch requests, then they won't be executed.)" : "* Max 5 request"}
+					{props?.settingsMode ? "* Max 2 request (It is recommended that each request does not contain any PreFetch requests. If there are any PreFetch requests, then the PreFetch requests won't be executed.)" : "* Max 5 request"}
 				</div>
 				<button onClick={onAddReqClick} disabled={isDisabled()} className="format-button">Add Pre-request
 				</button>

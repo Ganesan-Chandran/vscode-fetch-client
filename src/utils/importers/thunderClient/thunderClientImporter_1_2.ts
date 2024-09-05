@@ -1,15 +1,16 @@
 import { XMLValidator } from "fast-xml-parser";
 import { v4 as uuidv4 } from "uuid";
 import { ITableData } from "../../../fetch-client-ui/components/Common/Table/types";
-import { InitialAuth, InitialBody, InitialPreFetch, InitialRequestHeaders, InitialSetVar, InitialTest } from "../../../fetch-client-ui/components/RequestUI/redux/reducer";
-import { ClientAuth, GrantType, IAuth, IBodyData, IRequestModel, MethodType } from "../../../fetch-client-ui/components/RequestUI/redux/types";
+import { InitialAuth, InitialBody, InitialPreFetch, InitialRequestHeaders } from "../../../fetch-client-ui/components/RequestUI/redux/reducer";
+import { ClientAuth, GrantType, IAuth, IBodyData, IRequestModel, ISetVar, ITest, MethodType } from "../../../fetch-client-ui/components/RequestUI/redux/types";
 import { InitialSettings } from "../../../fetch-client-ui/components/SideBar/redux/reducer";
 import { ICollections, IFolder, IHistory, ISettings } from "../../../fetch-client-ui/components/SideBar/redux/types";
 import { isFolder } from "../../../fetch-client-ui/components/SideBar/util";
+import { ActionsParametersMapping } from "../../../fetch-client-ui/components/TestUI/TestPanel/consts";
 import { isJson } from "../../../fetch-client-ui/components/TestUI/TestPanel/helper";
 import { formatDate } from "../../helper";
 import { writeLog } from "../../logger/logger";
-import { Auth, BodyEntity, FoldersEntity, HeadersEntityOrFormEntity, ParamsEntity, RequestsEntity, Settings, ThunderClient_Schema_1_2 } from "./thunderClient_1_2_types";
+import { Auth, BodyEntity, FoldersEntity, HeadersEntityOrFormEntity, ParamsEntity, RequestsEntity, Settings, TestsEntity, ThunderClient_Schema_1_2 } from "./thunderClient_1_2_types";
 
 
 export class ThunderClientImport {
@@ -276,6 +277,90 @@ export class ThunderClientImport {
 		return {};
 	};
 
+	getTests = (tests: TestsEntity[]): ITest[] => {
+		let fcTest: ITest[] = [];
+
+		if (tests?.length > 0) {
+			tests.forEach(item => {
+				let parameter = this.getTestType(item.type);
+				let action = this.getAction(parameter, item.action);
+				if (parameter && action) {
+					fcTest.push({
+						parameter: parameter,
+						action: action,
+						expectedValue: item.value ?? "",
+						customParameter: item.custom ? (item.type === "json-query" ?  item.custom.replace("json.", "") : item.custom)  : ""
+					});
+				}
+			});
+		}
+
+		return [...fcTest, {
+			parameter: "",
+			action: "",
+			expectedValue: ""
+		}];
+	};
+
+	getSetVariables = (tests: TestsEntity[]): ISetVar[] => {
+		let fcVar: ISetVar[] = [];
+
+		if (tests?.length > 0) {
+			tests.filter(i => i.type === "set-env-var" && i.custom.startsWith("json."))?.forEach(item => {
+					fcVar.push({
+						parameter: "JSON",
+						key: item.custom.replace("json.", ""),
+						variableName: item.value?.replace("{{","")?.replace("}}","") ?? ""
+					});
+			});
+		}
+
+		return [...fcVar, {
+			parameter: "",
+			key: "",
+			variableName: ""
+		}];
+	};
+
+	getAction = (type: string, action: string): string => {
+		if (!type || !action) {
+			return "";
+		}
+
+		let parameter = ActionsParametersMapping[type];
+		let fcAction = "";
+
+		if (parameter) {
+			action = action === "istype" ? "type" : (action === "isjson" ? "json" : action);
+			fcAction = parameter["action"]?.find((o: { name: string; }) => o.name.toLocaleLowerCase() === action.toLocaleLowerCase())?.["value"] ?? "";
+		}
+
+		return fcAction;
+	};
+
+	getTestType = (type: string): string => {
+		switch (type) {
+			case "res-code":
+				return "Response Code";
+			case "res-body":
+				return "Response Body";
+			case "res-time":
+				return "Response Time";
+			case "Content-Type":
+				return "Content-Type";
+			case "Content-Length":
+				return "Content-Length";
+			case "Content-Encoding":
+				return "Content-Encoding";
+			case "custom-header":
+				return "Header";
+			case "json-query":
+				return "JSON";
+			default:
+				return "";
+		}
+	};
+
 	getRequestItem = (req: RequestsEntity): IRequestModel => {
 		let request: IRequestModel = {
 			id: uuidv4(),
@@ -287,8 +372,8 @@ export class ThunderClientImport {
 			auth: this.getAuthDetails(req.auth),
 			headers: this.getHeaders(req.headers),
 			body: this.getBody(req.body),
-			tests: JSON.parse(JSON.stringify(InitialTest)),
-			setvar: JSON.parse(JSON.stringify(InitialSetVar)),
+			tests: this.getTests(req.tests),
+			setvar: this.getSetVariables(req.tests),
 			notes: "",
 			preFetch: JSON.parse(JSON.stringify(InitialPreFetch))
 		};

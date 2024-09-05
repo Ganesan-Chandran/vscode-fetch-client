@@ -47,7 +47,7 @@ export const PreRequest = (props: IPreRequestProps) => {
 			}
 		});
 
-		if (props.request.colId && colRequestList.findIndex(i => i.id === props.request.colId) === -1) {
+		if (props.request.colId && colRequestList?.findIndex(i => i.id === props.request.colId) === -1) {
 			vscode.postMessage({ type: requestTypes.getCollectionsByIdWithPathRequest, data: props.request.colId });
 		}
 	}, []);
@@ -61,7 +61,7 @@ export const PreRequest = (props: IPreRequestProps) => {
 	const onSelectCollection = (colId: string, index: number) => {
 		dispatch(Actions.SetSelectedColAction(colId, index));
 
-		if (colRequestList.findIndex(i => i.id === colId) === -1) {
+		if (colRequestList?.findIndex(i => i.id === colId) === -1) {
 			vscode.postMessage({ type: requestTypes.getCollectionsByIdWithPathRequest, data: colId });
 		} else {
 			let reqs = colRequestList.find(i => i.id === colId)?.reqs;

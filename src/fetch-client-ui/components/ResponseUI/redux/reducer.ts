@@ -1,7 +1,7 @@
 import { responseType } from "../OptionsPanel/Options/Response/consts";
 import {
 	FETCH_CLIENT_SET_LOADING,
-	FETCH_CLIENT_SET_RES_COOKIES, FETCH_CLIENT_SET_RES_HEADERS, FETCH_CLIENT_SET_RES_RESPONSE,
+	FETCH_CLIENT_SET_RES_COOKIES, FETCH_CLIENT_SET_RES_HEADERS, FETCH_CLIENT_SET_RES_PREFETCH_RESPONSE, FETCH_CLIENT_SET_RES_RESPONSE,
 	FETCH_CLIENT_SET_TEST_RESULT,
 	IReponseModel, IResponse, ResponseActionTypes
 } from "./types";
@@ -26,7 +26,8 @@ export const InitialState: IReponseModel = {
 	headers: [],
 	cookies: [],
 	loading: false,
-	testResults: []
+	testResults: [],
+	preFetchResponse: []
 };
 
 export const ResponseReducer: (state?: IReponseModel,
@@ -64,6 +65,12 @@ export const ResponseReducer: (state?: IReponseModel,
 				return {
 					...state,
 					testResults: action.payload.testResults,
+				};
+			}
+			case FETCH_CLIENT_SET_RES_PREFETCH_RESPONSE: {
+				return {
+					...state,
+					preFetchResponse: action.payload.preFetchResponse,
 				};
 			}
 			default: {
