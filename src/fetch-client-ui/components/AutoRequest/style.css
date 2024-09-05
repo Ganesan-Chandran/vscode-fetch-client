@@ -1,0 +1,70 @@
+.autorequest-panel {
+	display: grid;
+	grid-auto-columns: minmax(0, 1fr);
+	grid-auto-flow: column;
+	padding-left: 5%;
+	padding-top: 20px;
+}
+
+.autorequest-text-panel {
+	padding: 10px 20px 10px 10px;
+	text-align: center;
+	max-width: 100%;
+}
+
+.autorequest-header-panel {
+	padding-top: 30px;
+}
+
+.autorequest-text-box {
+	background: var(--background-color);
+	border: 0.25px solid var(--border-color);
+	color: var(--text-color);
+	height: 25px;
+	border-radius: 3px;
+	padding-left: 10px;
+	width: 85%;
+}
+
+.autorequest-text-box:disabled,
+.autorequest-text-box[disabled],
+.autorequest-text-box:disabled:hover,
+.autorequest-text-box[disabled]:hover {
+	background-color: var(--list-hover-background-color);
+	cursor: not-allowed;
+}
+
+.invalid-value-border {
+	border-color: red;
+}
+
+.autorequest-button-panel {
+	display: grid;
+	grid-auto-rows: 1fr;
+	grid-template-columns: 1fr 1fr 1fr;
+	padding-top: 30px;
+	padding-bottom: 30px;
+}
+
+.delete-button path {
+	fill: #f05348;
+}
+
+.note-panel {
+	padding-left: 3%;
+	padding-top: 50px;
+}
+
+.autorequest-max-note {
+	color: red;
+	padding-bottom: 7px;
+}
+
+.detail-note {
+	margin: auto;
+	width: 100%;
+}
+
+.autorequest-control-width {
+	width: 85% !important;
+}

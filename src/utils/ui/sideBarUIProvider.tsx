@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import {
-	getStorageManager, OpenAddToColUI, OpenAttachVariableUI, OpenBulkExportUI, OpenColSettings, OpenCopyToColUI,
+	getStorageManager, OpenAddToColUI, OpenAttachVariableUI, OpenAutoRequestUI, OpenBulkExportUI, OpenColSettings, OpenCopyToColUI,
 	OpenCurlUI, OpenExistingItem, OpenRunAllUI, OpenVariableUI, pubSub, vsCodeLogger
 } from '../../extension';
 import { ICollections, IFolder, IHistory } from '../../fetch-client-ui/components/SideBar/redux/types';
@@ -294,6 +294,9 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					break;
 				case requestTypes.bulkExportRequest:
 					OpenBulkExportUI(reqData.data.type);
+					break;
+				case requestTypes.openAutoRequest:
+					OpenAutoRequestUI();
 					break;
 			}
 		});

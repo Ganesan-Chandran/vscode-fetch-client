@@ -25,14 +25,23 @@ export interface IReponseModel {
 	cookies: ITableData[];
 	loading?: boolean;
 	testResults?: ITestResult[];
+	preFetchResponse?: IPreFetchResponse[];
+}
+
+export interface IPreFetchResponse {
+	reqId: string;
+	name: string;
+	resStatus: number;
+	testResults?: ITestResult[];
+	childrenResponse?: IPreFetchResponse[]
 }
 
 export const FETCH_CLIENT_SET_RES_RESPONSE: "FETCH_CLIENT_SET_RES_RESPONSE" = "FETCH_CLIENT_SET_RES_RESPONSE";
 export const FETCH_CLIENT_SET_RES_HEADERS: "FETCH_CLIENT_SET_RES_HEADERS" = "FETCH_CLIENT_SET_RES_HEADERS";
 export const FETCH_CLIENT_SET_RES_COOKIES: "FETCH_CLIENT_SET_RES_COOKIES" = "FETCH_CLIENT_SET_RES_COOKIES";
 export const FETCH_CLIENT_SET_LOADING: "FETCH_CLIENT_SET_LOADING" = "FETCH_CLIENT_SET_LOADING";
-
 export const FETCH_CLIENT_SET_TEST_RESULT: "FETCH_CLIENT_SET_TEST_RESULT" = "FETCH_CLIENT_SET_TEST_RESULT";
+export const FETCH_CLIENT_SET_RES_PREFETCH_RESPONSE: "FETCH_CLIENT_SET_RES_PREFETCH_RESPONSE" = "FETCH_CLIENT_SET_RES_PREFETCH_RESPONSE";
 
 export interface ISetResponse {
 	type: typeof FETCH_CLIENT_SET_RES_RESPONSE;
@@ -69,4 +78,11 @@ export interface ISetTestResult {
 	};
 }
 
-export type ResponseActionTypes = | ISetResponse | ISetHeaders | ISetCookies | ISetLoading | ISetTestResult;
+export interface ISetPreFetchResult {
+	type: typeof FETCH_CLIENT_SET_RES_PREFETCH_RESPONSE;
+	payload: {
+		preFetchResponse: IPreFetchResponse[];
+	};
+}
+
+export type ResponseActionTypes = | ISetResponse | ISetHeaders | ISetCookies | ISetLoading | ISetTestResult | ISetPreFetchResult;

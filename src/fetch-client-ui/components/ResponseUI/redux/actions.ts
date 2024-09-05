@@ -1,8 +1,9 @@
 import { ITableData } from "../../Common/Table/types";
 import {
 	FETCH_CLIENT_SET_LOADING,
-	FETCH_CLIENT_SET_RES_COOKIES, FETCH_CLIENT_SET_RES_HEADERS, FETCH_CLIENT_SET_RES_RESPONSE,
+	FETCH_CLIENT_SET_RES_COOKIES, FETCH_CLIENT_SET_RES_HEADERS, FETCH_CLIENT_SET_RES_PREFETCH_RESPONSE, FETCH_CLIENT_SET_RES_RESPONSE,
 	FETCH_CLIENT_SET_TEST_RESULT,
+	IPreFetchResponse,
 	IResponse, ITestResult, ResponseActionTypes
 } from "./types";
 
@@ -48,6 +49,15 @@ export const SetTestResultAction = (value: ITestResult[]): ResponseActionTypes =
 		type: FETCH_CLIENT_SET_TEST_RESULT,
 		payload: {
 			testResults: value
+		}
+	};
+};
+
+export const SetPreFetchResponseAction = (value: IPreFetchResponse[]): ResponseActionTypes => {
+	return {
+		type: FETCH_CLIENT_SET_RES_PREFETCH_RESPONSE,
+		payload: {
+			preFetchResponse: value
 		}
 	};
 };

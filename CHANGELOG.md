@@ -2,6 +2,16 @@
 
 All notable changes to the "Fetch Client" extension will be documented in this file.
 
+## v1.8.0 - September, 2024
+### 🎉 New Features
+- `Auto Request`(Scheduling the request) feature is implemented.
+- Introduced new tab in the response section for PreFetch request result.
+- Set variable and tests are included in the Thunder Client collection import.
+
+### Requirements
+- Minimum required version of **VSCode** is `v1.75.0`
+- Minimum **Node** version is `18.20.3`
+
 ## v1.7.0 - September, 2024
 ### 🎉 New Features
 - `Encrypted` environment variables. Variables are stored in the encrypted format.

@@ -2,7 +2,7 @@
   "name": "fetch-client",
   "displayName": "Fetch Client",
   "description": "Rest API Client for VS Code which is used to test your API's within VS Code.",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "publisher": "GanesanChandran",
   "author": {
     "name": "Ganesan Chandran <https://ganesan-chandran.github.io/>"
@@ -58,6 +58,7 @@
     "onCommand:fetch-client.openErrorLog",
     "onCommand:fetch-client.curlRequest",
     "onCommand:fetch-client.bulkExport",
+    "onCommand:fetch-client.autoRequest",
     "onStartupFinished"
   ],
   "main": "./dist/extension.js",
@@ -226,7 +227,7 @@
           },
           "fetch-client.runMainRequest": {
             "type": "boolean",
-            "default": true,
+            "default": false,
             "scope": "resource",
             "order": 10,
             "markdownDescription": "By Default `main request will run` even if pre-request(s)/pre-condition(s) are getting failed. If it is disabled, `main request won't run` if any pre-request/pre-condition are failed."
@@ -428,6 +429,7 @@
     "@ganesan-chandran/fetch-client-crypto": "^1.0.1",
     "aws4": "^1.11.0",
     "axios": "^0.26.1",
+    "cron": "^3.1.7",
     "form-data": "^4.0.0",
     "moment-mini": "^2.29.4",
     "quicktype-core": "^6.1.0",

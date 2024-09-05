@@ -13,7 +13,7 @@ export const ResponseOptionsTab = (props: any) => {
 
 	const { selectedTab, setSelectedTab, isVerticalLayout } = props;
 
-	const { headers, response, testResults, cookies } = useSelector((state: IRootState) => state.responseData);
+	const { headers, response, testResults, cookies, preFetchResponse } = useSelector((state: IRootState) => state.responseData);
 	const { url } = useSelector((state: IRootState) => state.requestData);
 
 	const [menuShow, setMenuShow] = useState(false);
@@ -135,7 +135,7 @@ export const ResponseOptionsTab = (props: any) => {
 									<div className="header-count">
 										(
 										{
-											cookies.length
+											cookies?.length
 										}
 										)
 									</div>
@@ -144,7 +144,7 @@ export const ResponseOptionsTab = (props: any) => {
 									<div className="header-count">
 										(
 										{
-											headers.length
+											headers?.length
 										}
 										)
 									</div>
@@ -153,7 +153,16 @@ export const ResponseOptionsTab = (props: any) => {
 									<div className="header-count">
 										(
 										{
-											testResults.length
+											testResults?.length
+										}
+										)
+									</div>
+								) : null}
+								{option.value === "prefetchresults" && response.responseData ? (
+									<div className="header-count">
+										(
+										{
+											preFetchResponse?.filter(i => i.reqId)?.length
 										}
 										)
 									</div>

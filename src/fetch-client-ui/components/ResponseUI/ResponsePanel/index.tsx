@@ -6,6 +6,7 @@ import { NotesEditor } from '../../Common/NotesEditor';
 import { TestResult } from '../../TestUI/TestResult';
 import { ResponseCookies } from "../OptionsPanel/Options/Cookies";
 import { ResponseHeaders } from "../OptionsPanel/Options/Headers";
+import { PreFetchResponse } from '../OptionsPanel/Options/PreFetchResponse';
 import { ResponseSection } from "../OptionsPanel/Options/Response";
 import { ResponseOptionsTab } from "../OptionsPanel/OptionTab";
 import "./style.css";
@@ -38,6 +39,8 @@ export const ReponsePanel = (props: ResponsePanelProps) => {
 				return <React.Suspense fallback={<div>loading...</div>}><TypesGenerator /></React.Suspense>;
 			case 'notes':
 				return <NotesEditor />;
+			case 'prefetchresults':
+				return <PreFetchResponse />;
 			default:
 				return <></>;
 		}
