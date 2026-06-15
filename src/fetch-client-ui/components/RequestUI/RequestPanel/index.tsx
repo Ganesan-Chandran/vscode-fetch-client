@@ -16,10 +16,11 @@ import { MethodType } from "../redux/types";
 import { SendRequest } from './common';
 import { requestMethods } from "./consts";
 import "./style.css";
+import { AppDispatch } from '../../../store/appStore';
 
 export const RequestPanel = () => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const [newReq, setNewReq] = useState(false);
 
@@ -29,6 +30,8 @@ export const RequestPanel = () => {
 	const { cookies } = useSelector((state: IRootState) => state.cookieData);
 	const { parentSettings, colId } = useSelector((state: IRootState) => state.reqColData);
 	const reqSettings = useSelector((state: IRootState) => state.reqSettings);
+
+	console.log("selectedVariable", selectedVariable);
 
 	const selectRequestMethod = (evt: React.ChangeEvent<HTMLSelectElement>): void => {
 		dispatch(Actions.SetRequestMethodAction(evt.target.value as MethodType));

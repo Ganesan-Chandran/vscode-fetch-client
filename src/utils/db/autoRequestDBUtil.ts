@@ -4,7 +4,7 @@ import { IAutoRequest } from '../../fetch-client-ui/components/AutoRequest/types
 import { FCScheduler } from '../autoRequest/scheduler';
 import { responseTypes } from '../configuration';
 import { writeLog } from '../logger/logger';
-import { autoRequestDBPath } from './dbPaths';
+import { autoRequestDBPath } from './helper';
 
 function getDB(): loki {
 	const idbAdapter = new LokiFsAdapter();
@@ -75,7 +75,6 @@ export function GetAutoRequestById(id: string, webview: vscode.Webview) {
 
 		db.loadDatabase({}, function () {
 			const autoRequests = db.getCollection('autoRequests').find({ 'id': id });
-			db.saveDatabase();
 			if (webview) {
 				webview.postMessage({ type: responseTypes.getAutoRequestByIdResponse, data: autoRequests });
 			}

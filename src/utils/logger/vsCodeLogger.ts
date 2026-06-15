@@ -1,71 +1,70 @@
 import * as vscode from 'vscode';
 
-export class VSCodeLogger {
+export type LogLevel = 'info' | 'warn' | 'error';
 
-	private _logChannel: vscode.OutputChannel;
+export class VSCodeLogger implements vscode.Disposable {
+
+	private readonly _logChannel: vscode.OutputChannel;
 	private _isOpen = false;
 
 	constructor() {
 		this._logChannel = vscode.window.createOutputChannel("Fetch Client");
 	}
 
-	public showLog() {
-			this._isOpen ? this._logChannel?.hide() : this._logChannel?.show();
-			this._isOpen = !this._isOpen;
+	public showLog(): void {
+		this._isOpen ? this._logChannel.hide() : this._logChannel.show();
+		this._isOpen = !this._isOpen;
 	}
 
-	public log(category: string, ...o: any) {
+	public log(category: LogLevel | string, ...args: unknown[]): void {
 		switch (category.toLowerCase()) {
 			case 'info':
-				o.map((args: any) => {
-					this._logChannel.appendLine('' + this.mapObject(args));
-				});
-				return;
-
 			case 'warn':
-				o.map((args: any) => {
-					this._logChannel.appendLine('' + this.mapObject(args));
-				});
+				for (const arg of args) {
+					this._logChannel.appendLine(this.mapObject(arg));
+				}
 				return;
 
-			case 'error':
-				let err: string = '';
-				o.map((args: any) => {
-					err += this.mapObject(args);
-				});
-				this._logChannel.appendLine(err);
-				vscode.window.showErrorMessage(err, { modal: true });
+			case 'error': {
+				const message = args.map(a => this.mapObject(a)).join('');
+				this._logChannel.appendLine(message);
+				vscode.window.showErrorMessage(message, { modal: true });
 				return;
+			}
 
 			default:
 				this._logChannel.appendLine(this.mapObject(category));
-				o.map((args: any) => {
-					this._logChannel.appendLine('' + this.mapObject(args));
-				});
+				for (const arg of args) {
+					this._logChannel.appendLine(this.mapObject(arg));
+				}
 				return;
 		}
 	}
 
-	private mapObject(obj: any) {
-		switch (typeof obj) {
-			case 'undefined':
-				return 'undefined';
-
-			case 'string':
-				return obj;
-
-			case 'number':
-				return obj.toString;
-
-			case 'object':
-				let ret: string = '';
-				for (const [key, value] of Object.entries(obj)) {
-					ret += (`${key}: ${value}\n`);
-				}
-				return ret;
-
-			default:
-				return obj;
-		}
+	public dispose(): void {
+		this._logChannel.dispose();
 	}
-};
+
+	private mapObject(obj: unknown): string {
+		if (obj === undefined) {
+			return 'undefined';
+		}
+		if (obj === null) {
+			return 'null';
+		}
+		if (typeof obj === 'string') {
+			return obj;
+		}
+		if (typeof obj === 'number' || typeof obj === 'boolean') {
+			return obj.toString();
+		}
+		if (typeof obj === 'object') {
+			let ret = '';
+			for (const [key, value] of Object.entries(obj)) {
+				ret += `${key}: ${value}\n`;
+			}
+			return ret;
+		}
+		return String(obj);
+	}
+}

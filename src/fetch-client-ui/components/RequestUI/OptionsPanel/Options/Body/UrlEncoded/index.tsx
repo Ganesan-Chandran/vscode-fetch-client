@@ -4,10 +4,11 @@ import { IRootState } from "../../../../../../reducer/combineReducer";
 import { Table } from "../../../../../Common/Table/Table";
 import { ITableData } from "../../../../../Common/Table/types";
 import { Actions } from "../../../../redux";
+import { AppDispatch } from "../../../../../../store/appStore";
 
 export const UrlEncoded = () => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 	const { body } = useSelector((state: IRootState) => state.requestData);
 	const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
 

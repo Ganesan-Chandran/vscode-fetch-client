@@ -12,62 +12,82 @@ import { formatDate } from "../../helper";
 import { writeLog } from "../../logger/logger";
 import { Auth, BodyEntity, FoldersEntity, HeadersEntityOrFormEntity, ParamsEntity, RequestsEntity, Settings, TestsEntity, ThunderClient_Schema_1_2 } from "./thunderClient_1_2_types";
 
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const NEWLINE_REGEX = /(?:\\[rn]|[\r\n]+)+/g;
+
+/** Maps Thunder Client test type strings to Fetch Client parameter names. */
+const TEST_TYPE_MAP: Readonly<Record<string, string>> = {
+	"res-code": "Response Code",
+	"res-body": "Response Body",
+	"res-time": "Response Time",
+	"Content-Type": "Content-Type",
+	"Content-Length": "Content-Length",
+	"Content-Encoding": "Content-Encoding",
+	"custom-header": "Header",
+	"json-query": "JSON",
+};
+
+/** Normalises Thunder Client action aliases to the names used in ActionsParametersMapping. */
+const ACTION_ALIAS_MAP: Readonly<Record<string, string>> = {
+	istype: "type",
+	isjson: "json",
+};
+
+const EMPTY_TABLE_ROW: ITableData = { isChecked: false, key: "", value: "" };
+const EMPTY_TEST: ITest = { parameter: "", action: "", expectedValue: "" };
+const EMPTY_SET_VAR: ISetVar = { parameter: "", key: "", variableName: "" };
+
+// ---------------------------------------------------------------------------
+// Deep-clone helper (avoids repeated JSON.parse/JSON.stringify noise)
+// ---------------------------------------------------------------------------
+
+function deepClone<T>(value: T): T {
+	return JSON.parse(JSON.stringify(value)) as T;
+}
+
+// ---------------------------------------------------------------------------
+// ThunderClientImport class
+// ---------------------------------------------------------------------------
 
 export class ThunderClientImport {
-	private collection: ThunderClient_Schema_1_2;
+	private readonly collection: ThunderClient_Schema_1_2;
 
 	constructor(collection: ThunderClient_Schema_1_2) {
 		this.collection = collection;
 	}
 
-	getParams = (params: ParamsEntity[]): ITableData[] => {
-		let fcParams: ITableData[] = [];
+	getParams(params: ParamsEntity[]): ITableData[] {
+		const fcParams: ITableData[] = (params ?? []).map(item => ({
+			key: item.name ?? "",
+			value: item.value ?? "",
+			isChecked: !item.isDisabled,
+		}));
 
-		if (params?.length > 0) {
-			params.forEach(item => {
-				fcParams.push({
-					key: item.name ?? "",
-					value: item.value ?? "",
-					isChecked: !item.isDisabled
-				});
-			});
-		}
-		return [...fcParams, {
-			isChecked: false,
-			key: "",
-			value: ""
-		}];
-	};
+		return [...fcParams, { ...EMPTY_TABLE_ROW }];
+	}
 
-	getHeaders = (headers?: HeadersEntityOrFormEntity[]): ITableData[] => {
-		let fcHeaders: ITableData[] = [];
-
-		if (headers?.length > 0) {
-			headers.forEach(header => {
-				if (header.name) {
-					fcHeaders.push({
-						isChecked: !header.isDisabled,
-						key: header.name,
-						value: header.value
-					});
-				}
-			});
-
-			fcHeaders.push({
-				key: "",
-				value: "",
-				isChecked: false,
-			});
-		} else {
-			fcHeaders = JSON.parse(JSON.stringify(InitialRequestHeaders));
+	getHeaders(headers?: HeadersEntityOrFormEntity[]): ITableData[] {
+		if (!headers?.length) {
+			return deepClone(InitialRequestHeaders);
 		}
 
+		const fcHeaders: ITableData[] = headers
+			.filter(h => !!h.name)
+			.map(h => ({
+				isChecked: !h.isDisabled,
+				key: h.name,
+				value: h.value,
+			}));
+
+		fcHeaders.push({ ...EMPTY_TABLE_ROW });
 		return fcHeaders;
-	};
+	}
 
-	getAuthDetails = (auth?: Auth): IAuth => {
-
-		let fcAuth: IAuth = JSON.parse(JSON.stringify(InitialAuth));
+	getAuthDetails(auth?: Auth): IAuth {
+		const fcAuth: IAuth = deepClone(InitialAuth);
 
 		if (!auth) {
 			fcAuth.authType = "inherit";
@@ -75,56 +95,48 @@ export class ThunderClientImport {
 		}
 
 		switch (auth.type) {
-			case "aws":
+			case "aws": {
 				if (!auth.aws) {
 					return fcAuth;
 				}
-
 				fcAuth.aws.accessKey = auth.aws.accessKeyId ?? "";
 				fcAuth.aws.secretAccessKey = auth.aws.secretKey ?? "";
 				fcAuth.aws.service = auth.aws.service ?? "";
 				fcAuth.aws.sessionToken = auth.aws.sessionToken ?? "";
 				fcAuth.aws.region = auth.aws.region ?? "";
 				fcAuth.authType = "aws";
-
 				return fcAuth;
+			}
 
-
-			case "basic":
+			case "basic": {
 				if (!auth.basic) {
 					return fcAuth;
 				}
-
 				fcAuth.userName = auth.basic.username ?? "";
 				fcAuth.password = auth.basic.password ?? "";
 				fcAuth.authType = "basic";
-
 				return fcAuth;
+			}
 
-			case "bearer":
+			case "bearer": {
 				if (!auth.bearer) {
 					return fcAuth;
 				}
-
-				fcAuth.password = auth.bearer ?? "";
+				fcAuth.password = auth.bearer;
 				fcAuth.tokenPrefix = auth.bearerPrefix ?? "Bearer";
 				fcAuth.authType = "bearertoken";
-
 				return fcAuth;
+			}
 
-			case "oauth2":
+			case "oauth2": {
 				if (!auth.oauth2) {
 					return fcAuth;
 				}
-
-				let grantType = auth.oauth2.grantType ?? "";
-
+				const grantType = auth.oauth2.grantType ?? "";
 				if (grantType !== "client_credentials" && grantType !== "password") {
 					return fcAuth;
 				}
-
-				let clientAuth = auth.oauth2.clientAuth;
-				fcAuth.oauth.clientAuth = clientAuth === "in-header" ? ClientAuth.Header : ClientAuth.Body;
+				fcAuth.oauth.clientAuth = auth.oauth2.clientAuth === "in-header" ? ClientAuth.Header : ClientAuth.Body;
 				fcAuth.oauth.clientId = auth.oauth2.clientId ?? "";
 				fcAuth.oauth.clientSecret = auth.oauth2.clientSecret ?? "";
 				fcAuth.oauth.grantType = grantType === "client_credentials" ? GrantType.Client_Crd : GrantType.PWD_Crd;
@@ -132,242 +144,190 @@ export class ThunderClientImport {
 				fcAuth.oauth.username = auth.oauth2.username ?? "";
 				fcAuth.oauth.scope = auth.oauth2.scope ?? "";
 				fcAuth.oauth.tokenUrl = auth.oauth2.tokenUrl ?? "";
-
 				fcAuth.oauth.advancedOpt.resource = auth.oauth2.resource ?? "";
 				fcAuth.oauth.advancedOpt.audience = auth.oauth2.audience ?? "";
-
 				fcAuth.authType = "oauth2";
-
 				return fcAuth;
+			}
 
 			default:
 				return fcAuth;
 		}
-	};
+	}
 
-	getBody = (body: BodyEntity): IBodyData => {
-
-		let fcBody: IBodyData = JSON.parse(JSON.stringify(InitialBody));
+	getBody(body: BodyEntity): IBodyData {
+		const fcBody: IBodyData = deepClone(InitialBody);
 
 		if (!body) {
 			return fcBody;
 		}
 
 		switch (body.type) {
-			case 'formdata':
+			case "formdata": {
 				fcBody.bodyType = "formdata";
-				fcBody.formdata.shift();
+				fcBody.formdata = [];
+
 				body.form?.forEach(item => {
 					fcBody.formdata.push({
-						isChecked: item.isDisabled === true ? false : true,
+						isChecked: !item.isDisabled,
 						key: item.name ?? "",
 						value: item.value ?? "",
-						type: "Text"
+						type: "Text",
 					});
 				});
 
 				body.files?.forEach(item => {
 					fcBody.formdata.push({
-						isChecked: item.isDisabled === true ? false : true,
+						isChecked: !item.isDisabled,
 						key: item.name ?? "",
 						value: item.value ?? "",
-						type: "File"
+						type: "File",
 					});
 				});
 
-				fcBody.formdata.push({
-					isChecked: false,
-					key: "",
-					value: "",
-					type: "Text"
-				});
-
+				fcBody.formdata.push({ isChecked: false, key: "", value: "", type: "Text" });
 				return fcBody;
+			}
 
-			case 'formencoded':
+			case "formencoded": {
 				fcBody.bodyType = "formurlencoded";
-				fcBody.urlencoded.shift();
+				fcBody.urlencoded = [];
+
 				body.form?.forEach(item => {
 					fcBody.urlencoded.push({
-						isChecked: item.isDisabled === true ? false : true,
+						isChecked: !item.isDisabled,
 						key: item.name ?? "",
-						value: item.value ?? ""
+						value: item.value ?? "",
 					});
 				});
 
-				fcBody.urlencoded.push({
-					isChecked: false,
-					key: "",
-					value: ""
-				});
-
+				fcBody.urlencoded.push({ ...EMPTY_TABLE_ROW });
 				return fcBody;
+			}
 
-			case 'graphql':
+			case "graphql": {
+				if (!body.graphql) {
+					return fcBody;
+				}
 				fcBody.bodyType = "graphql";
 				fcBody.graphql.query = JSON.stringify(body.graphql.query);
 				fcBody.graphql.variables = JSON.stringify(body.graphql.variables);
 				return fcBody;
+			}
 
-			case 'json':
-			case 'xml':
-			case 'text':
+			case "json":
+			case "xml":
+			case "text": {
+				const rawData = body.raw ?? "";
 				fcBody.bodyType = "raw";
-				fcBody.raw.data = body.raw;
-				fcBody.raw.lang = this.getRawBodyType(body.raw.replace(/(?:\\[rn]|[\r\n]+)+/g, ""));
+				fcBody.raw.data = rawData;
+				fcBody.raw.lang = this.getRawBodyType(rawData.replace(NEWLINE_REGEX, ""));
 				return fcBody;
+			}
 
-			case 'binary':
+			case "binary": {
 				fcBody.bodyType = "binary";
-				fcBody.binary.fileName = body.binary;
+				fcBody.binary.fileName = body.binary ?? "";
 				fcBody.binary.contentTypeOption = "manual";
 				return fcBody;
+			}
 
 			default:
 				return fcBody;
 		}
-	};
+	}
 
-	getRawBodyType = (data: string): string => {
+	getRawBodyType(data: string): string {
 		if (isJson(data) === "true") {
 			return "json";
 		}
 		if (XMLValidator.validate(data) === true) {
 			return "xml";
 		}
-		if (this.isHTML(data)) {
+		if (this.isHTMLString(data)) {
 			return "html";
 		}
 		return "text";
-	};
+	}
 
-	isHTML = (str: string) => !(str || '')
-		// replace html tag with content
-		.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, '')
-		// remove remaining self closing tags
-		.replace(/(<([^>]+)>)/ig, '')
-		// remove extra space at start and end
-		.trim();
+	/** Returns true when the string contains HTML markup. */
+	private isHTMLString(str: string): boolean {
+		const stripped = (str || "")
+			.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, "")
+			.replace(/(<([^>]+)>)/ig, "")
+			.trim();
+		return stripped !== (str || "").trim();
+	}
 
-	findValueByKey = <T extends { key: string; value?: string }>(array?: T[], key?: string,) => {
-		if (!array) {
-			return "";
+	getTests(tests: TestsEntity[]): ITest[] {
+		if (!tests?.length) {
+			return [{ ...EMPTY_TEST }];
 		}
 
-		const obj = array.find(o => o.key === key);
+		const fcTest: ITest[] = tests.reduce<ITest[]>((acc, item) => {
+			const parameter = this.getTestType(item.type);
+			const action = this.getAction(parameter, item.action);
+			if (parameter && action) {
+				acc.push({
+					parameter,
+					action,
+					expectedValue: item.value ?? "",
+					customParameter: item.custom
+						? (item.type === "json-query" ? item.custom.replace("json.", "") : item.custom)
+						: "",
+				});
+			}
+			return acc;
+		}, []);
 
-		if (obj && typeof obj.value === "string") {
-			return obj.value || "";
+		return [...fcTest, { ...EMPTY_TEST }];
+	}
+
+	getSetVariables(tests: TestsEntity[]): ISetVar[] {
+		if (!tests?.length) {
+			return [{ ...EMPTY_SET_VAR }];
 		}
 
-		return "";
-	};
+		const fcVar: ISetVar[] = tests
+			.filter(i => i.type === "set-env-var" && i.custom?.startsWith("json."))
+			.map(item => ({
+				parameter: "JSON",
+				key: item.custom.replace("json.", ""),
+				variableName: item.value?.replace("{{", "").replace("}}", "") ?? "",
+			}));
 
-	findObjectByKey = <T extends { key: string; value?: string }>(array?: T[], key?: string,) => {
-		if (!array) {
-			return "";
-		}
+		return [...fcVar, { ...EMPTY_SET_VAR }];
+	}
 
-		const obj = array.find(o => o.key === key);
-
-		if (obj && typeof obj.value === "object") {
-			return obj.value || undefined;
-		}
-
-		return {};
-	};
-
-	getTests = (tests: TestsEntity[]): ITest[] => {
-		let fcTest: ITest[] = [];
-
-		if (tests?.length > 0) {
-			tests.forEach(item => {
-				let parameter = this.getTestType(item.type);
-				let action = this.getAction(parameter, item.action);
-				if (parameter && action) {
-					fcTest.push({
-						parameter: parameter,
-						action: action,
-						expectedValue: item.value ?? "",
-						customParameter: item.custom ? (item.type === "json-query" ?  item.custom.replace("json.", "") : item.custom)  : ""
-					});
-				}
-			});
-		}
-
-		return [...fcTest, {
-			parameter: "",
-			action: "",
-			expectedValue: ""
-		}];
-	};
-
-	getSetVariables = (tests: TestsEntity[]): ISetVar[] => {
-		let fcVar: ISetVar[] = [];
-
-		if (tests?.length > 0) {
-			tests.filter(i => i.type === "set-env-var" && i.custom.startsWith("json."))?.forEach(item => {
-					fcVar.push({
-						parameter: "JSON",
-						key: item.custom.replace("json.", ""),
-						variableName: item.value?.replace("{{","")?.replace("}}","") ?? ""
-					});
-			});
-		}
-
-		return [...fcVar, {
-			parameter: "",
-			key: "",
-			variableName: ""
-		}];
-	};
-
-	getAction = (type: string, action: string): string => {
+	getAction(type: string, action: string): string {
 		if (!type || !action) {
 			return "";
 		}
 
-		let parameter = ActionsParametersMapping[type];
-		let fcAction = "";
-
-		if (parameter) {
-			action = action === "istype" ? "type" : (action === "isjson" ? "json" : action);
-			fcAction = parameter["action"]?.find((o: { name: string; }) => o.name.toLocaleLowerCase() === action.toLocaleLowerCase())?.["value"] ?? "";
+		const parameterDef = ActionsParametersMapping[type];
+		if (!parameterDef) {
+			return "";
 		}
 
-		return fcAction;
-	};
+		const normalisedAction = ACTION_ALIAS_MAP[action] ?? action;
+		return (
+			parameterDef["action"]?.find(
+				(o: { name: string }) => o.name.toLowerCase() === normalisedAction.toLowerCase()
+			)?.["value"] ?? ""
+		);
+	}
 
-	getTestType = (type: string): string => {
-		switch (type) {
-			case "res-code":
-				return "Response Code";
-			case "res-body":
-				return "Response Body";
-			case "res-time":
-				return "Response Time";
-			case "Content-Type":
-				return "Content-Type";
-			case "Content-Length":
-				return "Content-Length";
-			case "Content-Encoding":
-				return "Content-Encoding";
-			case "custom-header":
-				return "Header";
-			case "json-query":
-				return "JSON";
-			default:
-				return "";
-		}
-	};
+	getTestType(type: string): string {
+		return TEST_TYPE_MAP[type] ?? "";
+	}
 
-	getRequestItem = (req: RequestsEntity): IRequestModel => {
-		let request: IRequestModel = {
+	getRequestItem(req: RequestsEntity): IRequestModel {
+		return {
 			id: uuidv4(),
 			url: req.url,
 			name: req.name,
 			createdTime: formatDate(),
-			method: req.method.toLocaleLowerCase() as MethodType,
+			method: req.method.toLowerCase() as MethodType,
 			params: this.getParams(req.params),
 			auth: this.getAuthDetails(req.auth),
 			headers: this.getHeaders(req.headers),
@@ -375,104 +335,100 @@ export class ThunderClientImport {
 			tests: this.getTests(req.tests),
 			setvar: this.getSetVariables(req.tests),
 			notes: "",
-			preFetch: JSON.parse(JSON.stringify(InitialPreFetch))
+			preFetch: deepClone(InitialPreFetch),
 		};
-		return request;
-	};
+	}
 
-	importFolderItem = (item: FoldersEntity): IFolder => {
+	importFolderItem(item: FoldersEntity): IFolder {
 		return {
 			id: uuidv4(),
 			name: item.name,
 			type: "folder",
 			createdTime: formatDate(),
 			data: [],
-			settings: item.settings ? this.importSettings(item.settings) : JSON.parse(JSON.stringify(InitialSettings))
+			settings: item.settings ? this.importSettings(item.settings) : deepClone(InitialSettings),
 		};
-	};
+	}
 
-	importSettings = (parentsettings: Settings): ISettings => {
-		let settings: ISettings = {
-			auth: this.getAuthDetails(parentsettings.auth),
+	importSettings(parentSettings: Settings): ISettings {
+		return {
+			auth: this.getAuthDetails(parentSettings.auth),
 			preFetch: { requests: [] },
-			headers: this.getHeaders(parentsettings.headers)
+			headers: this.getHeaders(parentSettings.headers),
 		};
+	}
 
-		return settings;
-	};
-
-	getParentItem = (source: ICollections | IFolder, searchId: string): IFolder => {
-		let pos = source.data.findIndex((el: any) => el.id === searchId);
-
+	private getParentItem(source: ICollections | IFolder, searchId: string): IFolder | null {
+		const pos = source.data.findIndex(el => el.id === searchId);
 		if (pos !== -1) {
-			return (source.data[pos] as IFolder);
+			return source.data[pos] as IFolder;
 		}
 
-		for (let i = 0; i < source.data.length; i++) {
-			if (isFolder(source.data[i])) {
-				return this.getParentItem(source.data[i] as IFolder, searchId);
+		for (const item of source.data) {
+			if (isFolder(item)) {
+				const found = this.getParentItem(item as IFolder, searchId);
+				if (found) {
+					return found;
+				}
 			}
 		}
 
 		return null;
-	};
+	}
 
-	importCollection = (): { fcCollection: ICollections, fcRequests: IRequestModel[] } => {
-		let requests: IRequestModel[] = [];
-		let ids: { [id: string]: string } = {};
+	importCollection(): { fcCollection: ICollections; fcRequests: IRequestModel[] } {
+		const requests: IRequestModel[] = [];
+		const ids: Record<string, string> = {};
 
-		let collection: ICollections = {
+		const collection: ICollections = {
 			id: uuidv4(),
 			name: this.collection.collectionName,
 			createdTime: formatDate(),
 			variableId: "",
 			data: [],
-			settings: this.collection.settings ? this.importSettings(this.collection.settings) : JSON.parse(JSON.stringify(InitialSettings))
+			settings: this.collection.settings
+				? this.importSettings(this.collection.settings)
+				: deepClone(InitialSettings),
 		};
 
 		this.collection.folders?.forEach((folderItem: FoldersEntity) => {
-			let fcFolder = this.importFolderItem(folderItem);
+			const fcFolder = this.importFolderItem(folderItem);
 			ids[folderItem._id] = fcFolder.id;
+
 			if (folderItem.containerId) {
-				let parentFolder = this.getParentItem(collection, ids[folderItem.containerId]);
-				parentFolder.data.push(fcFolder);
-			}
-			else {
+				const parentFolder = this.getParentItem(collection, ids[folderItem.containerId]);
+				parentFolder?.data.push(fcFolder);
+			} else {
 				collection.data.push(fcFolder);
 			}
 		});
 
 		this.collection.requests?.forEach((request: RequestsEntity) => {
-			let req = this.getRequestItem(request);
+			const req = this.getRequestItem(request);
 
-			let history: IHistory = {
+			const history: IHistory = {
 				id: req.id,
 				name: req.name,
 				method: req.method,
 				url: req.url,
-				createdTime: formatDate()
+				createdTime: formatDate(),
 			};
 
 			requests.push(req);
 
 			if (request.containerId) {
-				let folder = this.getParentItem(collection, ids[request.containerId]);
-				folder.data.push(history);
-			}
-			else {
+				const folder = this.getParentItem(collection, ids[request.containerId]);
+				folder?.data.push(history);
+			} else {
 				collection.data.push(history);
 			}
 		});
 
-		return {
-			fcCollection: collection,
-			fcRequests: requests
-		};
-	};
-};
+		return { fcCollection: collection, fcRequests: requests };
+	}
+}
 
-
-export const thunderClientImporter = (rawData: string): { fcCollection: ICollections, fcRequests: IRequestModel[] } | null => {
+export const thunderClientImporter = (rawData: string): { fcCollection: ICollections; fcRequests: IRequestModel[] } | null => {
 	try {
 		const collection = JSON.parse(rawData) as ThunderClient_Schema_1_2;
 		if (collection.clientName === "Thunder Client") {
@@ -480,7 +436,6 @@ export const thunderClientImporter = (rawData: string): { fcCollection: ICollect
 		}
 	} catch (err) {
 		writeLog("error::thunderClientImporter(): - Error Message : " + err);
-		return null;
 	}
 
 	return null;

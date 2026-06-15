@@ -1,5 +1,5 @@
 import fs from "fs";
-import loki, { LokiFsAdapter } from "lokijs";
+import loki, { Collection, LokiFsAdapter } from "lokijs";
 import * as vscode from "vscode";
 import { IRequestModel } from '../../fetch-client-ui/components/RequestUI/redux/types';
 import { InitialSettings } from '../../fetch-client-ui/components/SideBar/redux/reducer';
@@ -16,7 +16,7 @@ import { ThunderClient_Schema_1_2 } from "../importers/thunderClient/thunderClie
 import { writeLog } from '../logger/logger';
 import { FetchClientDataProxy } from '../validators/fetchClientCollectionValidator';
 import { ImportType } from "./constants";
-import { collectionDBPath, mainDBPath, variableDBPath } from "./dbPaths";
+import { collectionDBPath, mainDBPath, variableDBPath } from "./helper";
 
 function getDB(): loki {
 	const idbAdapter = new LokiFsAdapter();
@@ -59,7 +59,7 @@ export function UpdateRequest(reqData: IRequestModel) {
 		const db = getDB();
 		db.loadDatabase({}, function () {
 			const apiRequests = db.getCollection("apiRequests");
-			var req = apiRequests.findOne({ 'id': reqData.id });
+			const req = apiRequests.findOne({ 'id': reqData.id });
 			req.url = reqData.url;
 			req.name = reqData.name;
 			req.method = reqData.method;
@@ -181,8 +181,8 @@ export function DeleteExitingItems(ids: string[]) {
 	}
 }
 
-function findItem(source: any, Id: string) {
-	let pos = source.data.findIndex((el: any) => el.id === Id);
+function findItem(source: any, id: string): any | null {
+	const pos = source.data.findIndex((el: any) => el.id === id);
 
 	if (pos !== -1) {
 		return source.data[pos];
@@ -190,11 +190,14 @@ function findItem(source: any, Id: string) {
 
 	for (let i = 0; i < source.data.length; i++) {
 		if (isFolder(source.data[i])) {
-			return findItem(source.data[i], Id);
+			const found = findItem(source.data[i], id);
+			if (found) {
+				return found;
+			}
 		}
 	}
 
-	return "";
+	return null;
 }
 
 function ExportItemFromFolder(source: any, apiRequests: any, exportData: any[], isSub: boolean, level: number): any {
@@ -340,7 +343,7 @@ export function RenameRequestItem(id: string, name: string) {
 		const db = getDB();
 
 		db.loadDatabase({}, function () {
-			let req = db.getCollection("apiRequests").find({ 'id': id });
+			const req = db.getCollection("apiRequests").find({ 'id': id });
 			if (req && req.length > 0) {
 				req[0].name = name;
 				db.saveDatabase();
@@ -370,8 +373,8 @@ function ValidateData(data: string): ImportType | null {
 				return ImportType.Postman_2_1;
 			}
 
-			let thunderClientData = JSON.parse(data) as ThunderClient_Schema_1_2;
-			if (thunderClientData.clientName = "Thunder Client") {
+			const thunderClientData = JSON.parse(data) as ThunderClient_Schema_1_2;
+			if (thunderClientData.clientName === "Thunder Client") {
 				if (thunderClientData.version !== "1.2") {
 					vscode.window.showErrorMessage("Could not import the collection - Invalid thunder client version.", { modal: true });
 					return null;

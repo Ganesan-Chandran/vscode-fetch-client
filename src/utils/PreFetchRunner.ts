@@ -1,4 +1,4 @@
-import { IPreFetch, IRequestModel } from "../fetch-client-ui/components/RequestUI/redux/types";
+import { IPreFetch, IRequestModel, IRunRequest } from "../fetch-client-ui/components/RequestUI/redux/types";
 import { InitialResponse } from "../fetch-client-ui/components/ResponseUI/redux/reducer";
 import { IPreFetchResponse, IReponseModel } from "../fetch-client-ui/components/ResponseUI/redux/types";
 import { ISettings, IVariable } from "../fetch-client-ui/components/SideBar/redux/types";
@@ -7,197 +7,218 @@ import { GetParentSettingsSync, GetVariableByColId } from "./db/collectionDBUtil
 import { GetRequestItem } from "./db/mainDBUtil";
 import { GetVariableByIdSync, UpdateVariableSync } from "./db/varDBUtil";
 import { apiFetch, FetchConfig } from "./fetchUtil";
+import { writeLog } from "./logger/logger";
 
+function createEmptyPreFetchResponse(): IPreFetchResponse {
+	return { reqId: "", name: "", resStatus: 0, testResults: [], childrenResponse: [] };
+}
+
+interface RequestContext {
+	request: IRequestModel;
+	variable: IVariable | undefined;
+	parentSettings: ISettings;
+}
 
 export class PreFetchRunner {
 	private readonly fetchConfig: FetchConfig;
-	private executingRequests: string[] = [];
-	public allow: boolean = true;
-	private response: IReponseModel = {
-		response: JSON.parse(JSON.stringify(InitialResponse)),
-		headers: [],
-		cookies: [],
-		loading: false,
-		testResults: []
-	};
+	private readonly executingRequests: string[];
+	private _allow: boolean = true;
+	private _message: string = "";
+	private readonly response: IReponseModel;
 	public preFetchResponses: IPreFetchResponse[] = [];
-	public message: string = "";
 
-
-	constructor(fetchConfig: FetchConfig, reqId: string) {
-		this.executingRequests.push(reqId);
-		this.fetchConfig = fetchConfig;
+	get allow(): boolean {
+		return this._allow;
 	}
 
-	RunPreRequests = async (preFetch: IPreFetch, reqIndex: number, parentName: string, isCollectionPreRequest: boolean, parentIndex: number = -1, parentPreFetchResponse: IPreFetchResponse = null) => {
-		let request: IRequestModel;
-		let parentSettings: ISettings;
-		let updateVariable: IVariable;
+	get message(): string {
+		return this._message;
+	}
 
-		if (!this.allow) {
+	constructor(fetchConfig: FetchConfig, reqId: string) {
+		this.fetchConfig = fetchConfig;
+		this.executingRequests = [reqId];
+		this.response = {
+			id: reqId,
+			response: { ...InitialResponse },
+			headers: [],
+			cookies: [],
+			loading: false,
+			testResults: []
+		};
+	}
+
+	RunPreRequests = async (
+		preFetch: IPreFetch,
+		startReqIndex: number,
+		parentName: string,
+		isCollectionPreRequest: boolean,
+		parentIndex: number = -1,
+		parentPreFetchResponse: IPreFetchResponse | undefined = undefined
+	): Promise<void> => {
+		if (!this._allow) {
 			return;
 		}
 
-		let item = this.executingRequests.find(i => i === preFetch.requests[reqIndex].reqId);
-
-		if (item) {
-			this.allow = false;
-			this.message = `Circular Dependency in Request ${parentName}`;
+		const firstReqId = preFetch.requests[startReqIndex]?.reqId;
+		if (!firstReqId) {
 			return;
-		} else {
-			this.executingRequests.push(preFetch.requests[reqIndex].reqId);
 		}
 
-		let filterPreFetchRequests = preFetch.requests?.filter(i => i.reqId && i.reqId !== "undefined");
+		if (this.executingRequests.includes(firstReqId)) {
+			this._allow = false;
+			this._message = `Circular Dependency in Request ${parentName}`;
+			return;
+		}
 
-		for (let i = 0; i < filterPreFetchRequests.length && this.allow; i++) {
+		this.executingRequests.push(firstReqId);
+
+		const filteredRequests = preFetch.requests.filter(r => r.reqId && r.reqId !== "undefined");
+
+		// Tracks the last successfully loaded request for condition evaluation on the next iteration
+		let previousRequest: IRequestModel | undefined;
+		let updatedVariable: IVariable | undefined;
+
+		for (let i = 0; i < filteredRequests.length && this._allow; i++) {
+			const responseSlot = createEmptyPreFetchResponse();
 
 			if (parentIndex === -1) {
-				this.preFetchResponses.push({
-					reqId: "",
-					name: "",
-					resStatus: 0,
-					testResults: [],
-					childrenResponse: []
-				});
+				this.preFetchResponses.push(responseSlot);
 			} else {
-				parentPreFetchResponse.childrenResponse.push({
-					reqId: "",
-					name: "",
-					resStatus: 0,
-					testResults: [],
-					childrenResponse: []
-				});
+				parentPreFetchResponse!.childrenResponse.push(responseSlot);
 			}
 
-			reqIndex = i;
+			const targetResponse = parentIndex === -1
+				? this.preFetchResponses[i]
+				: parentPreFetchResponse!.childrenResponse[i];
 
-			if (i > 0 && request?.id) {
-				let condition = filterPreFetchRequests[i].condition.filter(i => i.parameter && i.action);
-				if (condition?.length > 0) {
-					let testResult = executeTests(condition, this.response, updateVariable?.data);
-					let failedResult = testResult.findIndex(it => it.result === false);
+			// Evaluate conditions gating this request (skip for the first request)
+			if (i > 0 && previousRequest?.id) {
+				const conditions = filteredRequests[i].condition.filter(c => c.parameter && c.action);
+				if (conditions.length > 0) {
+					const testResults = executeTests(conditions, this.response, updatedVariable?.data);
+					const failedIndex = testResults.findIndex(t => t.result === false);
 
-					if (parentIndex === -1) {
-						this.preFetchResponses[i].testResults = testResult;
-						if (failedResult !== -1) {
-							this.preFetchResponses[i].reqId = "-1";
+					targetResponse.testResults = testResults;
+					if (failedIndex !== -1) {
+						targetResponse.reqId = "-1";
+						if (parentIndex !== -1) {
+							parentPreFetchResponse!.reqId = "-1";
 						}
-					} else {
-						let childIndex = parentPreFetchResponse.childrenResponse?.length;
-						parentPreFetchResponse.childrenResponse[childIndex - 1].testResults = testResult;
-						if (failedResult !== -1) {
-							parentPreFetchResponse.reqId = "-1";
-							parentPreFetchResponse.childrenResponse[childIndex - 1].reqId = "-1";
-						}
-					}
-
-					if (failedResult !== -1) {
-						this.allow = false;
-						this.message = `'Condition ${reqIndex}' failed in 'Pre-Request ${reqIndex}' in the Request '${parentName}'`;
+						this._allow = false;
+						this._message = `'Condition ${i}' failed in 'Pre-Request ${i}' in the Request '${parentName}'`;
 						return;
 					}
 				}
 			}
 
-			let reqId = filterPreFetchRequests[i].reqId;
-			let parentId = filterPreFetchRequests[i].parentId;
-			let colId = filterPreFetchRequests[i].colId;
-
+			const { reqId } = filteredRequests[i];
 			if (!reqId) {
 				return;
 			}
 
-			let varId = await GetVariableByColId(colId);
-			let variable = await GetVariableByIdSync(varId);
-
-			if (parentId === colId) {
-				parentSettings = await GetParentSettingsSync(colId, "");
-			} else {
-				parentSettings = await GetParentSettingsSync(colId, parentId);
+			const context = await this.loadRequestContext(filteredRequests[i], parentName);
+			if (!context) {
+				return;
+			}
+			if (!this._allow) {
+				continue;
 			}
 
-			request = await GetRequestItem(reqId);
+			const { request, variable, parentSettings } = context;
 
-			if (request && this.allow) {
+			targetResponse.name = request.name;
 
+			const hasNestedPreFetch = (request.preFetch?.requests?.length ?? 0) > 0 && !isCollectionPreRequest;
+
+			if (hasNestedPreFetch) {
+				await this.RunPreRequests(
+					request.preFetch,
+					0,
+					request.name,
+					isCollectionPreRequest,
+					i,
+					targetResponse
+				);
+				if (!this._allow) {
+					return;
+				}
+
+				// Remove from tracking so the same request can appear in sibling branches
+				const execIdx = this.executingRequests.indexOf(reqId);
+				if (execIdx !== -1) {
+					this.executingRequests.splice(execIdx, 1);
+				}
+			}
+
+			let res: Awaited<ReturnType<typeof apiFetch>>;
+			try {
+				res = await apiFetch(request, variable?.data, parentSettings, null, this.fetchConfig);
+			} catch (err) {
+				writeLog(`error::PreFetchRunner::RunPreRequests::apiFetch: ${err}`);
+				this._allow = false;
+				this._message = `Pre-Request '${request.name}' failed in the Request '${parentName}'`;
+				return;
+			}
+
+			targetResponse.reqId = request.id;
+			targetResponse.name = request.name;
+			targetResponse.resStatus = res?.response?.status;
+
+			if (res?.response?.status >= 400 && res?.response?.status <= 599) {
 				if (parentIndex !== -1) {
-					parentPreFetchResponse.childrenResponse[i].name = request.name;
-				} else {
-					this.preFetchResponses[i].name = request.name;
+					parentPreFetchResponse!.reqId = "-1";
 				}
-
-				if (request.preFetch?.requests?.length > 0 && !isCollectionPreRequest) {
-
-					await this.RunPreRequests(request.preFetch, 0, request.name, isCollectionPreRequest, reqIndex, parentIndex === -1 ? this.preFetchResponses[i] : parentPreFetchResponse.childrenResponse[i]);
-					if (!this.allow) {
-						return;
-					}
-
-					let index = this.executingRequests.findIndex(i => i === reqId);
-					if (index !== -1) {
-						this.executingRequests.splice(index);
-					}
-
-					let res = await apiFetch(request, variable?.data, parentSettings, null, this.fetchConfig);
-
-					if (parentIndex !== -1) {
-						parentPreFetchResponse.childrenResponse[i].reqId = request.id;
-						parentPreFetchResponse.childrenResponse[i].resStatus = res?.response?.status;
-					} else {
-						this.preFetchResponses[i].reqId = request.id;
-						this.preFetchResponses[i].resStatus = res?.response?.status;
-					}
-
-					if (res && res.response?.status >= 400 && res.response?.status <= 599) {
-						if (parentIndex !== -1) {
-							parentPreFetchResponse.reqId = "-1";
-						}
-						this.allow = false;
-						this.message = `Pre-Request '${request.name}' failed in the Request '${parentName}'`;
-						return;
-					}
-					this.response.response = res.response;
-					this.response.headers = res.headers;
-					this.response.cookies = res.cookies;
-
-					updateVariable = await this.updateVariable(request, variable);
-				} else {
-					let res = await apiFetch(request, variable?.data, parentSettings, null, this.fetchConfig);
-
-					if (parentIndex !== -1) {
-						parentPreFetchResponse.childrenResponse[i].reqId = request.id;
-						parentPreFetchResponse.childrenResponse[i].name = request.name;
-						parentPreFetchResponse.childrenResponse[i].resStatus = res?.response?.status;
-					} else {
-						this.preFetchResponses[i].reqId = request.id;
-						this.preFetchResponses[i].name = request.name;
-						this.preFetchResponses[i].resStatus = res?.response?.status;
-					}
-
-					if (res && res.response?.status >= 400 && res.response?.status <= 599) {
-						if (parentIndex !== -1) {
-							parentPreFetchResponse.reqId = "-1";
-						}
-						this.allow = false;
-						this.message = `Pre-Request '${request.name}' failed in the Request '${parentName}'`;
-						return;
-					}
-					this.response.response = res.response;
-					this.response.headers = res.headers;
-					this.response.cookies = res.cookies;
-
-					updateVariable = await this.updateVariable(request, variable);
-				}
+				this._allow = false;
+				this._message = `Pre-Request '${request.name}' failed in the Request '${parentName}'`;
+				return;
 			}
+
+			this.response.response = { ...res.response, size: String(res.response.size) };
+			this.response.headers = res.headers;
+			this.response.cookies = res.cookies;
+
+			previousRequest = request;
+			updatedVariable = await this.updateVariable(request, variable);
 		}
 	};
 
-	updateVariable = async (request: IRequestModel, variable: IVariable): Promise<IVariable> => {
-		if (this.response.response.status !== 0 && this.response.response.status <= 399 && request.setvar.length - 1 > 0 && variable?.id) {
-			let variables = setVariable(variable, request.setvar, this.response);
-			let variableResult = await UpdateVariableSync(variables);
-			return variableResult;
+	private loadRequestContext = async (runRequest: IRunRequest, parentName: string): Promise<RequestContext | undefined> => {
+		const { reqId, parentId, colId } = runRequest;
+		try {
+			const varId = await GetVariableByColId(colId);
+			const variable = await GetVariableByIdSync(varId);
+			const parentSettings = parentId === colId
+				? await GetParentSettingsSync(colId, "")
+				: await GetParentSettingsSync(colId, parentId);
+			const request = await GetRequestItem(reqId);
+
+			if (!request) {
+				return undefined;
+			}
+
+			return { request, variable, parentSettings };
+		} catch (err) {
+			writeLog(`error::PreFetchRunner::loadRequestContext: ${err}`);
+			this._allow = false;
+			this._message = `Failed to load Pre-Request data for '${parentName}'`;
+			return undefined;
+		}
+	};
+
+	private updateVariable = async (request: IRequestModel, variable: IVariable | undefined): Promise<IVariable | undefined> => {
+		if (
+			this.response.response.status !== 0 &&
+			this.response.response.status <= 399 &&
+			request.setvar.length > 1 &&
+			variable?.id
+		) {
+			try {
+				const updated = setVariable(variable, request.setvar, this.response);
+				return await UpdateVariableSync(updated);
+			} catch (err) {
+				writeLog(`error::PreFetchRunner::updateVariable: ${err}`);
+			}
 		}
 		return variable;
 	};

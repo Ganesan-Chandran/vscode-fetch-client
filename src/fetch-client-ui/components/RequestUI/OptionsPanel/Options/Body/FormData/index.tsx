@@ -6,10 +6,11 @@ import { Table } from "../../../../../Common/Table/Table";
 import { ITableData } from "../../../../../Common/Table/types";
 import vscode from "../../../../../Common/vscodeAPI";
 import { Actions } from "../../../../redux";
+import { AppDispatch } from "../../../../../../store/appStore";
 
 export const FormDataBody = () => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const { body } = useSelector((state: IRootState) => state.requestData);
 	const { selectedVariable } = useSelector((state: IRootState) => state.variableData);

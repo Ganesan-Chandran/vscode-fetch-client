@@ -1,94 +1,105 @@
 import { v4 as uuidv4 } from "uuid";
 import { IRequestModel } from "../../../fetch-client-ui/components/RequestUI/redux/types";
 import { InitialSettings } from "../../../fetch-client-ui/components/SideBar/redux/reducer";
-import { ICollections, IFolder, IHistory } from "../../../fetch-client-ui/components/SideBar/redux/types";
+import { ICollections, IFolder, IHistory, ISettings } from "../../../fetch-client-ui/components/SideBar/redux/types";
 import { isFolder } from "../../../fetch-client-ui/components/SideBar/util";
 import { formatDate } from "../../helper";
 import { writeLog } from "../../logger/logger";
 
-export const fetchClientImporter = (parsedData: any): { fcCollection: ICollections, fcRequests: IRequestModel[] } | null => {
-	try {
-		let reqData = [];
+/** Shape of a request entry as it appears in a raw fetchClient export file. */
+type IRawImportRequest = Omit<IRequestModel, "id" | "createdTime"> & {
+	id?: string;
+	createdTime?: string;
+};
 
-		let colData: ICollections = {
+/** Shape of a folder entry as it appears in a raw fetchClient export file. */
+interface IRawImportFolder {
+	name: string;
+	type: "folder";
+	settings?: ISettings;
+	data: Array<IRawImportRequest | IRawImportFolder>;
+}
+
+/** Shape of the top-level collection object in a raw fetchClient export file. */
+interface IRawImportCollection {
+	name: string;
+	settings?: ISettings;
+	data: Array<IRawImportRequest | IRawImportFolder>;
+}
+
+export interface IImportResult {
+	fcCollection: ICollections;
+	fcRequests: IRequestModel[];
+}
+
+function cloneSettings(settings?: ISettings): ISettings {
+	return JSON.parse(JSON.stringify(settings ?? InitialSettings));
+}
+
+function buildHistoryEntry(id: string, req: IRawImportRequest): IHistory {
+	return {
+		id,
+		method: req.method,
+		name: req.name,
+		url: req.url,
+		createdTime: formatDate(),
+	};
+}
+
+function importFolder(source: IRawImportFolder, reqData: IRequestModel[]): IFolder {
+	const folder: IFolder = {
+		id: uuidv4(),
+		name: source.name,
+		createdTime: formatDate(),
+		type: "folder",
+		data: [],
+		settings: cloneSettings(source.settings),
+	};
+
+	for (const item of source.data) {
+		if (isFolder(item)) {
+			folder.data!.push(importFolder(item as IRawImportFolder, reqData));
+		} else {
+			const req = item as IRawImportRequest;
+			const id = uuidv4();
+			const requestModel: IRequestModel = { ...req, id, createdTime: formatDate() };
+			reqData.push(requestModel);
+			folder.data!.push(buildHistoryEntry(id, req));
+		}
+	}
+
+	return folder;
+}
+
+export const fetchClientImporter = (parsedData: IRawImportCollection): IImportResult | null => {
+	try {
+		const reqData: IRequestModel[] = [];
+
+		const colData: ICollections = {
 			id: uuidv4(),
 			name: parsedData.name,
 			createdTime: formatDate(),
 			variableId: "",
 			data: [],
-			settings: parsedData.settings ? parsedData.settings : JSON.parse(JSON.stringify(InitialSettings))
+			settings: cloneSettings(parsedData.settings),
 		};
 
-		let importedData = parsedData.data;
-
-		importedData.forEach(item => {
-			item.id = uuidv4();
-			item.createdTime = formatDate();
+		for (const item of parsedData.data) {
 			if (isFolder(item)) {
-				let importData: any;
-				let folder: IFolder = {
-					id: uuidv4(),
-					name: item.name,
-					createdTime: formatDate(),
-					type: "folder",
-					data: [],
-					settings: item.settings ? item.settings : JSON.parse(JSON.stringify(InitialSettings))
-				};
-				({ importData, reqData } = ImportFolder(item, folder, reqData));
-				colData.data.push(importData);
+				colData.data!.push(importFolder(item as IRawImportFolder, reqData));
 			} else {
-				item.id = uuidv4();
-				item.createdTime = formatDate();
-				reqData.push(item);
-				let his: IHistory = {
-					id: item.id,
-					method: item.method,
-					name: item.name,
-					url: item.url,
-					createdTime: formatDate()
-				};
-				colData.data.push(his);
+				const req = item as IRawImportRequest;
+				const id = uuidv4();
+				const requestModel: IRequestModel = { ...req, id, createdTime: formatDate() };
+				reqData.push(requestModel);
+				colData.data!.push(buildHistoryEntry(id, req));
 			}
-		});
+		}
 
-		return {
-			fcCollection: colData,
-			fcRequests: reqData
-		};
+		return { fcCollection: colData, fcRequests: reqData };
 
 	} catch (err) {
-		writeLog("error::fetchClientImporter(): - Error Message : " + err);
+		writeLog(`error::fetchClientImporter() - ${err instanceof Error ? err.message : String(err)}`);
 		return null;
 	}
 };
-
-function ImportFolder(source: any, importData: any, reqData: any): any {
-	for (let i = 0; i < source.data.length; i++) {
-		if (isFolder(source.data[i])) {
-			let folder: IFolder = {
-				id: uuidv4(),
-				name: source.data[i].name,
-				createdTime: formatDate(),
-				type: "folder",
-				data: [],
-				settings: source.data[i].settings ? source.data[i].settings : JSON.parse(JSON.stringify(InitialSettings))
-			};
-			let result = ImportFolder(source.data[i], folder, reqData);
-			importData.data.push(result.importData);
-		} else {
-			source.data[i].id = uuidv4();
-			source.data[i].createdTime = formatDate();
-			let his: IHistory = {
-				id: source.data[i].id,
-				method: source.data[i].method,
-				name: source.data[i].name,
-				url: source.data[i].url,
-				createdTime: source.data[i].createdTime
-			};
-			reqData.push(source.data[i]);
-			importData.data.push(his);
-		}
-	}
-
-	return { importData, reqData };
-}

@@ -4,14 +4,13 @@ import { IHistory } from "../../fetch-client-ui/components/SideBar/redux/types";
 import { responseTypes } from '../configuration';
 import { writeLog } from '../logger/logger';
 import { getHistoryLimitConfiguration } from '../vscodeConfig';
-import { historyDBPath } from "./dbPaths";
+import { historyDBPath } from "./helper";
 import { DeleteExitingItem, DeleteExitingItems, RenameRequestItem } from './mainDBUtil';
 
 
 function getDB(): loki {
 	const idbAdapter = new LokiFsAdapter();
 	const db = new loki(historyDBPath(), { adapter: idbAdapter, autosave: true, autosaveInterval: 1000 });
-	db.autosaveEnable();
 	return db;
 }
 

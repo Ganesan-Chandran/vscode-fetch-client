@@ -21,7 +21,6 @@ const Variables = (_props: IVariableProps) => {
 	const [defaultGlobal, setDefaultGlobal] = useState(false);
 	const [variableItem, setVariableItem] = useState<IVariable>(null);
 	const [duplicates, setDuplicates] = useState([]);
-
 	const [collectionNames, setCollectionNames] = useState([]);
 	const [viewVariables, setViewVariables] = useState(false);
 
@@ -37,7 +36,6 @@ const Variables = (_props: IVariableProps) => {
 		if (localTable[index].key && localTable[index].value) {
 			localTable.push(newRow);
 		}
-
 		setVariableItem({ ...variableItem, data: localTable });
 		setDone(false);
 	}
@@ -69,10 +67,10 @@ const Variables = (_props: IVariableProps) => {
 	}
 
 	useEffect(() => {
-		window.addEventListener("message", (event) => {
+		const handleMessage = (event: MessageEvent) => {
 			if (event.data && event.data.type === responseTypes.getVariableItemResponse) {
 				let varItem = event.data.data[0] as IVariable;
-				varItem.data.push({ isChecked: false, key: "", value: "", });
+				varItem.data.push({ isChecked: false, key: "", value: "" });
 				setVariableItem(varItem);
 				setDefaultGlobal(varItem.name.toUpperCase().trim() === "GLOBAL");
 				setEnabled(false);
@@ -81,7 +79,9 @@ const Variables = (_props: IVariableProps) => {
 			} else if (event.data && (event.data.type === responseTypes.getAttachedColIdsResponse)) {
 				setCollectionNames(event.data.colNames);
 			}
-		});
+		};
+
+		window.addEventListener("message", handleMessage);
 
 		let id = document.title.split("@:@")[1];
 		if (id !== "undefined") {
@@ -100,6 +100,9 @@ const Variables = (_props: IVariableProps) => {
 				}]
 			});
 		}
+		return () => {
+			window.removeEventListener("message", handleMessage);
+		};
 	}, []);
 
 	function onSubmitClick() {

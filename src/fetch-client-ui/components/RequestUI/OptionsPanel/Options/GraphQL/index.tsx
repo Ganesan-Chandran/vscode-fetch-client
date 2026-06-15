@@ -4,10 +4,11 @@ import { IRootState } from "../../../../../reducer/combineReducer";
 import { MonacoEditor } from "../../../../Common/Editor";
 import { Actions } from "../../../redux";
 import "./style.css";
+import { AppDispatch } from "../../../../../store/appStore";
 
 export const GraphQL = () => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 	const { body } = useSelector((state: IRootState) => state.requestData);
 	const { horizontalLayout } = useSelector((state: IRootState) => state.uiData);
 

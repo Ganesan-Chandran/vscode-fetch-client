@@ -1,129 +1,140 @@
 import * as vscode from 'vscode';
 import { responseTypes } from './configuration';
-import { getExtLocalDbPath } from './db/getExtDbPath';
+import { getExtLocalDbPath } from './db/helper';
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+interface LayoutConfigResponse {
+	type: string;
+	layoutConfigData: string;
+}
+
+interface ConfigResponse {
+	type: string;
+	configData: string;
+	theme: vscode.ColorThemeKind;
+}
+
+interface ThemeResponse {
+	type: string;
+	theme: vscode.ColorThemeKind;
+}
+
+// ---------------------------------------------------------------------------
+// Module-level state
+// ---------------------------------------------------------------------------
 
 let variableEncryptionConfiguration = false;
+
+// ---------------------------------------------------------------------------
+// Internal helper
+// ---------------------------------------------------------------------------
 
 function getFetchClientConfiguration(): vscode.WorkspaceConfiguration {
 	return vscode.workspace.getConfiguration('fetch-client');
 }
 
-export function getLayoutConfiguration(): any {
-	let config = getFetchClientConfiguration();
-	let layoutConfig = config.get("layout", "Horizontal Split");
+// ---------------------------------------------------------------------------
+// Read-only config accessors
+// ---------------------------------------------------------------------------
+
+export function getLayoutConfiguration(): LayoutConfigResponse {
+	const layoutConfig = getFetchClientConfiguration().get<string>("layout", "Horizontal Split");
 	return { type: responseTypes.layoutConfigResponse, layoutConfigData: layoutConfig };
 }
 
-export function getConfiguration(): any {
-	let config = getFetchClientConfiguration();
+export function getConfiguration(): ConfigResponse {
+	const config = getFetchClientConfiguration();
 	const theme = vscode.window.activeColorTheme.kind;
-	return { type: responseTypes.configResponse, configData: JSON.stringify(config), theme: theme };
+	return { type: responseTypes.configResponse, configData: JSON.stringify(config), theme };
 }
 
-export function getVSCodeTheme(): any {
+export function getVSCodeTheme(): ThemeResponse {
 	const theme = vscode.window.activeColorTheme.kind;
-	return { type: responseTypes.themeResponse, theme: theme };
+	return { type: responseTypes.themeResponse, theme };
 }
 
 export function getSSLConfiguration(): boolean {
-	let config = getFetchClientConfiguration();
-	let sslCheck = config.get("SSLCheck", true);
-	return sslCheck;
+	return getFetchClientConfiguration().get<boolean>("SSLCheck", true);
 }
 
 export function getHistoryLimitConfiguration(): string {
-	let config = getFetchClientConfiguration();
-	let limit = config.get("historyLimit", "25");
-	return limit;
+	return getFetchClientConfiguration().get<string>("historyLimit", "25");
 }
 
 export function getTimeOutConfiguration(): number {
-	let config = getFetchClientConfiguration();
-	let limit = config.get("timeOut", 120000);
-	return limit;
+	return getFetchClientConfiguration().get<number>("timeOut", 120000);
 }
 
 export function getHeadersConfiguration(): boolean {
-	let config = getFetchClientConfiguration();
-	let headerCase = config.get("headersCaseSensitive", true);
-	return headerCase;
+	return getFetchClientConfiguration().get<boolean>("headersCaseSensitive", true);
 }
 
 export function getProtocolConfiguration(): string {
-	let config = getFetchClientConfiguration();
-	let limit = config.get("defaultProtocol", "http");
-	return limit;
+	return getFetchClientConfiguration().get<string>("defaultProtocol", "http");
 }
 
 export function getRequestTabOption(): boolean {
-	let config = getFetchClientConfiguration();
-	let option = config.get("separateRequestTab", false);
-	return option;
+	return getFetchClientConfiguration().get<boolean>("separateRequestTab", false);
 }
 
 export function getLogOption(): boolean {
-	let config = getFetchClientConfiguration();
-	let option = config.get("log", false);
-	return option;
+	return getFetchClientConfiguration().get<boolean>("log", false);
 }
 
 export function getRunMainRequestOption(): boolean {
-	let config = getFetchClientConfiguration();
-	let option = config.get("runMainRequest", true);
-	return option;
+	return getFetchClientConfiguration().get<boolean>("runMainRequest", true);
 }
 
 export function getSaveToWorkspaceConfiguration(): boolean {
-	let config = getFetchClientConfiguration();
-	let keepInLocal = config.get("saveToWorkspace", false);
-	return keepInLocal;
+	return getFetchClientConfiguration().get<boolean>("saveToWorkspace", false);
 }
 
 export function getWorkspacePathConfiguration(): string {
-	let config = getFetchClientConfiguration();
-	let localPath = config.get("workspacePath", "");
-	return localPath;
+	return getFetchClientConfiguration().get<string>("workspacePath", "");
 }
 
-export const setVariableEncryptionConfiguration = (enabled: boolean) => {
+export function getVariableEncryptionFCConfiguration(): boolean {
+	return getFetchClientConfiguration().get<boolean>("encryptedVariables", false);
+}
+
+export function getExportVariableEncryptionConfiguration(): boolean {
+	return getFetchClientConfiguration().get<boolean>("encryptedVariablesInExport", false);
+}
+
+export function responseLimitConfiguration(): number {
+	const responseLimit = getFetchClientConfiguration().get<number>("responseLimit", 5);
+	return responseLimit * 1048576;
+}
+
+export function getResponseSaveConfiguration(): boolean {
+	return getFetchClientConfiguration().get<boolean>("saveResponse", false);
+}
+
+// ---------------------------------------------------------------------------
+// Variable encryption state (set once on activation, updated on config change)
+// ---------------------------------------------------------------------------
+
+export function setVariableEncryptionConfiguration(enabled: boolean): void {
 	variableEncryptionConfiguration = enabled;
-};
+}
 
 export function getVariableEncryptionConfiguration(): boolean {
 	return variableEncryptionConfiguration;
 }
 
-export function getVariableEncryptionFCConfiguration(): boolean {
-	let config = getFetchClientConfiguration();
-	let encrypt = config.get("encryptedVariables", false);
-	return encrypt;
-}
+// ---------------------------------------------------------------------------
+// Mutable config updaters
+// ---------------------------------------------------------------------------
 
-export function getExportVariableEncryptionConfiguration(): boolean {
-	let config = getFetchClientConfiguration();
-	let encrypt = config.get("encryptedVariablesInExport", false);
-	return encrypt;
-}
-
-export function updateSaveToWorkspaceConfiguration(value: boolean) {
-	let config = getFetchClientConfiguration();
+export function updateSaveToWorkspaceConfiguration(value: boolean): void {
+	const config = getFetchClientConfiguration();
 	config.update("saveToWorkspace", value);
-
-	if (value) {
-		updateWorkspacePathConfiguration(getExtLocalDbPath());
-	}
-	else {
-		updateWorkspacePathConfiguration("");
-	}
+	updateWorkspacePathConfiguration(value ? getExtLocalDbPath() : "");
 }
 
-export function updateWorkspacePathConfiguration(value: string) {
-	let config = getFetchClientConfiguration();
-	config.update("workspacePath", value);
-}
-
-export function responseLimitConfiguration() {
-	let config = getFetchClientConfiguration();
-	let responseLimit = config.get("responseLimit", 5);
-	return responseLimit * 1048576;
+export function updateWorkspacePathConfiguration(value: string): void {
+	getFetchClientConfiguration().update("workspacePath", value);
 }

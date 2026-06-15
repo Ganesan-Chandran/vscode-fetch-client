@@ -6,10 +6,11 @@ import vscode from '../../../../../Common/vscodeAPI';
 import { Actions } from "../../../../redux";
 import { FileTypes } from './consts';
 import "./style.css";
+import { AppDispatch } from '../../../../../../store/appStore';
 
 export const Binary = () => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const { body, headers } = useSelector((state: IRootState) => state.requestData);
 

@@ -6,10 +6,11 @@ import { Actions } from "../RequestUI/redux";
 import { ISetVar } from "../RequestUI/redux/types";
 import { VariableActions } from "./redux";
 import "./style.css";
+import { AppDispatch } from "../../store/appStore";
 
 const ResToVariables = () => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const { variables, selectedVariable, setVarChanged } = useSelector((state: IRootState) => state.variableData);
 	const { setvar } = useSelector((state: IRootState) => state.requestData);

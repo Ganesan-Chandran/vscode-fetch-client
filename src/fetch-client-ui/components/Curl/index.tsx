@@ -10,10 +10,11 @@ import { InitialSettings } from "../SideBar/redux/reducer";
 import { ICollections, IFolder, IHistory } from "../SideBar/redux/types";
 import { HandleColSelectionValidation } from "./helper";
 import "./style.css";
+import { AppDispatch } from "../../store/appStore";
 
 const CurlUI = () => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const [curl, setCurl] = useState("");
 	const [curlOption, setCurlOption] = useState("import");

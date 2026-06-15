@@ -7,7 +7,6 @@ import {
 } from "./types";
 
 
-
 export const InitialResponse: IResponse = {
 	responseData: "",
 	responseType: {
@@ -22,6 +21,7 @@ export const InitialResponse: IResponse = {
 };
 
 export const InitialState: IReponseModel = {
+	id: "",
 	response: InitialResponse,
 	headers: [],
 	cookies: [],

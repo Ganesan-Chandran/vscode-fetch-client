@@ -166,7 +166,7 @@ export const SideBarReducer: (state?: ISideBarModel,
 			case FETCH_CLIENT_SET_UPDATE_HISTORY_ITEM: {
 				return {
 					...state,
-					history: updateItemInHistoryState(action.payload.item, state.history)
+					history: updateItemInHistoryState(action.payload.item, [...state.history])
 				};
 			}
 			default: {

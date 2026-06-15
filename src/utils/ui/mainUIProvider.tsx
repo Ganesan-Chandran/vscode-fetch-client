@@ -5,7 +5,7 @@ import { getStorageManager, OpenCookieUI, OpenVariableUI, pubSub, sideBarProvide
 import { IRequestModel } from "../../fetch-client-ui/components/RequestUI/redux/types";
 import { IHistory } from "../../fetch-client-ui/components/SideBar/redux/types";
 import { IPubSubMessage, Subscription } from "../PubSub";
-import { getNonce, pubSubTypes, requestTypes, responseTypes } from "../configuration";
+import { pubSubTypes, requestTypes, responseTypes } from "../configuration";
 import { GetAllCollectionName, GetAllCollectionsByIdWithPath, GetParentSettings, UpdateCollection } from "../db/collectionDBUtil";
 import { GetAllCookies, SaveCookie } from "../db/cookieDBUtil";
 import { SaveHistory, UpdateHistory } from "../db/historyDBUtil";
@@ -16,6 +16,8 @@ import { formatDate } from "../helper";
 import { writeLog } from "../logger/logger";
 import { getConfiguration, getHeadersConfiguration, getLayoutConfiguration, getRequestTabOption, getRunMainRequestOption, getTimeOutConfiguration, getVSCodeTheme } from "../vscodeConfig";
 import { ExecuteAPIRequest } from "./helper";
+import { buildWebviewHtml, saveToFile } from "./webviewUtils";
+import { GetExitingItemResponse } from "../db/responseDBUtil";
 
 export class WebAppPanel {
 
@@ -24,7 +26,7 @@ export class WebAppPanel {
 	private readonly _extensionUri: vscode.Uri;
 	private _disposables: vscode.Disposable[] = [];
 
-	private _scriptionId: Subscription;
+	private _subscriptionId: Subscription;
 
 	public static createOrShow(extensionUri: vscode.Uri, id?: string, name?: string, colId?: string, varId?: string, type?: string, folderId?: string, newTab?: boolean) {
 		const column = vscode.window.activeTextEditor
@@ -79,10 +81,10 @@ export class WebAppPanel {
 
 		this._pushMessages = this._pushMessages.bind(this);
 
-		this._scriptionId = pubSub.subscribe(this._pushMessages);
+		this._subscriptionId = pubSub.subscribe(this._pushMessages);
 
 		this._panel.onDidDispose(() => {
-			this._scriptionId.unsubscribe();
+			this._subscriptionId.unsubscribe();
 			this.dispose(id, colId, folderId);
 		}, null, this._disposables);
 
@@ -133,64 +135,40 @@ export class WebAppPanel {
 						this._panel.webview.postMessage(getConfiguration());
 					} else if (message.type === requestTypes.openExistingItemRequest) {
 						GetExitingItem(this._panel.webview, message.data);
+						GetExitingItemResponse(this._panel.webview, message.data.id);
 					} else if (message.type === requestTypes.getOpenAndRunItemDataRequest) {
 						GetExitingItem(this._panel.webview, message.data, null, "OpenAndRun");
 					} else if (message.type === requestTypes.saveResponseRequest) {
-						vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file("fetch-client-response." + message.fileType) }).then((uri: vscode.Uri | undefined) => {
-							if (uri) {
-								const value = uri.fsPath;
-								fs.writeFile(value, message.data, (error) => {
-									if (error) {
-										vscode.window.showErrorMessage("Could not save to '" + value + "'. Error Message : " + error.message, { modal: true });
-										writeLog("error::saveResponseRequest()::FileWrite()" + error.message);
-									} else {
-										vscode.window.showInformationMessage("Successfully saved to '" + value + "'.", { modal: true });
-									}
-								});
-							}
-						});
+						await saveToFile(
+							vscode.Uri.file(`fetch-client-response.${message.fileType}`),
+							message.data,
+							'saveResponseRequest'
+						);
 					} else if (message.type === requestTypes.saveTestResponseRequest) {
-						vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file("fetch-client-tests.json") }).then((uri: vscode.Uri | undefined) => {
-							if (uri) {
-								const value = uri.fsPath;
-								fs.writeFile(value, message.data, (error) => {
-									if (error) {
-										vscode.window.showErrorMessage("Could not save to '" + value + "'. Error Message : " + error.message, { modal: true });
-										writeLog("error::saveTestResponseRequest()::FileWrite()" + error.message);
-									} else {
-										vscode.window.showInformationMessage("Successfully saved to '" + value + "'.", { modal: true });
-									}
-								});
-							}
-						});
+						await saveToFile(
+							vscode.Uri.file('fetch-client-tests.json'),
+							message.data,
+							'saveTestResponseRequest'
+						);
 					} else if (message.type === requestTypes.downloadFileTypeRequest) {
-						vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file("fetch-client-file." + message.fileType) }).then((uri: vscode.Uri | undefined) => {
-							if (uri) {
-								const value = uri.fsPath;
-								fs.writeFile(value, new Uint8Array(message.resData.data), (error) => {
-									if (error) {
-										vscode.window.showErrorMessage("Could not save to '" + value + "'. Error Message : " + error.message), { modal: true };
-										writeLog("error::downloadFileTypeRequest()::FileWrite()" + error.message);
-									} else {
-										vscode.window.showInformationMessage("Successfully saved to '" + value + "'.", { modal: true });
-									}
-								});
-							}
-						});
+						await saveToFile(
+							vscode.Uri.file(`fetch-client-file.${message.fileType}`),
+							new Uint8Array(message.resData.data),
+							'downloadFileTypeRequest'
+						);
 					} else if (message.type === requestTypes.selectFileRequest) {
-						vscode.window.showOpenDialog().then((uri: vscode.Uri[] | undefined) => {
-							if (uri && uri.length > 0) {
-								const value = uri[0].fsPath;
-								const data = fs.readFileSync(value, "utf8");
-								this._panel.webview.postMessage({ type: responseTypes.selectFileResponse, path: value, fileData: data });
-							}
-						});
+						const uris = await vscode.window.showOpenDialog();
+						if (uris && uris.length > 0) {
+							const value = uris[0].fsPath;
+							const data = await fs.promises.readFile(value, 'utf8');
+							this._panel.webview.postMessage({ type: responseTypes.selectFileResponse, path: value, fileData: data });
+						}
 					} else if (message.type === requestTypes.readFileRequest) {
-						if (!fs.existsSync(message.path)) {
-							this._panel.webview.postMessage({ type: responseTypes.readFileResponse, fileData: "" });
-						} else {
-							const data = fs.readFileSync(message.path, "utf8");
+						try {
+							const data = await fs.promises.readFile(message.path, 'utf8');
 							this._panel.webview.postMessage({ type: responseTypes.readFileResponse, fileData: data });
+						} catch {
+							this._panel.webview.postMessage({ type: responseTypes.readFileResponse, fileData: '' });
 						}
 					} else if (message.type === requestTypes.getVariableItemRequest) {
 						GetVariableById(message.data.id, message.data.isGlobal, this._panel.webview);
@@ -274,18 +252,12 @@ export class WebAppPanel {
 
 		// Clean up our resources
 		this._panel.dispose();
-
-		while (this._disposables.length) {
-			const x = this._disposables.pop();
-			if (x) {
-				x.dispose();
-			}
-		}
+		this._disposables.forEach(d => d.dispose());
+		this._disposables = [];
 	}
 
-	private async _update(id?: string, colId?: string, varId?: string, type?: string, folderId?: string) {
-		const webview = this._panel.webview;
-		this._panel.webview.html = this._getHtmlForWebview(webview, id, colId, varId, type, folderId);
+	private _update(id?: string, colId?: string, varId?: string, type?: string, folderId?: string): void {
+		this._panel.webview.html = this._getHtmlForWebview(this._panel.webview, id, colId, varId, type, folderId);
 	}
 
 	private _pushMessages(message: IPubSubMessage) {
@@ -300,32 +272,12 @@ export class WebAppPanel {
 		}
 	}
 
-	private _getHtmlForWebview(webview: vscode.Webview, id?: string, colId?: string, varId?: string, type?: string, folderId?: string) {
-
-		const scriptUri = webview.asWebviewUri(
-			vscode.Uri.joinPath(this._extensionUri, "dist/fetch-client-ui.js")
+	private _getHtmlForWebview(webview: vscode.Webview, id?: string, colId?: string, varId?: string, type?: string, folderId?: string): string {
+		return buildWebviewHtml(
+			webview,
+			this._extensionUri,
+			`${id}@:@${colId}@:@${varId}@:@${type}@:@${folderId}`
 		);
-
-		const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "/dist/main.css"));
-
-		const nonce = getNonce();
-
-		return `
-			<!DOCTYPE html>
-			<html lang="en">
-				<head>
-					<meta charset="utf-8" />
-					<meta name="viewport" content="width=device-width, initial-scale=1" />
-					<link href="${styleUri}" rel="stylesheet" type="text/css"/>
-					<title>${id}@:@${colId}@:@${varId}@:@${type}@:@${folderId}</title>
-				</head>
-				<body>
-					<noscript>You need to enable JavaScript to run this app.</noscript>
-					<div id="root"></div>
-					<script nonce="${nonce}" src="${scriptUri}"></script>
-				</body>
-			</html>
-			`;
 	}
 }
 

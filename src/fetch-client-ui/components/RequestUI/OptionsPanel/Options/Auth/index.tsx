@@ -12,6 +12,7 @@ import { AwsAuth } from './aws';
 import { apiKeyAddTo, authCollection } from "./consts";
 import { OAuth } from './OAuth';
 import "./style.css";
+import { AppDispatch } from '../../../../../store/appStore';
 
 export interface IAuthProps {
 	settingsMode?: boolean;
@@ -21,7 +22,7 @@ export interface IAuthProps {
 
 export const AuthPanel = (props: IAuthProps) => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const { auth, params, headers } = useSelector((state: IRootState) => state.requestData);
 	const { colId, folderId, parentSettings } = useSelector((state: IRootState) => state.reqColData);

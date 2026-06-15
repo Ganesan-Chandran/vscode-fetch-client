@@ -10,10 +10,11 @@ import { SideBarActions } from "./redux";
 import { ICollections, IHistory, IVariable } from "./redux/types";
 import "./style.css";
 import { VariableSection } from "./Variables";
+import { AppDispatch } from "../../store/appStore";
 
 const SideBar = () => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const [tabOptions] = useState(["History", "Collection", "Variable"]);
 	const [selectedTab, setSelectedTab] = useState("History");

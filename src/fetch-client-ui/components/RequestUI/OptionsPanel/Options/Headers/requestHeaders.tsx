@@ -3,10 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { HeadersPanel } from '.';
 import { IRootState } from "../../../../../reducer/combineReducer";
 import { Actions } from '../../../redux';
+import { AppDispatch } from '../../../../../store/appStore';
 
 export const RequestHeadersPanel = () => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
 	const { skipParentHeaders } = useSelector((state: IRootState) => state.reqSettings);

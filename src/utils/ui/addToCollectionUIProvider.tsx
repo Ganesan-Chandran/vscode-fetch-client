@@ -1,17 +1,16 @@
 import axios from 'axios';
-import fs from "fs";
 import * as vscode from 'vscode';
 import { getStorageManager, OpenExistingItem, sideBarProvider } from '../../extension';
-import { getNonce, requestTypes, responseTypes } from '../configuration';
+import { requestTypes, responseTypes } from '../configuration';
+import { buildWebviewHtml, saveToFile } from './webviewUtils';
 import { AddToCollection, AttachVariable, CopyToCollection, ExecuteMultipleRequest, GetAllCollectionName, GetAllCollectionsById, GetAllCollectionsByIdWithPath, GetCollectionSettings, GetParentSettings, SaveCollectionSettings } from '../db/collectionDBUtil';
 import { GetHistoryById } from '../db/historyDBUtil';
 import { GetAllVariable, GetVariableById, UpdateVariable } from '../db/varDBUtil';
 import { apiFetch, FetchConfig } from '../fetchUtil';
-import { writeLog } from '../logger/logger';
 import { getHeadersConfiguration, getTimeOutConfiguration } from '../vscodeConfig';
 import { ExecuteAPIRequest, ShowInformationDialog } from './helper';
 
-export const AddToColUI = (extensionUri: any) => {
+export const AddToColUI = (extensionUri: vscode.Uri) => {
 	const disposable = vscode.commands.registerCommand('fetch-client.addToCol', (colId: string, folderId: string, name: string, type: string, varId?: string) => {
 		const colPanel = vscode.window.createWebviewPanel(
 			"fetch-client",
@@ -20,32 +19,12 @@ export const AddToColUI = (extensionUri: any) => {
 			{ enableScripts: true, retainContextWhenHidden: true }
 		);
 
-		const scriptUri = colPanel.webview.asWebviewUri(
-			vscode.Uri.joinPath(extensionUri, "dist/fetch-client-ui.js")
-		);
-
-		const styleUri = colPanel.webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "/dist/main.css"));
-
 		const iconUri = vscode.Uri.joinPath(extensionUri, "icons/fetch-client.png");
 		colPanel.iconPath = iconUri;
 
-		const nonce = getNonce();
 		const title = `${type}@:@${colId}@:@${folderId}@:@${name}@:@${varId}`;
 
-		colPanel.webview.html = `<!DOCTYPE html>
-		<html lang="en">
-			<head>
-				<meta charset="utf-8" />
-				<meta name="viewport" content="width=device-width, initial-scale=1" />
-				<link href="${styleUri}" rel="stylesheet" type="text/css"/>
-				<title>${title}</title>
-			</head>
-			<body>
-				<noscript>You need to enable JavaScript to run this app.</noscript>
-				<div id="root"></div>
-				<script nonce="${nonce}" src="${scriptUri}"></script>
-			</body>
-		</html>`;
+		colPanel.webview.html = buildWebviewHtml(colPanel.webview, extensionUri, title);
 
 		let fetchConfig: FetchConfig = {
 			timeOut: getTimeOutConfiguration(),
@@ -74,40 +53,24 @@ export const AddToColUI = (extensionUri: any) => {
 				await ExecuteAPIRequest(message, fetchConfig, colPanel.webview);
 			} else if (message.type === requestTypes.multipleApiRequest) {
 				ExecuteMultipleRequest(message, fetchConfig, colPanel.webview);
-			} else if (message.type === requestTypes.getAllVariableRequest) {
-				GetAllVariable(colPanel.webview);
 			} else if (message.type === requestTypes.openRunRequest) {
 				getStorageManager().setValue("run-request", message.data.reqData);
 				getStorageManager().setValue("run-response", message.data.resData);
 				OpenExistingItem(message.data.reqData.id, message.data.reqData.name, message.data.colId, message.data.folderId, message.data.varId, "runopen");
 			} else if (message.type === requestTypes.exportRunTestJsonRequest) {
-				vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file("fetch-client-collection-report-" + message.name?.replace(/[/\\?%*:|"<>]/g, '-') + ".json"), filters: { 'Json Files': ['json'] } }).then((uri: vscode.Uri | undefined) => {
-					if (uri) {
-						const value = uri.fsPath;
-						fs.writeFile(value, JSON.stringify(message.data), (error) => {
-							if (error) {
-								vscode.window.showErrorMessage("Could not save to '" + value + "'. Error Message : " + error.message, { modal: true });
-								writeLog("error::ExportVariable()::FileWrite()" + error.message);
-							} else {
-								vscode.window.showInformationMessage("Successfully saved to '" + value + "'.", { modal: true });
-							}
-						});
-					}
-				});
+				await saveToFile(
+					vscode.Uri.file(`fetch-client-collection-report-${message.name?.replace(/[/\\?%*:|"<>]/g, '-')}.json`),
+					JSON.stringify(message.data),
+					'exportRunTestJsonRequest',
+					{ filters: { 'Json Files': ['json'] } }
+				);
 			} else if (message.type === requestTypes.exportRunTestCSVRequest) {
-				vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file("fetch-client-collection-report-" + message.name?.replace(/[/\\?%*:|"<>]/g, '-') + ".csv"), filters: { 'CSV': ['csv'] } }).then((uri: vscode.Uri | undefined) => {
-					if (uri) {
-						const value = uri.fsPath;
-						fs.writeFile(value, message.data.toString(), (error) => {
-							if (error) {
-								vscode.window.showErrorMessage("Could not save to '" + value + "'. Error Message : " + error.message, { modal: true });
-								writeLog("error::ExportVariable()::FileWrite()" + error.message);
-							} else {
-								vscode.window.showInformationMessage("Successfully saved to '" + value + "'.", { modal: true });
-							}
-						});
-					}
-				});
+				await saveToFile(
+					vscode.Uri.file(`fetch-client-collection-report-${message.name?.replace(/[/\\?%*:|"<>]/g, '-')}.csv`),
+					message.data.toString(),
+					'exportRunTestCSVRequest',
+					{ filters: { 'CSV': ['csv'] } }
+				);
 			} else if (message.type === requestTypes.saveColSettingsRequest) {
 				SaveCollectionSettings(colPanel.webview, message.data.colId, message.data.folderId, message.data.settings);
 			} else if (message.type === requestTypes.getColSettingsRequest) {

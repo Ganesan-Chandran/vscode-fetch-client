@@ -1,12 +1,11 @@
-import fs from "fs";
+import { access, mkdir } from "fs/promises";
 import path from "path";
 import * as vscode from 'vscode';
 import { FCScheduler } from "./utils/autoRequest/scheduler";
 import { pubSubTypes } from './utils/configuration';
 import { GetAllCollections } from './utils/db/collectionDBUtil';
-import { autoRequestDBPath, collectionDBPath, cookieDBPath, historyDBPath, mainDBPath, variableDBPath } from "./utils/db/dbPaths";
-import { CreateAutoRequestDB, CreateCollectionDB, CreateCookieDB, CreateHistoryDB, CreateMainDB, CreateVariableDB } from './utils/db/dbUtil';
-import { getExtDbPath, setGlobalStorageUri } from './utils/db/getExtDbPath';
+import { autoRequestDBPath, collectionDBPath, cookieDBPath, getExtDbPath, historyDBPath, mainDBPath, setGlobalStorageUri, settingsDBPath, variableDBPath } from "./utils/db/helper";
+import { CreateAutoRequestDB, CreateCollectionDB, CreateCookieDB, CreateHistoryDB, CreateMainDB, CreateSettingsDB, CreateVariableDB } from './utils/db/dbUtil';
 import { GetAllHistory } from './utils/db/historyDBUtil';
 import { transferDbConfig } from './utils/db/transferDBConfig';
 import { GetAllVariable, UpdateToDecryptedVariables, UpdateToEncryptedVariables } from './utils/db/varDBUtil';
@@ -25,163 +24,208 @@ import { WebAppPanel } from './utils/ui/mainUIProvider';
 import { SideBarProvider } from './utils/ui/sideBarUIProvider';
 import { VariableUI } from './utils/ui/variableUIProvider';
 import { getVariableEncryptionFCConfiguration, setVariableEncryptionConfiguration } from './utils/vscodeConfig';
+import { GetEncryptionKeyFromSettings, InitSettingsDB } from "./utils/db/settingsDBUtil";
 
-export var pubSub: PubSub<IPubSubMessage>;
-export var vsCodeLogger: VSCodeLogger;
-export var sideBarProvider: SideBarProvider;
-var storageManager: LocalStorageService;
-var extPath = "";
-var extensionUri: vscode.Uri;
+export let pubSub: PubSub<IPubSubMessage>;
+export let vsCodeLogger: VSCodeLogger;
+export let sideBarProvider: SideBarProvider;
 
-export function OpenExistingItem(id?: string, name?: string, colId?: string, folderId?: string, varId?: string, type?: string, newTab?: boolean) {
-	WebAppPanel.createOrShow(extensionUri, id, (name && name.length > 15 ? name.substring(0, 15) + "..." : name), colId, varId, type, folderId, newTab);
+let storageManager: LocalStorageService;
+let extensionUri: vscode.Uri;
+
+// ---------------------------------------------------------------------------
+// Public navigation helpers — called by webview providers
+// ---------------------------------------------------------------------------
+
+export function OpenExistingItem(
+	id?: string, name?: string, colId?: string,
+	folderId?: string, varId?: string, type?: string, newTab?: boolean
+): void {
+	const displayName = name && name.length > 15 ? `${name.substring(0, 15)}...` : name;
+	WebAppPanel.createOrShow(extensionUri, id, displayName, colId, varId, type, folderId, newTab);
 }
 
-export function OpenAddToColUI(id: string) {
+export function OpenAddToColUI(id: string): void {
 	vscode.commands.executeCommand("fetch-client.addToCol", id, "", "", "addtocol");
 }
 
-export function OpenVariableUI(id?: string, type?: string) {
+export function OpenVariableUI(id?: string, type?: string): void {
 	vscode.commands.executeCommand("fetch-client.newVar", id, type);
 }
 
-export function OpenCopyToColUI(id: string, name: string) {
+export function OpenCopyToColUI(id: string, name: string): void {
 	vscode.commands.executeCommand("fetch-client.addToCol", id, "", name, "copytocol");
 }
 
-export function OpenAttachVariableUI(id: string, name: string) {
+export function OpenAttachVariableUI(id: string, name: string): void {
 	vscode.commands.executeCommand("fetch-client.addToCol", id, "", name, "attachcol");
 }
 
-export function OpenRunAllUI(colId: string, folderId: string, name: string, varId: string) {
+export function OpenRunAllUI(colId: string, folderId: string, name: string, varId: string): void {
 	vscode.commands.executeCommand("fetch-client.addToCol", colId, folderId, name, "runall", varId);
 }
 
-export function OpenCookieUI(id?: string) {
+export function OpenCookieUI(id?: string): void {
 	vscode.commands.executeCommand("fetch-client.manageCookies", id);
 }
 
-export function OpenCurlUI() {
+export function OpenCurlUI(): void {
 	vscode.commands.executeCommand("fetch-client.curlRequest");
 }
 
-export function OpenBulkExportUI(type: string) {
+export function OpenBulkExportUI(type: string): void {
 	vscode.commands.executeCommand("fetch-client.bulkExport", type);
 }
 
-export function OpenAutoRequestUI() {
+export function OpenAutoRequestUI(): void {
 	vscode.commands.executeCommand("fetch-client.autoRequest");
 }
 
-export function OpenColSettings(colId: string, folderId: string, name: string, type: string, varId: string) {
-	vscode.commands.executeCommand("fetch-client.addToCol", colId, folderId, name, "colsettings@:@" + type, varId);
+export function OpenColSettings(colId: string, folderId: string, name: string, type: string, varId: string): void {
+	vscode.commands.executeCommand("fetch-client.addToCol", colId, folderId, name, `colsettings@:@${type}`, varId);
 }
 
-export function activate(context: vscode.ExtensionContext) {
+// ---------------------------------------------------------------------------
+// Extension lifecycle
+// ---------------------------------------------------------------------------
 
+export async function activate(context: vscode.ExtensionContext): Promise<void> {
 	setGlobalStorageUri(context.globalStorageUri.fsPath);
 	setVariableEncryptionConfiguration(getVariableEncryptionFCConfiguration());
 
-	extPath = getExtDbPath();
 	extensionUri = context.extensionUri;
-
 	pubSub = new PubSub<IPubSubMessage>();
 	vsCodeLogger = new VSCodeLogger();
-
-	if (!fs.existsSync(extPath)) {
-		fs.mkdirSync(extPath, { recursive: true });
-	}
-
-	if (!fs.existsSync(historyDBPath())) {
-		CreateHistoryDB();
-	}
-
-	if (!fs.existsSync(mainDBPath())) {
-		CreateMainDB();
-	}
-
-	if (!fs.existsSync(collectionDBPath())) {
-		CreateCollectionDB();
-	}
-
-	if (!fs.existsSync(variableDBPath())) {
-		CreateVariableDB();
-	}
-
-	if (!fs.existsSync(cookieDBPath())) {
-		CreateCookieDB();
-	}
-
-	if (!fs.existsSync(autoRequestDBPath())) {
-		CreateAutoRequestDB();
-	}
-
-	if (!fs.existsSync(path.resolve(extPath, logPath))) {
-		createLogFile();
-	}
-
+	context.subscriptions.push(vsCodeLogger);
 	storageManager = new LocalStorageService(context.workspaceState);
 
-	vscode.window.onDidChangeActiveColorTheme((_e: vscode.ColorTheme) => {
-		if (pubSub) {
-			pubSub.publish({ messageType: pubSubTypes.themeChanged });
-		}
-	});
+	try {
+		await initializeStorage();
+	} catch (err) {
+		vsCodeLogger.log("error", "Fetch Client: failed to initialize storage.", err);
+	}
 
-	sideBarProvider = new SideBarProvider(context.extensionUri);
-	context.subscriptions.push(vscode.window.registerWebviewViewProvider(SideBarProvider.viewType, sideBarProvider));
-	context.subscriptions.push(vscode.commands.registerCommand('fetch-client.newRequest', () => { WebAppPanel.createOrShow(context.extensionUri); }));
-	context.subscriptions.push(AddToColUI(context.extensionUri));
-	context.subscriptions.push(VariableUI(context.extensionUri));
-	context.subscriptions.push(CookieUI(context.extensionUri));
-	context.subscriptions.push(vscode.commands.registerCommand('fetch-client.openSettings', () => {
-		vscode.commands.executeCommand('workbench.action.openSettings', 'Fetch Client');
-	}));
-	context.subscriptions.push(ErrorLogUI(context.extensionUri));
-	context.subscriptions.push(CurlProviderUI(context.extensionUri));
-	context.subscriptions.push(BulkExportProviderUI(context.extensionUri));
-	context.subscriptions.push(AutoRequestProviderUI(context.extensionUri));
-
-	context.subscriptions.push(
-		vscode.workspace.onDidChangeConfiguration((e) => {
-			if (e.affectsConfiguration("fetch-client.saveToWorkspace")) {
-				transferDbConfig();
-			} else if (e.affectsConfiguration("fetch-client.encryptedVariables")) {
-				if (getVariableEncryptionFCConfiguration()) {
-					UpdateToEncryptedVariables();
-					setVariableEncryptionConfiguration(true);
-				} else {
-					UpdateToDecryptedVariables();
-					setVariableEncryptionConfiguration(false);
-				}
-			}
-		})
-	);
-
-	context.subscriptions.push(vscode.commands.registerCommand('fetch-client.reloadData', () => {
-		GetAllCollections(sideBarProvider?.view?.webview);
-		GetAllHistory(sideBarProvider?.view);
-		GetAllVariable(sideBarProvider?.view?.webview);
-	}));
-
-	context.subscriptions.push(vscode.commands.registerCommand('fetch-client.documentation', () => {
-		vscode.env.openExternal(vscode.Uri.parse('https://github.com/Ganesan-Chandran/vscode-fetch-client/wiki'));
-	}));
-
-	context.subscriptions.push(vscode.commands.registerCommand('fetch-client.raiseRequest', () => {
-		vscode.env.openExternal(vscode.Uri.parse('https://github.com/Ganesan-Chandran/vscode-fetch-client/issues'));
-	}));
-
-	context.subscriptions.push(vscode.commands.registerCommand('fetch-client.feedback', () => {
-		vscode.env.openExternal(vscode.Uri.parse('https://marketplace.visualstudio.com/items?itemName=GanesanChandran.fetch-client&ssr=false#review-details'));
-	}));
+	registerProviders(context);
+	registerCommands(context);
+	registerEventListeners(context);
 }
 
 export function getStorageManager(): LocalStorageService {
 	return storageManager;
 }
 
-export function deactivate() {
+export function deactivate(): void {
 	FCScheduler.Instance.StopAllJobs();
-	pubSub.clear();
+	pubSub?.clear();
+}
+
+// ---------------------------------------------------------------------------
+// Initialization helpers
+// ---------------------------------------------------------------------------
+
+async function pathExists(filePath: string): Promise<boolean> {
+	try {
+		await access(filePath);
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+async function ensureDb(dbPath: string, createFn: () => void | Promise<void>, execFn?: () => void): Promise<void> {
+	if (!(await pathExists(dbPath))) {
+		await createFn();
+	} else {
+		execFn?.();
+	}
+}
+
+async function initializeStorage(): Promise<void> {
+	const extPath = getExtDbPath();
+
+	if (!(await pathExists(extPath))) {
+		await mkdir(extPath, { recursive: true });
+	}
+
+	await Promise.all([
+		ensureDb(settingsDBPath(), CreateSettingsDB),
+		ensureDb(historyDBPath(), CreateHistoryDB),
+		ensureDb(mainDBPath(), CreateMainDB),
+		ensureDb(collectionDBPath(), CreateCollectionDB),
+		ensureDb(variableDBPath(), CreateVariableDB),
+		ensureDb(cookieDBPath(), CreateCookieDB),
+		ensureDb(autoRequestDBPath(), CreateAutoRequestDB),
+		ensureDb(path.resolve(extPath, logPath), createLogFile),
+	]).then(async () => {
+		await InitSettingsDB();
+	});
+}
+
+// ---------------------------------------------------------------------------
+// Registration helpers — keep activate() lean
+// ---------------------------------------------------------------------------
+
+function registerProviders(context: vscode.ExtensionContext): void {
+	sideBarProvider = new SideBarProvider(context.extensionUri);
+
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider(SideBarProvider.viewType, sideBarProvider),
+		AddToColUI(context.extensionUri),
+		VariableUI(context.extensionUri),
+		CookieUI(context.extensionUri),
+		ErrorLogUI(context.extensionUri),
+		CurlProviderUI(context.extensionUri),
+		BulkExportProviderUI(context.extensionUri),
+		AutoRequestProviderUI(context.extensionUri),
+	);
+}
+
+function registerCommands(context: vscode.ExtensionContext): void {
+	context.subscriptions.push(
+		vscode.commands.registerCommand('fetch-client.newRequest', () => {
+			WebAppPanel.createOrShow(context.extensionUri);
+		}),
+		vscode.commands.registerCommand('fetch-client.openSettings', () => {
+			vscode.commands.executeCommand('workbench.action.openSettings', 'Fetch Client');
+		}),
+		vscode.commands.registerCommand('fetch-client.reloadData', () => {
+			GetAllCollections(sideBarProvider?.view?.webview);
+			GetAllHistory(sideBarProvider?.view);
+			GetAllVariable(sideBarProvider?.view?.webview);
+		}),
+		vscode.commands.registerCommand('fetch-client.documentation', () => {
+			vscode.env.openExternal(vscode.Uri.parse('https://github.com/Ganesan-Chandran/vscode-fetch-client/wiki'));
+		}),
+		vscode.commands.registerCommand('fetch-client.raiseRequest', () => {
+			vscode.env.openExternal(vscode.Uri.parse('https://github.com/Ganesan-Chandran/vscode-fetch-client/issues'));
+		}),
+		vscode.commands.registerCommand('fetch-client.feedback', () => {
+			vscode.env.openExternal(vscode.Uri.parse('https://marketplace.visualstudio.com/items?itemName=GanesanChandran.fetch-client&ssr=false#review-details'));
+		}),
+	);
+}
+
+function registerEventListeners(context: vscode.ExtensionContext): void {
+	context.subscriptions.push(
+		vscode.window.onDidChangeActiveColorTheme(() => {
+			pubSub?.publish({ messageType: pubSubTypes.themeChanged });
+		}),
+		vscode.workspace.onDidChangeConfiguration(async (e) => {
+			if (e.affectsConfiguration("fetch-client.saveToWorkspace")) {
+				transferDbConfig();
+			}
+
+			if (e.affectsConfiguration("fetch-client.encryptedVariables")) {
+				const shouldEncrypt = getVariableEncryptionFCConfiguration();
+				let key = await GetEncryptionKeyFromSettings();
+				if (shouldEncrypt) {
+					UpdateToEncryptedVariables(key);
+					setVariableEncryptionConfiguration(true);
+				} else {
+					UpdateToDecryptedVariables(key);
+					setVariableEncryptionConfiguration(false);
+				}
+			}
+		}),
+	);
 }

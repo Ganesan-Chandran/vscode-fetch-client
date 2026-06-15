@@ -5,6 +5,7 @@ import { Table } from "../../../../Common/Table/Table";
 import { ITableData } from "../../../../Common/Table/types";
 import { IVariable } from '../../../../SideBar/redux/types';
 import { Actions } from "../../../redux";
+import { AppDispatch } from '../../../../../store/appStore';
 
 export interface IHeadersPanelProps {
 	selectedVariable: IVariable;
@@ -12,7 +13,7 @@ export interface IHeadersPanelProps {
 
 export const HeadersPanel = (props: IHeadersPanelProps) => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const { headers } = useSelector((state: IRootState) => state.requestData);
 

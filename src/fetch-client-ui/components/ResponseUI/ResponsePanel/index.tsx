@@ -7,9 +7,9 @@ import { TestResult } from '../../TestUI/TestResult';
 import { ResponseCookies } from "../OptionsPanel/Options/Cookies";
 import { ResponseHeaders } from "../OptionsPanel/Options/Headers";
 import { PreFetchResponse } from '../OptionsPanel/Options/PreFetchResponse';
-import { ResponseSection } from "../OptionsPanel/Options/Response";
 import { ResponseOptionsTab } from "../OptionsPanel/OptionTab";
 import "./style.css";
+import { ResponseSection } from '../OptionsPanel/Options/Response';
 
 export interface ResponsePanelProps {
 	isVerticalLayout: boolean;

@@ -9,10 +9,11 @@ import { Actions } from "../../RequestUI/redux";
 import { ITest } from "../../RequestUI/redux/types";
 import { ActionsParametersMapping, TestCaseParameters, TestValueSuggestions } from "./consts";
 import "./style.css";
+import { AppDispatch } from "../../../store/appStore";
 
 export const TestPanel = () => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const { tests } = useSelector((state: IRootState) => state.requestData);
 	const { selectedVariable } = useSelector((state: IRootState) => state.variableData);

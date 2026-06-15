@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
 import { sideBarProvider } from '../../extension';
-import { getNonce, requestTypes } from '../configuration';
+import { requestTypes } from '../configuration';
 import { GetCollectionsByVariable } from '../db/collectionDBUtil';
 import { GetAllVariable, GetVariableById, SaveVariable, UpdateVariable } from '../db/varDBUtil';
+import { buildWebviewHtml } from './webviewUtils';
 
-export const VariableUI = (extensionUri: any) => {
+export const VariableUI = (extensionUri: vscode.Uri) => {
 	const disposable = vscode.commands.registerCommand('fetch-client.newVar', (id?: string) => {
 		const varPanel = vscode.window.createWebviewPanel(
 			"fetch-client",
@@ -13,32 +14,10 @@ export const VariableUI = (extensionUri: any) => {
 			{ enableScripts: true, retainContextWhenHidden: true }
 		);
 
-		const scriptUri = varPanel.webview.asWebviewUri(
-			vscode.Uri.joinPath(extensionUri, "dist/fetch-client-ui.js")
-		);
-
-		const styleUri = varPanel.webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "/dist/main.css"));
-
 		const iconUri = vscode.Uri.joinPath(extensionUri, "icons/fetch-client.png");
 		varPanel.iconPath = iconUri;
 
-		const nonce = getNonce();
-		const title = `newvar@:@${id}`;
-
-		varPanel.webview.html = `<!DOCTYPE html>
-		<html lang="en">
-			<head>
-				<meta charset="utf-8" />
-				<meta name="viewport" content="width=device-width, initial-scale=1" />
-				<link href="${styleUri}" rel="stylesheet" type="text/css"/>
-				<title>${title}</title>
-			</head>
-			<body>
-				<noscript>You need to enable JavaScript to run this app.</noscript>
-				<div id="root"></div>
-				<script nonce="${nonce}" src="${scriptUri}"></script>
-			</body>
-		</html>`;
+		varPanel.webview.html = buildWebviewHtml(varPanel.webview, extensionUri, `newvar@:@${id}`);
 
 		varPanel.webview.onDidReceiveMessage((reqData: any) => {
 			if (reqData.type === requestTypes.getVariableItemRequest) {

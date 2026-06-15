@@ -14,6 +14,7 @@ import { InitialBody, InitialPreFetch, InitialRequestHeaders, InitialSetVar, Ini
 import { ClientAuth, GrantType, IAuth, IRequestModel } from "../../../../redux/types";
 import { clientAuthOpt, grantTypeOpt } from "../consts";
 import "./style.css";
+import { AppDispatch } from "../../../../../../store/appStore";
 
 export interface IOAuthProps {
 	inherit: boolean;
@@ -24,7 +25,7 @@ export interface IOAuthProps {
 
 export const OAuth = (props: IOAuthProps) => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const auth = props.settingAuth ? props.settingAuth : useSelector((state: IRootState) => state.requestData.auth);
 	const { selectedVariable } = useSelector((state: IRootState) => state.variableData);

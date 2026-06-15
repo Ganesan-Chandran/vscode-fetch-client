@@ -6,6 +6,7 @@ import { InitialTest } from "../../../redux/reducer";
 import { IRunRequest } from "../../../redux/types";
 import { PreRequest } from "./preRequest";
 import "./style.css";
+import { AppDispatch } from "../../../../../store/appStore";
 
 export interface IPreFecthProps {
 	settingsMode?: boolean;
@@ -13,7 +14,7 @@ export interface IPreFecthProps {
 
 export const PreFetch = (props: IPreFecthProps) => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 	const { preFetch } = useSelector((state: IRootState) => state.requestData);
 	const { skipParentPreFetch } = useSelector((state: IRootState) => state.reqSettings);
 

@@ -1,6 +1,6 @@
 import { XMLParser, XMLValidator } from 'fast-xml-parser';
 import React, { useEffect, useState } from 'react';
-import ReactJson from 'react-json-view';
+import ReactJsonView from '@microlink/react-json-view'
 import { useSelector } from 'react-redux';
 import { IRootState } from '../../../reducer/combineReducer';
 import "./style.css";
@@ -34,7 +34,7 @@ export const XMLViewer = (props: ViewerProps) => {
 				<div className="json-viewer-panel">
 						{
 								isValid ?
-										<ReactJson
+										<ReactJsonView
 												src={jsonData}
 												theme={theme === 1 ? "summerfruit:inverted" : theme === 2 ? "summerfruit" : "brewer"}
 												enableClipboard={false}

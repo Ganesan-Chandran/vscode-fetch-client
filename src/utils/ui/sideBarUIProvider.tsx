@@ -4,7 +4,8 @@ import {
 	OpenCurlUI, OpenExistingItem, OpenRunAllUI, OpenVariableUI, pubSub, vsCodeLogger
 } from '../../extension';
 import { ICollections, IFolder, IHistory } from '../../fetch-client-ui/components/SideBar/redux/types';
-import { getNonce, pubSubTypes, requestTypes, responseTypes } from '../../utils/configuration';
+import { pubSubTypes, requestTypes, responseTypes } from '../../utils/configuration';
+import { buildWebviewHtml } from './webviewUtils';
 import {
 	AddToCollection, AttachVariable, CreateNewCollection,
 	DeleteAllCollectionItems, DeleteCollection, DeleteCollectionItem,
@@ -30,13 +31,13 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 
 	public view?: vscode.WebviewView;
 
-	private _scriptionId: Subscription;
+	private _subscriptionId: Subscription;
 
 	constructor(
 		private readonly _extensionUri: vscode.Uri,
 	) {
 		this._pushMessages = this._pushMessages.bind(this);
-		this._scriptionId = pubSub.subscribe(this._pushMessages);
+		this._subscriptionId = pubSub.subscribe(this._pushMessages);
 	}
 
 	public resolveWebviewView(webviewView: vscode.WebviewView, _context: vscode.WebviewViewResolveContext, _token: vscode.CancellationToken,) {
@@ -50,7 +51,7 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 		webviewView.webview.html = this.getHtmlForWebview(webviewView.webview);
 
 		webviewView.onDidDispose(() => {
-			this._scriptionId.unsubscribe();
+			this._subscriptionId.unsubscribe();
 		});
 
 		webviewView.webview.onDidReceiveMessage(reqData => {
@@ -198,18 +199,20 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					});
 					break;
 				case requestTypes.importVariableRequest:
-					vscode.window.showOpenDialog({ filters: { 'Files': ['json', 'env'] }, canSelectMany: true }).then((uri: vscode.Uri[] | undefined) => {
-						if (uri && uri.length > 0) {
-							uri.forEach((item, index) => {
-								const value = item.fsPath;
-								let ext = value.split('.').pop();
-								if (ext.toLowerCase() === "json") {
-									setTimeout(function () { ImportVariableFromJsonFile(webviewView, value); }, 250 * index);
-								} else {
-									setTimeout(function () { ImportVariableFromEnvFile(webviewView, value); }, 250 * index);
-								}
-							});
-						}
+					this.showInputBox("Enter decryption key if variable is encrypted else leave blank").then((key: string) => {
+						vscode.window.showOpenDialog({ filters: { 'Files': ['json', 'env'] }, canSelectMany: true }).then((uri: vscode.Uri[] | undefined) => {
+							if (uri && uri.length > 0) {
+								uri.forEach((item, index) => {
+									const value = item.fsPath;
+									let ext = value.split('.').pop();
+									if (ext.toLowerCase() === "json") {
+										setTimeout(function () { ImportVariableFromJsonFile(webviewView, value, key); }, 250 * index);
+									} else {
+										setTimeout(function () { ImportVariableFromEnvFile(webviewView, value); }, 250 * index);
+									}
+								});
+							}
+						});
 					});
 					break;
 				case requestTypes.duplicateVariableRequest:
@@ -308,9 +311,9 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 		}
 	}
 
-	private async showInputBox() {
+	private async showInputBox(prompt: string = "Enter name", placeHolder: string = "Enter name") {
 		const res = await vscode.window.showInputBox({
-			value: "", prompt: "Enter new name", placeHolder: "Enter new name", ignoreFocusOut: false,
+			value: "", prompt: prompt, placeHolder: placeHolder, ignoreFocusOut: false,
 			validateInput: text => {
 				return text !== "" && text.length <= 50 ? null : "Enter the valid name (length should be <=50)";
 			}
@@ -324,30 +327,8 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 		return res;
 	}
 
-	private getHtmlForWebview(webview: vscode.Webview) {
-
-		const nonce = getNonce();
-
-		const scriptUri = webview.asWebviewUri(
-			vscode.Uri.joinPath(this._extensionUri, "dist/fetch-client-ui.js")
-		);
-
-		const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "/dist/main.css"));
-
-		return `<!DOCTYPE html>
-		<html lang="en">
-			<head>
-				<meta charset="utf-8" />
-				<meta name="viewport" content="width=device-width, initial-scale=1" />
-				<link href="${styleUri}" rel="stylesheet" type="text/css"/>
-				<title>sideBar</title>
-			</head>
-			<body>
-				<noscript>You need to enable JavaScript to run this app.</noscript>
-				<div id="root"></div>
-				<script nonce="${nonce}" src="${scriptUri}"></script>
-			</body>
-		</html>`;;
+	private getHtmlForWebview(webview: vscode.Webview): string {
+		return buildWebviewHtml(webview, this._extensionUri, 'sideBar');
 	}
 }
 

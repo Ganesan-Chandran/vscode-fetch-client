@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-import { Webview } from "vscode";
 import { sideBarProvider, vsCodeLogger } from "../../extension";
 import { IPreFetch, IReqSettings, IRequestModel } from "../../fetch-client-ui/components/RequestUI/redux/types";
 import { IPreFetchResponse } from "../../fetch-client-ui/components/ResponseUI/redux/types";
@@ -12,8 +11,10 @@ import { apiFetch, FetchConfig } from "../fetchUtil";
 import { formatDate, getErrorResponse } from "../helper";
 import { writeLog } from "../logger/logger";
 import { PreFetchRunner } from "../PreFetchRunner";
+import { getResponseSaveConfiguration } from "../vscodeConfig";
+import { SaveResponse } from "../db/responseDBUtil";
 
-export async function ExecuteAPIRequest(message: any, fetchConfig: FetchConfig, webview: Webview) {
+export async function ExecuteAPIRequest(message: any, fetchConfig: FetchConfig, webview: vscode.Webview) {
 	try {
 		let request = message.data.reqData as IRequestModel;
 		let settings = message.data.settings as ISettings;
@@ -63,7 +64,7 @@ export async function ExecuteAPIRequest(message: any, fetchConfig: FetchConfig, 
 	}
 }
 
-async function runPreRequest(message: any, preFetch: IPreFetch, isParentPreRequest: boolean, fetchConfig: FetchConfig, webview: Webview): Promise<[runMainRequest: boolean, continueRequest: boolean, preFetchResponse: IPreFetchResponse[]]> {
+async function runPreRequest(message: any, preFetch: IPreFetch, isParentPreRequest: boolean, fetchConfig: FetchConfig, webview: vscode.Webview): Promise<[runMainRequest: boolean, continueRequest: boolean, preFetchResponse: IPreFetchResponse[]]> {
 	let request = message.data.reqData as IRequestModel;
 	let preFetchCollectionRunner = new PreFetchRunner(fetchConfig, request.id);
 	await preFetchCollectionRunner.RunPreRequests(preFetch, 0, request.name, isParentPreRequest);
@@ -85,7 +86,7 @@ async function runPreRequest(message: any, preFetch: IPreFetch, isParentPreReque
 	return [true, true, preFetchCollectionRunner.preFetchResponses];
 }
 
-function _executeAPIRequest(message: any, variable: IVariable, fetchConfig: FetchConfig, webview: Webview) {
+function _executeAPIRequest(message: any, variable: IVariable, fetchConfig: FetchConfig, webview: vscode.Webview) {
 	apiFetch(message.data.reqData, variable?.data, message.data.settings, message.data.reqSettings, fetchConfig).then((data) => {
 		fetchConfig.source = null;
 		webview.postMessage(data);
@@ -109,6 +110,23 @@ function _executeAPIRequest(message: any, variable: IVariable, fetchConfig: Fetc
 		} else {
 			UpdateRequest(reqData);
 			UpdateHistory(item);
+		}
+
+		if(getResponseSaveConfiguration() && !data.response.responseType.isBinaryFile){
+			SaveResponse({
+				id: reqData.id,
+				response: {
+					responseData: data.response.responseData,
+					responseType: data.response.responseType,
+					size: data.response.size as string,
+					isError: data.response.isError,
+					status: data.response.status,
+					statusText: data.response.statusText,
+					duration: data.response.duration
+				},
+				headers: data.headers,
+				cookies: data.cookies
+			});
 		}
 	});
 }

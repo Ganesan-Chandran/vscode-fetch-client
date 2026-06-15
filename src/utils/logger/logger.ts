@@ -1,25 +1,37 @@
-import fs from "fs";
+import { appendFile, stat, writeFile } from "fs/promises";
+import { writeFileSync } from "fs";
 import path from "path";
-import { getExtDbPath } from "../db/getExtDbPath";
+import { getExtDbPath } from "../db/helper";
 import { formatDate } from "../helper";
 import { logPath } from "./constants";
 
-export function createLogFile() {
-	fs.writeFileSync(path.resolve(getExtDbPath(), logPath), "");
+const LOG_SIZE_LIMIT_MB = 1;
+
+export function createLogFile(): void {
+	// Intentionally synchronous — called during extension storage bootstrap
+	// where the caller (ensureDb) does not await the return value.
+	writeFileSync(path.resolve(getExtDbPath(), logPath), "");
 }
 
-export function writeLog(err: any) {
-	clearLog();
-	const data = "\n" + formatDate() + "  " + err + "\n";
-	fs.appendFileSync(path.resolve(getExtDbPath(), logPath), data);
+export async function writeLog(err: unknown): Promise<void> {
+	try {
+		const logFilePath = path.resolve(getExtDbPath(), logPath);
+		await clearLogIfOversized(logFilePath);
+		const data = `\n${formatDate()}  ${String(err)}\n`;
+		await appendFile(logFilePath, data);
+	} catch {
+		// Swallow errors from the error-logger itself to avoid infinite loops
+	}
 }
 
-function clearLog() {
-	const logFilePath = path.resolve(getExtDbPath(), logPath);
-	const stats = fs.statSync(logFilePath);
-	const fileSizeInBytes = stats.size;
-	const fileSizeInMegabytes = fileSizeInBytes / (1024 * 1024);
-	if (fileSizeInMegabytes > 1) {
-		fs.writeFileSync(logFilePath, "");
+async function clearLogIfOversized(logFilePath: string): Promise<void> {
+	try {
+		const stats = await stat(logFilePath);
+		const fileSizeMB = stats.size / (1024 * 1024);
+		if (fileSizeMB > LOG_SIZE_LIMIT_MB) {
+			await writeFile(logFilePath, "");
+		}
+	} catch {
+		// If the file doesn't exist yet, ignore — appendFile will create it
 	}
 }

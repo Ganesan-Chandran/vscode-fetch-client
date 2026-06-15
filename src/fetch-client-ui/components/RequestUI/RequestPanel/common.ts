@@ -1,4 +1,3 @@
-import { Dispatch } from "redux";
 import { v4 as uuidv4 } from 'uuid';
 import { requestTypes } from "../../../../utils/configuration";
 import { formatDate } from "../../../../utils/helper";
@@ -8,8 +7,9 @@ import { ResponseActions } from "../../ResponseUI/redux";
 import { ISettings, IVariable } from "../../SideBar/redux/types";
 import { Actions } from "../redux";
 import { IReqSettings, IRequestModel } from "../redux/types";
+import { AppDispatch } from "../../../store/appStore";
 
-export const SendRequest = (dispatch: Dispatch<any>, newReq: boolean, colId: string, requestData: IRequestModel, selectedVariable: IVariable, parentSettings: ISettings, reqSettings: IReqSettings) => {
+export const SendRequest = (dispatch: AppDispatch, newReq: boolean, colId: string, requestData: IRequestModel, selectedVariable: IVariable, parentSettings: ISettings, reqSettings: IReqSettings) => {
 	dispatch(ResponseActions.SetResponseLoadingAction(true));
 	dispatch(ResponseActions.SetPreFetchResponseAction([]));
 

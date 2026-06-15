@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
-import { getNonce, requestTypes, responseTypes } from '../configuration';
+import { requestTypes, responseTypes } from '../configuration';
 import { GetAllCollectionName } from '../db/collectionDBUtil';
 import { BulkExport } from '../db/mainDBUtil';
 import { BulkExportVariables, GetAllVariable } from '../db/varDBUtil';
+import { buildWebviewHtml } from './webviewUtils';
 
-export const BulkExportProviderUI = (extensionUri: any) => {
+export const BulkExportProviderUI = (extensionUri: vscode.Uri) => {
 	const disposable = vscode.commands.registerCommand('fetch-client.bulkExport', (type: string) => {
 		const bulkExportPanel = vscode.window.createWebviewPanel(
 			"fetch-client",
@@ -13,32 +14,10 @@ export const BulkExportProviderUI = (extensionUri: any) => {
 			{ enableScripts: true, retainContextWhenHidden: true }
 		);
 
-		const scriptUri = bulkExportPanel.webview.asWebviewUri(
-			vscode.Uri.joinPath(extensionUri, "dist/fetch-client-ui.js")
-		);
-
-		const styleUri = bulkExportPanel.webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "/dist/main.css"));
-
 		const iconUri = vscode.Uri.joinPath(extensionUri, "icons/fetch-client.png");
 		bulkExportPanel.iconPath = iconUri;
 
-		const nonce = getNonce();
-		const title = `bulkexport@:@${type}`;
-
-		bulkExportPanel.webview.html = `<!DOCTYPE html>
-		<html lang="en">
-			<head>
-				<meta charset="utf-8" />
-				<meta name="viewport" content="width=device-width, initial-scale=1" />
-				<link href="${styleUri}" rel="stylesheet" type="text/css"/>
-				<title>${title}</title>
-			</head>
-			<body>
-				<noscript>You need to enable JavaScript to run this app.</noscript>
-				<div id="root"></div>
-				<script nonce="${nonce}" src="${scriptUri}"></script>
-			</body>
-		</html>`;
+		bulkExportPanel.webview.html = buildWebviewHtml(bulkExportPanel.webview, extensionUri, `bulkexport@:@${type}`);
 
 		bulkExportPanel.webview.onDidReceiveMessage((message: any) => {
 			if (message.type === requestTypes.getAllCollectionNameRequest) {

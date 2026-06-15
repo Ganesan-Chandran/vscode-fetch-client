@@ -5,10 +5,11 @@ import { MonacoEditor } from "../../../../../Common/Editor";
 import { Actions } from "../../../../redux";
 import { requestBodyRaw } from "../consts";
 import "./style.css";
+import { AppDispatch } from "../../../../../../store/appStore";
 
 export const Raw = (props: any) => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const requestData = useSelector((state: IRootState) => state.requestData);
 

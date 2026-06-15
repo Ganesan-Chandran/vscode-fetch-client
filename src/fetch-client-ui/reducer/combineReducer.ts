@@ -1,4 +1,4 @@
-import { combineReducers, Reducer } from "redux";
+import { combineReducers } from "redux";
 import { CookieReducer } from "../components/Cookies/redux/reducer";
 import { ICookiesModel } from "../components/Cookies/redux/types";
 import { UIReducer } from "../components/MainUI/redux/reducer";
@@ -25,16 +25,36 @@ export interface IRootState {
 	reqSettings: IReqSettings
 }
 
-const createRootReducer: () => Reducer<IRootState> =
-	(): Reducer<IRootState> => combineReducers<IRootState>({
-		requestData: RequestReducer,
-		responseData: ResponseReducer,
-		uiData: UIReducer,
-		sideBarData: SideBarReducer,
-		variableData: VariableReducer,
-		cookieData: CookieReducer,
-		reqColData: ReqColReducer,
-		reqSettings: ReqSettingsReducer
-	});
+// export type AppActions =
+// 	| RequestActionTypes
+// 	| ResponseActionTypes
+// 	| UIActionTypes
+// 	| SideBarActionTypes
+// 	| VariableActionTypes
+// 	| CookieActionTypes;
+
+// const createRootReducer: () => Reducer<IRootState, AppActions> =
+// 	(): Reducer<IRootState, AppActions> => combineReducers({
+// 		requestData: RequestReducer,
+// 		responseData: ResponseReducer,
+// 		uiData: UIReducer,
+// 		sideBarData: SideBarReducer,
+// 		variableData: VariableReducer,
+// 		cookieData: CookieReducer,
+// 		reqColData: ReqColReducer,
+// 		reqSettings: ReqSettingsReducer
+// 	}) as unknown as Reducer<IRootState, AppActions>;
+
+
+const createRootReducer = () => combineReducers({
+	requestData: RequestReducer,
+	responseData: ResponseReducer,
+	uiData: UIReducer,
+	sideBarData: SideBarReducer,
+	variableData: VariableReducer,
+	cookieData: CookieReducer,
+	reqColData: ReqColReducer,
+	reqSettings: ReqSettingsReducer
+});
 
 export default createRootReducer;

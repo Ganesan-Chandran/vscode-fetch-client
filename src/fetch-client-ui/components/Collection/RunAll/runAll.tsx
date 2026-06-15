@@ -138,6 +138,7 @@ const RunAll = () => {
 	function setResponse(data: any) {
 		let local = [...refRes.current];
 		let newRes: IReponseModel = {
+			id: refReq.current[refCurIndex.current].id,
 			response: data.response,
 			headers: data.headers,
 			cookies: data.cookies

@@ -6,64 +6,74 @@ import { formatDateWithMs } from "../helper";
 import { getLogOption } from "../vscodeConfig";
 import { writeLog } from "./logger";
 
-export function logDetails(request: IRequestModel, reqHeaders: {}, requestBody: any, responseStatus: number, responseHeaders: ITableData[], responseData: any, duration: number) {
-	logRequestDeatils(request, reqHeaders, requestBody);
-	logResponseDeatils(responseStatus, responseHeaders, responseData, duration);
+export function logDetails(
+	request: IRequestModel,
+	reqHeaders: Record<string, string>,
+	requestBody: unknown,
+	responseStatus: number,
+	responseHeaders: ITableData[],
+	responseData: unknown,
+	duration: number
+): void {
+	logRequestDetails(request, reqHeaders, requestBody);
+	logResponseDetails(responseStatus, responseHeaders, responseData, duration);
 }
 
-function logRequestDeatils(request: IRequestModel, reqHeaders: {}, requestBody: any) {
+function logRequestDetails(request: IRequestModel, reqHeaders: Record<string, string>, requestBody: unknown): void {
 	try {
 		let reqLog = `\n\n-----------------------------------------------------------------------------`;
-		reqLog = reqLog + `\n▶ ${request.method.toUpperCase()}    ${request.url}\n`;
-		reqLog = reqLog + `-----------------------------------------------------------------------------\n`;
-		reqLog = reqLog + `𝘙𝘦𝘲𝘶𝘦𝘴𝘵 𝘋𝘦𝘵𝘢𝘪𝘭𝘴: \n Url: ${request.url}\n Method: ${request.method.toUpperCase()}\n`;
-		reqLog = reqLog + ` Time: ${formatDateWithMs()}\n`;
-		if (request.headers.filter(i => i.isChecked)?.length > 0) {
-			reqLog = reqLog + ` Request Headers:`;
-			for (var prop in reqHeaders) {
-				reqLog = reqLog + `\n	${prop}: "${reqHeaders[prop]}"`;
+		reqLog += `\n▶ ${request.method.toUpperCase()}    ${request.url}\n`;
+		reqLog += `-----------------------------------------------------------------------------\n`;
+		reqLog += `𝘙𝘦𝘲𝘶𝘦𝘴𝘵 𝘋𝘦𝘵𝘢𝘪𝘭𝘴: \n Url: ${request.url}\n Method: ${request.method.toUpperCase()}\n`;
+		reqLog += ` Time: ${formatDateWithMs()}\n`;
+
+		if (request.headers.filter(i => i.isChecked).length > 0) {
+			reqLog += ` Request Headers:`;
+			for (const [prop, val] of Object.entries(reqHeaders)) {
+				reqLog += `\n\t${prop}: "${val}"`;
 			}
 		}
 
 		if (requestBody) {
-			reqLog = reqLog + `\n Request Body:\n`;
-			if (request.body.bodyType === "binary") {
-				reqLog = reqLog + `	src: ${request.body.binary.fileName}\n`;
-			} else if (request.body.bodyType === "formurlencoded") {
-				reqLog = reqLog + `	${decodeURIComponent(requestBody.toString().replace(/\+/g, ' '))}`;
-			} else if (request.body.bodyType === "formdata") {
-				reqLog = reqLog + `	${requestBody.getBuffer()}`;
+			reqLog += `\n Request Body:\n`;
+			const body = request.body;
+			if (body.bodyType === "binary") {
+				reqLog += `\tsrc: ${body.binary?.fileName ?? ''}\n`;
+			} else if (body.bodyType === "formurlencoded") {
+				reqLog += `\t${decodeURIComponent(String(requestBody).replace(/\+/g, ' '))}`;
+			} else if (body.bodyType === "formdata") {
+				const formData = requestBody as { getBuffer(): Buffer };
+				reqLog += `\t${formData.getBuffer()}`;
 			} else {
-				reqLog = reqLog + `	${requestBody}`;
+				reqLog += `\t${requestBody}`;
 			}
 		}
 
-		vsCodeLogger.log("INFO", reqLog);
-
+		vsCodeLogger.log("info", reqLog);
 	} catch (err) {
-		writeLog("error::logRequestDeatils(): " + err);
+		writeLog(`error::logRequestDetails(): ${err}`);
 	}
 }
 
-function logResponseDeatils(status: number, headers: ITableData[], responseData: any, duration: number) {
+function logResponseDetails(status: number, headers: ITableData[], responseData: unknown, duration: number): void {
 	try {
 		let resLog = `\n𝘙𝘦𝘴𝘱𝘰𝘯𝘴𝘦 𝘋𝘦𝘵𝘢𝘪𝘭𝘴: \n Status: ${status} ${status <= 399 ? "✅" : "❌"}\n`;
-		resLog = resLog + ` Time: ${GetResponseTime(duration)}\n\n`;
+		resLog += ` Time: ${GetResponseTime(duration)}\n\n`;
 
 		if (getLogOption()) {
 			if (headers.length > 0) {
-				resLog = resLog + ` Response Headers:\n`;
-				headers.forEach(({ key, value }) => {
-					resLog = resLog + `	${key}: "${value}"\n`;
-				});
+				resLog += ` Response Headers:\n`;
+				for (const { key, value } of headers) {
+					resLog += `\t${key}: "${value}"\n`;
+				}
 			}
 
-			resLog = resLog + ` Response Body:\n`;
-			resLog = resLog + `	${responseData}`;
+			resLog += ` Response Body:\n`;
+			resLog += `\t${responseData}`;
 		}
 
-		vsCodeLogger.log("INFO", resLog);
+		vsCodeLogger.log("info", resLog);
 	} catch (err) {
-		writeLog("error::logResponseDeatils(): " + err);
+		writeLog(`error::logResponseDetails(): ${err}`);
 	}
 }

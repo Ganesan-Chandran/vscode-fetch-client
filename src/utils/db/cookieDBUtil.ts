@@ -3,13 +3,12 @@ import * as vscode from 'vscode';
 import { ICookie } from '../../fetch-client-ui/components/Cookies/redux/types';
 import { responseTypes } from '../configuration';
 import { writeLog } from '../logger/logger';
-import { cookieDBPath } from './dbPaths';
+import { cookieDBPath } from './helper';
 import { ShowInformationDialog } from '../ui/helper';
 
 function getDB(): loki {
 	const idbAdapter = new LokiFsAdapter();
 	const db = new loki(cookieDBPath(), { adapter: idbAdapter, autosave: true, autosaveInterval: 1000 });
-	db.autosaveEnable();
 	return db;
 }
 
@@ -60,7 +59,6 @@ export function GetCookieById(id: string, webview: vscode.Webview) {
 
 		db.loadDatabase({}, function () {
 			const userCookies = db.getCollection('userCookies').find({ 'id': id });
-			db.saveDatabase();
 			if (webview) {
 				webview.postMessage({ type: responseTypes.getCookiesByIdResponse, data: userCookies });
 			}

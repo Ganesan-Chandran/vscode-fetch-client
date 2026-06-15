@@ -11,7 +11,7 @@ import { pubSubTypes, responseTypes } from '../configuration';
 import { apiFetch, FetchConfig } from '../fetchUtil';
 import { formatDate } from '../helper';
 import { writeLog } from '../logger/logger';
-import { collectionDBPath, mainDBPath } from './dbPaths';
+import { collectionDBPath, mainDBPath } from './helper';
 import { CopyExitingItems, DeleteExitingItems, GetColsRequests, RenameRequestItem } from './mainDBUtil';
 
 function getDB(): loki {
@@ -24,6 +24,7 @@ function getDB(): loki {
 function getRequestDB(): loki {
 	const idbAdapter = new LokiFsAdapter();
 	const db = new loki(mainDBPath(), { adapter: idbAdapter });
+	db.autosaveDisable();
 	return db;
 }
 
@@ -254,7 +255,7 @@ export function DuplicateItem(coldId: string, folderId: string, historyId: strin
 	try {
 		const colDB = getDB();
 		let oldIds: string[] = [];
-		let ids = {};
+		let ids: Record<string, string> = {};
 
 		colDB.loadDatabase({}, function () {
 			const collections = colDB.getCollection('userCollections').find({ 'id': coldId });
@@ -364,7 +365,7 @@ export function CopyToCollection(sourceId: string, destID: string, destName: str
 
 		colDB.loadDatabase({}, function () {
 			let cols: any;
-			let ids = {};
+			let ids: Record<string, string> = {};
 			let oldIds: string[] = [];
 
 			const userCollections = colDB.getCollection('userCollections');
@@ -760,7 +761,7 @@ export function GetAllCollectionsById(colId: string, folderId: string, type: str
 						settings = JSON.parse(JSON.stringify(InitialSettings)) as ISettings;
 					}
 				} else {
-					settings = colItem.settings ? colItem.settings : JSON.parse(JSON.stringify(InitialSettings));;
+					settings = colItem.settings ? colItem.settings : JSON.parse(JSON.stringify(InitialSettings));
 				}
 
 				if (webview) {
@@ -791,7 +792,7 @@ export function GetAllCollectionsByIdWithPath(colId: string, webview: vscode.Web
 	}
 }
 
-function getPath(source: any, path: string, paths: {}, ids: string[], type: string) {
+function getPath(source: any, path: string, paths: Record<string, string>, ids: string[], type: string): { paths: Record<string, string>; ids: string[] } | undefined {
 
 	let folders = source.data.filter(item => item.data !== undefined);
 
@@ -811,12 +812,11 @@ function getPath(source: any, path: string, paths: {}, ids: string[], type: stri
 
 	path = path ? path + " > " + source.name : source.name;
 
+	let lastResult: { paths: Record<string, string>; ids: string[] } | undefined;
 	for (let i = 0; i < folders.length; i++) {
-		const result = getPath(folders[i], path, paths, ids, type);
-		if (i === folders.length - 1) {
-			return result;
-		}
+		lastResult = getPath(folders[i], path, paths, ids, type);
 	}
+	return lastResult;
 }
 
 export function GetVariableByColId(colId: string) {
@@ -928,7 +928,7 @@ export function GetParentSettings(colId: string, folderId: string, webview: vsco
 						settings = JSON.parse(JSON.stringify(InitialSettings)) as ISettings;
 					}
 				} else {
-					settings = colItem.settings ? colItem.settings : JSON.parse(JSON.stringify(InitialSettings));;
+					settings = colItem.settings ? colItem.settings : JSON.parse(JSON.stringify(InitialSettings));
 				}
 
 				if (webview) {
@@ -964,7 +964,7 @@ export function GetParentSettingsSync(colId: string, folderId: string) {
 							settings = JSON.parse(JSON.stringify(InitialSettings));
 						}
 					} else {
-						settings = colItem.settings ? colItem.settings : JSON.parse(JSON.stringify(InitialSettings));;
+						settings = colItem.settings ? colItem.settings : JSON.parse(JSON.stringify(InitialSettings));
 					}
 				}
 
@@ -995,7 +995,7 @@ export function ExecuteRequest(reqData: any, fetchConfig: FetchConfig, webview: 
 						settings = JSON.parse(JSON.stringify(InitialSettings));
 					}
 				} else {
-					settings = colItem.settings ? colItem.settings : JSON.parse(JSON.stringify(InitialSettings));;
+					settings = colItem.settings ? colItem.settings : JSON.parse(JSON.stringify(InitialSettings));
 				}
 
 				apiFetch(reqData.data.reqData, reqData.data.variableData, settings, null, fetchConfig).then((data) => {
@@ -1034,7 +1034,7 @@ export function ExecuteMultipleRequest(reqData: any, fetchConfig: FetchConfig, w
 								settings = JSON.parse(JSON.stringify(InitialSettings));
 							}
 						} else {
-							settings = colItem.settings ? colItem.settings : JSON.parse(JSON.stringify(InitialSettings));;
+							settings = colItem.settings ? colItem.settings : JSON.parse(JSON.stringify(InitialSettings));
 						}
 
 						requests.push(apiFetch(item, reqData.data.variableData, settings, null, fetchConfig));

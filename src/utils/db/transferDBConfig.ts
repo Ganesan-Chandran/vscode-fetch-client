@@ -5,7 +5,27 @@ import {
 	getExtDbBKPPath,
 	getExtLocalDbPath,
 	getGlobalStorageUri
-} from "./getExtDbPath";
+} from "./helper";
+
+const DB_FILES = ['fetchClientCookies.db', 'fetchClientHistory.db', 'fetchClientCollection.db', 'fetchClient.db', 'fetchClientVariable.db', 'fetchClientSettings.db', 'fetchClientResponse.db', 'fetch-client.log'] as const;
+
+function safeCopyFile(src: string, dest: string): void {
+	try {
+		fs.cpSync(src, dest, { recursive: true, force: true });
+	} catch (err) {
+		// Individual file may not exist (e.g. log file on first run); skip silently
+	}
+}
+
+function safeDeleteFile(filePath: string): void {
+	try {
+		if (fs.existsSync(filePath)) {
+			fs.unlinkSync(filePath);
+		}
+	} catch (err) {
+		// Ignore deletion errors for non-critical files
+	}
+}
 
 /**
  * In case we use the config option keepInLocalPath,
@@ -16,44 +36,43 @@ export const transferDbConfig = () => {
 	const customPath = getExtLocalDbPath();
 	const pathState = getSaveToWorkspaceConfiguration();
 	const actualPath = getGlobalStorageUri();
-	const files = ['fetchClientCookies.db', 'fetchClientHistory.db', 'fetchClientCollection.db', 'fetchClient.db', 'fetchClientVariable.db', 'fetch-client.log'];
-	const dbFile = path.resolve(customPath, "fetchClientCollection.db");
+	const dbFile = path.join(customPath, "fetchClientCollection.db");
 
 	if (actualPath && customPath && actualPath !== customPath) {
 		if (pathState) {
-			// First time taking bakeup of the data in actual global path
-			let bkpPath = getExtDbBKPPath();
+			// First time taking backup of the data in actual global path
+			const bkpPath = getExtDbBKPPath();
 			if (!fs.existsSync(bkpPath)) {
 				fs.cpSync(actualPath, bkpPath, { recursive: true });
 			}
 
 			// Check if files are already available in the workspace path
 			if (fs.existsSync(dbFile)) {
-				let customBKPPath = path.resolve(customPath, "BKP");
+				const customBKPPath = path.join(customPath, "BKP");
 				if (!fs.existsSync(customBKPPath)) {
 					fs.mkdirSync(customBKPPath, { recursive: true });
 				}
 
-				// Copy all files to backup path in custom folder
-				files.forEach(file => {
-					fs.cpSync(path.resolve(customPath, file), path.resolve(customBKPPath, file), { recursive: true, force: true });
+				// Copy existing files to backup path in custom folder
+				DB_FILES.forEach(file => {
+					safeCopyFile(path.join(customPath, file), path.join(customBKPPath, file));
 				});
 			}
 
-			// Copy all files to custom folder
-			files.forEach(file => {
-				fs.cpSync(path.resolve(actualPath, file), path.resolve(customPath, file), { recursive: true, force: true });
-				fs.unlinkSync(path.resolve(actualPath, file));
+			// Copy all files from global path to custom folder
+			DB_FILES.forEach(file => {
+				safeCopyFile(path.join(actualPath, file), path.join(customPath, file));
+				safeDeleteFile(path.join(actualPath, file));
 			});
 			updateWorkspacePathConfiguration(customPath);
 		} else {
-
-			// Copy all files to actual global path
-			files.forEach(file => {
-				fs.cpSync(path.resolve(customPath, file), path.resolve(actualPath, file), { recursive: true, force: true });
-				fs.unlinkSync(path.resolve(customPath, file));
+			// Copy all files back to actual global path
+			DB_FILES.forEach(file => {
+				safeCopyFile(path.join(customPath, file), path.join(actualPath, file));
+				safeDeleteFile(path.join(customPath, file));
 			});
 			updateWorkspacePathConfiguration("");
 		}
 	}
 };
+

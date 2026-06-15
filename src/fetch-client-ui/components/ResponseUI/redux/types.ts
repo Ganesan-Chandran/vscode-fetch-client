@@ -20,6 +20,7 @@ export interface ITestResult {
 }
 
 export interface IReponseModel {
+	id: string;
 	response: IResponse;
 	headers: ITableData[];
 	cookies: ITableData[];

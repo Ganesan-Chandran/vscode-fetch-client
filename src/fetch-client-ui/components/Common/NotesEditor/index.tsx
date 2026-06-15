@@ -5,10 +5,11 @@ import { IRootState } from '../../../reducer/combineReducer';
 import { Actions } from '../../RequestUI/redux';
 import { GetDataFromHTML, notesMaxLimit } from '../helper';
 import "./style.css";
+import { AppDispatch } from '../../../store/appStore';
 
 export const NotesEditor = () => {
 
-		const dispatch = useDispatch();
+		const dispatch = useDispatch<AppDispatch>();
 		const [count, _setCount] = useState(0);
 		const refCount = useRef(count);
 		const setCount = (data: number) => {

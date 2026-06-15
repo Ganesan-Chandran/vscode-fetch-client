@@ -7,10 +7,11 @@ import vscode from "../../../../Common/vscodeAPI";
 import { IVariable } from "../../../../SideBar/redux/types";
 import { VariableActions } from "../../../../Variables/redux";
 import "./style.css";
+import { AppDispatch } from "../../../../../store/appStore";
 
 export const Settings = () => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const { selectedVariable, variables, isLocalChange } = useSelector((state: IRootState) => state.variableData);
 	const { url } = useSelector((state: IRootState) => state.requestData);

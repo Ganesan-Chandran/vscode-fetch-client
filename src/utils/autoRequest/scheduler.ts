@@ -1,161 +1,214 @@
 import { CronJob } from "cron";
 import { IAutoRequest } from "../../fetch-client-ui/components/AutoRequest/types";
-import { ISettings } from "../../fetch-client-ui/components/SideBar/redux/types";
 import { setVariable } from "../../fetch-client-ui/components/TestUI/TestPanel/helper";
 import { GetParentSettingsSync, GetVariableByColId } from "../db/collectionDBUtil";
 import { GetRequestItem } from "../db/mainDBUtil";
-import { GetVariableByIdSync, UpdateVariable } from "../db/varDBUtil";
+import { GetVariableByIdSync, UpdateVariableSync } from "../db/varDBUtil";
 import { apiFetch, FetchConfig } from "../fetchUtil";
 import { writeLog } from "../logger/logger";
 import { getHeadersConfiguration, getRunMainRequestOption, getTimeOutConfiguration } from "../vscodeConfig";
+import { IReponseModel } from "../../fetch-client-ui/components/ResponseUI/redux/types";
 
-// field          allowed values
-// -----          --------------
-// second         0-59
-// minute         0-59
-// hour           0-23
-// day of month   1-31
-// month          1-12 (or names, see below)
-// day of week    0-7 (0 or 7 is Sunday, or use names)
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
 
-interface IJobs {
-	id: string;
-	startTime: Date;
-	interval: number;
-	duration: number;
-	endTime: Date;
-	job: CronJob;
+/** Maximum allowed elapsed time (in minutes) before a job is force-stopped. */
+const MAX_JOB_DURATION_MINUTES = 600;
+
+/** Milliseconds in one minute. */
+const MS_PER_MINUTE = 60_000;
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+// Cron field reference:
+//   second (0-59), minute (0-59), hour (0-23),
+//   day of month (1-31), month (1-12), day of week (0-7)
+
+interface IScheduledJob {
+	readonly id: string;
+	readonly startTime: Date;
+	readonly interval: number;
+	readonly duration: number;
+	readonly endTime: Date;
+	readonly job: CronJob;
 }
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns a cron expression for the request.
+ * Uses the pre-built `cron` field when available; otherwise derives one from
+ * `interval` (minutes between ticks).
+ */
+function buildCronExpression(request: IAutoRequest): string {
+	if (request.cron?.trim()) {
+		return request.cron.trim();
+	}
+	return `0 */${request.interval} * * * *`;
+}
+
+/**
+ * Reads VS Code settings fresh on every call so that user changes to
+ * timeout / header-case / run-main-request take effect without restarting
+ * the extension.
+ */
+function getFreshFetchConfig(): FetchConfig {
+	return {
+		timeOut: getTimeOutConfiguration(),
+		headersCase: getHeadersConfiguration(),
+		runMainRequest: getRunMainRequestOption(),
+	};
+}
+
+// ---------------------------------------------------------------------------
+// Scheduler
+// ---------------------------------------------------------------------------
 
 export class FCScheduler {
 
 	private static instance: FCScheduler;
 
-	scheduledJobs: IJobs[] = [];
-	fetchConfig: FetchConfig = {
-		timeOut: getTimeOutConfiguration(),
-		headersCase: getHeadersConfiguration(),
-		runMainRequest: getRunMainRequestOption()
-	};
+	private readonly scheduledJobs: IScheduledJob[] = [];
 
-	public static get Instance() {
-		return this.instance || (this.instance = new this());
+	public static get Instance(): FCScheduler {
+		return this.instance ?? (this.instance = new FCScheduler());
 	}
 
-	public CreateJobs(requests: IAutoRequest[], autoStart: boolean) {
-		try {
-			requests.forEach(request => {
-				if (request?.id && request?.colId && request?.reqId) {
-					let cronTime = `0 */${request.interval} * * * *`;
-					const job = new CronJob(
-						cronTime,  // cron expression
-						async () => { await this.executeAPI(request); }, // onTick function
-						null, // onComplete
-						autoStart, // start
-						null, // timezone
-						null, // context
-						false // runOnInit
-					);
+	// ---------------------------------------------------------------------------
+	// Public API
+	// ---------------------------------------------------------------------------
 
-					let timeNow = new Date();
-					let scheduleJob: IJobs = {
-						id: request.id,
-						startTime: timeNow,
-						interval: request.interval,
-						duration: request.duration,
-						endTime: new Date(timeNow.getTime() + (request.duration * 60000)),
-						job: job
-					};
+	public CreateJobs(requests: IAutoRequest[], autoStart: boolean): void {
+		for (const request of requests) {
+			if (!request?.id || !request?.colId || !request?.reqId) {
+				continue;
+			}
+			try {
+				const cronTime = buildCronExpression(request);
+				const job = new CronJob(
+					cronTime,                                              // cron expression
+					async () => { await this.executeAPI(request); },       // onTick
+					null,                                                  // onComplete
+					autoStart,                                             // start
+					null,                                                  // timezone
+					null,                                                  // context
+					false                                                  // runOnInit
+				);
 
-					this.scheduledJobs.push(scheduleJob);
-				}
-			});
-		}
-		catch (err) {
-			writeLog("CreateJobs: " + err);
+				const timeNow = new Date();
+				const scheduledJob: IScheduledJob = {
+					id: request.id,
+					startTime: timeNow,
+					interval: request.interval,
+					duration: request.duration,
+					endTime: new Date(timeNow.getTime() + request.duration * MS_PER_MINUTE),
+					job,
+				};
+
+				this.scheduledJobs.push(scheduledJob);
+			} catch (err) {
+				writeLog(`CreateJobs [${request.id}]: ${err}`);
+			}
 		}
 	}
 
-	private async executeAPI(autoReq: IAutoRequest) {
+	public StartJob(id: string): void {
+		if (!id) {
+			return;
+		}
 		try {
-			let parentSettings: ISettings;
-			let currentJob = this.scheduledJobs.filter(i => i.id === autoReq.id);
+			const index = this.scheduledJobs.findIndex(j => j.id === id);
+			if (index !== -1) {
+				this.scheduledJobs[index].job.start();
+			}
+		} catch (err) {
+			writeLog(`StartJob [${id}]: ${err}`);
+		}
+	}
 
-			if (currentJob?.length < 1) {
+	public RemoveJob(request: IAutoRequest): void {
+		if (!request?.id) {
+			return;
+		}
+		try {
+			const index = this.scheduledJobs.findIndex(j => j.id === request.id);
+			if (index !== -1) {
+				this.scheduledJobs[index].job.stop();
+				this.scheduledJobs.splice(index, 1);
+			}
+		} catch (err) {
+			writeLog(`RemoveJob [${request.id}]: ${err}`);
+		}
+	}
+
+	public StopAllJobs(): void {
+		try {
+			for (const item of this.scheduledJobs) {
+				item.job.stop();
+			}
+			this.scheduledJobs.length = 0;
+		} catch (err) {
+			writeLog(`StopAllJobs: ${err}`);
+		}
+	}
+
+	// ---------------------------------------------------------------------------
+	// Private helpers
+	// ---------------------------------------------------------------------------
+
+	private async executeAPI(autoReq: IAutoRequest): Promise<void> {
+		try {
+			const scheduledJob = this.scheduledJobs.find(j => j.id === autoReq.id);
+			if (!scheduledJob) {
 				return;
 			}
 
-			let request = await GetRequestItem(autoReq.reqId);
+			const request = await GetRequestItem(autoReq.reqId);
 			if (!request?.id) {
 				return;
 			}
 
-			let varId = await GetVariableByColId(autoReq.colId);
-			let variable = varId ? await GetVariableByIdSync(varId) : null;
+			const varId = await GetVariableByColId(autoReq.colId);
+			const variable = varId ? await GetVariableByIdSync(varId) : null;
 
-			if (autoReq.parentId === autoReq.colId) {
-				parentSettings = await GetParentSettingsSync(autoReq.colId, "");
-			} else {
-				parentSettings = await GetParentSettingsSync(autoReq.colId, autoReq.parentId);
+			const folderId = autoReq.parentId === autoReq.colId ? "" : autoReq.parentId;
+			const parentSettings = await GetParentSettingsSync(autoReq.colId, folderId);
+
+			const res = await apiFetch(request, variable?.data, parentSettings, null, getFreshFetchConfig());
+			const resData: IReponseModel = {
+				id: request.id,
+				response: {
+					duration: res.response.duration,
+					isError: res.response.isError,
+					responseData: res.response.responseData,
+					responseType: res.response.responseType,
+					size: res.response.size as string,
+					status: res.response.status,
+					statusText: res.response.statusText,
+				},
+				headers: res.headers,
+				cookies: res.cookies,
+				loading: false,
+			};
+
+			// NOTE: original guard was `length - 1 > 0` (i.e. length > 1); preserved intentionally.
+			if (request.setvar.length - 1 > 0 && variable) {
+				const updatedVariable = setVariable(variable, request.setvar, resData);
+				await UpdateVariableSync(updatedVariable);
 			}
 
-			let res = await apiFetch(request, variable?.data, parentSettings, null, this.fetchConfig);
-
-			if (request.setvar.length - 1 > 0) {
-				let updatedVariable = setVariable(variable, request.setvar, res);
-				UpdateVariable(updatedVariable, null);
+			const nextTime = new Date(Date.now() + scheduledJob.interval * MS_PER_MINUTE);
+			const elapsedMinutes = Math.round((nextTime.getTime() - scheduledJob.startTime.getTime()) / MS_PER_MINUTE);
+			if (nextTime > scheduledJob.endTime || elapsedMinutes > MAX_JOB_DURATION_MINUTES) {
+				scheduledJob.job.stop();
 			}
-
-			let nextTime = new Date(new Date().getTime() + (currentJob[0].interval * 60000));
-			let milliDiff = nextTime.getTime() - currentJob[0].startTime.getTime();
-			if (nextTime > currentJob[0].endTime || Math.round(milliDiff / 60000) > 600) {
-				currentJob[0].job.stop();
-				return;
-			}
-		}
-		catch (err) {
-			writeLog("executeAPI: " + err);
-		}
-	}
-
-	public StartJob(id: string) {
-		try {
-			if (id) {
-				let index = this.scheduledJobs.findIndex(i => i.id === id);
-				if (index !== -1) {
-					this.scheduledJobs[index].job.start();
-				}
-			}
-		}
-		catch (err) {
-			writeLog("StartJob: " + err);
-		}
-	}
-
-	public RemoveJob(request: IAutoRequest) {
-		try {
-			if (request?.id) {
-				let index = this.scheduledJobs.findIndex(i => i.id === request.id);
-				if (index !== -1) {
-					this.scheduledJobs[index].job.stop();
-					this.scheduledJobs.splice(index, 1);
-				}
-			}
-		}
-		catch (err) {
-			writeLog("RemoveJob: " + err);
-		}
-	}
-
-	public StopAllJobs() {
-		try {
-			this.scheduledJobs.forEach(item => {
-				item.job.stop();
-			});
-			this.scheduledJobs = [];
-		}
-		catch (err) {
-			writeLog("StopAllJobs: " + err);
+		} catch (err) {
+			writeLog(`executeAPI [${autoReq.id}]: ${err}`);
 		}
 	}
 }

@@ -4,7 +4,30 @@ import { IRequestModel } from "../fetch-client-ui/components/RequestUI/redux/typ
 import { ISettings } from "../fetch-client-ui/components/SideBar/redux/types";
 import { responseTypes } from "./configuration";
 
-export const MIMETypes = {
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] as const;
+
+const VARIABLE_PATTERN = /({{([^}}]+)}})/;
+const VARIABLE_PATTERN_GLOBAL = /({{([^}}]+)}})/gm;
+
+/** MIME types that map to plain-text / structured-text; treated as non-binary. */
+const TEXT_CONTENT_TYPES = [
+	"application/json",
+	"application/ld+json",
+	"application/vnd.api+json",
+	"application/xml",
+	"text/javascript",
+	"application/javascript",
+	"text/html",
+	"text/css",
+	"text/plain",
+] as const;
+
+export const MIMETypes: Record<string, string> = {
 	"audio/aac": "aac",
 	"application/x-abiword": "abw",
 	"application/x-freearc": "arc",
@@ -83,91 +106,68 @@ export const MIMETypes = {
 	"application/x-7z-compressed": "7z",
 };
 
+// ---------------------------------------------------------------------------
+// Content-type helpers
+// ---------------------------------------------------------------------------
+
 export function isFileType(headers: ITableData[]): boolean {
-	let item = headers.filter(t => t.key.toLowerCase() === "content-type");
-
-	if (item.length > 0) {
-		return checkType(item[0].value);
-	}
-
-	return false;
+	const item = headers.find(t => t.key.toLowerCase() === "content-type");
+	return item ? checkType(item.value) : false;
 }
 
 function checkType(value: string): boolean {
-	if (value.toLowerCase().includes("application/json")) {
-		return false;
-	}
-	if (value.toLowerCase().includes("application/ld+json")) {
-		return false;
-	}
-	if (value.toLowerCase().includes("application/vnd.api+json")) {
-		return false;
-	}
-	if (value.toLowerCase().includes("application/xml")) {
-		return false;
-	}
-	if (value.toLowerCase().includes("text/javascript")) {
-		return false;
-	}
-	if (value.toLowerCase().includes("text/html")) {
-		return false;
-	}
-	if (value.toLowerCase().includes("text/css")) {
-		return false;
-	}
-	if (value.toLowerCase().includes("text/plain")) {
-		return false;
-	}
-	if (value.toLowerCase().includes("application/javascript")) {
-		return false;
-	}
-
-	return true;
+	const lower = value.toLowerCase();
+	return !TEXT_CONTENT_TYPES.some(type => lower.includes(type));
 }
 
-export function getFileType(headers: ITableData[]) {
-	let type: string;
-	let item = headers.filter(t => t.key.toLowerCase() === "content-type");
-	if (item.length > 0) {
-		if (item[0].value.includes(";")) {
-			type = MIMETypes[item[0].value.toLowerCase().split(";")[0].trim()];
-		} else {
-			type = MIMETypes[item[0].value.toLowerCase().trim()];
-		}
+export function getFileType(headers: ITableData[]): string {
+	const item = headers.find(t => t.key.toLowerCase() === "content-type");
+	if (!item) {
+		return "";
 	}
 
-	return type ? type : "";
+	const mimeKey = item.value.includes(";")
+		? item.value.toLowerCase().split(";")[0].trim()
+		: item.value.toLowerCase().trim();
+
+	return MIMETypes[mimeKey] ?? "";
 }
 
-export function formatDate(value?: string) {
-	let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+// ---------------------------------------------------------------------------
+// Date formatting
+// ---------------------------------------------------------------------------
 
-	let t = value ? new Date(value) : new Date();
-	let date = ("0" + t.getDate()).slice(-2);
-	let timeFormat = ("0" + t.getHours()).slice(-2) + ":" + ("0" + t.getMinutes()).slice(-2) + ":" + ("0" + t.getSeconds()).slice(-2);
-
-	return date + "-" + months[t.getMonth()] + "-" + t.getFullYear() + " " + timeFormat;
+export function formatDate(value?: string): string {
+	const t = value ? new Date(value) : new Date();
+	const date = String(t.getDate()).padStart(2, "0");
+	const hh = String(t.getHours()).padStart(2, "0");
+	const mm = String(t.getMinutes()).padStart(2, "0");
+	const ss = String(t.getSeconds()).padStart(2, "0");
+	return `${date}-${MONTHS[t.getMonth()]}-${t.getFullYear()} ${hh}:${mm}:${ss}`;
 }
 
-export function formatDateWithMs(value?: string) {
-	let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-	let t = value ? new Date(value) : new Date();
-	let date = ("0" + t.getDate()).slice(-2);
-	let timeFormat = ("0" + t.getHours()).slice(-2) + ":" + ("0" + t.getMinutes()).slice(-2) + ":" + ("0" + t.getSeconds()).slice(-2) + ":" + ("0" + t.getMilliseconds()).slice(-4);
-
-	return date + "-" + months[t.getMonth()] + "-" + t.getFullYear() + " " + timeFormat;
+export function formatDateWithMs(value?: string): string {
+	const t = value ? new Date(value) : new Date();
+	const date = String(t.getDate()).padStart(2, "0");
+	const hh = String(t.getHours()).padStart(2, "0");
+	const mm = String(t.getMinutes()).padStart(2, "0");
+	const ss = String(t.getSeconds()).padStart(2, "0");
+	const ms = String(t.getMilliseconds()).padStart(4, "0");
+	return `${date}-${MONTHS[t.getMonth()]}-${t.getFullYear()} ${hh}:${mm}:${ss}:${ms}`;
 }
 
-export function replaceValueWithVariable(request: IRequestModel, varData: any): IRequestModel {
+// ---------------------------------------------------------------------------
+// Variable substitution
+// ---------------------------------------------------------------------------
+
+export function replaceValueWithVariable(request: IRequestModel, varData: Record<string, string>): IRequestModel {
 	request.url = replaceDataWithVariable(request.url, varData);
-	if (request.params.filter(item => item.isChecked).length > 0) {
+
+	if (request.params.some(item => item.isChecked)) {
 		request.params = replaceTableDataWithVariable(request.params, varData);
 	}
 
-	if (request.headers.filter(item => item.isChecked).length > 0) {
+	if (request.headers.some(item => item.isChecked)) {
 		request.headers = replaceTableDataWithVariable(request.headers, varData);
 	}
 
@@ -183,11 +183,11 @@ export function replaceValueWithVariable(request: IRequestModel, varData: any): 
 		request.auth.aws.sessionToken = replaceDataWithVariable(request.auth.aws.sessionToken, varData);
 	}
 
-	if (request.body.bodyType === "formurlencoded" && request.body.urlencoded.filter(item => item.isChecked).length > 0) {
+	if (request.body.bodyType === "formurlencoded" && request.body.urlencoded.some(item => item.isChecked)) {
 		request.body.urlencoded = replaceTableDataWithVariable(request.body.urlencoded, varData);
 	}
 
-	if (request.body.bodyType === "formdata" && request.body.formdata.filter(item => item.isChecked).length > 0) {
+	if (request.body.bodyType === "formdata" && request.body.formdata.some(item => item.isChecked)) {
 		request.body.formdata = replaceTableDataWithVariable(request.body.formdata, varData);
 	}
 
@@ -209,7 +209,7 @@ export function replaceAuthSettingsInRequest(request: IRequestModel, settings: I
 		request.auth.userName = settings.auth.userName;
 		request.auth.password = settings.auth.password;
 		request.auth.tokenPrefix = settings.auth.tokenPrefix;
-		if (request.auth.aws) {
+		if (request.auth.aws && settings.auth.aws) {
 			request.auth.aws.accessKey = settings.auth.aws.accessKey;
 			request.auth.aws.secretAccessKey = settings.auth.aws.secretAccessKey;
 			request.auth.aws.service = settings.auth.aws.service;
@@ -223,78 +223,79 @@ export function replaceAuthSettingsInRequest(request: IRequestModel, settings: I
 
 export function replaceHeaderSettingsInRequest(request: IRequestModel, settings: ISettings): IRequestModel {
 	if (settings.headers) {
-		settings.headers.forEach((header) => {
+		for (const header of settings.headers) {
 			if (header.isChecked && header.key) {
-				let index = request.headers.findIndex(item => (item.key.toLowerCase() === header.key.toLowerCase()) && item.isChecked);
-				if (index === -1) {
+				const exists = request.headers.some(
+					item => item.key.toLowerCase() === header.key.toLowerCase() && item.isChecked
+				);
+				if (!exists) {
 					request.headers.push(header);
 				}
 			}
-		});
+		}
 	}
 
 	return request;
 }
 
-function replaceTableDataWithVariable(data: ITableData[], varData: any) {
-	const re = new RegExp("({{([^}}]+)}})");
-	data.forEach(item => {
-		if (re.test(item.key)) {
-			let ptn = item.key.match(/({{([^}}]+)}})/gm);
-			ptn?.forEach(p => {
+function replaceTableDataWithVariable(data: ITableData[], varData: Record<string, string>): ITableData[] {
+	for (const item of data) {
+		if (VARIABLE_PATTERN.test(item.key)) {
+			item.key.match(VARIABLE_PATTERN_GLOBAL)?.forEach(p => {
 				item.key = updateVariable(p, item.key, varData);
 			});
 		}
 
-		if (re.test(item.value)) {
-			let ptn = item.value.match(/({{([^}}]+)}})/gm);
-			ptn?.forEach(p => {
+		if (VARIABLE_PATTERN.test(item.value)) {
+			item.value.match(VARIABLE_PATTERN_GLOBAL)?.forEach(p => {
 				item.value = updateVariable(p, item.value, varData);
 			});
 		}
+	}
+
+	return data;
+}
+
+export function replaceDataWithVariable(data: string, varData: Record<string, string>): string {
+	if (!VARIABLE_PATTERN.test(data)) {
+		return data;
+	}
+
+	data.match(VARIABLE_PATTERN_GLOBAL)?.forEach(item => {
+		data = updateVariable(item, data, varData);
 	});
 
 	return data;
 }
 
-export function replaceDataWithVariable(data: string, varData: any) {
-	if (checkVariableMatch(data)) {
-		let ptn = data.match(/({{([^}}]+)}})/gm);
-		ptn?.forEach(item => {
-			data = updateVariable(item, data, varData);
-		});
-	}
-
-	return data;
-}
-
-function updateVariable(item: string, data: string, varData: any) {
+function updateVariable(item: string, data: string, varData: Record<string, string>): string {
 	if (item.includes("{{#") && item.includes("}}")) {
-		let variable = checkSysVariable(item);
+		const variable = checkSysVariable(item);
 		if (variable) {
-			let value = getSysVariableWithValue(variable);
-			data = data.replace(item, value?.toString());
+			const value = getSysVariableWithValue(variable);
+			data = data.replace(item, value?.toString() ?? item);
 		}
-	} else {
-		if (varData && Object.keys(varData).length > 0) {
-			let replacedValue = varData[item.replace("{{", "").replace("}}", "")];
-			if (replacedValue && checkVariableMatch(replacedValue)) {
-				data = data.replace(item, replaceDataWithVariable(replacedValue, varData));
-			} else {
-				data = data.replace(item, varData[item.replace("{{", "").replace("}}", "")]);
-			}
+	} else if (varData && Object.keys(varData).length > 0) {
+		const key = item.replace("{{", "").replace("}}", "");
+		const replacedValue = varData[key];
+		if (replacedValue !== undefined) {
+			data = data.replace(
+				item,
+				VARIABLE_PATTERN.test(replacedValue)
+					? replaceDataWithVariable(replacedValue, varData)
+					: replacedValue
+			);
 		}
 	}
 
 	return data;
 }
 
-function checkVariableMatch(data: string): boolean {
-	const re = new RegExp("({{([^}}]+)}})");
-	return re.test(data);
-}
+// ---------------------------------------------------------------------------
+// Misc utilities
+// ---------------------------------------------------------------------------
 
-export function getRandomNumber(digit: number) {
+export function getRandomNumber(digit: number): string {
 	return Math.random().toFixed(digit).split('.')[1];
 }
 

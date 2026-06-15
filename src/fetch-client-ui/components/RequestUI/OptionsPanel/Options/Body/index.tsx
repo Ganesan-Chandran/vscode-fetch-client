@@ -10,10 +10,11 @@ import { None } from "./None";
 import { Raw } from "./Raw/Raw";
 import "./style.css";
 import { UrlEncoded } from "./UrlEncoded";
+import { AppDispatch } from "../../../../../store/appStore";
 
 export const Body = () => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const { bodyType, raw } = useSelector((state: IRootState) => state.requestData.body);
 

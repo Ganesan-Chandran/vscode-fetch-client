@@ -1,23 +1,24 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { requestTypes, responseTypes } from "../../../../utils/configuration";
-import { IRootState } from "../../../reducer/combineReducer";
-import vscode from "../../Common/vscodeAPI";
-import { AuthPanel } from "../../RequestUI/OptionsPanel/Options/Auth";
+import "../style.css";
+import { Actions } from "../../RequestUI/redux";
 import { allAuthTypes, basicAuthTypes } from "../../RequestUI/OptionsPanel/Options/Auth/consts";
+import { AppDispatch } from "../../../store/appStore";
+import { AuthPanel } from "../../RequestUI/OptionsPanel/Options/Auth";
+import { ICollection } from "../../RequestUI/redux/types";
+import { InitialSettings } from "../../SideBar/redux/reducer";
+import { IResponse } from "../../ResponseUI/redux/types";
+import { IRootState } from "../../../reducer/combineReducer";
+import { ISettings, IVariable } from "../../SideBar/redux/types";
 import { ParentHeadersPanel } from "../../RequestUI/OptionsPanel/Options/Headers/parentHeaders";
 import { PreFetch } from "../../RequestUI/OptionsPanel/Options/PreFetch";
-import { Actions } from "../../RequestUI/redux";
-import { ICollection } from "../../RequestUI/redux/types";
-import { IResponse } from "../../ResponseUI/redux/types";
-import { InitialSettings } from "../../SideBar/redux/reducer";
-import { ISettings, IVariable } from "../../SideBar/redux/types";
+import { requestTypes, responseTypes } from "../../../../utils/configuration";
 import { SettingsType } from "../consts";
-import "../style.css";
+import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
+import vscode from "../../Common/vscodeAPI";
 
 const CollectionSettings = () => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const { auth, preFetch, headers } = useSelector((state: IRootState) => state.requestData);
 

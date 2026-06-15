@@ -9,6 +9,7 @@ import { Actions } from "../../../redux";
 import { IColRequest, IRequestList, IRunRequest, ITest } from "../../../redux/types";
 import { preConditionActions, preConditions } from "./consts";
 import "./style.css";
+import { AppDispatch } from "../../../../../store/appStore";
 
 export interface IPreRequestProps {
 	request: IRunRequest,
@@ -17,7 +18,7 @@ export interface IPreRequestProps {
 
 export const PreRequest = (props: IPreRequestProps) => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 	const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
 	const { collectionList, colRequestList } = useSelector((state: IRootState) => state.reqColData);
 

@@ -13,10 +13,10 @@ import { writeLog } from '../logger/logger';
 import { FetchClientVariableProxy } from '../validators/fetchClientVariableValidator';
 import { RemoveVariable } from './collectionDBUtil';
 import { VariableImportType } from './constants';
-import { variableDBPath } from './dbPaths';
+import { variableDBPath } from './helper';
 import { getExportVariableEncryptionConfiguration, getVariableEncryptionConfiguration } from "../vscodeConfig";
-import { FCCipher } from "../crypto/index";
-import { CryptoMode } from "../crypto/index";
+import { FCCipher } from "../../packages/crypto/index";
+import { GetEncryptionKeyFromSettings } from "./settingsDBUtil";
 
 function getDB(): loki {
 	const idbAdapter = new LokiFsAdapter();
@@ -88,11 +88,12 @@ export function DuplicateVariable(id: string, webview: vscode.Webview, sideBarVi
 export function UpdateVariable(item: IVariable, webview: vscode.Webview) {
 	try {
 		const db = getDB();
+		let key = GetEncryptionKeyFromSettings();
 
 		db.loadDatabase({}, function () {
 
 			if (getVariableEncryptionConfiguration()) {
-				item.data = new FCCipher(CryptoMode.Transit).EncryptBulkData(item.data);
+				item.data = new FCCipher(key).EncryptBulkData(item.data);
 			}
 
 			db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; });
@@ -110,18 +111,20 @@ export function UpdateVariable(item: IVariable, webview: vscode.Webview) {
 		});
 
 	} catch (err) {
-		writeLog("error::SaveVariable(): " + err);
+		writeLog("error::UpdateVariable(): " + err);
 	}
 }
 
 export function UpdateVariableSync(item: IVariable) {
 	try {
-		return new Promise<IVariable>(async (resolve, _reject) => {
+		return new Promise<IVariable>((resolve, _reject) => {
 			const db = getDB();
 			db.loadDatabase({}, function () {
 
+				let key = GetEncryptionKeyFromSettings();
+
 				if (getVariableEncryptionConfiguration()) {
-					item.data = new FCCipher(CryptoMode.Transit).EncryptBulkData(item.data);
+					item.data = new FCCipher(key).EncryptBulkData(item.data);
 				}
 
 				db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; });
@@ -139,19 +142,21 @@ export function UpdateVariableSync(item: IVariable) {
 	}
 }
 
-export function GetAllVariable(webview: vscode.Webview) {
+export async function GetAllVariable(webview: vscode.Webview) {
 	try {
 		const db = getDB();
 
+		let key = await GetEncryptionKeyFromSettings();
+
 		db.loadDatabase({}, function () {
 			const userVariables = db.getCollection("userVariables").data;
+			const config = getVariableEncryptionConfiguration();
 
-			if (getVariableEncryptionConfiguration()) {
+			if (config) {
 				userVariables.forEach((item: IVariable) => {
-					item.data = new FCCipher(CryptoMode.Transit).DecryptBulkData(item.data);
+					item.data = new FCCipher(key).DecryptBulkData(item.data);
 				});
 			}
-
 			webview?.postMessage({ type: responseTypes.getAllVariableResponse, variable: userVariables });
 		});
 
@@ -160,14 +165,14 @@ export function GetAllVariable(webview: vscode.Webview) {
 	}
 }
 
-export function UpdateToEncryptedVariables() {
+export function UpdateToEncryptedVariables(key: string) {
 	try {
 		const db = getDB();
 
 		db.loadDatabase({}, function () {
 			const userVariables = db.getCollection("userVariables").data as IVariable[];
 			userVariables.forEach((item: IVariable) => {
-				item.data = new FCCipher(CryptoMode.Transit).EncryptBulkData(item.data);
+				item.data = new FCCipher(key).EncryptBulkData(item.data);
 				db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; });
 			});
 			db.saveDatabase();
@@ -178,14 +183,14 @@ export function UpdateToEncryptedVariables() {
 	}
 }
 
-export function UpdateToDecryptedVariables() {
+export function UpdateToDecryptedVariables(key: string) {
 	try {
 		const db = getDB();
 
 		db.loadDatabase({}, function () {
 			const userVariables = db.getCollection("userVariables").data as IVariable[];
 			userVariables?.forEach((item: IVariable) => {
-				item.data = new FCCipher(CryptoMode.Transit).DecryptBulkData(item.data);
+				item.data = new FCCipher(key).DecryptBulkData(item.data);
 				db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; });
 			});
 			db.saveDatabase();
@@ -202,13 +207,16 @@ export function GetVariableById(id: string, isGlobal: boolean, webview: vscode.W
 
 		db.loadDatabase({}, function () {
 			let userVariables = db.getCollection("userVariables").find(isGlobal ? { 'name': 'Global' } : { 'id': id });
+			console.log("userVariables", [...userVariables]);
 
 			if (getVariableEncryptionConfiguration()) {
+				let key = GetEncryptionKeyFromSettings();
 				userVariables?.forEach((item: IVariable) => {
-					item.data = new FCCipher(CryptoMode.Transit).DecryptBulkData(item.data);
+					item.data = new FCCipher(key).DecryptBulkData(item.data);
 				});
 			}
 
+			console.log("userVariables-1", userVariables);
 			webview.postMessage({ type: responseTypes.getVariableItemResponse, data: userVariables });
 		});
 
@@ -219,13 +227,14 @@ export function GetVariableById(id: string, isGlobal: boolean, webview: vscode.W
 
 export function GetVariableByIdSync(id: string) {
 	try {
-		return new Promise<IVariable>(async (resolve, _reject) => {
+		return new Promise<IVariable>((resolve, _reject) => {
 			const db = getDB();
+			let key = GetEncryptionKeyFromSettings();
 			db.loadDatabase({}, function () {
 				let userVariables = db.getCollection("userVariables").find({ 'id': id });
 				if (getVariableEncryptionConfiguration()) {
 					userVariables?.forEach((item: IVariable) => {
-						item.data = new FCCipher(CryptoMode.Transit).DecryptBulkData(item.data);
+						item.data = new FCCipher(key).DecryptBulkData(item.data);
 					});
 				}
 				resolve(userVariables && userVariables.length > 0 ? userVariables[0] as IVariable : null);
@@ -302,7 +311,8 @@ export function BulkExportVariables(path: string, selectedVars: string[], webvie
 
 				if (vars?.length > 0) {
 
-					let exportData = FormatExportedVariables(vars);
+					let key = GetEncryptionKeyFromSettings();
+					let exportData = FormatExportedVariables(vars, key);
 
 					let fullPath = path + "\\" + "fetch-client-variable_" + exportData.name.replace(/[/\\?%*:|"<>]/g, '-') + ".json";
 
@@ -330,7 +340,8 @@ export function ExportVariable(path: string, id: string) {
 		db.loadDatabase({}, function () {
 			let vars = db.getCollection("userVariables").find({ 'id': id });
 			if (vars && vars.length > 0) {
-				let exportData = FormatExportedVariables(vars);
+				let key = GetEncryptionKeyFromSettings();
+				let exportData = FormatExportedVariables(vars, key);
 				fs.writeFile(path, JSON.stringify(exportData), (error) => {
 					if (error) {
 						vscode.window.showErrorMessage("Could not save to '" + path + "'. Error Message : " + error.message, { modal: true });
@@ -347,7 +358,7 @@ export function ExportVariable(path: string, id: string) {
 	}
 }
 
-function FormatExportedVariables(vars: any[]) {
+function FormatExportedVariables(vars: any[], exportKey: string) {
 	let exportData = {
 		app: "Fetch Client",
 		id: vars[0].id,
@@ -361,8 +372,10 @@ function FormatExportedVariables(vars: any[]) {
 		data: vars[0].data,
 	};
 
-	let fcCryptoDecrypt = new FCCipher(CryptoMode.Transit);
-	let fcCryptoEncrypt = new FCCipher(CryptoMode.Export);
+	let key = GetEncryptionKeyFromSettings();
+
+	let fcCryptoDecrypt = new FCCipher(key["encryptionKey"]);
+	let fcCryptoEncrypt = new FCCipher(exportKey);
 
 	if (getVariableEncryptionConfiguration()) {
 		exportData.data.forEach((item: ITableData) => {
@@ -416,13 +429,13 @@ function ValidateData(data: string): VariableImportType | null {
 	}
 }
 
-export function ImportVariableFromJsonFile(webviewView: vscode.WebviewView, path: string) {
+export function ImportVariableFromJsonFile(webviewView: vscode.WebviewView, path: string, decryptKey: string) {
 	try {
 		const data = fs.readFileSync(path, "utf8");
 		var type = ValidateData(data);
 		switch (type) {
 			case VariableImportType.FetchClient_Variable_1_0:
-				ImportFetchClientVariable(webviewView, data);
+				ImportFetchClientVariable(webviewView, data, decryptKey);
 				break;
 			case VariableImportType.Postman_Variable_2_1:
 				ImportPostmanVariable(webviewView, data);
@@ -439,7 +452,7 @@ export function ImportVariableFromJsonFile(webviewView: vscode.WebviewView, path
 	}
 }
 
-function ImportFetchClientVariable(webviewView: vscode.WebviewView, data: string) {
+function ImportFetchClientVariable(webviewView: vscode.WebviewView, data: string, decryptKey: string) {
 	const parsedData = JSON.parse(data);
 	let secretVariables = parsedData.secretVariables;
 	let encryptVariableConfiguration = getVariableEncryptionConfiguration();
@@ -451,11 +464,12 @@ function ImportFetchClientVariable(webviewView: vscode.WebviewView, data: string
 		data: parsedData.data
 	};
 
-	let fcCryptoDecrypt = new FCCipher(CryptoMode.Export);
-	let fcCryptoEncrypt = new FCCipher(CryptoMode.Transit);
+	let key = GetEncryptionKeyFromSettings();	
+	let fcCryptoEncrypt = new FCCipher(key);
 
 	reqData.data.forEach((item) => {
 		if (secretVariables) {
+			let fcCryptoDecrypt = new FCCipher(decryptKey);
 			item.value = fcCryptoDecrypt.DecryptData(item.value);
 		}
 		if (encryptVariableConfiguration) {
@@ -476,7 +490,9 @@ function ImportPostmanVariable(webviewView: vscode.WebviewView, data: string) {
 	}
 
 	let encryptVariableConfiguration = getVariableEncryptionConfiguration();
-	let fcCrypto = new FCCipher(CryptoMode.Transit);
+
+	let key = GetEncryptionKeyFromSettings();
+	let fcCrypto = new FCCipher(key);
 
 	for (let i = 0; i < parsedData.values?.length; i++) {
 		if (parsedData.values[i].key) {
@@ -505,7 +521,9 @@ function ImportThunderClientVariable(webviewView: vscode.WebviewView, data: stri
 	let varData: ITableData[] = [];
 
 	let encryptVariableConfiguration = getVariableEncryptionConfiguration();
-	let fcCrypto = new FCCipher(CryptoMode.Transit);
+
+	let key = GetEncryptionKeyFromSettings();
+	let fcCrypto = new FCCipher(key);
 
 	for (let i = 0; i < parsedData.variables?.length; i++) {
 		if (parsedData.variables[i].name) {
@@ -542,7 +560,9 @@ export function ImportVariableFromEnvFile(webviewView: vscode.WebviewView, path:
 		};
 
 		let encryptVariableConfiguration = getVariableEncryptionConfiguration();
-		let fcCrypto = new FCCipher(CryptoMode.Transit);
+
+		let key = GetEncryptionKeyFromSettings();
+		let fcCrypto = new FCCipher(key);
 
 		for (let l in data) {
 			let line = data[l].trim();

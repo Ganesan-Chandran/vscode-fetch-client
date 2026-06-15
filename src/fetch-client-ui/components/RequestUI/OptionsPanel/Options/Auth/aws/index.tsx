@@ -6,6 +6,7 @@ import { IVariable } from "../../../../../SideBar/redux/types";
 import { Actions } from "../../../../redux";
 import { IAuth } from "../../../../redux/types";
 import "./style.css";
+import { AppDispatch } from "../../../../../../store/appStore";
 
 export interface IAwsAuthProps {
 	settingAuth?: IAuth;
@@ -15,7 +16,7 @@ export interface IAwsAuthProps {
 
 export const AwsAuth = (props: IAwsAuthProps) => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const { auth } = useSelector((state: IRootState) => state.requestData);
 
