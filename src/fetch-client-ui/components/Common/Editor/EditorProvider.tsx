@@ -1,9 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import AceEditor from "react-ace";
 import { EditorProps } from ".";
-import "./style.css";
+import * as prettier from "prettier/standalone";
+import prettierBabel from "prettier/plugins/babel";
+import prettierEstree from "prettier/plugins/estree";
+import prettierTypescript from "prettier/plugins/typescript";
+import prettierHtml from "prettier/plugins/html";
 
-// --- Ace modes (only the ones you use) ---
 import "ace-builds/src-noconflict/mode-c_cpp";
 import "ace-builds/src-noconflict/mode-csharp";
 import "ace-builds/src-noconflict/mode-dart";
@@ -21,27 +24,18 @@ import "ace-builds/src-noconflict/mode-python";
 import "ace-builds/src-noconflict/mode-sh";
 import "ace-builds/src-noconflict/mode-swift";
 import "ace-builds/src-noconflict/mode-graphqlschema";
-import "ace-builds/src-noconflict/mode-rdoc"; // closest built-in to restructuredtext
+import "ace-builds/src-noconflict/mode-rdoc";
 import "ace-builds/src-noconflict/mode-text";
 
-// --- Ace themes ---
 import "ace-builds/src-noconflict/theme-github";
 import "ace-builds/src-noconflict/theme-tomorrow_night";
-import "ace-builds/src-noconflict/theme-github_dark"; // used as hc-black substitute
+import "ace-builds/src-noconflict/theme-github_dark";
 
-// --- Extensions (no workers needed) ---
 import "ace-builds/src-noconflict/ext-searchbox";
 import "ace-builds/src-noconflict/ext-language_tools";
 
-// --- Prettier (for format support) ---
-import * as prettier from "prettier/standalone";
-import prettierBabel from "prettier/plugins/babel";
-import prettierEstree from "prettier/plugins/estree";
-import prettierTypescript from "prettier/plugins/typescript";
-import prettierHtml from "prettier/plugins/html";
-// import prettierPostcss from "prettier/plugins/postcss";
+import "./style.css";
 
-// Map your language identifiers -> Ace mode names
 const languageToAceMode: Record<string, string> = {
 	cpp: "c_cpp",
 	csharp: "csharp",
@@ -63,16 +57,12 @@ const languageToAceMode: Record<string, string> = {
 	restructuredtext: "rdoc",
 };
 
-// Map your theme codes -> Ace theme names
 function themeFromCode(theme?: number): string {
 	if (theme === 2) { return "tomorrow_night"; } // vs-dark
 	if (theme === 3) { return "github_dark"; }    // hc-black
 	return "github";                          // vs (light)
 }
 
-// Format content for languages we can actually format client-side.
-// Languages with no client-side formatter (csharp, kotlin, go, etc.)
-// are returned unchanged - same behavior as before.
 async function formatValue(value: string, language: string): Promise<string> {
 	try {
 		switch (language) {
@@ -96,19 +86,16 @@ async function formatValue(value: string, language: string): Promise<string> {
 					plugins: [prettierHtml],
 				});
 			case "xml": {
-				// Simple XML pretty-printer (prettier has no built-in xml plugin)
 				return formatXml(value);
 			}
 			default:
 				return value;
 		}
 	} catch {
-		// If parsing/formatting fails (invalid JSON/JS etc.), return original value
 		return value;
 	}
 }
 
-// Minimal XML formatter (indentation based)
 function formatXml(xml: string): string {
 	const PADDING = "  ";
 	const reg = /(>)(<)(\/*)/g;
@@ -142,7 +129,6 @@ const EditorProvider = (props: EditorProps) => {
 		});
 	}
 
-	// Apply formatting whenever value/language/format flag changes
 	useEffect(() => {
 		let cancelled = false;
 
@@ -186,13 +172,13 @@ const EditorProvider = (props: EditorProps) => {
 				value={value}
 				onChange={handleChange}
 				readOnly={props.readOnly}
-				wrapEnabled={!!props.wordWrap}
+				wrapEnabled={!props.wordWrap}
 				width="100%"
 				height="100%"
 				fontSize={14}
 				showPrintMargin={false}
 				setOptions={{
-					useWorker: false, // avoids any webview worker/CSP issues
+					useWorker: false,
 					showLineNumbers: true,
 					tabSize: 2,
 					highlightActiveLine: false,

@@ -26,6 +26,8 @@ export interface ICollectionProps {
 	sort: number;
 }
 
+type SortOrder = "asc" | "dsc";
+
 export const CollectionBar = (props: ICollectionProps) => {
 
 	const { collections, variable } = useSelector((state: IRootState) => state.sideBarData);
@@ -407,6 +409,88 @@ export const CollectionBar = (props: ICollectionProps) => {
 		e.preventDefault();
 		e.stopPropagation();
 		openContextMenu(id, isSub);
+	}	
+
+	const sortItems = (
+		items: (IHistory | IFolder)[],
+		order: SortOrder
+	): (IHistory | IFolder)[] => {
+		const folders = items.filter(isFolder);
+		const requests = items.filter((item) => !isFolder(item));
+
+		const compare = (a: IHistory | IFolder, b: IHistory | IFolder) => {
+			const result = a.name.localeCompare(b.name, undefined, {
+				numeric: true,
+				sensitivity: "base",
+			});
+			return order === "asc" ? result : -result;
+		};
+
+		folders.sort(compare);
+		requests.sort(compare);
+
+		// recursively sort nested folder contents too
+		const sortedFolders: IFolder[] = folders.map((folder: IFolder) => ({
+			...folder,
+			data: folder.data ? sortItems(folder.data, order) : folder.data,
+		}));
+
+		return [...sortedFolders, ...requests];
+	};
+
+	function onFolderSort(e: any, collectionId: string, folderId?: string) {
+		e.preventDefault();
+		e.stopPropagation();
+		setColState(
+			colState.map((col) => {
+				if (col.id !== collectionId) { return col; }
+
+				if (!folderId) {
+					const prevOrder = col.settings?.sortOrder ?? "dsc";
+					const newOrder: SortOrder = prevOrder === "asc" ? "dsc" : "asc";
+
+					return {
+						...col,
+						data: col.data ? sortItems(col.data, newOrder) : col.data,
+						settings: { ...col.settings, sortOrder: newOrder },
+					};
+				}
+
+				const updateFolder = (
+					items: (IHistory | IFolder)[]
+				): (IHistory | IFolder)[] =>
+					items.map((item) => {
+						if (!isFolder(item)) { return item; }
+
+						const folderItem = item as IFolder;
+
+						if (folderItem.id === folderId) {
+							const prevOrder = folderItem.settings?.sortOrder ?? "asc";
+							const newOrder: SortOrder = prevOrder === "asc" ? "dsc" : "asc";
+
+							return {
+								...folderItem,
+								data: folderItem.data
+									? sortItems(folderItem.data, newOrder)
+									: folderItem.data,
+								settings: { ...folderItem.settings, sortOrder: newOrder },
+							};
+						}
+
+						return {
+							...folderItem,
+							data: folderItem.data
+								? updateFolder(folderItem.data)
+								: folderItem.data,
+						};
+					});
+
+				return {
+					...col,
+					data: col.data ? updateFolder(col.data) : col.data,
+				};
+			})
+		);
 	}
 
 	function getPaddingLeft(level: number) {
@@ -476,6 +560,8 @@ export const CollectionBar = (props: ICollectionProps) => {
 							<button onClick={(e) => onClear(e, cols.id, item.id, item.name)}>Clear Items</button>
 							{isCopied && <button onClick={(e) => onPaste(e, cols.id, item, true)}>Paste</button>}
 							<button onClick={(e) => onDuplicate(e, cols.id, item.id, "", true)}>Duplicate</button>
+							<div className="divider"></div>
+							<button onClick={(e) => onFolderSort(e, cols.id, item.id)}>Sort {item.settings?.sortOrder === "asc" ? "(Z-A)" : "(A-Z)"}</button>
 							<div className="divider"></div>
 							<button onClick={(e) => onExport(e, cols.id, "", item.id, item.name)}>Export</button>
 							<button onClick={(e) => onSettings(e, cols.id, item.id, SettingsType.Folder, item.name, cols.variableId)}>Settings</button>
@@ -557,6 +643,8 @@ export const CollectionBar = (props: ICollectionProps) => {
 							{isCopied && <button onClick={(e) => onPaste(e, item.id, null, false)}>Paste</button>}
 							<button onClick={(e) => onDuplicate(e, item.id, "", "", false)}>Duplicate</button>
 							<button onClick={(e) => onAttach(e, item)}>{item.variableId ? "Remove Variable" : "Attach Variable"}</button>
+							<div className="divider"></div>
+							<button onClick={(e) => onFolderSort(e, item.id)}>Sort {item.settings?.sortOrder === "asc" ? "(Z-A)" : "(A-Z)"}</button>
 							<div className="divider"></div>
 							<button onClick={(e) => onExport(e, item.id, "", "", item.name)}>Export</button>
 							<button onClick={(e) => onSettings(e, item.id, "", SettingsType.Collection, item.name, item.variableId)}>Settings</button>

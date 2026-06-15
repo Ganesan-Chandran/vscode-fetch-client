@@ -31,8 +31,6 @@ export const RequestPanel = () => {
 	const { parentSettings, colId } = useSelector((state: IRootState) => state.reqColData);
 	const reqSettings = useSelector((state: IRootState) => state.reqSettings);
 
-	console.log("selectedVariable", selectedVariable);
-
 	const selectRequestMethod = (evt: React.ChangeEvent<HTMLSelectElement>): void => {
 		dispatch(Actions.SetRequestMethodAction(evt.target.value as MethodType));
 	};

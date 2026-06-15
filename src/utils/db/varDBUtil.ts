@@ -207,7 +207,6 @@ export function GetVariableById(id: string, isGlobal: boolean, webview: vscode.W
 
 		db.loadDatabase({}, function () {
 			let userVariables = db.getCollection("userVariables").find(isGlobal ? { 'name': 'Global' } : { 'id': id });
-			console.log("userVariables", [...userVariables]);
 
 			if (getVariableEncryptionConfiguration()) {
 				let key = GetEncryptionKeyFromSettings();
@@ -216,7 +215,6 @@ export function GetVariableById(id: string, isGlobal: boolean, webview: vscode.W
 				});
 			}
 
-			console.log("userVariables-1", userVariables);
 			webview.postMessage({ type: responseTypes.getVariableItemResponse, data: userVariables });
 		});
 

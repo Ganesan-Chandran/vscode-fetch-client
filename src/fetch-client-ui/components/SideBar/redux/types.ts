@@ -13,6 +13,7 @@ export interface ISettings {
 	auth: IAuth;
 	preFetch?: IPreFetch;
 	headers?: ITableData[];
+	sortOrder?: 'none' | 'asc' | 'dsc';
 }
 
 export interface ICollections {
@@ -30,7 +31,7 @@ export interface IFolder {
 	createdTime: string;
 	type: "folder";
 	data?: (IHistory | IFolder)[];
-	settings: ISettings;
+	settings: ISettings;	
 }
 
 export interface IVariable {

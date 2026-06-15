@@ -65,6 +65,10 @@ export class PreFetchRunner {
 			return;
 		}
 
+		if (this.executingRequests.includes(firstReqId) && isCollectionPreRequest) {
+			return;
+		}
+
 		if (this.executingRequests.includes(firstReqId)) {
 			this._allow = false;
 			this._message = `Circular Dependency in Request ${parentName}`;
@@ -155,7 +159,6 @@ export class PreFetchRunner {
 			try {
 				res = await apiFetch(request, variable?.data, parentSettings, null, this.fetchConfig);
 			} catch (err) {
-				writeLog(`error::PreFetchRunner::RunPreRequests::apiFetch: ${err}`);
 				this._allow = false;
 				this._message = `Pre-Request '${request.name}' failed in the Request '${parentName}'`;
 				return;
