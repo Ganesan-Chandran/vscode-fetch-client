@@ -160,7 +160,7 @@
 }
 
 .hamburger-menu path {
-	fill: var(--text-color);
+	fill: var(--text-color) !important;
 }
 
 .dropdown {

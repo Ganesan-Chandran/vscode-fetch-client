@@ -143,7 +143,7 @@ function fetchClientUIConfig(webpackEnv) {
 			// conditionNames: ['import', 'module', 'browser', 'default'],
 			// mainFields: ['module', 'main'],
 			alias: {
-				crypto: require.resolve("crypto-browserify"),
+				// crypto: require.resolve("crypto-browserify"),
 				'isomorphic-fetch': require.resolve('./empty-module.js'),
 				// inherits: require.resolve('inherits/inherits_browser.js'),
 			},
@@ -162,6 +162,7 @@ function fetchClientUIConfig(webpackEnv) {
 				http: false,
 				https: false,
 				zlib: false,
+				crypto: false,
 				assert: require.resolve("assert"),
 			}
 		},

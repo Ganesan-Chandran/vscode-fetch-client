@@ -83,7 +83,7 @@
 }
 
 .content-type-info path {
-	fill: gray;
+	fill: gray !important;
 }
 
 .file-not-available {

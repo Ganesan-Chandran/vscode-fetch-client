@@ -114,7 +114,7 @@ const MainUI = () => {
 	// Auto-hide the save notification; always return cleanup so noImplicitReturns is satisfied
 	useEffect(() => {
 		const timer = saveVisible ? setTimeout(() => setSaveVisible(false), 2000) : undefined;
-		return () => { if (timer !== undefined) clearTimeout(timer); };
+		return () => { if (timer !== undefined) { clearTimeout(timer); } };
 	}, [saveVisible]);
 
 	// One-time initialization: dispatch initial messages and register Ctrl+S handler
@@ -146,9 +146,9 @@ const MainUI = () => {
 		vscode.postMessage({ type: requestTypes.getAllCookiesRequest });
 
 		const handleKeyDown = (e: KeyboardEvent) => {
-			if (!(e.ctrlKey && (e.key === "S" || e.key === "s"))) return;
+			if (!(e.ctrlKey && (e.key === "S" || e.key === "s"))) { return; }
 			e.preventDefault();
-			if (!requestDataRef.current.url) return;
+			if (!requestDataRef.current.url) { return; }
 
 			let reqData = { ...requestDataRef.current };
 			let isNew = false;
@@ -172,7 +172,7 @@ const MainUI = () => {
 
 	// Sync variable selection when the variables list or active varId changes
 	useEffect(() => {
-		if (!variables?.length) return;
+		if (!variables?.length) { return; }
 		if (varId) {
 			updateVariableData(varId);
 		} else {
