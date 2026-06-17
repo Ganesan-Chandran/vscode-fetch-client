@@ -31,7 +31,7 @@ const AddToCollection = () => {
 
 
 	useEffect(() => {
-		window.addEventListener("message", (event) => {
+		const handleMessage = (event: MessageEvent) => {
 			if (event.data && event.data.type === responseTypes.getAllCollectionNameResponse) {
 				let colNames = [{ name: "Select", value: "", disabled: true }];
 				colNames = [...colNames, ...event.data.collectionNames];
@@ -44,11 +44,13 @@ const AddToCollection = () => {
 			} else if (event.data && event.data.type === responseTypes.addToCollectionsResponse) {
 				setDone(true);
 			}
-		});
-
+		};
+		window.addEventListener("message", handleMessage);
 		vscode.postMessage({ type: requestTypes.getAllCollectionNameRequest, data: "addtocol" });
 		let id = document.title.split("@:@")[1];
 		vscode.postMessage({ type: requestTypes.getHistoryItemRequest, data: id });
+
+		return () => window.removeEventListener("message", handleMessage);
 	}, []);
 
 	const onSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -129,7 +131,7 @@ const AddToCollection = () => {
 				settings: InitialSettings
 			};
 
-			vscode.postMessage({ type: requestTypes.addToCollectionsRequest, data: { col: collection, hasFolder: folder ? true : false, isNewFolder : selectedFolder === "0" ? true : false} });
+			vscode.postMessage({ type: requestTypes.addToCollectionsRequest, data: { col: collection, hasFolder: folder ? true : false, isNewFolder: selectedFolder === "0" ? true : false } });
 		}
 	}
 

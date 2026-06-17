@@ -100,7 +100,7 @@ const RunAll = () => {
 		setFolderId(folderId?.trim());
 		setColId(colId?.trim());
 
-		window.addEventListener("message", (event) => {
+		const handleMessage = (event: MessageEvent) => {
 			if (event.data && event.data.type === responseTypes.getCollectionsByIdResponse) {
 				setReq((event.data.collections as IRequestModel[]));
 				setItemPaths(event.data.paths);
@@ -128,11 +128,13 @@ const RunAll = () => {
 				setParentSettings(event.data.settings as ISettings);
 				setLoading(false);
 			}
-		});
-
+		};
+		window.addEventListener("message", handleMessage);
 		vscode.postMessage({ type: requestTypes.getVariableItemRequest, data: { id: varId, isGlobal: varId ? false : true } });
 		vscode.postMessage({ type: requestTypes.getCollectionsByIdRequest, data: { colId: colId, folderId: folderId, type: name.trim().includes("\\") ? "fol" : "col" } });
 		setLoading(true);
+
+		return () => window.removeEventListener("message", handleMessage);
 	}, []);
 
 	function setResponse(data: any) {

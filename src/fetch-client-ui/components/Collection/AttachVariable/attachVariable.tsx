@@ -20,7 +20,7 @@ const AttachVariable = () => {
 		const name = document.title.split("@:@")[3];
 		setColName(name);
 
-		window.addEventListener("message", (event) => {
+		const handleMessage = (event: MessageEvent) => {
 			if (event.data && event.data.type === responseTypes.getAllVariableResponse) {
 				let vars = event.data.variable as IVariable[];
 				let varNames = [{ name: "Select", value: "", disabled: true }];
@@ -37,9 +37,11 @@ const AttachVariable = () => {
 			} else if (event.data && event.data.type === responseTypes.attachVariableResponse) {
 				setDone(true);
 			}
-		});
+		};
+		window.addEventListener("message", handleMessage);
 
 		vscode.postMessage({ type: requestTypes.getAllVariableRequest });
+		return () => window.removeEventListener("message", handleMessage);
 	}, []);
 
 	const onSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {

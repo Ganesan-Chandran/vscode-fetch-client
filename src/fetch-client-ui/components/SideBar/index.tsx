@@ -113,7 +113,7 @@ const SideBar = () => {
 	}
 
 	useEffect(() => {
-		window.addEventListener("message", (event) => {
+		const handleMessage = (event: MessageEvent) => {
 			if (event.data && event.data.type === responseTypes.getAllHistoryResponse) {
 				dispatch(SideBarActions.SetHistoryAction(event.data.history as IHistory[]));
 				setHisLoading(false);
@@ -194,8 +194,8 @@ const SideBar = () => {
 					dispatch(SideBarActions.SetUpdateHistoryItemAction(event.data.item));
 				}
 			}
-		});
-
+		};
+		window.addEventListener("message", handleMessage);
 		vscode.postMessage({ type: requestTypes.themeRequest });
 		vscode.postMessage({ type: requestTypes.getAllHistoryRequest });
 
@@ -213,6 +213,7 @@ const SideBar = () => {
 
 		return () => {
 			document.removeEventListener("mousedown", handleClickOutside, false);
+			window.removeEventListener("message", handleMessage);
 		};
 	}, []);
 

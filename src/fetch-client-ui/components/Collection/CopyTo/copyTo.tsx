@@ -23,7 +23,7 @@ const CopyTo = () => {
 		const name = document.title.split("@:@")[3];
 		setSourceColName(name);
 
-		window.addEventListener("message", (event) => {
+		const handleMessage = (event: MessageEvent) => {
 			if (event.data && event.data.type === responseTypes.getAllCollectionNamesResponse) {
 				let findIndex: number = -1;
 				let names = event.data.collectionNames;
@@ -39,9 +39,11 @@ const CopyTo = () => {
 			} else if (event.data && event.data.type === responseTypes.copyToCollectionsResponse) {
 				setDone(true);
 			}
-		});
-
+		};
+		window.addEventListener("message", handleMessage);
 		vscode.postMessage({ type: requestTypes.getAllCollectionNameRequest, data: "copytocol" });
+
+		return () => window.removeEventListener("message", handleMessage);
 	}, []);
 
 	const onSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {

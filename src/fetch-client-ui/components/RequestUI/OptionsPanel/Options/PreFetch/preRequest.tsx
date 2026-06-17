@@ -25,7 +25,7 @@ export const PreRequest = (props: IPreRequestProps) => {
 	const [selectedRequestList, setSelectedRequestList] = useState<IRequestList[]>([]);
 
 	useEffect(() => {
-		window.addEventListener("message", (event) => {
+		const handleMessage = (event: MessageEvent) => {
 			if (event.data && event.data.type === responseTypes.getCollectionsByIdWithPathResponse && props.request.colId === event.data.colId) {
 				let reqList: IRequestList[] = [];
 				for (const [key, value] of Object.entries(event.data.paths)) {
@@ -46,11 +46,13 @@ export const PreRequest = (props: IPreRequestProps) => {
 				let parentId = col.reqs.length > 0 ? col.reqs.find(i => i.id === reqId)?.name.split(";")[1] : "";
 				dispatch(Actions.SetSelectedReqAction(reqId, props.reqIndex, parentId));
 			}
-		});
-
+		};
+		window.addEventListener("message", handleMessage);
 		if (props.request.colId && colRequestList?.findIndex(i => i.id === props.request.colId) === -1) {
 			vscode.postMessage({ type: requestTypes.getCollectionsByIdWithPathRequest, data: props.request.colId });
 		}
+
+		return () => window.removeEventListener("message", handleMessage);
 	}, []);
 
 	useEffect(() => {

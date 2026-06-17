@@ -24,7 +24,7 @@ export const Binary = () => {
 		};
 
 	useEffect(() => {
-		window.addEventListener("message", (event) => {
+		const handleMessage = (event: MessageEvent) => {
 			if (event.data && event.data.type === responseTypes.selectFileResponse) {
 				const fileName = event.data.path;
 				const fileType = getFileType(fileName);
@@ -39,7 +39,10 @@ export const Binary = () => {
 					}
 				}));
 			}
-		});
+		};
+		window.addEventListener("message", handleMessage);
+
+		return () => window.removeEventListener("message", handleMessage);
 	}, []);
 
 	function getFileType(fileName: string): string {

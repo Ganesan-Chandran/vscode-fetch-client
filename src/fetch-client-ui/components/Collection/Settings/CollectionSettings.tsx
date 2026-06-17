@@ -33,7 +33,7 @@ const CollectionSettings = () => {
 	const [variableItem, setVariableItem] = useState<IVariable>(null);
 
 	useEffect(() => {
-		window.addEventListener("message", (event) => {
+		const handleMessage = (event: MessageEvent) => {
 			if (event.data && event.data.type === responseTypes.getColSettingsResponse) {
 				let settings: ISettings;
 				if (event.data && event.data.data.settings) {
@@ -69,7 +69,8 @@ const CollectionSettings = () => {
 				col.unshift({ id: "", name: "select" });
 				dispatch(Actions.SetCollectionListAction(col));
 			}
-		});
+		};
+		window.addEventListener("message", handleMessage);
 
 		let splitData = document.title.split("@:@");
 		const type = splitData[1];
@@ -85,6 +86,8 @@ const CollectionSettings = () => {
 		vscode.postMessage({ type: requestTypes.getVariableItemRequest, data: { id: varId, isGlobal: (varId !== "undefined" && varId !== undefined && varId !== "") ? false : true } });
 		vscode.postMessage({ type: requestTypes.getColSettingsRequest, data: { colId: colId, folderId: folderId } });
 		vscode.postMessage({ type: requestTypes.getAllCollectionNameRequest, data: "addtocol" });
+
+		return () => window.removeEventListener("message", handleMessage);
 	}, []);
 
 	useEffect(() => {

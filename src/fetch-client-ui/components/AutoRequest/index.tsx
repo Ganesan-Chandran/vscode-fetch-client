@@ -29,7 +29,7 @@ const AutoRequest = () => {
 
 
 	useEffect(() => {
-		window.addEventListener("message", (event) => {
+		const handleMessage = (event: MessageEvent) => {
 			if (event.data && event.data.type === responseTypes.getAllCollectionNamesResponse) {
 				let col: ICollection[] = event.data.collectionNames?.map((item: { value: any; name: any; }) => {
 					return {
@@ -79,9 +79,12 @@ const AutoRequest = () => {
 					setSelectedRequestList(event.data.autoRequests);
 				}
 			}
-		});
+		};
+		window.addEventListener("message", handleMessage);
 		vscode.postMessage({ type: requestTypes.getAllCollectionNameRequest, data: "autorequest" });
 		vscode.postMessage({ type: requestTypes.getAllAutoRequest });
+
+		return () => window.removeEventListener("message", handleMessage);
 	}, []);
 
 	function onDeleteReqClick(index: number) {

@@ -66,13 +66,14 @@ export const CollectionBar = (props: ICollectionProps) => {
 	useEffect(() => {
 		document.addEventListener("mousedown", handleClickOutside, false);
 
-		window.addEventListener("message", (event) => {
+		const handleMessage = (event: MessageEvent) => {
 			if (event.data && event.data.type === responseTypes.copyItemResponse) {
 				setCopy(true);
 			} else if (event.data && event.data.type === responseTypes.pasteItemResponse) {
 				setCopy(false);
 			}
-		});
+		};
+		window.addEventListener("message", handleMessage);
 
 		document.addEventListener("keydown", function (e) {
 			e.stopPropagation();
@@ -84,6 +85,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 
 		return () => {
 			document.removeEventListener("mousedown", handleClickOutside, false);
+			window.removeEventListener("message", handleMessage);
 		};
 	}, []);
 

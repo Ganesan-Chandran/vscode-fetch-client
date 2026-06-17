@@ -16,7 +16,7 @@ const BulkExport = () => {
 	const [type, setType] = useState("col");
 
 	useEffect(() => {
-		window.addEventListener("message", (event) => {
+		const handleMessage = (event: MessageEvent) => {
 			if (event.data && event.data.type === responseTypes.getAllCollectionNamesResponse) {
 				setCollectionNames(event.data.collectionNames);
 				setLoading(false);
@@ -36,7 +36,8 @@ const BulkExport = () => {
 				setShowModal(false);
 				setDone(true);
 			}
-		});
+		};
+		window.addEventListener("message", handleMessage);
 
 		let type = document.title.split("@:@")[1];
 		setType(type);
@@ -46,6 +47,8 @@ const BulkExport = () => {
 		} else {
 			vscode.postMessage({ type: requestTypes.getAllVariableRequest });
 		}
+
+		return () => window.removeEventListener("message", handleMessage);
 	}, []);
 
 	const handleCheckboxChange = (event) => {

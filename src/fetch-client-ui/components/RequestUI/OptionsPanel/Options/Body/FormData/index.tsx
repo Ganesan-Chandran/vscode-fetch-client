@@ -16,11 +16,14 @@ export const FormDataBody = () => {
 	const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
 
 	useEffect(() => {
-		window.addEventListener("message", (event) => {
+		const handleMessage = (event: MessageEvent) => {
 			if (event.data && event.data.type === responseTypes.formDataFileResponse) {
 				dispatch(Actions.SetRequestFormDataAction(event.data.path, event.data.index));
 			}
-		});
+		};
+		window.addEventListener("message", handleMessage);
+
+		return () => window.removeEventListener("message", handleMessage);
 	}, []);
 
 	const onSelectChange = (index: number) => {

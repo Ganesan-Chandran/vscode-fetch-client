@@ -129,7 +129,7 @@ export const OAuth = (props: IOAuthProps) => {
 	}
 
 	useEffect(() => {
-		window.addEventListener("message", (event) => {
+		const handleMessage = (event: MessageEvent) => {
 			if (event.data && event.data.type === responseTypes.tokenResponse) {
 				let tokenResponse: IResponse = event.data.response as IResponse;
 				if (!tokenResponse.isError && tokenResponse.status === 200) {
@@ -138,7 +138,10 @@ export const OAuth = (props: IOAuthProps) => {
 					dispatch(Actions.SetOAuthTokenAction(responseData[tokenName] ? responseData[tokenName] : ""));
 				}
 			}
-		});
+		};
+		window.addEventListener("message", handleMessage);
+
+		return () => window.removeEventListener("message", handleMessage);
 	}, []);
 
 	return (

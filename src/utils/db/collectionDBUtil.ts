@@ -506,12 +506,10 @@ export function GetAllCollectionName(webview: vscode.Webview, from: string) {
 export function GetAllCollections(webview: vscode.Webview) {
 	try {
 		const db = getDB();
-
 		db.loadDatabase({}, function () {
 			const userCollections = db.getCollection('userCollections').data;
 			webview.postMessage({ type: responseTypes.getAllCollectionsResponse, collections: userCollections });
 		});
-
 	} catch (err) {
 		writeLog("error::GetAllCollections(): " + err);
 	}
