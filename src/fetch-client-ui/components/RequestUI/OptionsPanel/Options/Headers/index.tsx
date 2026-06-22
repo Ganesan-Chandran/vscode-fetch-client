@@ -1,11 +1,11 @@
-import React from 'react';
-import { useDispatch, useSelector } from "react-redux";
-import { IRootState } from "../../../../../reducer/combineReducer";
-import { Table } from "../../../../Common/Table/Table";
-import { ITableData } from "../../../../Common/Table/types";
-import { IVariable } from '../../../../SideBar/redux/types';
 import { Actions } from "../../../redux";
 import { AppDispatch } from '../../../../../store/appStore';
+import { IRootState } from "../../../../../reducer/combineReducer";
+import { ITableData } from '../../../../../../fetch-client-core/types/common.types';
+import { IVariable } from "../../../../../../fetch-client-core/types/sidebar.types";
+import { Table } from "../../../../Common/Table/Table";
+import { useDispatch, useSelector } from "react-redux";
+import React from 'react';
 
 export interface IHeadersPanelProps {
 	selectedVariable: IVariable;

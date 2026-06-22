@@ -30,3 +30,5 @@ export const RequestHeadersPanel = () => {
 		</div>
 	);
 };
+
+export default RequestHeadersPanel;

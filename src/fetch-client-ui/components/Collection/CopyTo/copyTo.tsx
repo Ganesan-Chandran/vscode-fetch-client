@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
-import { requestTypes, responseTypes } from "../../../../utils/configuration";
+import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
 import vscode from "../../Common/vscodeAPI";
 import "../style.css";
 

@@ -1,16 +1,17 @@
-import { MutableRefObject, useEffect, useRef } from "react";
-import { pubSubTypes, requestTypes, responseTypes } from "../../../../utils/configuration";
-import vscode from "../../Common/vscodeAPI";
-import { CookiesActions } from "../../Cookies/redux";
-import { ICookie } from "../../Cookies/redux/types";
 import { Actions } from "../../RequestUI/redux";
-import { ICollection, IReqSettings, IRequestModel } from "../../RequestUI/redux/types";
-import { SendRequest } from "../../RequestUI/RequestPanel/common";
-import { ResponseActions } from "../../ResponseUI/redux";
-import { ISettings, IVariable } from "../../SideBar/redux/types";
-import { VariableActions } from "../../Variables/redux";
-import { UIActions } from "../redux";
 import { AppDispatch } from "../../../store/appStore";
+import { CookiesActions } from "../../Cookies/redux";
+import { ICookie } from "../../../../fetch-client-core/types/cookie.types";
+import { IReqSettings, ICollection } from "../../../../fetch-client-core/types/prefetch.types";
+import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
+import { IVariable, ISettings } from "../../../../fetch-client-core/types/sidebar.types";
+import { MutableRefObject, useEffect, useRef } from "react";
+import { pubSubTypes, requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
+import { ResponseActions } from "../../ResponseUI/redux";
+import { SendRequest } from "../../RequestUI/RequestPanel/common";
+import { UIActions } from "../redux";
+import { VariableActions } from "../../Variables/redux";
+import vscode from "../../Common/vscodeAPI";
 
 export interface IWindowMessageRefs {
 	requestData: MutableRefObject<IRequestModel>;
@@ -29,25 +30,19 @@ export interface IWindowMessageCallbacks {
 	onClearVarId: () => void;
 }
 
-/**
- * Registers a window message handler for all VS Code webview message types.
- * Uses a stable ref pattern so the listener is registered once and always
- * reads the latest values through MutableRefObjects.
- */
 export function useWindowMessages(
 	dispatch: AppDispatch,
 	colId: string,
 	refs: IWindowMessageRefs,
 	callbacks: IWindowMessageCallbacks
 ): void {
-	// Always keep a current reference to callbacks to avoid stale closures
 	const callbacksRef = useRef(callbacks);
 	callbacksRef.current = callbacks;
 
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
 			const { data } = event;
-			if (!data?.type) return;
+			if (!data?.type) { return; }
 
 			const cb = callbacksRef.current;
 
@@ -99,7 +94,6 @@ export function useWindowMessages(
 
 				case responseTypes.getAllVariableResponse: {
 					dispatch(VariableActions.SetReqAllVariableAction(data.variable as IVariable[]));
-					cb.setLoadingApp(false);
 					break;
 				}
 
@@ -177,6 +171,5 @@ export function useWindowMessages(
 
 		window.addEventListener("message", handleMessage);
 		return () => window.removeEventListener("message", handleMessage);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 }

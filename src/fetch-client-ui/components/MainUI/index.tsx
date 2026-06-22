@@ -2,21 +2,19 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useDispatch, useSelector } from 'react-redux';
 import Split from 'react-split';
 import { v4 as uuidv4 } from 'uuid';
-import { requestTypes } from "../../../utils/configuration";
+import { requestTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
 import { formatDate } from "../../../utils/helper";
 import { IRootState } from '../../reducer/combineReducer';
 import vscode from "../Common/vscodeAPI";
 import { OptionsPanel } from "../RequestUI/OptionsPanel";
 import { Actions } from "../RequestUI/redux";
 import { RequestPanel } from "../RequestUI/RequestPanel";
-import { ReponsePanel } from "../ResponseUI/ResponsePanel";
 import { VariableActions } from "../Variables/redux";
 import { UIActions } from './redux';
 import { useWindowMessages } from "./hooks/useWindowMessages";
 import "./style.css";
 import { AppDispatch } from "../../store/appStore";
 
-/** Parse the webview document title once. Format: "reqId@:@colId@:@varId@:@isRunItem@:@folderId" */
 function parseDocumentTitle() {
 	const parts = document.title.split("@:@");
 	return {
@@ -31,6 +29,8 @@ function parseDocumentTitle() {
 const MainUI = () => {
 
 	const dispatch = useDispatch<AppDispatch>();
+
+	const ReponsePanel = React.lazy(() => import('../ResponseUI/ResponsePanel'));
 
 	const { open } = useSelector((state: IRootState) => state.uiData);
 	const { loading, response } = useSelector((state: IRootState) => state.responseData);
@@ -65,12 +65,10 @@ const MainUI = () => {
 	const [saveVisible, setSaveVisible] = useState(false);
 	const [loadingApp, setLoadingApp] = useState(true);
 
-	// Stable callbacks passed to the message handler hook
 	const onSaved = useCallback(() => setSaveVisible(true), []);
 	const onSetVarId = useCallback((id: string) => setVarId(id), []);
 	const onClearVarId = useCallback(() => setVarId(""), []);
 
-	// Register window message handler with proper cleanup on unmount
 	useWindowMessages(
 		dispatch,
 		colId,
@@ -91,33 +89,28 @@ const MainUI = () => {
 		}
 	);
 
-	// Auto-open response panel when a request starts loading
 	useEffect(() => {
 		if (loading && resClass === "zero-height") {
 			setOpenPanel(1);
 		}
 	}, [loading]);
 
-	// Auto-open response panel when a response arrives
 	useEffect(() => {
 		if ((response.status !== 0 || response.isError) && resClass === "zero-height") {
 			setOpenPanel(1);
 		}
 	}, [response]);
 
-	// Sync border classes with panel heights
 	useEffect(() => {
 		setReqBorderClass(reqClass === "zero-height" ? "no-border" : "");
 		setResBorderClass(resClass === "zero-height" ? "no-border" : "");
 	}, [reqClass, resClass]);
 
-	// Auto-hide the save notification; always return cleanup so noImplicitReturns is satisfied
 	useEffect(() => {
 		const timer = saveVisible ? setTimeout(() => setSaveVisible(false), 2000) : undefined;
 		return () => { if (timer !== undefined) { clearTimeout(timer); } };
 	}, [saveVisible]);
 
-	// One-time initialization: dispatch initial messages and register Ctrl+S handler
 	useEffect(() => {
 		vscode.postMessage({ type: requestTypes.configRequest });
 		vscode.postMessage({ type: requestTypes.getAllVariableRequest });
@@ -130,6 +123,8 @@ const MainUI = () => {
 		} else if (isRunItem !== "undefined" && isRunItem !== "OpenAndRun") {
 			dispatch(UIActions.SetRunItemAction(true));
 			vscode.postMessage({ type: requestTypes.getRunItemDataRequest });
+		} else {
+			setLoadingApp(false);
 		}
 
 		vscode.postMessage({ type: requestTypes.getParentSettingsRequest, data: { colId, folderId } });
@@ -167,10 +162,8 @@ const MainUI = () => {
 
 		document.addEventListener("keydown", handleKeyDown);
 		return () => document.removeEventListener("keydown", handleKeyDown);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// Sync variable selection when the variables list or active varId changes
 	useEffect(() => {
 		if (!variables?.length) { return; }
 		if (varId) {
@@ -180,7 +173,6 @@ const MainUI = () => {
 		}
 	}, [variables, varId]);
 
-	// Apply API key auth to query params or headers when parent settings change
 	useEffect(() => {
 		if (parentSettings?.auth.authType === "apikey") {
 			modifyQueryParam(parentSettings.auth.addTo, parentSettings.auth.userName, parentSettings.auth.password);
@@ -290,7 +282,7 @@ const MainUI = () => {
 									<OptionsPanel />
 								</div>
 								<div>
-									<ReponsePanel isVerticalLayout={false} isCurl={false} />
+									<React.Suspense fallback={<div>loading...</div>}><ReponsePanel isVerticalLayout={false} isCurl={false} /></React.Suspense>
 								</div>
 							</Split>
 						) : (
@@ -316,7 +308,7 @@ const MainUI = () => {
 										</label>
 									</h2>
 									<div className={resBorderClass + " content"}>
-										<ReponsePanel isVerticalLayout={false} isCurl={false} />
+										<React.Suspense fallback={<div>loading...</div>}><ReponsePanel isVerticalLayout={false} isCurl={false} /></React.Suspense>
 									</div>
 								</section>
 							</>
@@ -329,7 +321,7 @@ const MainUI = () => {
 								<OptionsPanel />
 							</div>
 							<div>
-								<ReponsePanel isVerticalLayout={true} isCurl={false} />
+								<React.Suspense fallback={<div>loading...</div>}><ReponsePanel isVerticalLayout={true} isCurl={false} /></React.Suspense>
 							</div>
 						</Split>
 					)}

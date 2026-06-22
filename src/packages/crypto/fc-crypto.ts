@@ -1,5 +1,5 @@
+import { ITableData } from "../../fetch-client-core/types/common.types";
 import * as crypto from "crypto";
-import { ITableData } from "./types";
 
 export class FCCipher {
 	secret_key: string;

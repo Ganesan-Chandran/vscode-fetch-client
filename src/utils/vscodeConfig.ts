@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { responseTypes } from './configuration';
+import { responseTypes } from '../fetch-client-core/consts/requestTypes.consts';
 import { getExtLocalDbPath } from './db/helper';
 
 // ---------------------------------------------------------------------------
@@ -100,10 +100,6 @@ export function getVariableEncryptionFCConfiguration(): boolean {
 	return getFetchClientConfiguration().get<boolean>("encryptedVariables", false);
 }
 
-export function getExportVariableEncryptionConfiguration(): boolean {
-	return getFetchClientConfiguration().get<boolean>("encryptedVariablesInExport", false);
-}
-
 export function responseLimitConfiguration(): number {
 	const responseLimit = getFetchClientConfiguration().get<number>("responseLimit", 5);
 	return responseLimit * 1048576;
@@ -111,6 +107,18 @@ export function responseLimitConfiguration(): number {
 
 export function getResponseSaveConfiguration(): boolean {
 	return getFetchClientConfiguration().get<boolean>("saveResponse", false);
+}
+
+export function getSharedDBConfiguration(): boolean {
+	return getFetchClientConfiguration().get<boolean>("multipleUser", false);
+}
+
+export function getVariableEncryptionKey(): string {
+	return getFetchClientConfiguration().get<string>("variableEncryptionKey", "");
+}
+
+export function updateVariableEncryptionKey(key: string) {
+	return getFetchClientConfiguration().update("variableEncryptionKey", key, vscode.ConfigurationTarget.Global);
 }
 
 // ---------------------------------------------------------------------------
@@ -131,10 +139,10 @@ export function getVariableEncryptionConfiguration(): boolean {
 
 export function updateSaveToWorkspaceConfiguration(value: boolean): void {
 	const config = getFetchClientConfiguration();
-	config.update("saveToWorkspace", value);
+	config.update("saveToWorkspace", value,  vscode.ConfigurationTarget.Global);
 	updateWorkspacePathConfiguration(value ? getExtLocalDbPath() : "");
 }
 
 export function updateWorkspacePathConfiguration(value: string): void {
-	getFetchClientConfiguration().update("workspacePath", value);
+	getFetchClientConfiguration().update("workspacePath", value,  vscode.ConfigurationTarget.Global);
 }

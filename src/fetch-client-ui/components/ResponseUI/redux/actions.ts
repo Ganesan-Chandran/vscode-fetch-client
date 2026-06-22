@@ -1,10 +1,10 @@
-import { ITableData } from "../../Common/Table/types";
+import { ITableData } from "../../../../fetch-client-core/types/common.types";
+import { IPreFetchResponse, IResponse, ITestResult } from "../../../../fetch-client-core/types/response.types";
 import {
 	FETCH_CLIENT_SET_LOADING,
 	FETCH_CLIENT_SET_RES_COOKIES, FETCH_CLIENT_SET_RES_HEADERS, FETCH_CLIENT_SET_RES_PREFETCH_RESPONSE, FETCH_CLIENT_SET_RES_RESPONSE,
 	FETCH_CLIENT_SET_TEST_RESULT,
-	IPreFetchResponse,
-	IResponse, ITestResult, ResponseActionTypes
+	ResponseActionTypes
 } from "./types";
 
 

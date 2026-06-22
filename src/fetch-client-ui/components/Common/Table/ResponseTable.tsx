@@ -1,7 +1,7 @@
-import React from 'react';
-import { TableProps } from './Table';
 import "./style.css";
-import { ITableData } from "./types";
+import { ITableData } from '../../../../fetch-client-core/types/common.types';
+import { TableProps } from './Table';
+import React from 'react';
 
 export const ResponseTable = (props: TableProps) => {
 	const { data } = props;

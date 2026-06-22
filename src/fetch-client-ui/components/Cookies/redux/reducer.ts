@@ -1,4 +1,5 @@
-import { CookieActionTypes, FETCH_CLIENT_SET_ALL_COOKIE, ICookie, ICookiesModel } from "./types";
+import { CookieActionTypes, FETCH_CLIENT_SET_ALL_COOKIE } from "./types";
+import { ICookie, ICookiesModel } from "../../../../fetch-client-core/types/cookie.types";
 
 export const InitialCookie: ICookie = {
 	id: "",

@@ -1,20 +1,21 @@
-import React, { useEffect } from "react";
+import "./style.css";
+import { Actions } from "../../../../redux";
+import { AppDispatch } from "../../../../../../store/appStore";
+import { formatDate } from "../../../../../../../utils/helper";
+import { grantTypeOpt, clientAuthOpt } from "../../../../../../../fetch-client-core/consts/auth.consts";
+import { IAuth, GrantType, ClientAuth } from "../../../../../../../fetch-client-core/types/auth.types";
+import { InitialBody, InitialPreFetch, InitialRequestHeaders, InitialSetVar, InitialTest } from "../../../../redux/reducer";
+import { IRequestModel } from "../../../../../../../fetch-client-core/types/request.types";
+import { IResponse } from "../../../../../../../fetch-client-core/types/response.types";
+import { IRootState } from "../../../../../../reducer/combineReducer";
+import { ITableData } from "../../../../../../../fetch-client-core/types/common.types";
+import { IVariable } from "../../../../../../../fetch-client-core/types/sidebar.types";
+import { requestTypes, responseTypes } from "../../../../../../../fetch-client-core/consts/requestTypes.consts";
+import { TextEditor } from "../../../../../Common/TextEditor/TextEditor";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
-import { requestTypes, responseTypes } from "../../../../../../../utils/configuration";
-import { formatDate } from "../../../../../../../utils/helper";
-import { IRootState } from "../../../../../../reducer/combineReducer";
-import { ITableData } from "../../../../../Common/Table/types";
-import { TextEditor } from "../../../../../Common/TextEditor/TextEditor";
+import React, { useEffect } from "react";
 import vscode from "../../../../../Common/vscodeAPI";
-import { IResponse } from "../../../../../ResponseUI/redux/types";
-import { IVariable } from "../../../../../SideBar/redux/types";
-import { Actions } from "../../../../redux";
-import { InitialBody, InitialPreFetch, InitialRequestHeaders, InitialSetVar, InitialTest } from "../../../../redux/reducer";
-import { ClientAuth, GrantType, IAuth, IRequestModel } from "../../../../redux/types";
-import { clientAuthOpt, grantTypeOpt } from "../consts";
-import "./style.css";
-import { AppDispatch } from "../../../../../../store/appStore";
 
 export interface IOAuthProps {
 	inherit: boolean;

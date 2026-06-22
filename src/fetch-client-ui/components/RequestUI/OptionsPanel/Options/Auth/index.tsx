@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from "react-redux";
-import { requestTypes } from '../../../../../../utils/configuration';
-import { IRootState } from "../../../../../reducer/combineReducer";
-import { TextEditor } from '../../../../Common/TextEditor/TextEditor';
-import vscode from '../../../../Common/vscodeAPI';
-import { IVariable } from '../../../../SideBar/redux/types';
-import { Actions } from "../../../redux";
-import { InitialAuth } from '../../../redux/reducer';
-import { isAvailable } from '../helper';
-import { AwsAuth } from './aws';
-import { apiKeyAddTo, authCollection } from "./consts";
-import { OAuth } from './OAuth';
 import "./style.css";
+import { Actions } from "../../../redux";
+import { apiKeyAddTo, authCollection } from '../../../../../../fetch-client-core/consts/auth.consts';
 import { AppDispatch } from '../../../../../store/appStore';
+import { AwsAuth } from './aws';
+import { InitialAuth } from '../../../redux/reducer';
+import { IRootState } from "../../../../../reducer/combineReducer";
+import { isAvailable } from '../helper';
+import { IVariable } from "../../../../../../fetch-client-core/types/sidebar.types";
+import { OAuth } from './OAuth';
+import { requestTypes } from '../../../../../../fetch-client-core/consts/requestTypes.consts';
+import { TextEditor } from '../../../../Common/TextEditor/TextEditor';
+import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useState } from 'react';
+import vscode from '../../../../Common/vscodeAPI';
 
 export interface IAuthProps {
 	settingsMode?: boolean;
@@ -450,3 +450,5 @@ export const AuthPanel = (props: IAuthProps) => {
 		</div>
 	);
 };
+
+export default AuthPanel;

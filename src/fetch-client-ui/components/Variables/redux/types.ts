@@ -1,4 +1,4 @@
-import { IVariable } from "../../SideBar/redux/types";
+import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";
 
 export const FETCH_CLIENT_SET_REQ_VARIABLE: "FETCH_CLIENT_SET_REQ_VARIABLE" = "FETCH_CLIENT_SET_REQ_VARIABLE";
 export const FETCH_CLIENT_SET_REQ_ALL_VARIABLES: "FETCH_CLIENT_SET_REQ_ALL_VARIABLES" = "FETCH_CLIENT_SET_REQ_ALL_VARIABLES";

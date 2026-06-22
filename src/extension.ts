@@ -1,30 +1,23 @@
 import { access, mkdir } from "fs/promises";
-import path from "path";
-import * as vscode from 'vscode';
+import { AddToColUI, AutoRequestProviderUI, BulkExportProviderUI, CookieUI, CurlProviderUI, ErrorLogUI, SideBarProvider, VariableUI, WebAppPanel } from "./utils/ui";
+import { autoRequestDBPath, collectionDBPath, cookieDBPath, getExtDbPath, historyDBPath, mainDBPath, setGlobalStorageUri, variableDBPath } from "./utils/db/helper";
+import { CreateAutoRequestDB, CreateCollectionDB, CreateCookieDB, CreateHistoryDB, CreateMainDB, CreateVariableDB } from './utils/db/dbUtil';
+import { createLogFile } from './utils/logger/logger';
 import { FCScheduler } from "./utils/autoRequest/scheduler";
-import { pubSubTypes } from './utils/configuration';
-import { GetAllCollections } from './utils/db/collectionDBUtil';
-import { autoRequestDBPath, collectionDBPath, cookieDBPath, getExtDbPath, historyDBPath, mainDBPath, setGlobalStorageUri, settingsDBPath, variableDBPath } from "./utils/db/helper";
-import { CreateAutoRequestDB, CreateCollectionDB, CreateCookieDB, CreateHistoryDB, CreateMainDB, CreateSettingsDB, CreateVariableDB } from './utils/db/dbUtil';
-import { GetAllHistory } from './utils/db/historyDBUtil';
-import { transferDbConfig } from './utils/db/transferDBConfig';
-import { GetAllVariable, UpdateToDecryptedVariables, UpdateToEncryptedVariables } from './utils/db/varDBUtil';
+import { flushCollectionDB, GetAllCollections } from './utils/db/collectionDBUtil';
+import { flushHistoryDB, GetAllHistory } from './utils/db/historyDBUtil';
+import { flushMainDB } from "./utils/db/mainDBUtil";
+import { flushVariableDB, GetAllVariable, UpdateToDecryptedVariables, UpdateToEncryptedVariables, UpdateWithAnotherKey } from './utils/db/varDBUtil';
+import { getVariableEncryptionFCConfiguration, getVariableEncryptionKey, setVariableEncryptionConfiguration, updateVariableEncryptionKey } from './utils/vscodeConfig';
+import { IPubSubMessage, PubSub } from './utils/PubSub';
 import { LocalStorageService } from './utils/LocalStorageService';
 import { logPath } from './utils/logger/constants';
-import { createLogFile } from './utils/logger/logger';
+import { MemoryCache } from './utils/MemoryCache';
+import { pubSubTypes } from './fetch-client-core/consts/requestTypes.consts';
+import { transferDbConfig } from './utils/db/transferDBConfig';
 import { VSCodeLogger } from './utils/logger/vsCodeLogger';
-import { IPubSubMessage, PubSub } from './utils/PubSub';
-import { AddToColUI } from './utils/ui/addToCollectionUIProvider';
-import { AutoRequestProviderUI } from './utils/ui/autoRequestUIProvider';
-import { BulkExportProviderUI } from './utils/ui/bulkExportUIProvider';
-import { CookieUI } from './utils/ui/cookieUIProvider';
-import { CurlProviderUI } from './utils/ui/curlUIProvider';
-import { ErrorLogUI } from './utils/ui/errorLogUIProvider';
-import { WebAppPanel } from './utils/ui/mainUIProvider';
-import { SideBarProvider } from './utils/ui/sideBarUIProvider';
-import { VariableUI } from './utils/ui/variableUIProvider';
-import { getVariableEncryptionFCConfiguration, setVariableEncryptionConfiguration } from './utils/vscodeConfig';
-import { GetEncryptionKeyFromSettings, InitSettingsDB } from "./utils/db/settingsDBUtil";
+import * as vscode from 'vscode';
+import path from "path";
 
 export let pubSub: PubSub<IPubSubMessage>;
 export let vsCodeLogger: VSCodeLogger;
@@ -32,6 +25,7 @@ export let sideBarProvider: SideBarProvider;
 
 let storageManager: LocalStorageService;
 let extensionUri: vscode.Uri;
+let extCache: MemoryCache<string>;
 
 // ---------------------------------------------------------------------------
 // Public navigation helpers — called by webview providers
@@ -63,6 +57,10 @@ export function OpenAttachVariableUI(id: string, name: string): void {
 
 export function OpenRunAllUI(colId: string, folderId: string, name: string, varId: string): void {
 	vscode.commands.executeCommand("fetch-client.addToCol", colId, folderId, name, "runall", varId);
+}
+
+export function OpenReOrderUI(colId: string, folderId: string): void {
+	vscode.commands.executeCommand("fetch-client.addToCol", colId, folderId, "", "reorder");
 }
 
 export function OpenCookieUI(id?: string): void {
@@ -98,6 +96,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 	vsCodeLogger = new VSCodeLogger();
 	context.subscriptions.push(vsCodeLogger);
 	storageManager = new LocalStorageService(context.workspaceState);
+	extCache = new MemoryCache<string>();
 
 	try {
 		await initializeStorage();
@@ -108,15 +107,22 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 	registerProviders(context);
 	registerCommands(context);
 	registerEventListeners(context);
+	extCache.set("oldKey", getVariableEncryptionKey());
 }
 
 export function getStorageManager(): LocalStorageService {
 	return storageManager;
 }
 
-export function deactivate(): void {
+export async function deactivate(): Promise<void> {
 	FCScheduler.Instance.StopAllJobs();
 	pubSub?.clear();
+	await Promise.allSettled([
+		flushMainDB(),
+		flushCollectionDB(),
+		flushHistoryDB(),
+		flushVariableDB()
+	]);
 }
 
 // ---------------------------------------------------------------------------
@@ -148,7 +154,6 @@ async function initializeStorage(): Promise<void> {
 	}
 
 	await Promise.all([
-		ensureDb(settingsDBPath(), CreateSettingsDB),
 		ensureDb(historyDBPath(), CreateHistoryDB),
 		ensureDb(mainDBPath(), CreateMainDB),
 		ensureDb(collectionDBPath(), CreateCollectionDB),
@@ -156,9 +161,7 @@ async function initializeStorage(): Promise<void> {
 		ensureDb(cookieDBPath(), CreateCookieDB),
 		ensureDb(autoRequestDBPath(), CreateAutoRequestDB),
 		ensureDb(path.resolve(extPath, logPath), createLogFile),
-	]).then(async () => {
-		await InitSettingsDB();
-	});
+	]);
 }
 
 // ---------------------------------------------------------------------------
@@ -214,12 +217,40 @@ function registerEventListeners(context: vscode.ExtensionContext): void {
 			if (e.affectsConfiguration("fetch-client.saveToWorkspace")) {
 				transferDbConfig();
 			}
+			if (e.affectsConfiguration("fetch-client.variableEncryptionKey")) {
+				const oldKey = extCache.get("oldKey");
+
+				try {
+					const newKey = getVariableEncryptionKey();
+					if (!newKey) {
+						updateVariableEncryptionKey(oldKey);
+						return;
+					}
+
+					if (newKey === oldKey) {
+						return;
+					}
+
+					if (getVariableEncryptionFCConfiguration()) {
+						UpdateWithAnotherKey(oldKey, newKey);
+					}
+
+					extCache.set("oldKey", newKey);
+				}
+				catch (error) {
+					updateVariableEncryptionKey(oldKey);
+				}
+			}
 
 			if (e.affectsConfiguration("fetch-client.encryptedVariables")) {
 				const shouldEncrypt = getVariableEncryptionFCConfiguration();
-				let key = await GetEncryptionKeyFromSettings();
+				let key = getVariableEncryptionKey();
+				if (!key) {
+					vscode.window.showInformationMessage("Encryption key is required. Enter the encryption key in Fetch Client Settings → Variable Encryption Key");
+					return;
+				}
 				if (shouldEncrypt) {
-					UpdateToEncryptedVariables(key);
+					UpdateToEncryptedVariables(key); ``
 					setVariableEncryptionConfiguration(true);
 				} else {
 					UpdateToDecryptedVariables(key);

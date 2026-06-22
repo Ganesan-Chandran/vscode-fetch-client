@@ -1,4 +1,4 @@
-import { IVariable } from "../../SideBar/redux/types";
+import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";
 import { FETCH_CLIENT_SET_LOCAL_CHANGE, FETCH_CLIENT_SET_REQ_ALL_VARIABLES, FETCH_CLIENT_SET_REQ_VARIABLE, FETCH_CLIENT_SET_SETVAR_CHANGE, VariableActionTypes } from "./types";
 
 export const SetReqVariableAction = (value: IVariable): VariableActionTypes => {

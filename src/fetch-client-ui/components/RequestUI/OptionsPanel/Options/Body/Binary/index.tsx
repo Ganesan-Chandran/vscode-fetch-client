@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from "react-redux";
-import { requestTypes, responseTypes } from '../../../../../../../utils/configuration';
-import { IRootState } from "../../../../../../reducer/combineReducer";
-import vscode from '../../../../../Common/vscodeAPI';
-import { Actions } from "../../../../redux";
-import { FileTypes } from './consts';
 import "./style.css";
+import { Actions } from "../../../../redux";
 import { AppDispatch } from '../../../../../../store/appStore';
+import { FileTypes } from '../../../../../../../fetch-client-core/consts/auth.consts';
+import { IRootState } from "../../../../../../reducer/combineReducer";
+import { requestTypes, responseTypes } from '../../../../../../../fetch-client-core/consts/requestTypes.consts';
+import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useState } from 'react';
+import vscode from '../../../../../Common/vscodeAPI';
 
 export const Binary = () => {
 

@@ -1,13 +1,14 @@
-import { XMLValidator } from "fast-xml-parser";
-import { v4 as uuidv4 } from "uuid";
-import { ITableData } from "../../../fetch-client-ui/components/Common/Table/types";
-import { InitialAuth, InitialBody, InitialPreFetch, InitialSetVar, InitialTest } from "../../../fetch-client-ui/components/RequestUI/redux/reducer";
-import { ClientAuth, GrantType, IAuth, IBodyData, IRequestModel, MethodType } from "../../../fetch-client-ui/components/RequestUI/redux/types";
-import { ICollections, IFolder, IHistory, ISettings, IVariable } from "../../../fetch-client-ui/components/SideBar/redux/types";
-import { isJson } from "../../../fetch-client-ui/components/TestUI/TestPanel/helper";
+import { ApikeyElement, Auth, Body, Header, Items, POSTMAN_SCHEMA_V2_1, PostmanSchema_2_1, RequestObject, URLObject, Variable } from "../../../fetch-client-core/types/postman_2_1.types";
 import { formatDate } from "../../helper";
+import { IAuth, ClientAuth, GrantType } from "../../../fetch-client-core/types/auth.types";
+import { ICollections, IVariable, IHistory, IFolder, ISettings } from "../../../fetch-client-core/types/sidebar.types";
+import { InitialAuth, InitialBody, InitialPreFetch, InitialSetVar, InitialTest } from "../../../fetch-client-ui/components/RequestUI/redux/reducer";
+import { IRequestModel, IBodyData, MethodType } from "../../../fetch-client-core/types/request.types";
+import { isJson } from "../../../fetch-client-ui/components/TestUI/TestPanel/helper";
+import { ITableData } from "../../../fetch-client-core/types/common.types";
+import { v4 as uuidv4 } from "uuid";
 import { writeLog } from "../../logger/logger";
-import { ApikeyElement, Auth, Body, Header, Items, POSTMAN_SCHEMA_V2_1, PostmanSchema_2_1, RequestObject, URLObject, Variable } from "./postman_2_1.types";
+import { XMLValidator } from "fast-xml-parser";
 
 export interface PostmanImportResult {
 	fcCollection: ICollections;

@@ -1,6 +1,6 @@
-import React from 'react';
 import { HeadersPanel } from '.';
-import { IVariable } from '../../../../SideBar/redux/types';
+import { IVariable } from '../../../../../../fetch-client-core/types/sidebar.types';
+import React from 'react';
 
 export interface IParentHeaderProps {
 	selectedVariable: IVariable;

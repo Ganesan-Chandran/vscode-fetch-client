@@ -1,1085 +1,1055 @@
-import loki, { LokiFsAdapter } from 'lokijs';
-import { v4 as uuidv4 } from 'uuid';
-import * as vscode from 'vscode';
-import { pubSub } from '../../extension';
-import { SettingsType } from '../../fetch-client-ui/components/Collection/consts';
-import { IRequestModel } from '../../fetch-client-ui/components/RequestUI/redux/types';
-import { InitialSettings } from '../../fetch-client-ui/components/SideBar/redux/reducer';
-import { ICollections, IFolder, IHistory, ISettings } from "../../fetch-client-ui/components/SideBar/redux/types";
-import { isFolder } from '../../fetch-client-ui/components/SideBar/util';
-import { pubSubTypes, responseTypes } from '../configuration';
 import { apiFetch, FetchConfig } from '../fetchUtil';
+import { collectionDBPath } from './helper';
+import { CopyExitingItems, DeleteExitingItems, GetColsRequests, RenameRequestItem, getMainDB } from './mainDBUtil';
+import { createAutoDBCache } from './dbManager';
 import { formatDate } from '../helper';
+import { IFolder, IHistory, ICollections, ISettings } from '../../fetch-client-core/types/sidebar.types';
+import { InitialSettings } from '../../fetch-client-ui/components/SideBar/redux/reducer';
+import { IRequestModel } from '../../fetch-client-core/types/request.types';
+import { isFolder } from '../../fetch-client-ui/components/SideBar/util';
+import { pubSub } from '../../extension';
+import { pubSubTypes, responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
+import { SettingsType } from '../../fetch-client-ui/components/Collection/consts';
+import { v4 as uuidv4 } from 'uuid';
 import { writeLog } from '../logger/logger';
-import { collectionDBPath, mainDBPath } from './helper';
-import { CopyExitingItems, DeleteExitingItems, GetColsRequests, RenameRequestItem } from './mainDBUtil';
+import * as vscode from 'vscode';
 
-function getDB(): loki {
-	const idbAdapter = new LokiFsAdapter();
-	const db = new loki(collectionDBPath(), { adapter: idbAdapter });
-	db.autosaveDisable();
-	return db;
+
+const { getLoadedDB: getCollectionDB, saveDB: saveCollectionDB, flush: flushCollectionDB, invalidate: invalidateCollectionDB } = createAutoDBCache(collectionDBPath);
+export { getCollectionDB, saveCollectionDB, flushCollectionDB, invalidateCollectionDB };
+
+function defaultSettings(): typeof InitialSettings {
+	return JSON.parse(JSON.stringify(InitialSettings));
 }
 
-function getRequestDB(): loki {
-	const idbAdapter = new LokiFsAdapter();
-	const db = new loki(mainDBPath(), { adapter: idbAdapter });
-	db.autosaveDisable();
-	return db;
-}
-
-function findItem(source: any, id: string) {
-
-	let pos = source.data.findIndex((el: any) => el.id === id);
-
-	if (pos !== -1) {
-		return source.data[pos];
-	}
-
-	for (let i = 0; i < source.data.length; i++) {
-		if (isFolder(source.data[i])) {
-			const result = findItem(source.data[i], id);
-			if (result) {
-				return result;
+function findItem(source: { data: any[] }, id: string): any | null {
+	for (const entry of source.data) {
+		if (entry.id === id) {
+			return entry;
+		}
+		if (isFolder(entry)) {
+			const found = findItem(entry, id);
+			if (found) {
+				return found;
 			}
 		}
 	}
+	return null;
 }
 
-function findParent(source: any, id: string) {
-	let pos = source.data.findIndex((el: any) => el.id === id);
-
-	if (pos !== -1) {
-		return source;
-	}
-
-	for (let i = 0; i < source.data.length; i++) {
-		if (isFolder(source.data[i])) {
-			const result = findParent(source.data[i], id);
-
-			if (result) {
-				return result;
+function findParent(source: { data: any[] }, id: string): any | null {
+	for (const entry of source.data) {
+		if (entry.id === id) {
+			return source;
+		}
+		if (isFolder(entry)) {
+			const found = findParent(entry, id);
+			if (found) {
+				return found;
 			}
 		}
 	}
+	return null;
 }
 
-function findParentSettings(source: any, id: string, prevSettings: any = null) {
 
-	let pos = source.data.findIndex((el: any) => el.id === id);
-	let curSettings = source.settings;
-
-	if (curSettings) {
-		if (curSettings.auth.authType === "inherit") {
-			curSettings = prevSettings;
-		}
-	} else {
+function findParentSettings(source: any, id: string, prevSettings: any = null): any | null {
+	let curSettings = source.settings ?? null;
+	if (curSettings?.auth?.authType === "inherit") {
 		curSettings = prevSettings;
 	}
 
-	if (pos !== -1) {
-		if (source.data[pos].settings) {
-			if (source.data[pos].settings.auth.authType === "inherit") {
-				source.data[pos].settings.auth = curSettings.auth;
-				return source.data[pos].settings;
-			} else {
-				return source.data[pos].settings;
-			}
-		} else {
+	const directMatch = source.data.find((el: any) => el.id === id);
+	if (directMatch) {
+		if (!directMatch.settings) {
 			return curSettings;
 		}
+		if (directMatch.settings.auth?.authType === "inherit") {
+			directMatch.settings.auth = curSettings?.auth;
+		}
+		return directMatch.settings;
 	}
 
-	let folders = source.data.filter((item: any) => item.data !== undefined);
-
-	for (let i = 0; i < folders.length; i++) {
-		const result: any = findParentSettings(folders[i], id, curSettings);
-		if (result) {
-			return result;
+	for (const entry of source.data) {
+		if (isFolder(entry)) {
+			const result = findParentSettings(entry, id, curSettings);
+			if (result) {
+				return result;
+			}
 		}
 	}
+
+	return null;
 }
 
-function duplicateFolderItems(sourceFolder: IFolder, destFolder: IFolder, oldIds: string[], ids: {}): { folder: IFolder, oIds: string[], nIds: {} } {
-	sourceFolder.data.forEach((item) => {
-		if (isFolder(item)) {
-			let folder: IFolder = {
-				id: uuidv4(),
-				name: item.name,
-				createdTime: formatDate(),
-				type: "folder",
-				data: [],
-				settings: (item as IFolder).settings ? (item as IFolder).settings : JSON.parse(JSON.stringify(InitialSettings))
-			};
-			destFolder.data.push(folder);
-			duplicateFolderItems(item as IFolder, destFolder.data[destFolder.data.length - 1] as IFolder, oldIds, ids);
-		} else {
-			let newId = uuidv4();
-			ids[item.id] = newId;
-			oldIds.push(item.id);
-			let his: IHistory = {
-				id: newId,
-				method: (item as IHistory).method,
-				name: item.name,
-				url: (item as IHistory).url,
-				createdTime: formatDate()
-			};
-			destFolder.data.push(his);
-		}
-	});
-
-	return { folder: destFolder, oIds: oldIds, nIds: ids };
-}
-
-function getAllIds(source: any, ids: string[]) {
-	source.data.forEach(function (item) {
+function getAllIds(source: { data: any[] }, ids: string[]): string[] {
+	for (const item of source.data) {
 		if (isFolder(item)) {
 			getAllIds(item, ids);
 		} else {
 			ids.push(item.id);
 		}
-	});
-
+	}
 	return ids;
 }
 
-export function CreateNewCollection(name: string, sideBarView: vscode.WebviewView) {
-	try {
-		const colDB = getDB();
-		colDB.loadDatabase({}, function () {
-			let item: ICollections = {
+function duplicateFolderItems(
+	sourceFolder: IFolder,
+	destFolder: IFolder,
+	oldIds: string[],
+	ids: Record<string, string>
+): { folder: IFolder; oIds: string[]; nIds: Record<string, string> } {
+	for (const item of sourceFolder.data) {
+		if (isFolder(item)) {
+			const subFolder: IFolder = {
 				id: uuidv4(),
+				name: item.name,
 				createdTime: formatDate(),
-				name: name,
+				type: "folder",
 				data: [],
-				variableId: "",
-				settings: JSON.parse(JSON.stringify(InitialSettings))
+				settings: (item as IFolder).settings ?? defaultSettings(),
 			};
-			const userCollections = colDB.getCollection('userCollections');
-			userCollections.insert(item);
-			colDB.saveDatabase();
-			if (sideBarView) {
-				sideBarView.webview.postMessage({ type: responseTypes.appendToCollectionsResponse, collection: item });
-			}
-		});
+			destFolder.data.push(subFolder);
+			duplicateFolderItems(
+				item as IFolder,
+				destFolder.data[destFolder.data.length - 1] as IFolder,
+				oldIds,
+				ids
+			);
+		} else {
+			const newId = uuidv4();
+			ids[item.id] = newId;
+			oldIds.push(item.id);
+			destFolder.data.push({
+				id: newId,
+				method: (item as IHistory).method,
+				name: item.name,
+				url: (item as IHistory).url,
+				createdTime: formatDate(),
+			} as IHistory);
+		}
+	}
+	return { folder: destFolder, oIds: oldIds, nIds: ids };
+}
+
+function cloneCollectionItems(
+	sourceItems: any[],
+	oldIds: string[],
+	ids: Record<string, string>
+): any[] {
+	return sourceItems.map((item) => {
+		if (isFolder(item)) {
+			const destFolder: IFolder = {
+				id: uuidv4(),
+				name: item.name,
+				createdTime: formatDate(),
+				type: "folder",
+				data: [],
+				settings: (item as IFolder).settings ?? defaultSettings(),
+			};
+			const { folder, oIds, nIds } = duplicateFolderItems(item as IFolder, destFolder, [], {});
+			oldIds.push(...oIds);
+			Object.assign(ids, nIds);
+			return folder;
+		} else {
+			const newId = uuidv4();
+			oldIds.push(item.id);
+			ids[item.id] = newId;
+			return {
+				id: newId,
+				method: (item as IHistory).method,
+				name: item.name,
+				url: (item as IHistory).url,
+				createdTime: formatDate(),
+			} as IHistory;
+		}
+	});
+}
+
+
+function getPath(
+	source: any,
+	path: string,
+	paths: Record<string, string>,
+	ids: string[],
+	type: string
+): { paths: Record<string, string>; ids: string[] } {
+	const prefix = path ? `${path} > ${source.name}` : source.name;
+
+	for (const item of source.data) {
+		if (isFolder(item)) {
+			getPath(item, prefix, paths, ids, type);
+		} else {
+			paths[item.id] =
+				type === "source"
+					? `${prefix};${source.id}`
+					: `${prefix} > ${item.name};${source.id}`;
+			ids.unshift(item.id);
+		}
+	}
+
+	return { paths, ids };
+}
+
+// ---------------------------------------------------------------------------
+// Collection CRUD
+// ---------------------------------------------------------------------------
+
+export async function CreateNewCollection(name: string, sideBarView: vscode.WebviewView): Promise<void> {
+	try {
+		const colDB = await getCollectionDB();
+
+		const item: ICollections = {
+			id: uuidv4(),
+			createdTime: formatDate(),
+			name,
+			data: [],
+			variableId: "",
+			settings: defaultSettings(),
+		};
+
+		colDB.getCollection('userCollections').insert(item);
+		saveCollectionDB(colDB);
+
+		sideBarView?.webview.postMessage({ type: responseTypes.appendToCollectionsResponse, collection: item });
 	} catch (err) {
 		writeLog("error::CreateNewCollection(): " + err);
 	}
 }
 
-export function AddToCollection(item: ICollections, hasFolder: boolean, isNewFolder: boolean, webview: vscode.Webview, sideBarView: vscode.WebviewView, request?: IRequestModel) {
+export async function AddToCollection(
+	item: ICollections,
+	hasFolder: boolean,
+	isNewFolder: boolean,
+	webview: vscode.Webview,
+	sideBarView: vscode.WebviewView,
+	request?: IRequestModel
+): Promise<void> {
 	try {
+		const [colDB, mainDB] = await Promise.all([getCollectionDB(), getMainDB()]);
 
-		const colDB = getDB();
-		const reqDB = getRequestDB();
 		const reqId = hasFolder ? (item.data[0] as IFolder).data[0].id : item.data[0].id;
 		const newId = uuidv4();
 
-		colDB.loadDatabase({}, function () {
-			const userCollections = colDB.getCollection('userCollections');
+		const userCollections = colDB.getCollection('userCollections');
+		const apiRequests = mainDB.getCollection('apiRequests');
 
-			reqDB.loadDatabase({}, function () {
+		let reqData: IRequestModel | null = request ?? null;
+		if (!reqData) {
+			const results = apiRequests
+				.chain()
+				.find({ id: reqId })
+				.data({ forceClones: true, removeMeta: true });
+			reqData = results.length > 0 ? (results[0] as IRequestModel) : null;
+		}
 
-				let reqData: IRequestModel;
-				let results: any[];
+		if (!reqData) {
+			return;
+		}
 
-				//Add new item to main DB
-				const apiRequests = reqDB.getCollection('apiRequests');
+		reqData.id = newId;
+		apiRequests.insert(reqData);
+		mainDB.saveDatabase();
 
-				if (request) {
-					reqData = request;
+		if (hasFolder) {
+			(item.data[0] as IFolder).data[0].id = newId;
+		} else {
+			item.data[0].id = newId;
+		}
+
+		let colItem = userCollections.by("id", item.id);
+
+		if (!colItem) {
+			userCollections.insert(item);
+			colItem = item as any;
+		} else if (item.data.length > 0) {
+			if (hasFolder) {
+				if (isNewFolder) {
+					colItem.data.push(item.data[0]);
 				} else {
-					results = apiRequests.chain().find({ 'id': reqId }).data({ forceClones: true, removeMeta: true });
-					if (results && results.length > 0) {
-						reqData = (results[0] as IRequestModel);
-					}
+					const folder = findItem(colItem, item.data[0].id);
+					folder?.data.push((item.data[0] as IFolder).data[0]);
 				}
+			} else {
+				colItem.data.push(item.data[0]);
+			}
+		}
 
-				if (reqData) {
-					reqData.id = newId;
-					apiRequests.insert(reqData);
-					reqDB.saveDatabase();
+		saveCollectionDB(colDB);
 
-					// Save item to collection DB
-					let colItem = userCollections.by("id", item.id);
+		webview?.postMessage({
+			type: responseTypes.addToCollectionsResponse,
+			colId: item.id,
+			folderId: hasFolder ? item.data[0].id : "",
+			historyId: newId,
+			historyName: hasFolder
+				? (item.data[0] as IFolder).data[0].name
+				: item.data[0].name,
+			varId: colItem?.variableId ?? "",
+		});
 
-					if (hasFolder) {
-						(item.data[0] as IFolder).data[0].id = newId;
-					} else {
-						item.data[0].id = newId;
-					}
-
-					if (colItem === null || colItem === undefined) {
-						userCollections.insert(item);
-					} else {
-						if (item && item.data && item.data.length > 0) {
-
-							if (hasFolder) {
-								if (isNewFolder) {
-									colItem.data.push(item.data[0]);
-								} else {
-									let folder = findItem(colItem, item.data[0].id);
-									folder.data.push((item.data[0] as IFolder).data[0]);
-								}
-							} else {
-								colItem.data.push(item.data[0]);
-							}
-						}
-					}
-
-					colDB.saveDatabase();
-
-					if (webview) {
-						webview.postMessage({
-							type: responseTypes.addToCollectionsResponse,
-							colId: item.id,
-							folderId: hasFolder ? item.data[0].id : "",
-							historyId: newId,
-							historyName: hasFolder ? (item.data[0] as IFolder).data[0].name : item.data[0].name,
-							varId: colItem ? colItem.variableId : ""
-						});
-					}
-
-					if (sideBarView) {
-						sideBarView.webview.postMessage({ type: responseTypes.appendToCollectionsResponse, collection: colItem ? colItem : item });
-					}
-				}
-			});
+		sideBarView?.webview.postMessage({
+			type: responseTypes.appendToCollectionsResponse,
+			collection: colItem ?? item,
 		});
 	} catch (err) {
 		writeLog("error::AddToCollection(): " + err);
 	}
 }
 
-export function DuplicateItem(coldId: string, folderId: string, historyId: string, folderType: boolean, sideBarView: vscode.WebviewView) {
+export async function DuplicateItem(
+	colId: string,
+	folderId: string,
+	historyId: string,
+	folderType: boolean,
+	sideBarView: vscode.WebviewView
+): Promise<void> {
 	try {
-		const colDB = getDB();
+		const colDB = await getCollectionDB();
+		const userCollections = colDB.getCollection('userCollections');
+		const col = userCollections.by('id', colId);
+
 		let oldIds: string[] = [];
 		let ids: Record<string, string> = {};
 
-		colDB.loadDatabase({}, function () {
-			const collections = colDB.getCollection('userCollections').find({ 'id': coldId });
+		if (folderType) {
+			const parent = findParent(col, folderId);
+			const item = parent ? findItem(parent, folderId) : null;
 
-			if (folderType) {
-				let parent = findParent(collections[0], folderId);
-				if (parent) {
-					let item = findItem(parent, folderId);
-					if (item) {
-						let destFolder: IFolder = {
-							id: uuidv4(),
-							name: item.name + " (Copy)",
-							createdTime: formatDate(),
-							type: "folder",
-							data: [],
-							settings: item.settings ? item.settings : JSON.parse(JSON.stringify(InitialSettings))
-						};
-
-						const { folder, oIds, nIds } = duplicateFolderItems(item, destFolder, [], {});
-						oldIds = oIds;
-						ids = nIds;
-						parent.data.push(folder);
-					}
-				}
-			} else {
-				if (folderId) {
-					let folder = findItem(collections[0], folderId);
-					if (folder) {
-						let item = findItem(folder, historyId);
-						let newId = uuidv4();
-						ids[item.id] = newId;
-						oldIds.push(item.id);
-						let his: IHistory = {
-							id: newId,
-							method: item.method,
-							name: item.name + " (Copy)",
-							url: item.url,
-							createdTime: formatDate()
-						};
-						folder.data.push(his);
-					}
-				}
-				else if (historyId) {
-					let item = findItem(collections[0], historyId);
-					if (item) {
-						let newId = uuidv4();
-						ids[item.id] = newId;
-						oldIds.push(item.id);
-						let his: IHistory = {
-							id: newId,
-							method: item.method,
-							name: item.name + " (Copy)",
-							url: item.url,
-							createdTime: formatDate()
-						};
-						collections[0].data.push(his);
-					}
-				} else if (coldId) {
-					CopyToCollection(coldId, uuidv4(), collections[0].name + " (Copy)", null, sideBarView);
-					return;
-				}
+			if (item) {
+				const destFolder: IFolder = {
+					id: uuidv4(),
+					name: `${item.name} (Copy)`,
+					createdTime: formatDate(),
+					type: "folder",
+					data: [],
+					settings: item.settings ?? defaultSettings(),
+				};
+				const { folder, oIds, nIds } = duplicateFolderItems(item, destFolder, [], {});
+				oldIds = oIds;
+				ids = nIds;
+				parent.data.push(folder);
 			}
-			colDB.saveDatabase();
-			CopyExitingItems(oldIds, ids);
+		} else if (folderId) {
+			const folder = findItem(col, folderId);
+			const item = folder ? findItem(folder, historyId) : null;
 
-			if (sideBarView) {
-				sideBarView.webview.postMessage({ type: responseTypes.copyToCollectionsResponse, data: collections[0] });
+			if (item) {
+				const newId = uuidv4();
+				ids[item.id] = newId;
+				oldIds.push(item.id);
+				folder.data.push({
+					id: newId,
+					method: item.method,
+					name: `${item.name} (Copy)`,
+					url: item.url,
+					createdTime: formatDate(),
+				} as IHistory);
 			}
+		} else if (historyId) {
+			const item = findItem(col, historyId);
+
+			if (item) {
+				const newId = uuidv4();
+				ids[item.id] = newId;
+				oldIds.push(item.id);
+				col.data.push({
+					id: newId,
+					method: item.method,
+					name: `${item.name} (Copy)`,
+					url: item.url,
+					createdTime: formatDate(),
+				} as IHistory);
+			}
+		} else if (colId) {
+			await CopyToCollection(colId, uuidv4(), `${col.name} (Copy)`, null, sideBarView);
+			return;
+		}
+
+		saveCollectionDB(colDB);
+		CopyExitingItems(oldIds, ids);
+
+		sideBarView?.webview.postMessage({
+			type: responseTypes.copyToCollectionsResponse,
+			data: col,
 		});
 	} catch (err) {
 		writeLog("error::DuplicateItem(): " + err);
 	}
 }
 
-export function NewRequestToCollection(item: IHistory, colId: string, folderId: string, sideBarView: vscode.WebviewView) {
+export async function NewRequestToCollection(
+	item: IHistory,
+	colId: string,
+	folderId: string,
+	sideBarView: vscode.WebviewView
+): Promise<void> {
 	try {
-		const colDB = getDB();
+		const colDB = await getCollectionDB();
+		const col = colDB.getCollection('userCollections').by('id', colId);
 
-		colDB.loadDatabase({}, function () {
-			let cols = colDB.getCollection('userCollections').by('id', colId);
-			if (cols) {
-				if (folderId) {
-					let folder = findItem(cols, folderId);
-					if (folder) {
-						folder.data.push(item);
-					}
-				} else {
-					cols.data.push(item);
-				}
+		if (col) {
+			if (folderId) {
+				const folder = findItem(col, folderId);
+				folder?.data.push(item);
+			} else {
+				col.data.push(item);
 			}
+			saveCollectionDB(colDB);
+		}
 
-			colDB.saveDatabase();
-
-			if (sideBarView) {
-				sideBarView.webview.postMessage({ type: responseTypes.createNewResponse, item: item, id: colId, folderId: folderId, variableId: cols.variableId });
-			}
-
+		sideBarView?.webview.postMessage({
+			type: responseTypes.createNewResponse,
+			item,
+			id: colId,
+			folderId,
+			variableId: col?.variableId,
 		});
 	} catch (err) {
 		writeLog("error::NewRequestToCollection(): " + err);
 	}
 }
 
-export function CopyToCollection(sourceId: string, destID: string, destName: string, webview: vscode.Webview, sideBarView: vscode.WebviewView) {
+export async function CopyToCollection(
+	sourceId: string,
+	destId: string,
+	destName: string,
+	webview: vscode.Webview,
+	sideBarView: vscode.WebviewView
+): Promise<void> {
 	try {
-		const colDB = getDB();
+		const colDB = await getCollectionDB();
+		const userCollections = colDB.getCollection('userCollections');
+		const [sourceCol] = userCollections
+			.chain()
+			.find({ id: sourceId })
+			.data({ forceClones: true, removeMeta: true }) as ICollections[];
 
-		colDB.loadDatabase({}, function () {
-			let cols: any;
-			let ids: Record<string, string> = {};
-			let oldIds: string[] = [];
+		const oldIds: string[] = [];
+		const ids: Record<string, string> = {};
 
-			const userCollections = colDB.getCollection('userCollections');
-			let sourceColItem = userCollections.chain().find({ 'id': sourceId }).data({ forceClones: true, removeMeta: true });
-			let destColItem = userCollections.by("id", destID);
+		const clonedItems = cloneCollectionItems(
+			(sourceCol as ICollections).data,
+			oldIds,
+			ids
+		);
 
-			if (destColItem === null || destColItem === undefined) {
-				let items: ICollections = {
-					id: destID,
-					name: destName,
-					createdTime: formatDate(),
-					variableId: "",
-					settings: sourceColItem[0].settings ? sourceColItem[0].settings : JSON.parse(JSON.stringify(InitialSettings)),
-					data: (sourceColItem[0] as ICollections).data.length > 0 ? (sourceColItem[0] as ICollections).data.map(item => {
-						if (isFolder(item)) {
-							let destFolder: IFolder = {
-								id: uuidv4(),
-								name: item.name,
-								createdTime: formatDate(),
-								type: "folder",
-								data: [],
-								settings: (item as IFolder).settings ? (item as IFolder).settings : JSON.parse(JSON.stringify(InitialSettings))
-							};
-							const { folder, oIds, nIds } = duplicateFolderItems(item as IFolder, destFolder, [], {});
-							oldIds = [...oldIds, ...oIds];
-							ids = { ...ids, ...nIds };
+		let resultCol: any;
+		const destCol = userCollections.by("id", destId);
 
-							return folder;
-						} else {
-							item = (item as IHistory);
-							let newId = uuidv4();
-							oldIds.push(item.id);
-							ids[item.id] = newId;
-							let his: IHistory = {
-								id: newId,
-								method: item.method,
-								name: item.name,
-								url: item.url,
-								createdTime: formatDate()
-							};
-							return his;
-						}
-					}) : []
-				};
+		if (!destCol) {
+			const newCol: ICollections = {
+				id: destId,
+				name: destName,
+				createdTime: formatDate(),
+				variableId: "",
+				settings: sourceCol.settings ?? defaultSettings(),
+				data: clonedItems,
+			};
+			userCollections.insert(newCol);
+			resultCol = newCol;
+		} else {
+			destCol.data.push(...clonedItems);
+			resultCol = destCol;
+		}
 
-				cols = items;
-				userCollections.insert(items);
+		saveCollectionDB(colDB);
+		CopyExitingItems(oldIds, ids);
 
-			} else {
-				if ((sourceColItem[0] as ICollections).data.length > 0) {
-					let items = (sourceColItem[0] as ICollections).data.map(item => {
-						if (isFolder(item)) {
-							let destFolder: IFolder = {
-								id: uuidv4(),
-								name: item.name,
-								createdTime: formatDate(),
-								type: "folder",
-								data: [],
-								settings: (item as IFolder).settings ? (item as IFolder).settings : JSON.parse(JSON.stringify(InitialSettings))
-							};
-							const { folder, oIds, nIds } = duplicateFolderItems(item as IFolder, destFolder, [], {});
-							oldIds = [...oldIds, ...oIds];
-							ids = { ...ids, ...nIds };
-							return folder;
-						} else {
-							item = (item as IHistory);
-							let newId = uuidv4();
-							oldIds.push(item.id);
-							ids[item.id] = newId;
-							let his: IHistory = {
-								id: newId,
-								method: item.method,
-								name: item.name,
-								url: item.url,
-								createdTime: formatDate()
-							};
-							return his;
-						}
-					});
-
-					items.forEach(item => {
-						destColItem.data.push(item);
-					});
-
-					cols = destColItem;
-				}
-			}
-
-			colDB.saveDatabase();
-			CopyExitingItems(oldIds, ids);
-
-			if (webview) {
-				webview.postMessage({ type: responseTypes.copyToCollectionsResponse });
-			}
-
-			if (sideBarView) {
-				sideBarView.webview.postMessage({ type: responseTypes.copyToCollectionsResponse, data: cols });
-			}
+		webview?.postMessage({ type: responseTypes.copyToCollectionsResponse });
+		sideBarView?.webview.postMessage({
+			type: responseTypes.copyToCollectionsResponse,
+			data: resultCol,
 		});
-
 	} catch (err) {
 		writeLog("error::CopyToCollection(): " + err);
 	}
 }
 
-export function GetAllCollectionName(webview: vscode.Webview, from: string) {
+export async function GetAllCollectionName(webview: vscode.Webview, from: string): Promise<void> {
 	try {
-		const db = getDB();
+		const colDB = await getCollectionDB();
+		const userCollections = colDB.getCollection('userCollections').data;
 
-		db.loadDatabase({}, function () {
-			const userCollections = db.getCollection('userCollections').data;
+		if (!userCollections?.length) {
+			return;
+		}
 
-			if (userCollections && userCollections.length > 0) {
-				let collections = [];
-				let folders = [];
-				userCollections.forEach(col => {
-					col.data.forEach(item => {
-						if (item.data) {
-							folders.push({ colId: col.id, value: item.id, name: item.name, disabled: false });
-						}
-					});
-					collections.push({ value: col.id, name: col.name, disabled: false });
-				});
+		const collections: { value: string; name: string; disabled: boolean }[] = [];
+		const folders: { colId: string; value: string; name: string; disabled: boolean }[] = [];
 
-				if (from === "addtocol") {
-					webview.postMessage({ type: responseTypes.getAllCollectionNameResponse, collectionNames: collections, folderNames: folders });
-				} else {
-					webview.postMessage({ type: responseTypes.getAllCollectionNamesResponse, collectionNames: collections, folderNames: folders });
+		for (const col of userCollections) {
+			collections.push({ value: col.id, name: col.name, disabled: false });
+			for (const item of col.data) {
+				if (item.data !== undefined) {
+					folders.push({ colId: col.id, value: item.id, name: item.name, disabled: false });
 				}
 			}
-		});
+		}
 
+		const msgType =
+			from === "addtocol"
+				? responseTypes.getAllCollectionNameResponse
+				: responseTypes.getAllCollectionNamesResponse;
+
+		webview?.postMessage({ type: msgType, collectionNames: collections, folderNames: folders });
 	} catch (err) {
 		writeLog("error::GetAllCollectionName(): " + err);
 	}
 }
 
-export function GetAllCollections(webview: vscode.Webview) {
+export async function GetAllCollections(webview: vscode.Webview): Promise<void> {
 	try {
-		const db = getDB();
-		db.loadDatabase({}, function () {
-			const userCollections = db.getCollection('userCollections').data;
-			webview.postMessage({ type: responseTypes.getAllCollectionsResponse, collections: userCollections });
-		});
+		const colDB = await getCollectionDB();
+		const userCollections = colDB.getCollection('userCollections').data;
+		webview?.postMessage({ type: responseTypes.getAllCollectionsResponse, collections: userCollections });
 	} catch (err) {
 		writeLog("error::GetAllCollections(): " + err);
 	}
 }
 
-export function RenameCollectionItem(webviewView: vscode.WebviewView, colId: string, historyId: string, folderId: string, folderType: boolean, name: string) {
+export async function RenameCollectionItem(
+	webviewView: vscode.WebviewView,
+	colId: string,
+	historyId: string,
+	folderId: string,
+	folderType: boolean,
+	name: string
+): Promise<void> {
 	try {
-		const db = getDB();
+		const colDB = await getCollectionDB();
+		const col = colDB.getCollection('userCollections').by('id', colId);
 
-		db.loadDatabase({}, function () {
-			let cols = db.getCollection('userCollections').by('id', colId);
+		if (!col) {
+			return;
+		}
 
-			if (cols) {
-				let item = findItem(cols, historyId ? historyId : folderId);
+		const item = findItem(col, historyId || folderId);
+		if (item) {
+			item.name = name;
+		}
 
-				if (item) {
-					item["name"] = name;
-				}
+		saveCollectionDB(colDB);
 
-				db.saveDatabase();
+		if (!folderType) {
+			RenameRequestItem(historyId, name);
+		}
 
-				if (!folderType) {
-					RenameRequestItem(historyId, name);
-				}
-
-				webviewView.webview.postMessage(
-					{
-						type: responseTypes.renameCollectionItemResponse,
-						params: { colId: colId, historyId: historyId, folderId: folderId, isFolder: folderType, name: name }
-					}
-				);
-			}
+		webviewView?.webview.postMessage({
+			type: responseTypes.renameCollectionItemResponse,
+			params: { colId, historyId, folderId, isFolder: folderType, name },
 		});
 	} catch (err) {
 		writeLog("error::RenameCollectionItem(): " + err);
 	}
 }
 
-export function DeleteCollectionItem(webviewView: vscode.WebviewView, colId: string, folderId: string, historyId: string, folderType: boolean) {
+export async function DeleteCollectionItem(
+	webviewView: vscode.WebviewView,
+	colId: string,
+	folderId: string,
+	historyId: string,
+	folderType: boolean
+): Promise<void> {
 	try {
+		const colDB = await getCollectionDB();
+		const col = colDB.getCollection('userCollections').by('id', colId);
 
-		let ids: string[];
-
-		function deleteItem(source: any, id: string, folderType: boolean) {
-			let pos = source.data.findIndex((el: any) => el.id === id);
-
-			if (pos !== -1) {
-				if (folderType) {
-					ids = getAllIds(source, []);
-				} else {
-					ids = [id];
-				}
-				source.data.splice(pos, 1);
-			}
-
-			for (let i = 0; i < source.data.length; i++) {
-				if (isFolder(source.data[i])) {
-					deleteItem(source.data[i], id, folderType);
-				}
-			}
+		if (!col) {
+			return;
 		}
 
-		const db = getDB();
+		const targetId = folderType ? folderId : historyId;
+		let deletedIds: string[] = [];
 
-		db.loadDatabase({}, function () {
-			let cols = db.getCollection('userCollections').by('id', colId);
-			if (cols !== null) {
-				deleteItem(cols, folderType ? folderId : historyId, folderType);
-				db.saveDatabase();
+		const parent = findParent(col, targetId) ?? col;
+		const pos = parent.data.findIndex((el: any) => el.id === targetId);
+
+		if (pos !== -1) {
+			if (folderType) {
+				deletedIds = getAllIds(parent.data[pos], []);
+			} else {
+				deletedIds = [targetId];
 			}
-			DeleteExitingItems(ids);
-			webviewView.webview.postMessage({ type: responseTypes.deleteCollectionItemResponse, params: { colId: colId, folderId: folderId, historyId: historyId, isFolder: folderType } });
-		});
+			parent.data.splice(pos, 1);
+		}
 
+		saveCollectionDB(colDB);
+		DeleteExitingItems(deletedIds);
+
+		webviewView?.webview.postMessage({
+			type: responseTypes.deleteCollectionItemResponse,
+			params: { colId, folderId, historyId, isFolder: folderType },
+		});
 	} catch (err) {
 		writeLog("error::DeleteCollectionItem(): " + err);
 	}
 }
 
-export function RenameCollection(webviewView: vscode.WebviewView, colId: string, name: string) {
+export async function RenameCollection(
+	webviewView: vscode.WebviewView,
+	colId: string,
+	name: string
+): Promise<void> {
 	try {
-		const db = getDB();
+		const colDB = await getCollectionDB();
+		colDB.getCollection('userCollections').findAndUpdate({ id: colId }, (item) => { item.name = name; });
+		saveCollectionDB(colDB);
 
-		db.loadDatabase({}, function () {
-			db.getCollection('userCollections').findAndUpdate({ 'id': colId }, item => { item.name = name; });
-			db.saveDatabase();
-			webviewView.webview.postMessage({ type: responseTypes.renameCollectionResponse, params: { id: colId, name: name } });
+		webviewView?.webview.postMessage({
+			type: responseTypes.renameCollectionResponse,
+			params: { id: colId, name },
 		});
-
 	} catch (err) {
 		writeLog("error::RenameCollection(): " + err);
 	}
 }
 
-export function DeleteCollection(webviewView: vscode.WebviewView, colId: string) {
+export async function UpdateCollectionItems(
+	colId: string,
+	folderId: string,
+	items: ICollections | IFolder
+): Promise<void> {
 	try {
-		const db = getDB();
+		const colDB = await getCollectionDB();
+		const collection = colDB.getCollection('userCollections');
+		const colItem = collection.by('id', colId);
 
-		db.loadDatabase({}, function () {
-			const userCollections = db.getCollection('userCollections');
-			let results = userCollections.by('id', colId);
-			let ids = getAllIds(results, []);
+		if (!colItem) {
+			writeLog(`error::UpdateCollectionItems(): no collection found for id ${colId}`);
+			return;
+		}
 
-			userCollections.findAndRemove({ 'id': colId });
-			db.saveDatabase();
+		const target = folderId ? findItem(colItem, folderId) : colItem;
 
-			DeleteExitingItems(ids);
+		if (!target) {
+			writeLog(`error::UpdateCollectionItems(): no folder found for id ${folderId}`);
+			return;
+		}
 
-			webviewView.webview.postMessage({ type: responseTypes.deleteCollectionResponse, id: colId });
-		});
+		target.data = items;
+		saveCollectionDB(colDB);
+	} catch (err) {
+		writeLog("error::UpdateCollectionItems(): " + err);
+	}
+}
 
+export async function DeleteCollection(
+	webviewView: vscode.WebviewView,
+	colId: string
+): Promise<void> {
+	try {
+		const colDB = await getCollectionDB();
+		const userCollections = colDB.getCollection('userCollections');
+		const col = userCollections.by('id', colId);
+		const ids = col ? getAllIds(col, []) : [];
+
+		userCollections.findAndRemove({ id: colId });
+		saveCollectionDB(colDB);
+
+		DeleteExitingItems(ids);
+		webviewView?.webview.postMessage({ type: responseTypes.deleteCollectionResponse, id: colId });
 	} catch (err) {
 		writeLog("error::DeleteCollection(): " + err);
 	}
 }
 
-
-export function DeleteAllCollectionItems(webviewView: vscode.WebviewView, colId: string, folderId: string) {
+export async function DeleteAllCollectionItems(
+	webviewView: vscode.WebviewView,
+	colId: string,
+	folderId: string
+): Promise<void> {
 	try {
-		const db = getDB();
+		const colDB = await getCollectionDB();
+		const col = colDB.getCollection('userCollections').by('id', colId);
+		let ids: string[] = [];
 
-		db.loadDatabase({}, function () {
-			const userCollections = db.getCollection('userCollections');
-			const results = userCollections.by('id', colId);
-			let ids = [];
-			if (folderId) {
-				let item = findItem(results, folderId);
-				if (item) {
-					ids = getAllIds(item, []);
-					item.data.length = 0;
-				}
-			} else {
-				ids = getAllIds(results, []);
-				results.data.length = 0;
+		if (folderId) {
+			const folder = findItem(col, folderId);
+			if (folder) {
+				ids = getAllIds(folder, []);
+				folder.data.length = 0;
 			}
+		} else {
+			ids = getAllIds(col, []);
+			col.data.length = 0;
+		}
 
-			db.saveDatabase();
-			DeleteExitingItems(ids);
-			webviewView.webview.postMessage({ type: responseTypes.clearResponse, id: colId, folderId: folderId });
+		saveCollectionDB(colDB);
+		DeleteExitingItems(ids);
+
+		webviewView?.webview.postMessage({
+			type: responseTypes.clearResponse,
+			id: colId,
+			folderId,
 		});
-
 	} catch (err) {
 		writeLog("error::DeleteAllCollectionItems(): " + err);
 	}
 }
 
-export function AttachVariable(colId: string, varId: string, webview: vscode.Webview, sideBarView: vscode.WebviewView) {
+export async function AttachVariable(
+	colId: string,
+	varId: string,
+	webview: vscode.Webview,
+	sideBarView: vscode.WebviewView
+): Promise<void> {
 	try {
-		const db = getDB();
+		const colDB = await getCollectionDB();
+		colDB.getCollection('userCollections').findAndUpdate({ id: colId }, (item) => { item.variableId = varId; });
+		saveCollectionDB(colDB);
 
-		db.loadDatabase({}, function () {
-			db.getCollection('userCollections').findAndUpdate({ 'id': colId }, item => { item.variableId = varId; });
-			db.saveDatabase();
-
-			if (webview) {
-				webview.postMessage({ type: responseTypes.attachVariableResponse });
-			}
-
-			if (sideBarView) {
-				sideBarView.webview.postMessage({ type: responseTypes.attachVariableResponse, params: { id: colId, varId: varId } });
-			}
-
-			if (pubSub.size > 0) {
-				pubSub.publish({ messageType: varId === "" ? pubSubTypes.removeCurrentVariable : pubSubTypes.addCurrentVariable, message: varId });
-			}
+		webview?.postMessage({ type: responseTypes.attachVariableResponse });
+		sideBarView?.webview.postMessage({
+			type: responseTypes.attachVariableResponse,
+			params: { id: colId, varId },
 		});
 
+		if (pubSub.size > 0) {
+			pubSub.publish({
+				messageType: varId === ""
+					? pubSubTypes.removeCurrentVariable
+					: pubSubTypes.addCurrentVariable,
+				message: varId,
+			});
+		}
 	} catch (err) {
 		writeLog("error::AttachVariable(): " + err);
 	}
 }
 
-export function RemoveVariableByVariableId(varId: string, sideBarView: vscode.WebviewView) {
+export async function RemoveVariableByVariableId(
+	varId: string,
+	sideBarView: vscode.WebviewView
+): Promise<void> {
 	try {
-		const db = getDB();
+		const colDB = await getCollectionDB();
+		colDB.getCollection('userCollections').findAndUpdate({ variableId: varId }, (item) => { item.variableId = ""; });
+		saveCollectionDB(colDB);
 
-		db.loadDatabase({}, function () {
-			db.getCollection('userCollections').findAndUpdate({ 'variableId': varId }, item => { item.variableId = ""; });
-			db.saveDatabase();
-
-			if (sideBarView) {
-				const userCollections = db.getCollection('userCollections').data;
-				sideBarView.webview.postMessage({ type: responseTypes.getAllCollectionsResponse, collections: userCollections });
-			}
-		});
-
+		if (sideBarView) {
+			const userCollections = colDB.getCollection('userCollections').data;
+			sideBarView.webview.postMessage({
+				type: responseTypes.getAllCollectionsResponse,
+				collections: userCollections,
+			});
+		}
 	} catch (err) {
-		writeLog("error::AttachVariable(): " + err);
+		writeLog("error::RemoveVariableByVariableId(): " + err);
 	}
 }
 
-export function GetCollectionsByVariable(varId: string, webview: vscode.Webview) {
+export async function GetCollectionsByVariable(varId: string, webview: vscode.Webview): Promise<void> {
 	try {
-		const db = getDB();
+		const colDB = await getCollectionDB();
+		const cols = colDB.getCollection('userCollections').chain().find({ variableId: varId }).data();
+		const colNames = cols.map((item: any) => item.name);
 
-		db.loadDatabase({}, function () {
-			const cols = db.getCollection('userCollections').chain().find({ 'variableId': varId }).data();
-			let colNames = [];
-			if (cols && cols.length > 0) {
-				colNames = cols.map((item) => { return item.name; });
-			}
-			webview.postMessage({ type: responseTypes.getAttachedColIdsResponse, colNames: colNames });
-		});
-
+		webview?.postMessage({ type: responseTypes.getAttachedColIdsResponse, colNames });
 	} catch (err) {
 		writeLog("error::GetCollectionsByVariable(): " + err);
 	}
 }
 
-export function RemoveVariable(varId: string) {
+export async function RemoveVariable(varId: string): Promise<void> {
 	try {
-		const db = getDB();
-
-		db.loadDatabase({}, function () {
-			db.getCollection('userCollections').findAndUpdate({ 'variableId': varId }, item => { item.variableId = ""; });
-			db.saveDatabase();
-		});
-
+		const colDB = await getCollectionDB();
+		colDB.getCollection('userCollections').findAndUpdate({ variableId: varId }, (item) => { item.variableId = ""; });
+		saveCollectionDB(colDB);
 	} catch (err) {
 		writeLog("error::RemoveVariable(): " + err);
 	}
 }
 
-export function GetAllCollectionsById(colId: string, folderId: string, type: string, webview: vscode.Webview) {
+export async function GetCollectionById(
+	colId: string,
+	folderId: string,
+	webview: vscode.Webview): Promise<void> {
 	try {
-		const db = getDB();
+		const colDB = await getCollectionDB();
+		const colItem = colDB.getCollection('userCollections').by('id', colId);
+		const items = folderId !== null && folderId !== undefined && folderId !== "" ? findItem(colItem, folderId) : colItem;
+		webview?.postMessage({ type: responseTypes.getCollectionDetailsByIdResponse, items });
+	} catch (err) {
+		writeLog("error::GetCollectionById(): " + err);
+	}
+}
 
-		db.loadDatabase({}, function () {
-			let ids = [];
-			let paths: any;
+export async function GetAllCollectionsById(
+	colId: string,
+	folderId: string,
+	type: string,
+	webview: vscode.Webview
+): Promise<void> {
+	try {
+		const colDB = await getCollectionDB();
+		const colItem = colDB.getCollection('userCollections').by('id', colId);
+
+		const source = type === "col" ? colItem : findItem(colItem, folderId);
+		const { paths, ids } = getPath(source, "", {}, [], "source");
+
+		GetColsRequests(ids.reverse(), paths, webview);
+
+		if (colItem) {
 			let settings: ISettings;
 
-			let colItem = db.getCollection('userCollections').by('id', colId);
-			if (type === "col") {
-				({ paths, ids } = getPath(colItem, "", {}, [], "source"));
+			if (folderId) {
+				settings = findParentSettings(colItem, folderId) ?? defaultSettings() as ISettings;
 			} else {
-				let item = findItem(colItem, folderId);
-				({ paths, ids } = getPath(item, "", {}, [], "source"));
+				settings = colItem.settings ?? defaultSettings() as ISettings;
 			}
-			ids = ids.reverse();
-			GetColsRequests(ids, paths, webview);
 
-			if (colItem) {
-				if (folderId) {
-					settings = findParentSettings(colItem, folderId);
-					if (!settings) {
-						settings = JSON.parse(JSON.stringify(InitialSettings)) as ISettings;
-					}
-				} else {
-					settings = colItem.settings ? colItem.settings : JSON.parse(JSON.stringify(InitialSettings));
-				}
-
-				if (webview) {
-					webview.postMessage({ type: responseTypes.getParentSettingsResponse, settings: settings });
-				}
-			}
-		});
-
+			webview?.postMessage({ type: responseTypes.getParentSettingsResponse, settings });
+		}
 	} catch (err) {
 		writeLog("error::GetAllCollectionsById(): " + err);
 	}
 }
 
-export function GetAllCollectionsByIdWithPath(colId: string, webview: vscode.Webview) {
+export async function GetAllCollectionsByIdWithPath(colId: string, webview: vscode.Webview): Promise<void> {
 	try {
-		const db = getDB();
+		const colDB = await getCollectionDB();
+		const col = colDB.getCollection('userCollections').by('id', colId);
+		const { paths } = getPath(col, "", {}, [], "request");
 
-		db.loadDatabase({}, function () {
-			let results = db.getCollection('userCollections').by('id', colId);
-			const { paths } = getPath(results, "", {}, [], "request");
-			if (webview) {
-				webview.postMessage({ type: responseTypes.getCollectionsByIdWithPathResponse, colId: colId, paths: paths });
-			}
+		webview?.postMessage({
+			type: responseTypes.getCollectionsByIdWithPathResponse,
+			colId,
+			paths,
 		});
-
 	} catch (err) {
 		writeLog("error::GetAllCollectionsByIdWithPath(): " + err);
 	}
 }
 
-function getPath(source: any, path: string, paths: Record<string, string>, ids: string[], type: string): { paths: Record<string, string>; ids: string[] } | undefined {
-
-	let folders = source.data.filter(item => item.data !== undefined);
-
-	if (folders.length === 0) {
-		source.data.forEach(item => {
-			paths[item.id] = path ? path + " > " + source.name + (type === "source" ? ";" + source.id : " > " + item.name + ";" + source.id) : source.name + (type === "source" ? ";" + source.id : " > " + item.name + ";" + source.id);
-			ids.unshift(item.id);
-		});
-
-		return { paths, ids };
-	} else {
-		source.data.filter(i => i.data === undefined).forEach(item => {
-			paths[item.id] = path ? path + " > " + source.name + (type === "source" ? ";" + source.id : " > " + item.name + ";" + source.id) : source.name + (type === "source" ? ";" + source.id : " > " + item.name + ";" + source.id);
-			ids.unshift(item.id);
-		});
-	}
-
-	path = path ? path + " > " + source.name : source.name;
-
-	let lastResult: { paths: Record<string, string>; ids: string[] } | undefined;
-	for (let i = 0; i < folders.length; i++) {
-		lastResult = getPath(folders[i], path, paths, ids, type);
-	}
-	return lastResult;
-}
-
-export function GetVariableByColId(colId: string) {
+export async function GetVariableByColId(colId: string): Promise<string> {
 	try {
-		return new Promise<string>((resolve, _reject) => {
-			const db = getDB();
-
-			db.loadDatabase({}, function (err: any) {
-				if (err) {
-					resolve(null);
-				}
-				const colItem = db.getCollection('userCollections').by("id", colId);
-				resolve(colItem ? colItem.variableId : "");
-			});
-		});
+		const colDB = await getCollectionDB();
+		const colItem = colDB.getCollection('userCollections').by("id", colId);
+		return colItem?.variableId ?? "";
 	} catch (err) {
 		writeLog("error::GetVariableByColId(): " + err);
 		throw err;
 	}
 }
 
-export function NewFolderToCollection(item: IFolder, colId: string, folderId: string, sideBarView: vscode.WebviewView) {
+export async function NewFolderToCollection(
+	item: IFolder,
+	colId: string,
+	folderId: string,
+	sideBarView: vscode.WebviewView
+): Promise<void> {
 	try {
-		const db = getDB();
+		const colDB = await getCollectionDB();
+		const colItem = colDB.getCollection('userCollections').by("id", colId);
 
-		db.loadDatabase({}, function () {
-			const colItem = db.getCollection('userCollections').by("id", colId);
-			if (folderId) {
-				let folder = findItem(colItem, folderId);
-				if (folder) {
-					folder.data.push(item);
-				}
-			} else {
-				colItem.data.push(item);
-			}
-			db.saveDatabase();
+		if (folderId) {
+			const folder = findItem(colItem, folderId);
+			folder?.data.push(item);
+		} else {
+			colItem.data.push(item);
+		}
 
-			if (sideBarView) {
-				sideBarView.webview.postMessage({ type: responseTypes.createNewFolderResponse, folder: item, colId: colId, folderId: folderId });
-			}
+		saveCollectionDB(colDB);
+		sideBarView?.webview.postMessage({
+			type: responseTypes.createNewFolderResponse,
+			folder: item,
+			colId,
+			folderId,
 		});
 	} catch (err) {
 		writeLog("error::NewFolderToCollection(): " + err);
 	}
 }
 
-export function UpdateCollection(colId: string, item: IHistory) {
+export async function UpdateCollection(colId: string, item: IHistory): Promise<void> {
 	try {
-		const db = getDB();
+		const colDB = await getCollectionDB();
+		const colItem = colDB.getCollection('userCollections').by("id", colId);
+		const req = findItem(colItem, item.id);
 
-		db.loadDatabase({}, function () {
-			const colItem = db.getCollection('userCollections').by("id", colId);
-			let req = findItem(colItem, item.id);
-			if (req) {
-				req.name = item.name;
-				req.method = item.method;
-				req.url = item.url;
-			}
-			db.saveDatabase();
-		});
+		if (req) {
+			req.name = item.name;
+			req.method = item.method;
+			req.url = item.url;
+		}
+
+		saveCollectionDB(colDB);
 	} catch (err) {
 		writeLog("error::UpdateCollection(): " + err);
 	}
 }
 
-export function GetCollectionSettings(webview: vscode.Webview, colId: string, folderId: string) {
+export async function GetCollectionSettings(
+	webview: vscode.Webview,
+	colId: string,
+	folderId: string
+): Promise<void> {
 	try {
-		const db = getDB();
+		const colDB = await getCollectionDB();
+		const colItem = colDB.getCollection('userCollections').by("id", colId);
 
-		db.loadDatabase({}, function () {
-			let settings: any;
+		if (!colItem) {
+			return;
+		}
 
-			const colItem = db.getCollection('userCollections').by("id", colId);
+		let settings: any;
+		if (folderId) {
+			const folderItem = findItem(colItem, folderId);
+			settings = folderItem?.settings ?? defaultSettings();
+		} else {
+			settings = colItem.settings ?? defaultSettings();
+		}
 
-			if (colItem) {
-				if (folderId) {
-					let folderItem = findItem(colItem, folderId);
-					if (folderItem) {
-						settings = folderItem.settings ? folderItem.settings : JSON.parse(JSON.stringify(InitialSettings));
-					}
-				} else {
-					settings = colItem.settings ? colItem.settings : JSON.parse(JSON.stringify(InitialSettings));
-				}
-
-				if (webview) {
-					webview.postMessage({ type: responseTypes.getColSettingsResponse, data: { settings: settings, type: folderId ? SettingsType.Folder : SettingsType.Collection, variableId: colItem.variableId } });
-				}
-			}
+		webview?.postMessage({
+			type: responseTypes.getColSettingsResponse,
+			data: {
+				settings,
+				type: folderId ? SettingsType.Folder : SettingsType.Collection,
+				variableId: colItem.variableId,
+			},
 		});
-	}
-	catch (err) {
+	} catch (err) {
 		writeLog("error::GetCollectionSettings(): " + err);
 	}
 }
 
-export function GetParentSettings(colId: string, folderId: string, webview: vscode.Webview) {
+export async function GetParentSettings(
+	colId: string,
+	folderId: string,
+	webview: vscode.Webview
+): Promise<void> {
 	try {
-		const db = getDB();
+		const colDB = await getCollectionDB();
+		const colItem = colDB.getCollection('userCollections').by("id", colId);
 
-		db.loadDatabase({}, function () {
-			let settings: ISettings;
+		if (!colItem) {
+			return;
+		}
 
-			const colItem = db.getCollection('userCollections').by("id", colId);
+		let settings: ISettings;
+		if (folderId) {
+			settings = findParentSettings(colItem, folderId) ?? defaultSettings() as ISettings;
+		} else {
+			settings = colItem.settings ?? defaultSettings() as ISettings;
+		}
 
-			if (colItem) {
-				if (folderId) {
-					settings = findParentSettings(colItem, folderId);
-					if (!settings) {
-						settings = JSON.parse(JSON.stringify(InitialSettings)) as ISettings;
-					}
-				} else {
-					settings = colItem.settings ? colItem.settings : JSON.parse(JSON.stringify(InitialSettings));
-				}
-
-				if (webview) {
-					webview.postMessage({ type: responseTypes.getParentSettingsResponse, settings: settings });
-				}
-			}
-		});
-	}
-	catch (err) {
+		webview?.postMessage({ type: responseTypes.getParentSettingsResponse, settings });
+	} catch (err) {
 		writeLog("error::GetParentSettings(): " + err);
 	}
 }
 
-export function GetParentSettingsSync(colId: string, folderId: string) {
+export async function GetParentSettingsSync(colId: string, folderId: string): Promise<ISettings | null> {
 	try {
-		return new Promise<ISettings>((resolve, _reject) => {
-			const db = getDB();
+		const colDB = await getCollectionDB();
+		const colItem = colDB.getCollection('userCollections').by("id", colId);
 
-			db.loadDatabase({}, function (err: any) {
+		if (!colItem) {
+			return null;
+		}
 
-				if (err) {
-					resolve(null);
-				}
+		if (folderId) {
+			return (findParentSettings(colItem, folderId) ?? defaultSettings()) as ISettings;
+		}
 
-
-				let settings: any;
-				const colItem = db.getCollection('userCollections').by("id", colId);
-
-				if (colItem) {
-					if (folderId) {
-						settings = findParentSettings(colItem, folderId);
-						if (!settings) {
-							settings = JSON.parse(JSON.stringify(InitialSettings));
-						}
-					} else {
-						settings = colItem.settings ? colItem.settings : JSON.parse(JSON.stringify(InitialSettings));
-					}
-				}
-
-				resolve(settings ? settings as ISettings : null);
-			});
-		});
-	}
-	catch (err) {
+		return (colItem.settings ?? defaultSettings()) as ISettings;
+	} catch (err) {
 		writeLog("error::GetParentSettingsSync(): " + err);
 		throw err;
 	}
 }
 
-
-export function ExecuteRequest(reqData: any, fetchConfig: FetchConfig, webview: vscode.Webview) {
-	try {
-		const db = getDB();
-
-		db.loadDatabase({}, function () {
-			let settings: any;
-
-			const colItem = db.getCollection('userCollections').by("id", reqData.data.colId);
-
-			if (colItem) {
-				if (reqData.data.folderId) {
-					settings = findParentSettings(colItem, reqData.data.folderId);
-					if (!settings) {
-						settings = JSON.parse(JSON.stringify(InitialSettings));
-					}
-				} else {
-					settings = colItem.settings ? colItem.settings : JSON.parse(JSON.stringify(InitialSettings));
-				}
-
-				apiFetch(reqData.data.reqData, reqData.data.variableData, settings, null, fetchConfig).then((data) => {
-					webview.postMessage(data);
-				});
-			}
-		});
+// ---------------------------------------------------------------------------
+// Request execution
+// ---------------------------------------------------------------------------
+function resolveSettings(colItem: any, folderId?: string): any {
+	if (folderId) {
+		return findParentSettings(colItem, folderId) ?? defaultSettings();
 	}
-	catch (err) {
+	return colItem.settings ?? defaultSettings();
+}
+
+export async function ExecuteRequest(
+	reqData: any,
+	fetchConfig: FetchConfig,
+	webview: vscode.Webview
+): Promise<void> {
+	try {
+		const colDB = await getCollectionDB();
+		const colItem = colDB.getCollection('userCollections').by("id", reqData.data.colId);
+
+		if (!colItem) {
+			return;
+		}
+
+		const settings = resolveSettings(colItem, reqData.data.folderId);
+		const result = await apiFetch(reqData.data.reqData, reqData.data.variableData, settings, null, fetchConfig);
+		webview?.postMessage(result);
+	} catch (err) {
 		writeLog("error::ExecuteRequest(): " + err);
 	}
 }
 
-export function ExecuteMultipleRequest(reqData: any, fetchConfig: FetchConfig, webview: vscode.Webview) {
+export async function ExecuteMultipleRequest(
+	reqData: any,
+	fetchConfig: FetchConfig,
+	webview: vscode.Webview
+): Promise<void> {
 	try {
-		const db = getDB();
+		const colDB = await getCollectionDB();
+		const colItem = colDB.getCollection('userCollections').by("id", reqData.data.colId);
 
-		db.loadDatabase({}, function () {
-			let settings: any;
-			let requests: any[] = [];
-
-			const colItem = db.getCollection('userCollections').by("id", reqData.data.colId);
-
-			reqData.data.reqData.forEach(item => {
-				if (item.auth.authType === "inherit") {
-
-					if (colItem) {
-						let id = item.data.itemPaths[item.id].split(";")[1];
-						if (id === item.data.colId) {
-							id = "";
-						}
-
-						if (id) {
-							settings = findParentSettings(colItem, id);
-							if (!settings) {
-								settings = JSON.parse(JSON.stringify(InitialSettings));
-							}
-						} else {
-							settings = colItem.settings ? colItem.settings : JSON.parse(JSON.stringify(InitialSettings));
-						}
-
-						requests.push(apiFetch(item, reqData.data.variableData, settings, null, fetchConfig));
-					}
-				} else {
-					requests.push(apiFetch(item, reqData.data.variableData, null, null, fetchConfig));
-				}
-			});
-
-			if (requests.length > 0) {
-				Promise.allSettled(requests).then((values) => {
-					webview.postMessage({ type: responseTypes.multipleApiResponse, output: values });
-				});
+		const requests = (reqData.data.reqData as any[]).map((item) => {
+			if (item.auth?.authType !== "inherit") {
+				return apiFetch(item, reqData.data.variableData, null, null, fetchConfig);
 			}
+
+			if (!colItem) {
+				return apiFetch(item, reqData.data.variableData, null, null, fetchConfig);
+			}
+
+			// Determine the folder id from the item's path metadata.
+			const pathEntry = item.data?.itemPaths?.[item.id] ?? "";
+			const folderId = pathEntry.split(";")[1] === item.data?.colId ? "" : pathEntry.split(";")[1];
+			const settings = resolveSettings(colItem, folderId);
+
+			return apiFetch(item, reqData.data.variableData, settings, null, fetchConfig);
 		});
-	}
-	catch (err) {
+
+		const values = await Promise.allSettled(requests);
+		webview?.postMessage({ type: responseTypes.multipleApiResponse, output: values });
+	} catch (err) {
 		writeLog("error::ExecuteMultipleRequest(): " + err);
 	}
 }
 
-export function SaveCollectionSettings(webview: vscode.Webview, colId: string, folderId: string, settings: ISettings) {
+export async function SaveCollectionSettings(
+	webview: vscode.Webview,
+	colId: string,
+	folderId: string,
+	settings: ISettings
+): Promise<void> {
 	try {
-		const db = getDB();
+		const colDB = await getCollectionDB();
+		const colItem = colDB.getCollection('userCollections').by("id", colId);
 
-		db.loadDatabase({}, function () {
-			const colItem = db.getCollection('userCollections').by("id", colId);
+		if (!colItem) {
+			return;
+		}
 
-			if (colItem) {
-				if (folderId) {
-					let folderItem = findItem(colItem, folderId);
-					if (folderItem) {
-						folderItem.settings = settings;
-					}
-				} else {
-					colItem.settings = settings;
-				}
-
-				db.saveDatabase();
+		if (folderId) {
+			const folderItem = findItem(colItem, folderId);
+			if (folderItem) {
+				folderItem.settings = settings;
 			}
+		} else {
+			colItem.settings = settings;
+		}
 
-			if (webview) {
-				webview.postMessage({ type: responseTypes.saveColSettingsResponse, colId: colId, folderId: folderId });
-			}
-		});
-	}
-	catch (err) {
+		saveCollectionDB(colDB);
+		webview?.postMessage({ type: responseTypes.saveColSettingsResponse, colId, folderId });
+	} catch (err) {
 		writeLog("error::SaveCollectionSettings(): " + err);
 	}
 }

@@ -1,13 +1,13 @@
-import React, { useEffect } from "react";
+import "../style.css";
+import { formatDate } from "../../../../utils/helper";
+import { getMethodClassName } from "../../SideBar/util";
+import { IHistory, IFolder, ICollections } from "../../../../fetch-client-core/types/sidebar.types";
+import { InitialSettings } from "../../SideBar/redux/reducer";
+import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
 import { useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
-import { requestTypes, responseTypes } from "../../../../utils/configuration";
-import { formatDate } from "../../../../utils/helper";
+import React, { useEffect } from "react";
 import vscode from "../../Common/vscodeAPI";
-import { InitialSettings } from "../../SideBar/redux/reducer";
-import { ICollections, IFolder, IHistory } from "../../SideBar/redux/types";
-import { getMethodClassName } from "../../SideBar/util";
-import "../style.css";
 
 const AddToCollection = () => {
 

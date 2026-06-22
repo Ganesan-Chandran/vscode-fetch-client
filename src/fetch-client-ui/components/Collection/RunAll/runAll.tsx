@@ -1,15 +1,15 @@
-import React, { useEffect, useRef, useState } from "react";
-import { requestTypes, responseTypes } from "../../../../utils/configuration";
-import vscode from "../../Common/vscodeAPI";
-import { IRequestModel } from "../../RequestUI/redux/types";
-import { GetResponseTime } from "../../ResponseUI/OptionsPanel/OptionTab/util";
-import { IReponseModel } from "../../ResponseUI/redux/types";
-import { ISettings, IVariable } from "../../SideBar/redux/types";
-import { getMethodClassName } from "../../SideBar/util";
-import { executeTests, setVariable } from "../../TestUI/TestPanel/helper";
 import "../style.css";
+import { executeTests, setVariable } from "../../TestUI/TestPanel/helper";
 import { exportCSV, exportJson } from "./helper";
+import { getMethodClassName } from "../../SideBar/util";
+import { GetResponseTime } from "../../ResponseUI/OptionsPanel/OptionTab/util";
+import { IReponseModel } from "../../../../fetch-client-core/types/response.types";
+import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
+import { ISettings, IVariable } from "../../../../fetch-client-core/types/sidebar.types";
+import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
 import { RunAllSettings } from "./runAllSettings";
+import React, { useEffect, useRef, useState } from "react";
+import vscode from "../../Common/vscodeAPI";
 
 const RunAll = () => {
 

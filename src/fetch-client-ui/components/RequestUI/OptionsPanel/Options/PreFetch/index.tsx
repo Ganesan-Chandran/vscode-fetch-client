@@ -1,12 +1,12 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { IRootState } from "../../../../../reducer/combineReducer";
-import { Actions } from "../../../redux";
-import { InitialTest } from "../../../redux/reducer";
-import { IRunRequest } from "../../../redux/types";
-import { PreRequest } from "./preRequest";
 import "./style.css";
+import { Actions } from "../../../redux";
 import { AppDispatch } from "../../../../../store/appStore";
+import { InitialTest } from "../../../redux/reducer";
+import { IRootState } from "../../../../../reducer/combineReducer";
+import { IRunRequest } from "../../../../../../fetch-client-core/types/prefetch.types";
+import { PreRequest } from "./preRequest";
+import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect } from "react";
 
 export interface IPreFecthProps {
 	settingsMode?: boolean;
@@ -86,3 +86,5 @@ export const PreFetch = (props: IPreFecthProps) => {
 		</div>
 	);
 };
+
+export default PreFetch;

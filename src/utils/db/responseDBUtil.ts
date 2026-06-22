@@ -1,9 +1,9 @@
+import { IReponseModel } from "../../fetch-client-core/types/response.types";
+import { responseDBPath } from "./helper";
+import { responseTypes } from "../../fetch-client-core/consts/requestTypes.consts";
+import { writeLog } from '../logger/logger';
 import * as vscode from "vscode";
 import loki, { LokiFsAdapter } from "lokijs";
-import { writeLog } from '../logger/logger';
-import { responseDBPath } from "./helper";
-import { IReponseModel } from "../../fetch-client-ui/components/ResponseUI/redux/types";
-import { responseTypes } from "../configuration";
 
 function getDB(): loki {
 	const idbAdapter = new LokiFsAdapter();

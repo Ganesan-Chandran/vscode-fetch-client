@@ -1,31 +1,17 @@
+import { apiFetch, FetchConfig } from "../fetchUtil";
 import { CronJob } from "cron";
-import { IAutoRequest } from "../../fetch-client-ui/components/AutoRequest/types";
-import { setVariable } from "../../fetch-client-ui/components/TestUI/TestPanel/helper";
+import { getHeadersConfiguration, getRunMainRequestOption, getTimeOutConfiguration } from "../vscodeConfig";
 import { GetParentSettingsSync, GetVariableByColId } from "../db/collectionDBUtil";
 import { GetRequestItem } from "../db/mainDBUtil";
 import { GetVariableByIdSync, UpdateVariableSync } from "../db/varDBUtil";
-import { apiFetch, FetchConfig } from "../fetchUtil";
+import { IAutoRequest } from "../../fetch-client-core/types/autorequest.types";
+import { IReponseModel } from "../../fetch-client-core/types/response.types";
+import { setVariable } from "../../fetch-client-ui/components/TestUI/TestPanel/helper";
 import { writeLog } from "../logger/logger";
-import { getHeadersConfiguration, getRunMainRequestOption, getTimeOutConfiguration } from "../vscodeConfig";
-import { IReponseModel } from "../../fetch-client-ui/components/ResponseUI/redux/types";
 
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
-/** Maximum allowed elapsed time (in minutes) before a job is force-stopped. */
 const MAX_JOB_DURATION_MINUTES = 600;
 
-/** Milliseconds in one minute. */
 const MS_PER_MINUTE = 60_000;
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-// Cron field reference:
-//   second (0-59), minute (0-59), hour (0-23),
-//   day of month (1-31), month (1-12), day of week (0-7)
 
 interface IScheduledJob {
 	readonly id: string;
@@ -36,15 +22,6 @@ interface IScheduledJob {
 	readonly job: CronJob;
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/**
- * Returns a cron expression for the request.
- * Uses the pre-built `cron` field when available; otherwise derives one from
- * `interval` (minutes between ticks).
- */
 function buildCronExpression(request: IAutoRequest): string {
 	if (request.cron?.trim()) {
 		return request.cron.trim();
@@ -52,11 +29,6 @@ function buildCronExpression(request: IAutoRequest): string {
 	return `0 */${request.interval} * * * *`;
 }
 
-/**
- * Reads VS Code settings fresh on every call so that user changes to
- * timeout / header-case / run-main-request take effect without restarting
- * the extension.
- */
 function getFreshFetchConfig(): FetchConfig {
 	return {
 		timeOut: getTimeOutConfiguration(),
@@ -64,10 +36,6 @@ function getFreshFetchConfig(): FetchConfig {
 		runMainRequest: getRunMainRequestOption(),
 	};
 }
-
-// ---------------------------------------------------------------------------
-// Scheduler
-// ---------------------------------------------------------------------------
 
 export class FCScheduler {
 
@@ -78,10 +46,6 @@ export class FCScheduler {
 	public static get Instance(): FCScheduler {
 		return this.instance ?? (this.instance = new FCScheduler());
 	}
-
-	// ---------------------------------------------------------------------------
-	// Public API
-	// ---------------------------------------------------------------------------
 
 	public CreateJobs(requests: IAutoRequest[], autoStart: boolean): void {
 		for (const request of requests) {
@@ -157,10 +121,6 @@ export class FCScheduler {
 		}
 	}
 
-	// ---------------------------------------------------------------------------
-	// Private helpers
-	// ---------------------------------------------------------------------------
-
 	private async executeAPI(autoReq: IAutoRequest): Promise<void> {
 		try {
 			const scheduledJob = this.scheduledJobs.find(j => j.id === autoReq.id);
@@ -196,7 +156,6 @@ export class FCScheduler {
 				loading: false,
 			};
 
-			// NOTE: original guard was `length - 1 > 0` (i.e. length > 1); preserved intentionally.
 			if (request.setvar.length - 1 > 0 && variable) {
 				const updatedVariable = setVariable(variable, request.setvar, resData);
 				await UpdateVariableSync(updatedVariable);

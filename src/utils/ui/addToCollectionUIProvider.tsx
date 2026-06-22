@@ -1,14 +1,14 @@
-import axios from 'axios';
-import * as vscode from 'vscode';
-import { getStorageManager, OpenExistingItem, sideBarProvider } from '../../extension';
-import { requestTypes, responseTypes } from '../configuration';
-import { buildWebviewHtml, saveToFile } from './webviewUtils';
-import { AddToCollection, AttachVariable, CopyToCollection, ExecuteMultipleRequest, GetAllCollectionName, GetAllCollectionsById, GetAllCollectionsByIdWithPath, GetCollectionSettings, GetParentSettings, SaveCollectionSettings } from '../db/collectionDBUtil';
-import { GetHistoryById } from '../db/historyDBUtil';
-import { GetAllVariable, GetVariableById, UpdateVariable } from '../db/varDBUtil';
+import { AddToCollection, AttachVariable, CopyToCollection, ExecuteMultipleRequest, GetAllCollectionName, GetAllCollectionsById, GetAllCollectionsByIdWithPath, GetCollectionById, GetCollectionSettings, GetParentSettings, SaveCollectionSettings, UpdateCollectionItems } from '../db/collectionDBUtil';
 import { apiFetch, FetchConfig } from '../fetchUtil';
-import { getHeadersConfiguration, getTimeOutConfiguration } from '../vscodeConfig';
+import { buildWebviewHtml, saveToFile } from './webviewUtils';
 import { ExecuteAPIRequest, ShowInformationDialog } from './helper';
+import { GetAllVariable, GetVariableById, UpdateVariable } from '../db/varDBUtil';
+import { getHeadersConfiguration, getTimeOutConfiguration } from '../vscodeConfig';
+import { GetHistoryById } from '../db/historyDBUtil';
+import { getStorageManager, OpenExistingItem, sideBarProvider } from '../../extension';
+import { requestTypes, responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
+import * as vscode from 'vscode';
+import axios from 'axios';
 
 export const AddToColUI = (extensionUri: vscode.Uri) => {
 	const disposable = vscode.commands.registerCommand('fetch-client.addToCol', (colId: string, folderId: string, name: string, type: string, varId?: string) => {
@@ -47,6 +47,10 @@ export const AddToColUI = (extensionUri: vscode.Uri) => {
 				AttachVariable(message.data.colId, message.data.varId, colPanel.webview, sideBarProvider.view);
 			} else if (message.type === requestTypes.getCollectionsByIdRequest) {
 				GetAllCollectionsById(message.data.colId, message.data.folderId, message.data.type, colPanel.webview);
+			} else if (message.type === requestTypes.getCollectionDetailsByIdRequest) { 
+				GetCollectionById(message.data.colId, message.data.folderId, colPanel.webview);
+			} else if (message.type === requestTypes.reorderCollectionRequest) {				
+				UpdateCollectionItems(message.data.colId, message.data.folderId, message.data.items);
 			} else if (message.type === requestTypes.apiRequest) {
 				const CancelToken = axios.CancelToken;
 				fetchConfig.source = CancelToken.source();

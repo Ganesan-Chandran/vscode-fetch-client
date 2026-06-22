@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { ReactComponent as BinLogo } from '../../../../../../../icons/bin.svg';
-import { requestTypes, responseTypes } from "../../../../../../utils/configuration";
-import { IRootState } from "../../../../../reducer/combineReducer";
-import { TextEditor } from "../../../../Common/TextEditor/TextEditor";
-import vscode from "../../../../Common/vscodeAPI";
-import { Actions } from "../../../redux";
-import { IColRequest, IRequestList, IRunRequest, ITest } from "../../../redux/types";
-import { preConditionActions, preConditions } from "./consts";
 import "./style.css";
+import { Actions } from "../../../redux";
 import { AppDispatch } from "../../../../../store/appStore";
+import { IRootState } from "../../../../../reducer/combineReducer";
+import { IRunRequest, IRequestList, IColRequest, ITest } from "../../../../../../fetch-client-core/types/prefetch.types";
+import { preConditions, preConditionActions } from "../../../../../../fetch-client-core/consts/prefetch.consts";
+import { ReactComponent as BinLogo } from '../../../../../../../icons/bin.svg';
+import { requestTypes, responseTypes } from "../../../../../../fetch-client-core/consts/requestTypes.consts";
+import { TextEditor } from "../../../../Common/TextEditor/TextEditor";
+import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
+import vscode from "../../../../Common/vscodeAPI";
 
 export interface IPreRequestProps {
 	request: IRunRequest,

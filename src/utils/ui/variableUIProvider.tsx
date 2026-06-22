@@ -1,9 +1,9 @@
-import * as vscode from 'vscode';
-import { sideBarProvider } from '../../extension';
-import { requestTypes } from '../configuration';
-import { GetCollectionsByVariable } from '../db/collectionDBUtil';
-import { GetAllVariable, GetVariableById, SaveVariable, UpdateVariable } from '../db/varDBUtil';
 import { buildWebviewHtml } from './webviewUtils';
+import { GetAllVariable, GetVariableById, SaveVariable, UpdateVariable } from '../db/varDBUtil';
+import { GetCollectionsByVariable } from '../db/collectionDBUtil';
+import { requestTypes } from '../../fetch-client-core/consts/requestTypes.consts';
+import { sideBarProvider } from '../../extension';
+import * as vscode from 'vscode';
 
 export const VariableUI = (extensionUri: vscode.Uri) => {
 	const disposable = vscode.commands.registerCommand('fetch-client.newVar', (id?: string) => {

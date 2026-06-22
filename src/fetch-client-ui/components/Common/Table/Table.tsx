@@ -1,11 +1,12 @@
-import React from 'react';
-import { ReactComponent as BinLogo } from '../../../../../icons/bin.svg';
-import { IVariable } from '../../SideBar/redux/types';
+import "./style.css";
 import { Autocomplete } from '../Autocomplete/Autocomplete';
 import { GetFileName } from '../helper';
+import { HeadersKeys, HerdersValues, dataTypes } from '../../../../fetch-client-core/consts/headers.consts';
+import { ITableData, TableType, TextType } from '../../../../fetch-client-core/types/common.types';
+import { IVariable } from '../../../../fetch-client-core/types/sidebar.types';
+import { ReactComponent as BinLogo } from '../../../../../icons/bin.svg';
 import { TextEditor } from '../TextEditor/TextEditor';
-import "./style.css";
-import { dataTypes, HeadersKeys, HerdersValues, ITableData, TableType, TextType } from "./types";
+import React from 'react';
 
 export interface TableProps {
 	data: ITableData[];

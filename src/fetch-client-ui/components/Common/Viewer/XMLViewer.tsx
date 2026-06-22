@@ -1,10 +1,10 @@
+import "./style.css";
+import { IRootState } from '../../../reducer/combineReducer';
+import { useSelector } from 'react-redux';
+import { ViewerProps } from './types';
 import { XMLParser, XMLValidator } from 'fast-xml-parser';
 import React, { useEffect, useState } from 'react';
 import ReactJsonView from '@microlink/react-json-view'
-import { useSelector } from 'react-redux';
-import { IRootState } from '../../../reducer/combineReducer';
-import "./style.css";
-import { ViewerProps } from './types';
 
 export const XMLViewer = (props: ViewerProps) => {
 

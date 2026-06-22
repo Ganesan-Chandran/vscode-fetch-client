@@ -1,9 +1,9 @@
+import { codeTypesLangunages } from "../../../../fetch-client-core/consts/codeLang.consts";
 import { InputData, jsonInputForTargetLanguage, quicktype } from "quicktype-core";
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { IRootState } from "../../../reducer/combineReducer";
 import { MonacoEditor } from "../Editor";
-import { codeTypesLangunages } from "./consts";
+import { useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
 
 const TypesGenerator = () => {
 	const responseData = useSelector((state: IRootState) => state.responseData.response.responseData);

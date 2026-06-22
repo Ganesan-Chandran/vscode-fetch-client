@@ -3,8 +3,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { replaceDataWithVariable } from "../../../../utils/helper";
 import { IRootState } from "../../../reducer/combineReducer";
-import { checkSysVariable, SysVariables } from "../Consts/sysVariables";
+import { checkSysVariable } from "../Consts/sysVariables";
 import "./style.css";
+import { SysVariables } from "../../../../fetch-client-core/consts/sysvariables.consts";
 
 export interface TextEditorProps {
 	varWords: string[];

@@ -1,8 +1,8 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import { IRootState } from "../../../reducer/combineReducer";
-import { ITestResult } from "../../ResponseUI/redux/types";
 import "./style.css";
+import { IRootState } from "../../../reducer/combineReducer";
+import { ITestResult } from "../../../../fetch-client-core/types/response.types";
+import { useSelector } from "react-redux";
+import React from "react";
 
 export const TestResult = () => {
 

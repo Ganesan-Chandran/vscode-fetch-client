@@ -1,12 +1,12 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { ReactComponent as BinLogo } from '../../../../icons/bin.svg';
-import { IRootState } from "../../reducer/combineReducer";
-import { Actions } from "../RequestUI/redux";
-import { ISetVar } from "../RequestUI/redux/types";
-import { VariableActions } from "./redux";
 import "./style.css";
+import { Actions } from "../RequestUI/redux";
 import { AppDispatch } from "../../store/appStore";
+import { IRootState } from "../../reducer/combineReducer";
+import { ISetVar } from "../../../fetch-client-core/types/prefetch.types";
+import { ReactComponent as BinLogo } from '../../../../icons/bin.svg';
+import { useDispatch, useSelector } from "react-redux";
+import { VariableActions } from "./redux";
+import React from "react";
 
 const ResToVariables = () => {
 

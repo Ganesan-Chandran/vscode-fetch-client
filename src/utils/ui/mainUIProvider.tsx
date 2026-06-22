@@ -1,23 +1,23 @@
-import axios from "axios";
-import fs from "fs";
-import * as vscode from "vscode";
-import { getStorageManager, OpenCookieUI, OpenVariableUI, pubSub, sideBarProvider } from "../../extension";
-import { IRequestModel } from "../../fetch-client-ui/components/RequestUI/redux/types";
-import { IHistory } from "../../fetch-client-ui/components/SideBar/redux/types";
-import { IPubSubMessage, Subscription } from "../PubSub";
-import { pubSubTypes, requestTypes, responseTypes } from "../configuration";
+import { apiFetch, FetchConfig } from "../fetchUtil";
+import { buildWebviewHtml, saveToFile } from "./webviewUtils";
+import { ExecuteAPIRequest } from "./helper";
+import { formatDate } from "../helper";
 import { GetAllCollectionName, GetAllCollectionsByIdWithPath, GetParentSettings, UpdateCollection } from "../db/collectionDBUtil";
 import { GetAllCookies, SaveCookie } from "../db/cookieDBUtil";
-import { SaveHistory, UpdateHistory } from "../db/historyDBUtil";
-import { GetExitingItem, SaveRequest, UpdateRequest } from "../db/mainDBUtil";
 import { GetAllVariable, GetVariableById, UpdateVariable } from "../db/varDBUtil";
-import { apiFetch, FetchConfig } from "../fetchUtil";
-import { formatDate } from "../helper";
-import { writeLog } from "../logger/logger";
 import { getConfiguration, getHeadersConfiguration, getLayoutConfiguration, getRequestTabOption, getRunMainRequestOption, getTimeOutConfiguration, getVSCodeTheme } from "../vscodeConfig";
-import { ExecuteAPIRequest } from "./helper";
-import { buildWebviewHtml, saveToFile } from "./webviewUtils";
+import { GetExitingItem, SaveRequest, UpdateRequest } from "../db/mainDBUtil";
 import { GetExitingItemResponse } from "../db/responseDBUtil";
+import { getStorageManager, OpenCookieUI, OpenVariableUI, pubSub, sideBarProvider } from "../../extension";
+import { IHistory } from "../../fetch-client-core/types/sidebar.types";
+import { IPubSubMessage, Subscription } from "../PubSub";
+import { IRequestModel } from "../../fetch-client-core/types/request.types";
+import { pubSubTypes, requestTypes, responseTypes } from "../../fetch-client-core/consts/requestTypes.consts";
+import { SaveHistory, UpdateHistory } from "../db/historyDBUtil";
+import { writeLog } from "../logger/logger";
+import * as vscode from "vscode";
+import axios from "axios";
+import fs from "fs";
 
 export class WebAppPanel {
 
@@ -31,7 +31,6 @@ export class WebAppPanel {
 	public static createOrShow(extensionUri: vscode.Uri, id?: string, name?: string, colId?: string, varId?: string, type?: string, folderId?: string, newTab?: boolean) {
 		const column = vscode.window.activeTextEditor
 			? vscode.window.activeTextEditor.viewColumn : undefined;
-
 		let tabOption = getRequestTabOption();
 
 		if (!tabOption && !newTab && WebAppPanel.currentPanel) {
@@ -40,7 +39,6 @@ export class WebAppPanel {
 			WebAppPanel.currentPanel._panel.title = name ? name : "New Request";
 			return;
 		}
-
 		const panel = vscode.window.createWebviewPanel(
 			"fetch-client",
 			name ? name : "New Request",

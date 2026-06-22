@@ -1,12 +1,13 @@
-import { IPreFetch, IRequestModel, IRunRequest } from "../fetch-client-ui/components/RequestUI/redux/types";
-import { InitialResponse } from "../fetch-client-ui/components/ResponseUI/redux/reducer";
-import { IPreFetchResponse, IReponseModel } from "../fetch-client-ui/components/ResponseUI/redux/types";
-import { ISettings, IVariable } from "../fetch-client-ui/components/SideBar/redux/types";
+import { apiFetch, FetchConfig } from "./fetchUtil";
 import { executeTests, setVariable } from "../fetch-client-ui/components/TestUI/TestPanel/helper";
 import { GetParentSettingsSync, GetVariableByColId } from "./db/collectionDBUtil";
 import { GetRequestItem } from "./db/mainDBUtil";
 import { GetVariableByIdSync, UpdateVariableSync } from "./db/varDBUtil";
-import { apiFetch, FetchConfig } from "./fetchUtil";
+import { InitialResponse } from "../fetch-client-ui/components/ResponseUI/redux/reducer";
+import { IPreFetch, IRunRequest } from "../fetch-client-core/types/prefetch.types";
+import { IPreFetchResponse, IReponseModel } from "../fetch-client-core/types/response.types";
+import { IRequestModel } from "../fetch-client-core/types/request.types";
+import { IVariable, ISettings } from "../fetch-client-core/types/sidebar.types";
 import { writeLog } from "./logger/logger";
 
 function createEmptyPreFetchResponse(): IPreFetchResponse {

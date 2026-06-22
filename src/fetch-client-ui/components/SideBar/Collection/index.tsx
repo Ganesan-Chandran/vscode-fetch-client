@@ -1,19 +1,20 @@
-import React, { useEffect, useRef, useState } from "react";
+import "./style.css";
+import { DropdownPortal } from "../dropdownMenu";
+import { formatDate } from "../../../../utils/helper";
+import { getColFolDotMenu, getPlusIconSVG } from "../../Common/icons";
+import { getDays, getMethodClassName, getMethodName, isFolder } from "../util";
+import { ICollections, IHistory, IFolder } from "../../../../fetch-client-core/types/sidebar.types";
+import { InitialSettings } from "../redux/reducer";
+import { InitialState } from "../../RequestUI/redux/reducer";
+import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
+import { IRootState } from "../../../reducer/combineReducer";
+import { ReactComponent as DotsLogo } from '../../../../../icons/dots.svg';
+import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
+import { SettingsType } from "../../Collection/consts";
 import { useSelector } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
-import { ReactComponent as DotsLogo } from '../../../../../icons/dots.svg';
-import { requestTypes, responseTypes } from "../../../../utils/configuration";
-import { formatDate } from "../../../../utils/helper";
-import { IRootState } from "../../../reducer/combineReducer";
-import { SettingsType } from "../../Collection/consts";
-import { getColFolDotMenu, getPlusIconSVG } from "../../Common/icons";
+import React, { useEffect, useRef, useState } from "react";
 import vscode from "../../Common/vscodeAPI";
-import { InitialState } from "../../RequestUI/redux/reducer";
-import { IRequestModel } from "../../RequestUI/redux/types";
-import { InitialSettings } from "../redux/reducer";
-import { ICollections, IFolder, IHistory } from "../redux/types";
-import { getDays, getMethodClassName, getMethodName, isFolder } from "../util";
-import "./style.css";
 
 export interface ICollectionProps {
 	filterCondition: string;
@@ -53,15 +54,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 		_setCurrentIndex(refIndex.current);
 	};
 
-	const [ddPosition, setPosition] = useState("");
-
 	const [isCopied, setCopy] = useState(false);
-
-	const styles = {
-		bottomStyle: {
-			bottom: ddPosition
-		} as React.CSSProperties,
-	};
 
 	useEffect(() => {
 		document.addEventListener("mousedown", handleClickOutside, false);
@@ -129,17 +122,6 @@ export const CollectionBar = (props: ICollectionProps) => {
 			}
 		}
 
-		let element = document.getElementById("three-dots-" + id);
-		if (element) {
-			let rect = element.getBoundingClientRect();
-			let viewportHeight = window.innerHeight;
-			let total = rect.top + 100;
-			if (total > viewportHeight) {
-				setPosition("100%");
-			} else {
-				setPosition("");
-			}
-		}
 		if (isSub) {
 			setCurrentIndex(id);
 		} else {
@@ -371,6 +353,13 @@ export const CollectionBar = (props: ICollectionProps) => {
 		setCurrentHeadIndex("");
 	}
 
+	function onReOrderItems(evt: React.MouseEvent<HTMLElement>, colId: string, folderId?: string) {
+		evt.preventDefault();
+		evt.stopPropagation();
+		vscode.postMessage({ type: requestTypes.reOrderItemUIOpenRequest, data: { colId: colId, folderId: folderId } });
+		setCurrentHeadIndex("");
+	}
+
 	function addNewRequest(evt: React.MouseEvent<HTMLElement> | React.MouseEvent<SVGSVGElement>, colId: string, folderId: string) {
 		evt.preventDefault();
 		evt.stopPropagation();
@@ -411,7 +400,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 		e.preventDefault();
 		e.stopPropagation();
 		openContextMenu(id, isSub);
-	}	
+	}
 
 	const sortItems = (
 		items: (IHistory | IFolder)[],
@@ -547,7 +536,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 						{getPlusIconSVG("New Request", "add-req-button", (e) => { e.stopPropagation(); e.preventDefault(); }, (e) => addNewRequest(e, cols.id, item.id))}
 						{getColFolDotMenu("three-dots-" + item.id, "Folder Menu", "col-fol-icon", (e) => { e.stopPropagation(); e.preventDefault(); }, (e) => openMoreMenu(e, item.id))}
 						<input type="checkbox" className="dd-input" checked={item.id === currentHeadIndex} readOnly />
-						<div id={"drop-down-menu-" + item.id} className="dropdown-more" style={styles.bottomStyle}>
+						<DropdownPortal id={item.id} open={item.id === currentHeadIndex}>
 							<div className="parent-menu" onClick={(e) => { e.stopPropagation(); e.preventDefault(); }} onContextMenu={(e) => { e.stopPropagation(); e.preventDefault(); }}> New
 								<div className="dropdown-more sub-menu">
 									<button onClick={(e) => addNewRequest(e, cols.id, item.id)}>Request</button>
@@ -556,6 +545,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 							</div>
 							<div className="divider"></div>
 							<button onClick={(e) => onRunAll(e, cols.id, item.id, cols.name + " \\ " + item.name, cols.variableId)}>Run All</button>
+							<button onClick={(e) => onReOrderItems(e, cols.id, item.id)}>Re-Order</button>
 							<div className="divider"></div>
 							<button onClick={(e) => onRename(e, cols.id, "", item.id, true)}>Rename</button>
 							<button onClick={(e) => onDelete(e, cols.id, item.id, "", true, item.name)}>Delete</button>
@@ -567,7 +557,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 							<div className="divider"></div>
 							<button onClick={(e) => onExport(e, cols.id, "", item.id, item.name)}>Export</button>
 							<button onClick={(e) => onSettings(e, cols.id, item.id, SettingsType.Folder, item.name, cols.variableId)}>Settings</button>
-						</div>
+						</DropdownPortal>
 					</div>
 				</summary>
 				{
@@ -594,7 +584,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 											<div className={listItem.id === currentIndex ? "more-icon display-block" : "more-icon"} ref={el => moreMenuWrapperRef.current[listItem.id] = el}>
 												<DotsLogo id={"three-dots-" + listItem.id} onContextMenu={(e) => { e.stopPropagation(); e.preventDefault(); }} onClick={(e) => openMoreMenu(e, listItem.id, true)} />
 												<input type="checkbox" className="dd-input" checked={listItem.id === currentIndex} readOnly />
-												<div id={"drop-down-menu-" + listItem.id} className="dropdown-more" style={styles.bottomStyle}>
+												<DropdownPortal id={listItem.id} open={listItem.id === currentIndex}>
 													<button onClick={(e) => onClickNewTab(e, cols.id, item.id, listItem.id, listItem.name, cols.variableId)}>Open in New Tab</button>
 													<button onClick={(e) => onRunClick(e, cols.id, item.id, listItem.id, listItem.name, cols.variableId)}>Run Request</button>
 													<div className="divider"></div>
@@ -604,7 +594,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 													<button onClick={(e) => onDuplicate(e, cols.id, item.id, listItem.id, false)}>Duplicate</button>
 													<div className="divider"></div>
 													<button onClick={(e) => onExport(e, cols.id, listItem.id, item.id, listItem.name)}>Export</button>
-												</div>
+												</DropdownPortal>
 											</div>
 										</div>
 									</div>);
@@ -627,7 +617,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 						{getPlusIconSVG("New Request", "add-req-button", (e) => { e.stopPropagation(); e.preventDefault(); }, (e) => addNewRequest(e, item.id, ""))}
 						{getColFolDotMenu("three-dots-" + item.id, "collection Menu", "col-fol-icon", (e) => { e.stopPropagation(); e.preventDefault(); }, (e) => openMoreMenu(e, item.id))}
 						<input type="checkbox" className="dd-input" checked={item.id === currentHeadIndex} readOnly />
-						<div id={"drop-down-menu-" + item.id} className="dropdown-more" style={styles.bottomStyle}>
+						<DropdownPortal id={item.id} open={item.id === currentHeadIndex}>
 							<div className="parent-menu" onClick={(e) => { e.stopPropagation(); e.preventDefault(); }} onContextMenu={(e) => { e.stopPropagation(); e.preventDefault(); }}> New
 								<div className="dropdown-more sub-menu">
 									<button onClick={(e) => addNewRequest(e, item.id, "")}>Request</button>
@@ -636,6 +626,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 							</div>
 							<div className="divider"></div>
 							<button onClick={(e) => onRunAll(e, item.id, "", item.name, item.variableId)}>Run All</button>
+							<button onClick={(e) => onReOrderItems(e, item.id)}>Re-Order</button>
 							{index !== 0 && <div className="divider"></div>}
 							{index !== 0 && <><button onClick={(e) => onRenameCollection(e, item.id)}>Rename</button>
 								<button onClick={(e) => onDeleteCollection(e, item.id, item.name)}>Delete</button></>}
@@ -650,7 +641,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 							<div className="divider"></div>
 							<button onClick={(e) => onExport(e, item.id, "", "", item.name)}>Export</button>
 							<button onClick={(e) => onSettings(e, item.id, "", SettingsType.Collection, item.name, item.variableId)}>Settings</button>
-						</div>
+						</DropdownPortal>
 					</div>
 				</summary>
 				<div className="collction-item">
@@ -679,7 +670,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 													<div className={listItem.id === currentIndex ? "more-icon display-block" : "more-icon"} ref={el => moreMenuWrapperRef.current[listItem.id] = el}>
 														<DotsLogo id={"three-dots-" + listItem.id} onContextMenu={(e) => { e.stopPropagation(); e.preventDefault(); }} onClick={(e) => openMoreMenu(e, listItem.id, true)} />
 														<input type="checkbox" className="dd-input" checked={listItem.id === currentIndex} readOnly />
-														<div id={"drop-down-menu-" + listItem.id} className="dropdown-more" style={styles.bottomStyle}>
+														<DropdownPortal id={listItem.id} open={listItem.id === currentIndex}>
 															<button onClick={(e) => onClickNewTab(e, item.id, "", listItem.id, listItem.name, item.variableId)}>Open in New Tab</button>
 															<button onClick={(e) => onRunClick(e, item.id, "", listItem.id, listItem.name, item.variableId)}>Run Request</button>
 															<div className="divider"></div>
@@ -689,7 +680,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 															<button onClick={(e) => onDuplicate(e, item.id, "", listItem.id, false)}>Duplicate</button>
 															<div className="divider"></div>
 															<button onClick={(e) => onExport(e, item.id, listItem.id, "", listItem.name)}>Export</button>
-														</div>
+														</DropdownPortal>
 													</div>
 												</div>
 											</div>
@@ -706,11 +697,23 @@ export const CollectionBar = (props: ICollectionProps) => {
 	}
 
 	function handleClickOutside(evt: any) {
-		if (moreHeadMenuWrapperRef.current && moreHeadMenuWrapperRef.current[refHeadIndex.current] && !moreHeadMenuWrapperRef.current[refHeadIndex.current].contains(evt.target)) {
+		// if (moreHeadMenuWrapperRef.current && moreHeadMenuWrapperRef.current[refHeadIndex.current] && !moreHeadMenuWrapperRef.current[refHeadIndex.current].contains(evt.target)) {
+		// 	setCurrentHeadIndex("");
+		// }
+
+		// if (moreMenuWrapperRef.current && moreMenuWrapperRef.current[refIndex.current] && !moreMenuWrapperRef.current[refIndex.current].contains(evt.target)) {
+		// 	setCurrentIndex("");
+		// }
+
+		const headMenuEl = document.getElementById("drop-down-menu-" + refHeadIndex.current);
+		const headTriggerEl = moreHeadMenuWrapperRef.current[refHeadIndex.current];
+		if (headTriggerEl && !headTriggerEl.contains(evt.target) && !(headMenuEl && headMenuEl.contains(evt.target))) {
 			setCurrentHeadIndex("");
 		}
 
-		if (moreMenuWrapperRef.current && moreMenuWrapperRef.current[refIndex.current] && !moreMenuWrapperRef.current[refIndex.current].contains(evt.target)) {
+		const itemMenuEl = document.getElementById("drop-down-menu-" + refIndex.current);
+		const itemTriggerEl = moreMenuWrapperRef.current[refIndex.current];
+		if (itemTriggerEl && !itemTriggerEl.contains(evt.target) && !(itemMenuEl && itemMenuEl.contains(evt.target))) {
 			setCurrentIndex("");
 		}
 	}
@@ -732,3 +735,5 @@ export const CollectionBar = (props: ICollectionProps) => {
 		</>
 	);
 };
+
+export default CollectionBar;

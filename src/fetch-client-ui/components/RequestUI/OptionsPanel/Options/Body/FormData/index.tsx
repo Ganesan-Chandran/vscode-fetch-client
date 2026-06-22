@@ -1,12 +1,12 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { requestTypes, responseTypes } from "../../../../../../../utils/configuration";
-import { IRootState } from "../../../../../../reducer/combineReducer";
-import { Table } from "../../../../../Common/Table/Table";
-import { ITableData } from "../../../../../Common/Table/types";
-import vscode from "../../../../../Common/vscodeAPI";
 import { Actions } from "../../../../redux";
 import { AppDispatch } from "../../../../../../store/appStore";
+import { IRootState } from "../../../../../../reducer/combineReducer";
+import { ITableData } from "../../../../../../../fetch-client-core/types/common.types";
+import { requestTypes, responseTypes } from "../../../../../../../fetch-client-core/consts/requestTypes.consts";
+import { Table } from "../../../../../Common/Table/Table";
+import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import vscode from "../../../../../Common/vscodeAPI";
 
 export const FormDataBody = () => {
 

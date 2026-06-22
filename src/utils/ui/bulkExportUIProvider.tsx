@@ -1,9 +1,9 @@
-import * as vscode from 'vscode';
-import { requestTypes, responseTypes } from '../configuration';
-import { GetAllCollectionName } from '../db/collectionDBUtil';
+import { buildWebviewHtml } from './webviewUtils';
 import { BulkExport } from '../db/mainDBUtil';
 import { BulkExportVariables, GetAllVariable } from '../db/varDBUtil';
-import { buildWebviewHtml } from './webviewUtils';
+import { GetAllCollectionName } from '../db/collectionDBUtil';
+import { requestTypes, responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
+import * as vscode from 'vscode';
 
 export const BulkExportProviderUI = (extensionUri: vscode.Uri) => {
 	const disposable = vscode.commands.registerCommand('fetch-client.bulkExport', (type: string) => {

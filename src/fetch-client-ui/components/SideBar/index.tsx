@@ -1,18 +1,19 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
-import { pubSubTypes, requestTypes, responseTypes } from "../../../utils/configuration";
-import { getColFolDotMenu } from "../Common/icons";
-import vscode from "../Common/vscodeAPI";
-import { UIActions } from "../MainUI/redux";
-import { CollectionBar } from "./Collection";
-import { HistoryBar } from "./History";
-import { SideBarActions } from "./redux";
-import { ICollections, IHistory, IVariable } from "./redux/types";
 import "./style.css";
-import { VariableSection } from "./Variables";
 import { AppDispatch } from "../../store/appStore";
+import { getColFolDotMenu } from "../Common/icons";
+import { HistoryBar } from "./History";
+import { IHistory, ICollections, IVariable } from "../../../fetch-client-core/types/sidebar.types";
+import { pubSubTypes, requestTypes, responseTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
+import { SideBarActions } from "./redux";
+import { UIActions } from "../MainUI/redux";
+import { useDispatch } from "react-redux";
+import React, { useEffect, useRef, useState } from "react";
+import vscode from "../Common/vscodeAPI";
 
 const SideBar = () => {
+
+	const CollectionBar = React.lazy(() => import('./Collection'));
+	const VariableSection = React.lazy(() => import('./Variables'));
 
 	const dispatch = useDispatch<AppDispatch>();
 
@@ -111,12 +112,35 @@ const SideBar = () => {
 		vscode.postMessage({ type: requestTypes.openAutoRequest });
 		setMenuShow(false);
 	}
+	
+	const [isHostReady, setHostReady] = useState(false);
+	let readyCheckTimer: ReturnType<typeof setTimeout> | undefined;
+
+	function pingHost() {
+		vscode.postMessage({ type: requestTypes.readyCheckRequest });
+		readyCheckTimer = setTimeout(() => {
+			if (!isHostReady) {
+				pingHost();
+			}
+		}, 1500);
+	}
+
+	useEffect(() => {
+		if (isHostReady) {
+			setHisLoading(false);
+			setColLoading(false);
+			setVarLoading(false);
+		}
+	}, [isHostReady]);
 
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
-			if (event.data && event.data.type === responseTypes.getAllHistoryResponse) {
+			if (event.data.type === responseTypes.readyCheckResponse) {
+				setHostReady(true);
+				clearTimeout(readyCheckTimer);
+			} else if (event.data && event.data.type === responseTypes.getAllHistoryResponse) {
 				dispatch(SideBarActions.SetHistoryAction(event.data.history as IHistory[]));
-				setHisLoading(false);
+				// setHisLoading(false);
 			} else if (event.data && event.data.type === responseTypes.deleteAllHistoryResponse) {
 				dispatch(SideBarActions.SetHistoryAction([]));
 			} else if (event.data && event.data.type === responseTypes.deleteHistoryResponse) {
@@ -127,7 +151,7 @@ const SideBar = () => {
 				dispatch(SideBarActions.SetNewHistoryAction(event.data.history as IHistory));
 			} else if (event.data && event.data.type === responseTypes.getAllCollectionsResponse) {
 				dispatch(SideBarActions.SetCollectionAction(event.data.collections as ICollections[]));
-				setColLoading(false);
+				// setColLoading(false);
 			} else if (event.data && event.data.type === responseTypes.appendToCollectionsResponse) {
 				dispatch(SideBarActions.SetHistoryToCollectionAction(event.data.collection as ICollections));
 			} else if (event.data && event.data.type === responseTypes.renameCollectionItemResponse) {
@@ -149,7 +173,7 @@ const SideBar = () => {
 				dispatch(SideBarActions.SetCopyToCollectionAction(event.data.data as ICollections));
 			} else if (event.data && event.data.type === responseTypes.getAllVariableResponse) {
 				dispatch(SideBarActions.SetVariableAction(event.data.variable as IVariable[]));
-				setVarLoading(false);
+				// setVarLoading(false);
 			} else if (event.data && event.data.type === responseTypes.renameVariableResponse) {
 				dispatch(SideBarActions.SetRenameVariableAction(event.data.params.id, event.data.params.name));
 			} else if (event.data && event.data.type === responseTypes.deleteVariableResponse) {
@@ -198,18 +222,13 @@ const SideBar = () => {
 		window.addEventListener("message", handleMessage);
 		vscode.postMessage({ type: requestTypes.themeRequest });
 		vscode.postMessage({ type: requestTypes.getAllHistoryRequest });
-
-		setTimeout(() => {
-			vscode.postMessage({ type: requestTypes.getAllCollectionsRequest });
-		}, 1000);
-
-		setTimeout(() => {
-			vscode.postMessage({ type: requestTypes.getAllVariableRequest });
-		}, 1000);
+		vscode.postMessage({ type: requestTypes.getAllCollectionsRequest });
+		vscode.postMessage({ type: requestTypes.getAllVariableRequest });
 
 		document.body.style.backgroundColor = "transparent";
 
 		document.addEventListener("mousedown", handleClickOutside, false);
+		pingHost();
 
 		return () => {
 			document.removeEventListener("mousedown", handleClickOutside, false);
@@ -277,12 +296,12 @@ const SideBar = () => {
 					{
 						selectedTab === "History"
 							?
-							<HistoryBar filterCondition={filterCondititon?.toLowerCase()} isLoading={isHisLoading} selectedItem={selectedItem} />
+							<HistoryBar filterCondition={filterCondititon?.toLowerCase()} isLoading={isHisLoading} selectedItem={selectedItem} viewMode="folder" />
 							: selectedTab === "Collection"
 								?
-								<CollectionBar filterCondition={filterCondititon?.toLowerCase()} isLoading={isColLoading} selectedItem={selectedItem} sort={colSort} />
+								<React.Suspense fallback={<div>loading...</div>}><CollectionBar filterCondition={filterCondititon?.toLowerCase()} isLoading={isColLoading} selectedItem={selectedItem} sort={colSort} /></React.Suspense>
 								:
-								<VariableSection filterCondition={filterCondititon?.toLowerCase()} isLoading={isVarLoading} sort={varSort} />
+								<React.Suspense fallback={<div>loading...</div>}><VariableSection filterCondition={filterCondititon?.toLowerCase()} isLoading={isVarLoading} sort={varSort} /></React.Suspense>
 					}
 				</div>
 				<footer className="bottom-menu-panel">

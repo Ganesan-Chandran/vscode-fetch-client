@@ -1,18 +1,19 @@
-import * as vscode from "vscode";
-import { sideBarProvider, vsCodeLogger } from "../../extension";
-import { IPreFetch, IReqSettings, IRequestModel } from "../../fetch-client-ui/components/RequestUI/redux/types";
-import { IPreFetchResponse } from "../../fetch-client-ui/components/ResponseUI/redux/types";
-import { IHistory, ISettings, IVariable } from "../../fetch-client-ui/components/SideBar/redux/types";
-import { responseTypes } from "../configuration";
-import { SaveHistory, UpdateHistory } from "../db/historyDBUtil";
-import { SaveRequest, UpdateRequest } from "../db/mainDBUtil";
-import { GetVariableByIdSync } from "../db/varDBUtil";
 import { apiFetch, FetchConfig } from "../fetchUtil";
 import { formatDate, getErrorResponse } from "../helper";
-import { writeLog } from "../logger/logger";
-import { PreFetchRunner } from "../PreFetchRunner";
 import { getResponseSaveConfiguration } from "../vscodeConfig";
+import { GetVariableByIdSync } from "../db/varDBUtil";
+import { IPreFetchResponse } from "../../fetch-client-core/types/response.types";
+import { IReqSettings, IPreFetch } from "../../fetch-client-core/types/prefetch.types";
+import { IRequestModel } from "../../fetch-client-core/types/request.types";
+import { ISettings, IVariable, IHistory } from "../../fetch-client-core/types/sidebar.types";
+import { PreFetchRunner } from "../PreFetchRunner";
+import { responseTypes } from "../../fetch-client-core/consts/requestTypes.consts";
+import { SaveHistory, UpdateHistory } from "../db/historyDBUtil";
+import { SaveRequest, UpdateRequest } from "../db/mainDBUtil";
 import { SaveResponse } from "../db/responseDBUtil";
+import { sideBarProvider, vsCodeLogger } from "../../extension";
+import { writeLog } from "../logger/logger";
+import * as vscode from "vscode";
 
 export async function ExecuteAPIRequest(message: any, fetchConfig: FetchConfig, webview: vscode.Webview) {
 	try {

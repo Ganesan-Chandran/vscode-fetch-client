@@ -1,22 +1,8 @@
-import fs from 'fs';
-import * as vscode from 'vscode';
-import { getNonce } from '../configuration';
+import { getNonce } from '../../fetch-client-core/consts/requestTypes.consts';
 import { writeLog } from '../logger/logger';
+import * as vscode from 'vscode';
+import fs from 'fs';
 
-// ---------------------------------------------------------------------------
-// Shared webview HTML builder
-// ---------------------------------------------------------------------------
-
-/**
- * Builds the standard single-page HTML shell used by every fetch-client
- * webview panel and sidebar view.
- *
- * Includes a Content-Security-Policy that:
- *   – allows only the bundled script (identified by a per-load nonce)
- *   – allows styles from the extension's webview origin and inline styles
- *     (needed by some CSS-in-JS patterns inside the React bundle)
- *   – allows images / fonts served from the extension origin or data URIs
- */
 export function buildWebviewHtml(
 	webview: vscode.Webview,
 	extensionUri: vscode.Uri,
@@ -30,8 +16,6 @@ export function buildWebviewHtml(
 		vscode.Uri.joinPath(extensionUri, 'dist/main.css')
 	);
 
-	// 'unsafe-eval' is required when webpack dev builds use eval-based source maps.
-	// For production bundles this flag is a no-op security concern.
 	const csp = [
 		`default-src 'none'`,
 		`style-src ${webview.cspSource} 'unsafe-inline'`,
@@ -60,15 +44,7 @@ export function buildWebviewHtml(
 </html>`;
 }
 
-// ---------------------------------------------------------------------------
-// Shared file-save helper
-// ---------------------------------------------------------------------------
 
-/**
- * Opens a Save dialog, writes `data` to the chosen path, and shows a
- * success / failure notification.  Calling code stays free of repetitive
- * try/catch + showErrorMessage boilerplate.
- */
 export async function saveToFile(
 	defaultUri: vscode.Uri,
 	data: string | Uint8Array,

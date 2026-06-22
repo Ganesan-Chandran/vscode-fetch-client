@@ -1,16 +1,18 @@
-import { XMLValidator } from "fast-xml-parser";
-import { v4 as uuidv4 } from "uuid";
-import { ITableData } from "../../../fetch-client-ui/components/Common/Table/types";
-import { InitialAuth, InitialBody, InitialPreFetch, InitialRequestHeaders } from "../../../fetch-client-ui/components/RequestUI/redux/reducer";
-import { ClientAuth, GrantType, IAuth, IBodyData, IRequestModel, ISetVar, ITest, MethodType } from "../../../fetch-client-ui/components/RequestUI/redux/types";
-import { InitialSettings } from "../../../fetch-client-ui/components/SideBar/redux/reducer";
-import { ICollections, IFolder, IHistory, ISettings } from "../../../fetch-client-ui/components/SideBar/redux/types";
-import { isFolder } from "../../../fetch-client-ui/components/SideBar/util";
-import { ActionsParametersMapping } from "../../../fetch-client-ui/components/TestUI/TestPanel/consts";
-import { isJson } from "../../../fetch-client-ui/components/TestUI/TestPanel/helper";
+import { ActionsParametersMapping } from "../../../fetch-client-core/consts/test.consts";
+import { Auth, BodyEntity, FoldersEntity, HeadersEntityOrFormEntity, ParamsEntity, RequestsEntity, Settings, TestsEntity, ThunderClient_Schema_1_2 } from "../../../fetch-client-core/types/thunderClient_1_2_types";
 import { formatDate } from "../../helper";
+import { IAuth, ClientAuth, GrantType } from "../../../fetch-client-core/types/auth.types";
+import { IBodyData, IRequestModel, MethodType } from "../../../fetch-client-core/types/request.types";
+import { IFolder, ISettings, ICollections, IHistory } from "../../../fetch-client-core/types/sidebar.types";
+import { InitialAuth, InitialBody, InitialPreFetch, InitialRequestHeaders } from "../../../fetch-client-ui/components/RequestUI/redux/reducer";
+import { InitialSettings } from "../../../fetch-client-ui/components/SideBar/redux/reducer";
+import { isFolder } from "../../../fetch-client-ui/components/SideBar/util";
+import { isJson } from "../../../fetch-client-ui/components/TestUI/TestPanel/helper";
+import { ITableData } from "../../../fetch-client-core/types/common.types";
+import { ITest, ISetVar } from "../../../fetch-client-core/types/prefetch.types";
+import { v4 as uuidv4 } from "uuid";
 import { writeLog } from "../../logger/logger";
-import { Auth, BodyEntity, FoldersEntity, HeadersEntityOrFormEntity, ParamsEntity, RequestsEntity, Settings, TestsEntity, ThunderClient_Schema_1_2 } from "./thunderClient_1_2_types";
+import { XMLValidator } from "fast-xml-parser";
 
 // ---------------------------------------------------------------------------
 // Constants

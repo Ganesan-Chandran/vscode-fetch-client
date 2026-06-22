@@ -1,17 +1,18 @@
+import { access } from "fs/promises";
+import { createReadStream } from "fs";
+import { getErrorResponse, getFileType, getRandomNumber, isFileType, replaceAuthSettingsInRequest, replaceHeaderSettingsInRequest, replaceValueWithVariable } from "./helper";
+import { getProtocolConfiguration, getSSLConfiguration } from "./vscodeConfig";
+import { IReqSettings } from '../fetch-client-core/types/prefetch.types';
+import { IRequestModel } from '../fetch-client-core/types/request.types';
+import { ISettings } from '../fetch-client-core/types/sidebar.types';
+import { ITableData } from '../fetch-client-core/types/common.types';
+import { logDetails } from "./logger/requestLog";
 import { Request as awsRequest, sign } from 'aws4';
+import { responseTypes } from "../fetch-client-core/consts/requestTypes.consts";
+import { writeLog } from "./logger/logger";
+import * as https from "https";
 import axios, { AxiosRequestConfig, CancelTokenSource } from "axios";
 import FormData from 'form-data';
-import { createReadStream } from "fs";
-import { access } from "fs/promises";
-import * as https from "https";
-import { ITableData } from "../fetch-client-ui/components/Common/Table/types";
-import { IReqSettings, IRequestModel } from "../fetch-client-ui/components/RequestUI/redux/types";
-import { ISettings } from "../fetch-client-ui/components/SideBar/redux/types";
-import { responseTypes } from "./configuration";
-import { getErrorResponse, getFileType, getRandomNumber, isFileType, replaceAuthSettingsInRequest, replaceHeaderSettingsInRequest, replaceValueWithVariable } from "./helper";
-import { writeLog } from "./logger/logger";
-import { logDetails } from "./logger/requestLog";
-import { getProtocolConfiguration, getSSLConfiguration } from "./vscodeConfig";
 
 export interface FetchConfig {
 	timeOut: number;

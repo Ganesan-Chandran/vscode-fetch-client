@@ -1,6 +1,5 @@
 import { randomBytes } from "crypto";
 
-
 export const requestTypes = {
 	activeVariableRequest: "activeVariableRequest",
 	addToCollectionsRequest: "addToCollectionsRequest",
@@ -42,6 +41,7 @@ export const requestTypes = {
 	getAllVariableRequest: "getAllVariableRequest",
 	getAttachedColIdsRequest: "getAttachedColIdsRequest",
 	getCollectionsByIdRequest: "getCollectionsByIdRequest",
+	getCollectionDetailsByIdRequest: "getCollectionDetailsByIdRequest",
 	getCollectionsByIdWithPathRequest: "getCollectionsByIdWithPathRequest",
 	getColSettingsRequest: "getColSettingsRequest",
 	getCookiesByIdRequest: "getCookiesByIdRequest",
@@ -70,11 +70,13 @@ export const requestTypes = {
 	openVariableItemRequest: "openVariableItemRequest",
 	pasteItemRequest: "pasteItemRequest",
 	readFileRequest: "readFileRequest",
+	reorderCollectionRequest: "reorderCollectionRequest",
 	removeVariableFromColRequest: "removeVariableFromColRequest",
 	removeVariableRequest: "removeVariableRequest",
 	renameCollectionItemRequest: "renameCollectionItemRequest",
 	renameCollectionRequest: "renameCollectionRequest",
 	renameHistoryRequest: "renameHistoryRequest",
+	reOrderItemUIOpenRequest: "reOrderItemUIOpenRequest",
 	renameVariableRequest: "renameVariableRequest",
 	runAllRequest: "runAllRequest",
 	runAllUIOpenRequest: "runAllUIOpenRequest",
@@ -94,7 +96,8 @@ export const requestTypes = {
 	themeRequest: "themeRequest",
 	tokenRequest: "tokenRequest",
 	updateVariableRequest: "updateVariableRequest",
-	viewLogRequest: "viewLogRequest"
+	viewLogRequest: "viewLogRequest",
+	readyCheckRequest: "readyCheckRequest"
 };
 
 export const responseTypes = {
@@ -135,6 +138,7 @@ export const responseTypes = {
 	getAutoRequestByIdResponse: "getAutoRequestByIdResponse",
 	getAttachedColIdsResponse: "getAttachedColIdsResponse",
 	getCollectionsByIdResponse: "getCollectionsByIdResponse",
+	getCollectionDetailsByIdResponse: "getCollectionDetailsByIdResponse",
 	getCollectionsByIdWithPathResponse: "getCollectionsByIdWithPathResponse",
 	getCollectionsWithPathResponse: "getCollectionsWithPathResponse",
 	getColSettingsResponse: "getColSettingsResponse",
@@ -175,7 +179,8 @@ export const responseTypes = {
 	themeResponse: "themeResponse",
 	tokenResponse: "tokenResponse",
 	updateCollectionHistoryItem:"updateCollectionHistoryItem",
-	updateVariableResponse: "updateVariableResponse"
+	updateVariableResponse: "updateVariableResponse",
+	readyCheckResponse: "readyCheckResponse"
 };
 
 export const pubSubTypes = {

@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { ReactComponent as BinLogo } from '../../../../icons/bin.svg';
-import { requestTypes, responseTypes } from "../../../utils/configuration";
+import { requestTypes, responseTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
 import { formatDate } from "../../../utils/helper";
 import vscode from "../Common/vscodeAPI";
-import { ICollection, IColRequest, IRequestList } from "../RequestUI/redux/types";
 import "./style.css";
-import { IAutoRequest } from "./types";
+import { ICollection, IColRequest, IRequestList } from "../../../fetch-client-core/types/prefetch.types";
+import { IAutoRequest } from "../../../fetch-client-core/types/autorequest.types";
 
 const AutoRequest = () => {
 

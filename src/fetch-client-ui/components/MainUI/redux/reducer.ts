@@ -1,4 +1,5 @@
-import { FETCH_CLIENT_SET_ACC_OPEN, FETCH_CLIENT_SET_RESPONSE_LIMIT, FETCH_CLIENT_SET_RUN_ITEM, FETCH_CLIENT_SET_UI_HORIZONTAL, FETCH_CLIENT_SET_UI_THEME, ICommonConfig, UIActionTypes } from "./types";
+import { FETCH_CLIENT_SET_ACC_OPEN, FETCH_CLIENT_SET_RESPONSE_LIMIT, FETCH_CLIENT_SET_RUN_ITEM, FETCH_CLIENT_SET_UI_HORIZONTAL, FETCH_CLIENT_SET_UI_THEME, UIActionTypes } from "./types";
+import { ICommonConfig } from "../../../../fetch-client-core/types/common.types";
 
 export const InitialState: ICommonConfig = {
 	open: [true, false],

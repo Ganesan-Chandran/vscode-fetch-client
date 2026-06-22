@@ -8,8 +8,6 @@ import { logPath } from "./constants";
 const LOG_SIZE_LIMIT_MB = 1;
 
 export function createLogFile(): void {
-	// Intentionally synchronous — called during extension storage bootstrap
-	// where the caller (ensureDb) does not await the return value.
 	writeFileSync(path.resolve(getExtDbPath(), logPath), "");
 }
 

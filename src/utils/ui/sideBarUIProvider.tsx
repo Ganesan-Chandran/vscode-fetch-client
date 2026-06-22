@@ -1,19 +1,12 @@
-import * as vscode from 'vscode';
-import {
-	getStorageManager, OpenAddToColUI, OpenAttachVariableUI, OpenAutoRequestUI, OpenBulkExportUI, OpenColSettings, OpenCopyToColUI,
-	OpenCurlUI, OpenExistingItem, OpenRunAllUI, OpenVariableUI, pubSub, vsCodeLogger
-} from '../../extension';
-import { ICollections, IFolder, IHistory } from '../../fetch-client-ui/components/SideBar/redux/types';
-import { pubSubTypes, requestTypes, responseTypes } from '../../utils/configuration';
 import { buildWebviewHtml } from './webviewUtils';
-import {
-	AddToCollection, AttachVariable, CreateNewCollection,
-	DeleteAllCollectionItems, DeleteCollection, DeleteCollectionItem,
-	DuplicateItem, GetAllCollections, NewFolderToCollection, NewRequestToCollection,
-	RemoveVariableByVariableId, RenameCollection, RenameCollectionItem
-} from '../../utils/db/collectionDBUtil';
 import { DeleteAllHistory, DeleteHistory, GetAllHistory, RenameHistory } from '../../utils/db/historyDBUtil';
 import { Export, Import, SaveRequest } from '../db/mainDBUtil';
+import { formatDate } from '../helper';
+import { getVSCodeTheme } from '../vscodeConfig';
+import { IHistory, IFolder, ICollections } from '../../fetch-client-core/types/sidebar.types';
+import { IPubSubMessage, Subscription } from '../PubSub';
+import { pubSubTypes, requestTypes, responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
+import * as vscode from 'vscode';
 import {
 	ChangeVariableStatus, DeleteVariable, DuplicateVariable, ExportVariable,
 	GetAllVariable,
@@ -21,9 +14,16 @@ import {
 	ImportVariableFromJsonFile,
 	RenameVariable
 } from '../db/varDBUtil';
-import { formatDate } from '../helper';
-import { IPubSubMessage, Subscription } from '../PubSub';
-import { getVSCodeTheme } from '../vscodeConfig';
+import {
+	AddToCollection, AttachVariable, CreateNewCollection,
+	DeleteAllCollectionItems, DeleteCollection, DeleteCollectionItem,
+	DuplicateItem, GetAllCollections, NewFolderToCollection, NewRequestToCollection,
+	RemoveVariableByVariableId, RenameCollection, RenameCollectionItem
+} from '../../utils/db/collectionDBUtil';
+import {
+	getStorageManager, OpenAddToColUI, OpenAttachVariableUI, OpenAutoRequestUI, OpenBulkExportUI, OpenColSettings, OpenCopyToColUI,
+	OpenCurlUI, OpenExistingItem, OpenReOrderUI, OpenRunAllUI, OpenVariableUI, pubSub, vsCodeLogger
+} from '../../extension';
 
 export class SideBarProvider implements vscode.WebviewViewProvider {
 
@@ -49,6 +49,7 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 		};
 
 		webviewView.webview.html = this.getHtmlForWebview(webviewView.webview);
+		webviewView.webview.postMessage({ type: responseTypes.readyCheckResponse });
 
 		webviewView.onDidDispose(() => {
 			this._subscriptionId.unsubscribe();
@@ -56,6 +57,9 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 
 		webviewView.webview.onDidReceiveMessage(reqData => {
 			switch (reqData.type) {
+				case requestTypes.readyCheckRequest:
+					webviewView.webview.postMessage({ type: responseTypes.readyCheckResponse });
+					break;
 				case requestTypes.getAllHistoryRequest:
 					GetAllHistory(webviewView);
 					break;
@@ -191,15 +195,17 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					ChangeVariableStatus(reqData.data.id, reqData.data.status, webviewView);
 					break;
 				case requestTypes.exportVariableRequest:
-					vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file("fetch-client-variable_" + reqData.vars.name?.replace(/[/\\?%*:|"<>]/g, '-') + ".json") }).then((uri: vscode.Uri | undefined) => {
-						if (uri) {
-							const value = uri.fsPath;
-							ExportVariable(value, reqData.vars.id);
-						}
+					this.showInputBox("Enter an encryption key to encrypt the variables, or leave it blank to store without encryption. Note: Share key with anyone who needs to import these variables.", "", false).then((key: string) => {
+						vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file("fetch-client-variable_" + reqData.vars.name?.replace(/[/\\?%*:|"<>]/g, '-') + ".json") }).then((uri: vscode.Uri | undefined) => {
+							if (uri) {
+								const value = uri.fsPath;
+								ExportVariable(value, reqData.vars.id, key);
+							}
+						});
 					});
 					break;
 				case requestTypes.importVariableRequest:
-					this.showInputBox("Enter decryption key if variable is encrypted else leave blank").then((key: string) => {
+					this.showInputBox("Enter decryption key if variable is encrypted else leave it blank", "", false).then((key: string) => {
 						vscode.window.showOpenDialog({ filters: { 'Files': ['json', 'env'] }, canSelectMany: true }).then((uri: vscode.Uri[] | undefined) => {
 							if (uri && uri.length > 0) {
 								uri.forEach((item, index) => {
@@ -220,6 +226,9 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					break;
 				case requestTypes.runAllUIOpenRequest:
 					OpenRunAllUI(reqData.data.colId, reqData.data.folderId, reqData.data.name, reqData.data.varId);
+					break;
+				case requestTypes.reOrderItemUIOpenRequest:
+					OpenReOrderUI(reqData.data.colId, reqData.data.folderId);
 					break;
 				case requestTypes.createNewRequest:
 					this.showInputBox().then((data: any) => {
@@ -311,12 +320,15 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 		}
 	}
 
-	private async showInputBox(prompt: string = "Enter name", placeHolder: string = "Enter name") {
+	private async showInputBox(prompt: string = "Enter name", placeHolder: string = "Enter name", validate: boolean = true) {
 		const res = await vscode.window.showInputBox({
-			value: "", prompt: prompt, placeHolder: placeHolder, ignoreFocusOut: false,
-			validateInput: text => {
+			value: "",
+			prompt: prompt,
+			placeHolder: placeHolder,
+			ignoreFocusOut: false,
+			validateInput: validate ? text => {
 				return text !== "" && text.length <= 50 ? null : "Enter the valid name (length should be <=50)";
-			}
+			} : null
 		});
 
 		return res;

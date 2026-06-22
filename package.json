@@ -261,11 +261,11 @@
             "markdownDescription": "Encrypt the environment variable values in the local store.",
             "order": 14
           },
-          "fetch-client.encryptedVariablesInExport": {
-            "type": "boolean",
-            "default": true,
+          "fetch-client.variableEncryptionKey": {
+            "type": "string",
+            "default": "fetch-client-Tr@n$it-$ecret-z0z4",
             "scope": "resource",
-            "markdownDescription": "Encrypt the environment variable values during export.",
+            "markdownDescription": "Encryption key to encrypt the variable in store",
             "order": 15
           },
           "fetch-client.saveResponse": {
@@ -274,6 +274,13 @@
             "scope": "resource",
             "markdownDescription": "Save the response data (File response won't be saved).",
             "order": 16
+          },
+          "fetch-client.multipleUser": {
+            "type": "boolean",
+            "default": false,
+            "scope": "resource",
+            "markdownDescription": "Database can be shared to multiple user. Reload the extension after enabling it",
+            "order": 17
           }
         }
       }

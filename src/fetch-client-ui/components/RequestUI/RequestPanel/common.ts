@@ -1,13 +1,14 @@
-import { v4 as uuidv4 } from 'uuid';
-import { requestTypes } from "../../../../utils/configuration";
+import { Actions } from "../redux";
+import { AppDispatch } from "../../../store/appStore";
 import { formatDate } from "../../../../utils/helper";
 import { GetDataFromHTML, notesMaxLimit } from "../../Common/helper";
-import vscode from "../../Common/vscodeAPI";
+import { IReqSettings } from '../../../../fetch-client-core/types/prefetch.types';
+import { IRequestModel } from '../../../../fetch-client-core/types/request.types';
+import { ISettings, IVariable } from "../../../../fetch-client-core/types/sidebar.types";
+import { requestTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
 import { ResponseActions } from "../../ResponseUI/redux";
-import { ISettings, IVariable } from "../../SideBar/redux/types";
-import { Actions } from "../redux";
-import { IReqSettings, IRequestModel } from "../redux/types";
-import { AppDispatch } from "../../../store/appStore";
+import { v4 as uuidv4 } from 'uuid';
+import vscode from "../../Common/vscodeAPI";
 
 export const SendRequest = (dispatch: AppDispatch, newReq: boolean, colId: string, requestData: IRequestModel, selectedVariable: IVariable, parentSettings: ISettings, reqSettings: IReqSettings) => {
 	dispatch(ResponseActions.SetResponseLoadingAction(true));

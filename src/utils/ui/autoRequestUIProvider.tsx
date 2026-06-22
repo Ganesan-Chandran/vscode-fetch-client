@@ -1,8 +1,8 @@
-import * as vscode from 'vscode';
-import { requestTypes } from '../configuration';
-import { GetAllCollectionName, GetAllCollectionsByIdWithPath } from '../db/collectionDBUtil';
-import { GetAllAutoRequest, SaveAutoRequest } from '../db/autoRequestDBUtil';
 import { buildWebviewHtml } from './webviewUtils';
+import { GetAllAutoRequest, SaveAutoRequest } from '../db/autoRequestDBUtil';
+import { GetAllCollectionName, GetAllCollectionsByIdWithPath } from '../db/collectionDBUtil';
+import { requestTypes } from '../../fetch-client-core/consts/requestTypes.consts';
+import * as vscode from 'vscode';
 
 export const AutoRequestProviderUI = (extensionUri: vscode.Uri) => {
 	const disposable = vscode.commands.registerCommand('fetch-client.autoRequest', () => {

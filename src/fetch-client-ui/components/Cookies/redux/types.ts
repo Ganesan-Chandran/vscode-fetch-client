@@ -1,17 +1,7 @@
-import { ITableData } from "../../Common/Table/types";
+import { ICookie } from "../../../../fetch-client-core/types/cookie.types";
 
 export const FETCH_CLIENT_SET_COOKIE: "FETCH_CLIENT_SET_COOKIE" = "FETCH_CLIENT_SET_COOKIE";
 export const FETCH_CLIENT_SET_ALL_COOKIE: "FETCH_CLIENT_SET_ALL_COOKIE" = "FETCH_CLIENT_SET_ALL_COOKIE";
-
-export interface ICookie {
-	id: string;
-	name: string;
-	data: ITableData[]
-}
-
-export interface ICookiesModel {
-	cookies: ICookie[];
-}
 
 export interface ISetCookie {
 	type: typeof FETCH_CLIENT_SET_COOKIE;
@@ -26,6 +16,5 @@ export interface ISetAllCookies {
 		cookies: ICookie[];
 	};
 }
-
 
 export type CookieActionTypes = | ISetCookie | ISetAllCookies;

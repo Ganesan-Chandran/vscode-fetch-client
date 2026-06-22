@@ -1,12 +1,12 @@
-import * as vscode from 'vscode';
-import { OpenExistingItem, sideBarProvider } from '../../extension';
-import { requestTypes, responseTypes } from '../configuration';
-import { ConvertCurlToRequest } from '../curlToRequest';
 import { AddToCollection, GetAllCollectionName } from '../db/collectionDBUtil';
 import { apiFetch, FetchConfig } from '../fetchUtil';
+import { buildWebviewHtml } from './webviewUtils';
+import { ConvertCurlToRequest } from '../curlToRequest';
 import { getErrorResponse } from '../helper';
 import { getHeadersConfiguration, getTimeOutConfiguration } from '../vscodeConfig';
-import { buildWebviewHtml } from './webviewUtils';
+import { OpenExistingItem, sideBarProvider } from '../../extension';
+import { requestTypes, responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
+import * as vscode from 'vscode';
 
 export const CurlProviderUI = (extensionUri: vscode.Uri) => {
 	const disposable = vscode.commands.registerCommand('fetch-client.curlRequest', () => {

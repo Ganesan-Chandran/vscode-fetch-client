@@ -1,10 +1,10 @@
-import loki, { LokiFsAdapter } from 'lokijs';
-import * as vscode from 'vscode';
-import { IAutoRequest } from '../../fetch-client-ui/components/AutoRequest/types';
-import { FCScheduler } from '../autoRequest/scheduler';
-import { responseTypes } from '../configuration';
-import { writeLog } from '../logger/logger';
 import { autoRequestDBPath } from './helper';
+import { FCScheduler } from '../autoRequest/scheduler';
+import { IAutoRequest } from '../../fetch-client-core/types/autorequest.types';
+import { responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
+import { writeLog } from '../logger/logger';
+import * as vscode from 'vscode';
+import loki, { LokiFsAdapter } from 'lokijs';
 
 function getDB(): loki {
 	const idbAdapter = new LokiFsAdapter();

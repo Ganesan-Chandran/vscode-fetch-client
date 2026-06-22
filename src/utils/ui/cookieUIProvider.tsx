@@ -1,8 +1,8 @@
-import * as vscode from 'vscode';
-import { requestTypes } from '../configuration';
-import { DeleteAllCookies, DeleteCookieById, GetAllCookies } from '../db/cookieDBUtil';
-import { ShowInformationDialog } from './helper';
 import { buildWebviewHtml } from './webviewUtils';
+import { DeleteAllCookies, DeleteCookieById, GetAllCookies } from '../db/cookieDBUtil';
+import { requestTypes } from '../../fetch-client-core/consts/requestTypes.consts';
+import { ShowInformationDialog } from './helper';
+import * as vscode from 'vscode';
 
 export const CookieUI = (extensionUri: vscode.Uri) => {
 	const disposable = vscode.commands.registerCommand('fetch-client.manageCookies', (id?: string) => {

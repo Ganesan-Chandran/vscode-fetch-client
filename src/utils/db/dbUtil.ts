@@ -9,7 +9,6 @@ import {
 	historyDBPath,
 	mainDBPath,
 	responseDBPath,
-	settingsDBPath,
 	variableDBPath,
 } from "./helper";
 
@@ -89,24 +88,6 @@ export function CreateAutoRequestDB(): Promise<void> {
 	return createDatabase(autoRequestDBPath(), "CreateAutoRequestDB", (db) => {
 		if (db.getCollection("autoRequests") === null) {
 			db.addCollection("autoRequests", { autoupdate: true, disableMeta: true, unique: ["id"], indices: ["id"] });
-		}
-	});
-}
-
-export function CreateSettingsDB(): Promise<void> {
-	return createDatabase(settingsDBPath(), "CreateSettingsDB", (db) => {
-		if (db.getCollection("dbSettings") === null) {
-			db.addCollection("dbSettings", { autoupdate: true, disableMeta: true, unique: ["id"], indices: ["id"] });
-			db.saveDatabase();
-			const dbSetting = {
-				id: uuidv4(),
-				name: "encryptionKeyInStore",
-				value: JSON.stringify({
-					encryptionKey: "fetch-client-Tr@n$it-$ecret-z0z4",
-				}),
-			};
-			db.getCollection("dbSettings").insert(dbSetting);
-			db.saveDatabase();
 		}
 	});
 }

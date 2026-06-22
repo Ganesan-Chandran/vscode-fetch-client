@@ -1,9 +1,9 @@
-import { v4 as uuidv4 } from "uuid";
-import { IRequestModel } from "../../../fetch-client-ui/components/RequestUI/redux/types";
-import { InitialSettings } from "../../../fetch-client-ui/components/SideBar/redux/reducer";
-import { ICollections, IFolder, IHistory, ISettings } from "../../../fetch-client-ui/components/SideBar/redux/types";
-import { isFolder } from "../../../fetch-client-ui/components/SideBar/util";
 import { formatDate } from "../../helper";
+import { InitialSettings } from "../../../fetch-client-ui/components/SideBar/redux/reducer";
+import { IRequestModel } from "../../../fetch-client-core/types/request.types";
+import { ISettings, ICollections, IHistory, IFolder } from "../../../fetch-client-core/types/sidebar.types";
+import { isFolder } from "../../../fetch-client-ui/components/SideBar/util";
+import { v4 as uuidv4 } from "uuid";
 import { writeLog } from "../../logger/logger";
 
 /** Shape of a request entry as it appears in a raw fetchClient export file. */

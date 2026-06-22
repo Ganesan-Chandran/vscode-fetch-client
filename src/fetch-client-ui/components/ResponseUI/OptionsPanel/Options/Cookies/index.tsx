@@ -1,10 +1,10 @@
-import React from 'react';
-import { useSelector } from "react-redux";
-import { requestTypes } from '../../../../../../utils/configuration';
-import { IRootState } from "../../../../../reducer/combineReducer";
-import { ResponseTable } from '../../../../Common/Table/ResponseTable';
-import vscode from '../../../../Common/vscodeAPI';
 import "./style.css";
+import { IRootState } from "../../../../../reducer/combineReducer";
+import { requestTypes } from '../../../../../../fetch-client-core/consts/requestTypes.consts';
+import { ResponseTable } from '../../../../Common/Table/ResponseTable';
+import { useSelector } from "react-redux";
+import React from 'react';
+import vscode from '../../../../Common/vscodeAPI';
 
 export const ResponseCookies = () => {
 	const { cookies } = useSelector((state: IRootState) => state.responseData);

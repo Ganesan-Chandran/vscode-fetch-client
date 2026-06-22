@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { replaceValueWithVariable } from "../../../../utils/helper";
-import { IRootState } from "../../../reducer/combineReducer";
-import { IRequestModel } from "../../RequestUI/redux/types";
-import { MonacoEditor } from "../Editor";
-import { codeSnippetLangunages } from "./consts";
 import "./style.css";
+import { codeSnippetLangunages } from "../../../../fetch-client-core/consts/codeLang.consts";
 import { HTTPSnippet, type TargetId, type ClientId } from "httpsnippet";
+import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
+import { IRootState } from "../../../reducer/combineReducer";
+import { MonacoEditor } from "../Editor";
+import { replaceValueWithVariable } from "../../../../utils/helper";
+import { useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
 
 const CodeSnippetGenerator = () => {
 

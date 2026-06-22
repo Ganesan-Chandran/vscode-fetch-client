@@ -1,17 +1,13 @@
-import { XMLValidator } from "fast-xml-parser";
-import { v4 as uuidv4 } from 'uuid';
-import parser from "yargs-parser";
-import { ITableData } from "../fetch-client-ui/components/Common/Table/types";
 import { InitialAuth, InitialBinaryData, InitialBody, InitialPreFetch, InitialSetVar, InitialTest } from "../fetch-client-ui/components/RequestUI/redux/reducer";
-import { IRequestModel, MethodType } from "../fetch-client-ui/components/RequestUI/redux/types";
-import { MIMETypes } from "./helper";
+import { ITableData } from "../fetch-client-core/types/common.types";
+import { MethodType, IRequestModel } from "../fetch-client-core/types/request.types";
+import { MIMETypes } from "../fetch-client-core/consts/mimetype.consts";
+import { v4 as uuidv4 } from 'uuid';
 import { writeLog } from "./logger/logger";
-
-// ─── Constants ──────────────────────────────────────────────────────────────
+import { XMLValidator } from "fast-xml-parser";
+import parser from "yargs-parser";
 
 const VALID_METHODS = new Set<MethodType>(["get", "post", "put", "patch", "delete", "options", "head"]);
-
-// ─── Pure Utility Helpers ────────────────────────────────────────────────────
 
 const isJson = (str: string): boolean => {
 	try {
@@ -42,8 +38,6 @@ const generateFormUrlEncode = (data: string): ITableData[] => {
 	return params;
 };
 
-// ─── Request Factory ─────────────────────────────────────────────────────────
-
 const createInitialRequest = (): IRequestModel => ({
 	id: uuidv4(),
 	url: "",
@@ -59,8 +53,6 @@ const createInitialRequest = (): IRequestModel => ({
 	notes: "",
 	preFetch: JSON.parse(JSON.stringify(InitialPreFetch)),
 });
-
-// ─── Request Mutation Helpers ─────────────────────────────────────────────────
 
 const getContentTypeHeader = (request: IRequestModel): string | undefined =>
 	request.headers.find(item => item.key.toLowerCase() === "content-type")?.value;
@@ -212,8 +204,6 @@ const ensurePostMethod = (request: IRequestModel): void => {
 		request.method = "post";
 	}
 };
-
-// ─── Main Converter ───────────────────────────────────────────────────────────
 
 export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null => {
 	try {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { requestTypes, responseTypes } from "../../../utils/configuration";
+import { requestTypes, responseTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
 import vscode from "../Common/vscodeAPI";
 import "./style.css";
 

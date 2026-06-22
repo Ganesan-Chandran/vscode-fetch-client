@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { v4 as uuidv4 } from 'uuid';
-import { requestTypes, responseTypes } from "../../../utils/configuration";
-import { formatDate } from "../../../utils/helper";
-import { Table } from "../Common/Table/Table";
-import { ITableData } from "../Common/Table/types";
-import vscode from "../Common/vscodeAPI";
-import { IVariable } from "../SideBar/redux/types";
 import "./style.css";
+import { formatDate } from "../../../utils/helper";
+import { ITableData } from "../../../fetch-client-core/types/common.types";
+import { IVariable } from "../../../fetch-client-core/types/sidebar.types";
+import { requestTypes, responseTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
+import { Table } from "../Common/Table/Table";
+import { v4 as uuidv4 } from 'uuid';
+import React, { useEffect, useState } from "react";
+import vscode from "../Common/vscodeAPI";
 
 export interface IVariableProps {
 	index?: number;

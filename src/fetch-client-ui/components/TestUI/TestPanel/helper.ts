@@ -1,10 +1,10 @@
 /* eslint-disable eqeqeq */
+import { IReponseModel, ITestResult } from "../../../../fetch-client-core/types/response.types";
+import { ISetVar, ITest } from "../../../../fetch-client-core/types/prefetch.types";
+import { ITableData } from "../../../../fetch-client-core/types/common.types";
+import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";
+import { ParametersModelMapping } from "../../../../fetch-client-core/consts/test.consts";
 import { replaceDataWithVariable } from "../../../../utils/helper";
-import { ITableData } from "../../Common/Table/types";
-import { ISetVar, ITest } from "../../RequestUI/redux/types";
-import { IReponseModel, ITestResult } from "../../ResponseUI/redux/types";
-import { IVariable } from "../../SideBar/redux/types";
-import { ParametersModelMapping } from "./consts";
 
 export function setVariable(variable: IVariable, setVar: ISetVar[], responseValue: IReponseModel): IVariable {
 	let actualValue: any;

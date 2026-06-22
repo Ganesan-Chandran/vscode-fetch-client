@@ -1,11 +1,11 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import "./style.css";
+import { Actions } from "../../../../redux";
+import { AppDispatch } from "../../../../../../store/appStore";
 import { IRootState } from "../../../../../../reducer/combineReducer";
 import { MonacoEditor } from "../../../../../Common/Editor";
-import { Actions } from "../../../../redux";
-import { requestBodyRaw } from "../consts";
-import "./style.css";
-import { AppDispatch } from "../../../../../../store/appStore";
+import { requestBodyRaw } from "../../../../../../../fetch-client-core/consts/requestBody.consts";
+import { useDispatch, useSelector } from "react-redux";
+import React from "react";
 
 export const Raw = (props: any) => {
 

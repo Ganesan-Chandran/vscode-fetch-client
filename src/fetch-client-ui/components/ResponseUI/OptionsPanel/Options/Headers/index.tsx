@@ -1,8 +1,8 @@
-import React from 'react';
-import { useSelector } from "react-redux";
+import "./style.css";
 import { IRootState } from "../../../../../reducer/combineReducer";
 import { ResponseTable } from '../../../../Common/Table/ResponseTable';
-import "./style.css";
+import { useSelector } from "react-redux";
+import React from 'react';
 
 export const ResponseHeaders = () => {
 

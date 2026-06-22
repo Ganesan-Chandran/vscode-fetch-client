@@ -1,22 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import "./style.css";
+import { Actions } from "../redux";
+import { AppDispatch } from '../../../store/appStore';
+import { CookiesActions } from '../../Cookies/redux';
+import { executeTests, setVariable } from '../../TestUI/TestPanel/helper';
+import { GetDomainName, getDomainNameFromURL } from '../../Common/helper';
+import { ICookie } from '../../../../fetch-client-core/types/cookie.types';
+import { IRootState } from "../../../reducer/combineReducer";
+import { ITableData } from '../../../../fetch-client-core/types/common.types';
+import { MethodType } from '../../../../fetch-client-core/types/request.types';
+import { requestMethods } from '../../../../fetch-client-core/consts/request.consts';
+import { requestTypes } from '../../../../fetch-client-core/consts/requestTypes.consts';
+import { ResponseActions } from "../../ResponseUI/redux";
+import { SendRequest } from './common';
+import { TextEditor } from '../../Common/TextEditor/TextEditor';
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
-import { requestTypes } from '../../../../utils/configuration';
-import { IRootState } from "../../../reducer/combineReducer";
-import { GetDomainName, getDomainNameFromURL } from '../../Common/helper';
-import { ITableData } from '../../Common/Table/types';
-import { TextEditor } from '../../Common/TextEditor/TextEditor';
+import React, { useEffect, useState } from 'react';
 import vscode from '../../Common/vscodeAPI';
-import { CookiesActions } from '../../Cookies/redux';
-import { ICookie } from '../../Cookies/redux/types';
-import { ResponseActions } from "../../ResponseUI/redux";
-import { executeTests, setVariable } from '../../TestUI/TestPanel/helper';
-import { Actions } from "../redux";
-import { MethodType } from "../redux/types";
-import { SendRequest } from './common';
-import { requestMethods } from "./consts";
-import "./style.css";
-import { AppDispatch } from '../../../store/appStore';
 
 export const RequestPanel = () => {
 

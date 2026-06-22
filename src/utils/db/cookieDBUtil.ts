@@ -1,10 +1,10 @@
-import loki, { LokiFsAdapter } from 'lokijs';
-import * as vscode from 'vscode';
-import { ICookie } from '../../fetch-client-ui/components/Cookies/redux/types';
-import { responseTypes } from '../configuration';
-import { writeLog } from '../logger/logger';
 import { cookieDBPath } from './helper';
+import { ICookie } from '../../fetch-client-core/types/cookie.types';
+import { responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
 import { ShowInformationDialog } from '../ui/helper';
+import { writeLog } from '../logger/logger';
+import * as vscode from 'vscode';
+import loki, { LokiFsAdapter } from 'lokijs';
 
 function getDB(): loki {
 	const idbAdapter = new LokiFsAdapter();

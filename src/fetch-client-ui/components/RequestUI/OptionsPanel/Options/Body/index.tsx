@@ -1,16 +1,16 @@
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { IRootState } from "../../../../../reducer/combineReducer";
+import "./style.css";
 import { Actions } from "../../../redux";
+import { AppDispatch } from "../../../../../store/appStore";
 import { Binary } from "./Binary";
-import { requestBodyRaw, requestBodyTypes } from "./consts";
 import { FormDataBody } from "./FormData";
 import { GraphQL } from "./GraphQL";
+import { IRootState } from "../../../../../reducer/combineReducer";
 import { None } from "./None";
 import { Raw } from "./Raw/Raw";
-import "./style.css";
+import { requestBodyRaw, requestBodyTypes } from "../../../../../../fetch-client-core/consts/requestBody.consts";
 import { UrlEncoded } from "./UrlEncoded";
-import { AppDispatch } from "../../../../../store/appStore";
+import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from "react";
 
 export const Body = () => {
 
@@ -96,3 +96,5 @@ export const Body = () => {
 		</>
 	);
 };
+
+export default Body;

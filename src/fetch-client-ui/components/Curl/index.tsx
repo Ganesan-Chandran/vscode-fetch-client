@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { v4 as uuidv4 } from 'uuid';
-import { requestTypes, responseTypes } from "../../../utils/configuration";
-import { formatDate } from "../../../utils/helper";
-import vscode from "../Common/vscodeAPI";
-import { ResponseActions } from "../ResponseUI/redux";
-import { ReponsePanel } from "../ResponseUI/ResponsePanel";
-import { InitialSettings } from "../SideBar/redux/reducer";
-import { ICollections, IFolder, IHistory } from "../SideBar/redux/types";
-import { HandleColSelectionValidation } from "./helper";
 import "./style.css";
 import { AppDispatch } from "../../store/appStore";
+import { formatDate } from "../../../utils/helper";
+import { HandleColSelectionValidation } from "./helper";
+import { ICollections, IFolder, IHistory } from "../../../fetch-client-core/types/sidebar.types";
+import { InitialSettings } from "../SideBar/redux/reducer";
+import { ReponsePanel } from "../ResponseUI/ResponsePanel";
+import { requestTypes, responseTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
+import { ResponseActions } from "../ResponseUI/redux";
+import { useDispatch } from "react-redux";
+import { v4 as uuidv4 } from 'uuid';
+import React, { useEffect, useState } from "react";
+import vscode from "../Common/vscodeAPI";
 
 const CurlUI = () => {
 

@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { requestTypes, responseTypes } from "../../../../utils/configuration";
-import { Modal } from "../../Common/Modal";
-import vscode from "../../Common/vscodeAPI";
-import { IVariable } from "../../SideBar/redux/types";
 import "./style.css";
+import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";
+import { Modal } from "../../Common/Modal";
+import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
+import React, { useEffect, useState } from "react";
+import vscode from "../../Common/vscodeAPI";
 
 const BulkExport = () => {
 

@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
-import { requestTypes, responseTypes } from "../../../utils/configuration";
-import { ResponseTable } from "../Common/Table/ResponseTable";
-import vscode from "../Common/vscodeAPI";
-import { InitialCookie } from "./redux/reducer";
-import { ICookie } from "./redux/types";
 import "./style.css";
+import { ICookie } from "../../../fetch-client-core/types/cookie.types";
+import { InitialCookie } from "./redux/reducer";
+import { requestTypes, responseTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
+import { ResponseTable } from "../Common/Table/ResponseTable";
+import React, { useEffect, useRef, useState } from "react";
+import vscode from "../Common/vscodeAPI";
 
 const ManageCookies = () => {
 

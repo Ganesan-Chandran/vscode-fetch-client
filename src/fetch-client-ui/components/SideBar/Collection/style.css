@@ -59,13 +59,13 @@ details.folder-details-items>summary {
 }
 
 details.folder-details-items>summary:before {
-	content     : "🗀";
+	content     : "📁";
 	padding-left: var(--b-pl);
 	color       : var(--text-color);
 }
 
 details[open].folder-details-items>summary:before {
-	content: "🗁";
+	content: "📂";
 	color  : var(--text-color);
 }
 

@@ -1,12 +1,12 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { IRootState } from "../../../../../../reducer/combineReducer";
-import { TextEditor } from "../../../../../Common/TextEditor/TextEditor";
-import { IVariable } from "../../../../../SideBar/redux/types";
-import { Actions } from "../../../../redux";
-import { IAuth } from "../../../../redux/types";
 import "./style.css";
+import { Actions } from "../../../../redux";
 import { AppDispatch } from "../../../../../../store/appStore";
+import { IAuth } from "../../../../../../../fetch-client-core/types/auth.types";
+import { IRootState } from "../../../../../../reducer/combineReducer";
+import { IVariable } from "../../../../../../../fetch-client-core/types/sidebar.types";
+import { TextEditor } from "../../../../../Common/TextEditor/TextEditor";
+import { useDispatch, useSelector } from "react-redux";
+import React from "react";
 
 export interface IAwsAuthProps {
 	settingAuth?: IAuth;

@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useSelector } from "react-redux";
-import { ReactComponent as CodeLogo } from '../../../../../../icons/code.svg';
-import { requestTypes } from '../../../../../utils/configuration';
-import { IRootState } from "../../../../reducer/combineReducer";
-import { getColFolDotMenu } from '../../../Common/icons';
-import vscode from '../../../Common/vscodeAPI';
-import { curlResponseOptions, responseOptions } from "../../ResponsePanel/consts";
 import "./style.css";
+import { curlResponseOptions, responseOptions } from "../../../../../fetch-client-core/consts/response.consts";
 import { FormatBytes, GetResponseTime } from "./util";
+import { getColFolDotMenu } from '../../../Common/icons';
+import { IRootState } from "../../../../reducer/combineReducer";
+import { ReactComponent as CodeLogo } from '../../../../../../icons/code.svg';
+import { requestTypes } from '../../../../../fetch-client-core/consts/requestTypes.consts';
+import { useSelector } from "react-redux";
+import React, { useEffect, useRef, useState } from 'react';
+import vscode from '../../../Common/vscodeAPI';
 
 export const ResponseOptionsTab = (props: any) => {
 

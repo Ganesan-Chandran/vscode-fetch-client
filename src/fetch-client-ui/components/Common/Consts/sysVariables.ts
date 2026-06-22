@@ -1,21 +1,6 @@
 import moment from 'moment-mini';
 import { v4 as uuidv4 } from 'uuid';
-
-export const SysVariables = [
-	"{{#num}}",
-	"{{#num, min, max}}",
-	"{{#str}}",
-	"{{#strspl}}",
-	"{{#strnum}}",
-	"{{#char}}",
-	"{{#rdate}}",
-	"{{#date}}",
-	"{{#dateISO}}",
-	"{{#date, 'format'}}",
-	"{{#email}}",
-	"{{#guid}}",
-	"{{#bool}}"
-];
+import { SysVariables } from '../../../../fetch-client-core/consts/sysvariables.consts';
 
 export function checkSysVariable(variable: string): string {
 	if ((variable.startsWith("{{#num,") || variable.startsWith("{{#date,")) && variable.endsWith("}}")) {

@@ -1,14 +1,17 @@
+import { IAwsAuth, IOAuth, ClientAuth, GrantType, IAuth } from '../../../../fetch-client-core/types/auth.types';
+import { IBinaryFileData } from '../../../../fetch-client-core/types/requestBody.types';
+import { IBodyData, IRequestModel } from '../../../../fetch-client-core/types/request.types';
+import { ITableData } from '../../../../fetch-client-core/types/common.types';
+import { ITest, ISetVar, IPreFetch, IRunRequest } from '../../../../fetch-client-core/types/prefetch.types';
+import { requestBodyRaw } from '../../../../fetch-client-core/consts/requestBody.consts';
 import { v4 as uuidv4 } from 'uuid';
-import { ITableData } from "../../Common/Table/types";
-import { requestBodyRaw } from '../OptionsPanel/Options/Body/consts';
 import {
-	ClientAuth,
 	FETCH_CLIENT_SET_ADD_PREREQUEST, FETCH_CLIENT_SET_COL_ID, FETCH_CLIENT_SET_DELETE_PRECONDITION, FETCH_CLIENT_SET_DELETE_PREREQUEST,
 	FETCH_CLIENT_SET_NOTES, FETCH_CLIENT_SET_OAUTH_TOKEN, FETCH_CLIENT_SET_PRECONDITION, FETCH_CLIENT_SET_PREFETCH, FETCH_CLIENT_SET_REQ,
 	FETCH_CLIENT_SET_REQ_AUTH, FETCH_CLIENT_SET_REQ_BINARY_DATA, FETCH_CLIENT_SET_REQ_BODY, FETCH_CLIENT_SET_REQ_FORM_DATA_BODY, FETCH_CLIENT_SET_REQ_HEADERS,
 	FETCH_CLIENT_SET_REQ_ID, FETCH_CLIENT_SET_REQ_METHOD, FETCH_CLIENT_SET_REQ_PARAMS, FETCH_CLIENT_SET_REQ_RAW, FETCH_CLIENT_SET_REQ_RAW_LANG,
 	FETCH_CLIENT_SET_REQ_RESET_BODY, FETCH_CLIENT_SET_REQ_URL, FETCH_CLIENT_SET_SET_VAR, FETCH_CLIENT_SET_TEST,
-	GrantType, IAuth, IAwsAuth, IBinaryFileData, IBodyData, IOAuth, IPreFetch, IRequestModel, IRunRequest, ISetVar, ITest, RequestActionTypes
+	RequestActionTypes
 } from "./types";
 
 export const InitialRequestHeaders: ITableData[] = [

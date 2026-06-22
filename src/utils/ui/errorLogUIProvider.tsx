@@ -1,10 +1,10 @@
-import fs from "fs";
-import path from 'path';
-import * as vscode from 'vscode';
-import { requestTypes, responseTypes } from '../configuration';
+import { buildWebviewHtml } from './webviewUtils';
 import { getExtDbPath } from '../db/helper';
 import { logPath } from '../logger/constants';
-import { buildWebviewHtml } from './webviewUtils';
+import { requestTypes, responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
+import * as vscode from 'vscode';
+import fs from "fs";
+import path from 'path';
 
 export const ErrorLogUI = (extensionUri: vscode.Uri) => {
 	const disposable = vscode.commands.registerCommand('fetch-client.openErrorLog', () => {
