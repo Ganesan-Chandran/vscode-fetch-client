@@ -40,4 +40,4 @@ export interface ISetResponseLimit {
 	};
 }
 
-export type UIActionTypes = | ISetOpen | ISetLayout | ISetRunItem | ISetTheme |ISetResponseLimit;
+export type UIActionTypes = | ISetOpen | ISetLayout | ISetRunItem | ISetTheme | ISetResponseLimit;

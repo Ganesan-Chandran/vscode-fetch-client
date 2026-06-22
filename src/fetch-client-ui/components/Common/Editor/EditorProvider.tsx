@@ -1,11 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
-import AceEditor from "react-ace";
+import "./style.css";
 import { EditorProps } from ".";
+import { syncAceWithVSCodeTheme } from "./themeHelper";
 import * as prettier from "prettier/standalone";
+import AceEditor from "react-ace";
 import prettierBabel from "prettier/plugins/babel";
 import prettierEstree from "prettier/plugins/estree";
-import prettierTypescript from "prettier/plugins/typescript";
 import prettierHtml from "prettier/plugins/html";
+import prettierTypescript from "prettier/plugins/typescript";
+import React, { useEffect, useRef, useState } from "react";
+import xmlFormatter from "xml-formatter";
 
 import "ace-builds/src-noconflict/mode-c_cpp";
 import "ace-builds/src-noconflict/mode-csharp";
@@ -26,15 +29,11 @@ import "ace-builds/src-noconflict/mode-swift";
 import "ace-builds/src-noconflict/mode-graphqlschema";
 import "ace-builds/src-noconflict/mode-rdoc";
 import "ace-builds/src-noconflict/mode-text";
-
 import "ace-builds/src-noconflict/theme-github";
 import "ace-builds/src-noconflict/theme-tomorrow_night";
 import "ace-builds/src-noconflict/theme-github_dark";
-
 import "ace-builds/src-noconflict/ext-searchbox";
 import "ace-builds/src-noconflict/ext-language_tools";
-
-import "./style.css";
 
 const languageToAceMode: Record<string, string> = {
 	cpp: "c_cpp",
@@ -97,24 +96,13 @@ async function formatValue(value: string, language: string): Promise<string> {
 }
 
 function formatXml(xml: string): string {
-	const PADDING = "  ";
-	const reg = /(>)(<)(\/*)/g;
-	let formatted = xml.replace(reg, "$1\r\n$2$3");
-	let pad = 0;
-	return formatted
-		.split("\r\n")
-		.map((node) => {
-			let indent = 0;
-			if (/^<\/\w/.test(node)) {
-				pad = Math.max(pad - 1, 0);
-			} else if (/^<\w[^>]*[^/]>.*$/.test(node)) {
-				indent = 1;
-			}
-			const line = PADDING.repeat(pad) + node;
-			pad += indent;
-			return line;
-		})
-		.join("\n");
+	const formatted = xmlFormatter(xml, {
+		indentation: "  ",
+		lineSeparator: "\n",
+		collapseContent: true,
+	});
+
+	return formatted;
 }
 
 const EditorProvider = (props: EditorProps) => {
@@ -149,6 +137,10 @@ const EditorProvider = (props: EditorProps) => {
 			cancelled = true;
 		};
 	}, [props.value, props.language, props.format]);
+
+	useEffect(() => {
+		syncAceWithVSCodeTheme();
+	}, [props.theme]);
 
 	function handleChange(newValue: string) {
 		setValue(newValue);

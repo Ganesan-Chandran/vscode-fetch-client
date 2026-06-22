@@ -10,7 +10,7 @@ import { GetExitingItem, SaveRequest, UpdateRequest } from "../db/mainDBUtil";
 import { GetExitingItemResponse } from "../db/responseDBUtil";
 import { getStorageManager, OpenCookieUI, OpenVariableUI, pubSub, sideBarProvider } from "../../extension";
 import { IHistory } from "../../fetch-client-core/types/sidebar.types";
-import { IPubSubMessage, Subscription } from "../PubSub";
+import { IPubSubMessage, Subscription } from "../pubSub";
 import { IRequestModel } from "../../fetch-client-core/types/request.types";
 import { pubSubTypes, requestTypes, responseTypes } from "../../fetch-client-core/consts/requestTypes.consts";
 import { SaveHistory, UpdateHistory } from "../db/historyDBUtil";

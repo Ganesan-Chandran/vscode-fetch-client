@@ -1,14 +1,3 @@
-/* .editor {
-	position: relative;
-	border: var(--border-size) solid var(--border-color);
-	height: 100%;
-	box-sizing: border-box;
-}
-
-.monaco-editor {
-	height: 100%;
-} */
-
 .editor {
 	position: relative;
 	width: 100%;

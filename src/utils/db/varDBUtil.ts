@@ -25,6 +25,11 @@ export async function SaveVariable(item: IVariable, webview: vscode.Webview, sid
 		const db = await getVariableDB();
 
 		const userVariables = db.getCollection("userVariables");
+		const config = getVariableEncryptionConfiguration();
+		if (config) {
+			let key = getVariableEncryptionKey();
+			item.data = new FCCipher(key).EncryptBulkData(item.data);
+		}
 		userVariables.insert(item);
 		saveDB(db);
 
@@ -194,7 +199,7 @@ export async function GetVariableById(id: string, isGlobal: boolean, webview: vs
 		let userVariables = db.getCollection("userVariables").chain().find(isGlobal ? { 'name': 'Global' } : { 'id': id }).data({ forceClones: true, removeMeta: true });
 		const config = getVariableEncryptionFCConfiguration();
 
-		if (config) {``
+		if (config) {
 			let key = getVariableEncryptionKey();
 			userVariables?.forEach((item: IVariable) => {
 				item.data = new FCCipher(key).DecryptBulkData(item.data);

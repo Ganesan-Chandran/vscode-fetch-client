@@ -19,6 +19,7 @@ const SideBar = () => {
 
 	const [tabOptions] = useState(["History", "Collection", "Variable"]);
 	const [selectedTab, setSelectedTab] = useState("History");
+	const [historyView, setHistoryView] = useState<"List" | "Folder">("List");
 	const [menuShow, setMenuShow] = useState(false);
 	const [filterCondititon, setFilterCondition] = useState("");
 	const [isHisLoading, setHisLoading] = useState(true);
@@ -112,7 +113,7 @@ const SideBar = () => {
 		vscode.postMessage({ type: requestTypes.openAutoRequest });
 		setMenuShow(false);
 	}
-	
+
 	const [isHostReady, setHostReady] = useState(false);
 	let readyCheckTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -218,9 +219,15 @@ const SideBar = () => {
 					dispatch(SideBarActions.SetUpdateHistoryItemAction(event.data.item));
 				}
 			}
+			else if (event.data && event.data.type === responseTypes.configResponse) {
+				const config = JSON.parse(event.data.configData as string) as Record<string, unknown>;
+				const historyView = config["historyView"] as string;
+				setHistoryView(historyView === "List" ? "List" : "Folder");
+			}
 		};
 		window.addEventListener("message", handleMessage);
 		vscode.postMessage({ type: requestTypes.themeRequest });
+		vscode.postMessage({ type: requestTypes.configRequest });
 		vscode.postMessage({ type: requestTypes.getAllHistoryRequest });
 		vscode.postMessage({ type: requestTypes.getAllCollectionsRequest });
 		vscode.postMessage({ type: requestTypes.getAllVariableRequest });
@@ -296,7 +303,7 @@ const SideBar = () => {
 					{
 						selectedTab === "History"
 							?
-							<HistoryBar filterCondition={filterCondititon?.toLowerCase()} isLoading={isHisLoading} selectedItem={selectedItem} viewMode="folder" />
+							<HistoryBar filterCondition={filterCondititon?.toLowerCase()} isLoading={isHisLoading} selectedItem={selectedItem} viewMode={historyView} />
 							: selectedTab === "Collection"
 								?
 								<React.Suspense fallback={<div>loading...</div>}><CollectionBar filterCondition={filterCondititon?.toLowerCase()} isLoading={isColLoading} selectedItem={selectedItem} sort={colSort} /></React.Suspense>

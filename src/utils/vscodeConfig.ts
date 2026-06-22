@@ -64,6 +64,10 @@ export function getHistoryLimitConfiguration(): string {
 	return getFetchClientConfiguration().get<string>("historyLimit", "25");
 }
 
+export function getHistoryViewConfiguration(): string {
+	return getFetchClientConfiguration().get<string>("historyView", "List");
+}
+
 export function getTimeOutConfiguration(): number {
 	return getFetchClientConfiguration().get<number>("timeOut", 120000);
 }

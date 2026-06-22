@@ -2,9 +2,8 @@ import { buildWebviewHtml } from './webviewUtils';
 import { DeleteAllHistory, DeleteHistory, GetAllHistory, RenameHistory } from '../../utils/db/historyDBUtil';
 import { Export, Import, SaveRequest } from '../db/mainDBUtil';
 import { formatDate } from '../helper';
-import { getVSCodeTheme } from '../vscodeConfig';
+import { getConfiguration, getVSCodeTheme } from '../vscodeConfig';
 import { IHistory, IFolder, ICollections } from '../../fetch-client-core/types/sidebar.types';
-import { IPubSubMessage, Subscription } from '../PubSub';
 import { pubSubTypes, requestTypes, responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
 import * as vscode from 'vscode';
 import {
@@ -24,6 +23,7 @@ import {
 	getStorageManager, OpenAddToColUI, OpenAttachVariableUI, OpenAutoRequestUI, OpenBulkExportUI, OpenColSettings, OpenCopyToColUI,
 	OpenCurlUI, OpenExistingItem, OpenReOrderUI, OpenRunAllUI, OpenVariableUI, pubSub, vsCodeLogger
 } from '../../extension';
+import { IPubSubMessage, Subscription } from '../pubSub';
 
 export class SideBarProvider implements vscode.WebviewViewProvider {
 
@@ -310,6 +310,8 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 				case requestTypes.openAutoRequest:
 					OpenAutoRequestUI();
 					break;
+				case requestTypes.configRequest: 
+					webviewView.webview.postMessage(getConfiguration());
 			}
 		});
 	}

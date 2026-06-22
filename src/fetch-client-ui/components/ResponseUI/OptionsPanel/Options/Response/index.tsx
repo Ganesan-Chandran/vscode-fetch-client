@@ -2,7 +2,7 @@ import "./style.css";
 import { HTMLViewer } from '../../../../Common/Viewer/HTMLViewer';
 import { IRootState } from "../../../../../reducer/combineReducer";
 import { JSONViewer } from '../../../../Common/Viewer/JSONViewer';
-import { MonacoEditor } from "../../../../Common/Editor";
+import { AceEditor } from "../../../../Common/Editor";
 import { ReactComponent as CollapseLogo } from '../../../../../../../icons/collapse.svg';
 import { ReactComponent as ExpandLogo } from '../../../../../../../icons/expand.svg';
 import { requestTypes } from '../../../../../../fetch-client-core/consts/requestTypes.consts';
@@ -23,7 +23,7 @@ export const ResponseSection = (props: any) => {
 	const [wordWrap, setWordWrap] = useState(false);
 
 	const editor = useMemo(() => {
-		return <MonacoEditor
+		return <AceEditor
 			value={response.responseData ?? ""}
 			language={response.responseType?.format ? response.responseType.format : responseType[1].value}
 			readOnly={true}

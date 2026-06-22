@@ -2,7 +2,7 @@ import "./style.css";
 import { Actions } from "../../../../redux";
 import { AppDispatch } from "../../../../../../store/appStore";
 import { IRootState } from "../../../../../../reducer/combineReducer";
-import { MonacoEditor } from "../../../../../Common/Editor";
+import { AceEditor } from "../../../../../Common/Editor";
 import { requestBodyRaw } from "../../../../../../../fetch-client-core/consts/requestBody.consts";
 import { useDispatch, useSelector } from "react-redux";
 import React from "react";
@@ -19,7 +19,7 @@ export const Raw = (props: any) => {
 
 	return (
 		<div className="raw-panel">
-			<MonacoEditor
+			<AceEditor
 				value={requestData.body.raw.data}
 				language={requestData.body.raw.lang ?? requestBodyRaw[1].value}
 				readOnly={false}

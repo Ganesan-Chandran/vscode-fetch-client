@@ -9,10 +9,10 @@ import { flushHistoryDB, GetAllHistory } from './utils/db/historyDBUtil';
 import { flushMainDB } from "./utils/db/mainDBUtil";
 import { flushVariableDB, GetAllVariable, UpdateToDecryptedVariables, UpdateToEncryptedVariables, UpdateWithAnotherKey } from './utils/db/varDBUtil';
 import { getVariableEncryptionFCConfiguration, getVariableEncryptionKey, setVariableEncryptionConfiguration, updateVariableEncryptionKey } from './utils/vscodeConfig';
-import { IPubSubMessage, PubSub } from './utils/PubSub';
-import { LocalStorageService } from './utils/LocalStorageService';
+import { IPubSubMessage, PubSub } from './utils/pubSub';
+import { LocalStorageService } from "./utils/localStorageService";
 import { logPath } from './utils/logger/constants';
-import { MemoryCache } from './utils/MemoryCache';
+import { MemoryCache } from "./utils/memoryCache";
 import { pubSubTypes } from './fetch-client-core/consts/requestTypes.consts';
 import { transferDbConfig } from './utils/db/transferDBConfig';
 import { VSCodeLogger } from './utils/logger/vsCodeLogger';
@@ -26,10 +26,6 @@ export let sideBarProvider: SideBarProvider;
 let storageManager: LocalStorageService;
 let extensionUri: vscode.Uri;
 let extCache: MemoryCache<string>;
-
-// ---------------------------------------------------------------------------
-// Public navigation helpers — called by webview providers
-// ---------------------------------------------------------------------------
 
 export function OpenExistingItem(
 	id?: string, name?: string, colId?: string,
@@ -250,7 +246,7 @@ function registerEventListeners(context: vscode.ExtensionContext): void {
 					return;
 				}
 				if (shouldEncrypt) {
-					UpdateToEncryptedVariables(key); ``
+					UpdateToEncryptedVariables(key);
 					setVariableEncryptionConfiguration(true);
 				} else {
 					UpdateToDecryptedVariables(key);

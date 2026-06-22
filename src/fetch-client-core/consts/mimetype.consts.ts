@@ -67,7 +67,7 @@ export const MIMETypes: Record<string, string> = {
   "application/xhtml+xml": "xhtml",
   "application/vnd.ms-excel": "xls",
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
-  "application/xml ": "xml",
+  "application/xml": "xml",
   "application/vnd.mozilla.xul+xml": "xul",
   "application/zip": "zip",
   "video/3gpp": "3gp",

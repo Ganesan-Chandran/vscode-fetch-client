@@ -17,7 +17,7 @@ export interface EditorProps {
 
 const EditorProvider = React.lazy(() => import('./EditorProvider'));
 
-export const MonacoEditor = (props: EditorProps) => {
+export const AceEditor = (props: EditorProps) => {
 
 	const { theme } = useSelector((state: IRootState) => state.uiData);
 

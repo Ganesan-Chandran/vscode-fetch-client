@@ -94,7 +94,7 @@ export const VariableSection = (props: IVariableProps) => {
 
 	function handleClickOutside(evt: any) {
 		const triggerEl = moreMenuWrapperRef.current[refIndex.current];
-		const menuEl = document.getElementById("drop-down-menu-" + (history[refIndex.current]?.id ?? ""));
+		const menuEl = document.getElementById("drop-down-menu-" + (variableState[refIndex.current]?.id ?? ""));
 		if (triggerEl && !triggerEl.contains(evt.target) && !(menuEl && menuEl.contains(evt.target))) {
 			setCurrentIndex(-1);
 		}

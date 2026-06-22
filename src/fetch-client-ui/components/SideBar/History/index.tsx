@@ -15,7 +15,7 @@ export interface IHistoryProps {
 	selectedItem: {
 		itemId: string;
 	},
-	viewMode: "list" | "folder";
+	viewMode: "List" | "Folder";
 }
 
 export type HistoryBucket =
@@ -285,7 +285,7 @@ export const HistoryBar = (props: IHistoryProps) => {
 					</>
 					:
 					history.length > 0 ?
-						(props.viewMode === "folder" ? getFolderBody() : getActivityBody())
+						(props.viewMode === "Folder" ? getFolderBody() : getActivityBody())
 						:
 						<div className="no-history-text">{"No History Available"}</div>
 			}

@@ -3,7 +3,7 @@ import { codeSnippetLangunages } from "../../../../fetch-client-core/consts/code
 import { HTTPSnippet, type TargetId, type ClientId } from "httpsnippet";
 import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
 import { IRootState } from "../../../reducer/combineReducer";
-import { MonacoEditor } from "../Editor";
+import { AceEditor } from "../Editor";
 import { replaceValueWithVariable } from "../../../../utils/helper";
 import { useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
@@ -200,7 +200,7 @@ const CodeSnippetGenerator = () => {
 				</div>
 			</div>
 				<div className="code-snippet-editor-panel">
-					<MonacoEditor
+					<AceEditor
 						value={codeSnippet}
 						language={language === "node" ? "javascript" : language}
 						readOnly={true}
