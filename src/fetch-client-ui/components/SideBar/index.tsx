@@ -22,7 +22,7 @@ const SideBar = () => {
 	const [historyView, setHistoryView] = useState<"List" | "Folder">("List");
 	const [menuShow, setMenuShow] = useState(false);
 	const [filterCondititon, setFilterCondition] = useState("");
-	const [isHisLoading, setHisLoading] = useState(true);
+	const [isHisLoading, setHisLoading] = useState(0);
 	const [isColLoading, setColLoading] = useState(true);
 	const [isVarLoading, setVarLoading] = useState(true);
 	const [isViewLogOpen, setViewLogOpen] = useState(false);
@@ -128,7 +128,7 @@ const SideBar = () => {
 
 	useEffect(() => {
 		if (isHostReady) {
-			setHisLoading(false);
+			setHisLoading(1);
 			setColLoading(false);
 			setVarLoading(false);
 		}
@@ -141,7 +141,7 @@ const SideBar = () => {
 				clearTimeout(readyCheckTimer);
 			} else if (event.data && event.data.type === responseTypes.getAllHistoryResponse) {
 				dispatch(SideBarActions.SetHistoryAction(event.data.history as IHistory[]));
-				// setHisLoading(false);
+				setHisLoading(2);
 			} else if (event.data && event.data.type === responseTypes.deleteAllHistoryResponse) {
 				dispatch(SideBarActions.SetHistoryAction([]));
 			} else if (event.data && event.data.type === responseTypes.deleteHistoryResponse) {
@@ -290,33 +290,61 @@ const SideBar = () => {
 					<input type="text"
 						className="activity-search"
 						value={filterCondititon}
-						placeholder={selectedTab === "History" ? "filter history" : selectedTab === "Collection" ? "filter collection" : "filter variable"}
+						placeholder={
+							selectedTab === "History" ? "filter history"
+								: selectedTab === "Collection" ? "filter collection"
+									: "filter variable"
+						}
 						onChange={onFilterChange} />
-					<div className="hamburger-menu-panel dropdown" ref={wrapperRef} >
-						{getColFolDotMenu("hamburger-menu", "Menu", "hamburger-menu", (e) => { e.stopPropagation(); e.preventDefault(); }, (e) => setShowMenu(e))}
-						{menuShow && (<div id="myDropdown" className={"dropdown-content show"}>
-							{selectedTab === "History" ? getHistoryMenuItems() : selectedTab === "Collection" ? getCollectionsMenuItems() : getVariableMenuItems()}
-						</div>)}
+					<div className="hamburger-menu-panel dropdown" ref={wrapperRef}>
+						{getColFolDotMenu("hamburger-menu", "Menu", "hamburger-menu",
+							(e) => { e.stopPropagation(); e.preventDefault(); },
+							(e) => setShowMenu(e)
+						)}
+						{menuShow && (
+							<div id="myDropdown" className={"dropdown-content show"}>
+								{selectedTab === "History" ? getHistoryMenuItems()
+									: selectedTab === "Collection" ? getCollectionsMenuItems()
+										: getVariableMenuItems()}
+							</div>
+						)}
 					</div>
 				</div>
+
 				<div className="activity-items-panel">
-					{
-						selectedTab === "History"
-							?
-							<HistoryBar filterCondition={filterCondititon?.toLowerCase()} isLoading={isHisLoading} selectedItem={selectedItem} viewMode={historyView} />
-							: selectedTab === "Collection"
-								?
-								<React.Suspense fallback={<div>loading...</div>}><CollectionBar filterCondition={filterCondititon?.toLowerCase()} isLoading={isColLoading} selectedItem={selectedItem} sort={colSort} /></React.Suspense>
-								:
-								<React.Suspense fallback={<div>loading...</div>}><VariableSection filterCondition={filterCondititon?.toLowerCase()} isLoading={isVarLoading} sort={varSort} /></React.Suspense>
-					}
+					<div style={{ display: selectedTab === "History" ? "block" : "none" }}>
+						<HistoryBar
+							filterCondition={filterCondititon?.toLowerCase()}
+							loadingStatus={isHisLoading}
+							selectedItem={selectedItem}
+							viewMode={historyView}
+						/>
+					</div>
+					<div style={{ display: selectedTab === "Collection" ? "block" : "none" }}>
+						<React.Suspense fallback={<div>loading...</div>}>
+							<CollectionBar
+								filterCondition={filterCondititon?.toLowerCase()}
+								isLoading={isColLoading}
+								selectedItem={selectedItem}
+								sort={colSort}
+							/>
+						</React.Suspense>
+					</div>
+					<div style={{ display: selectedTab === "Variable" ? "block" : "none" }}>
+						<React.Suspense fallback={<div>loading...</div>}>
+							<VariableSection
+								filterCondition={filterCondititon?.toLowerCase()}
+								isLoading={isVarLoading}
+								sort={varSort}
+							/>
+						</React.Suspense>
+					</div>
 				</div>
 				<footer className="bottom-menu-panel">
 					<a className="view-log" onClick={onViewLogClick}>
-						{isViewLogOpen ?
-							<span className="log-span">📝 Close Log</span>
-							:
-							<span className="log-span">📝 View Log</span>
+						{isViewLogOpen
+							? <span className="log-span">📝 Close Log</span>
+							: <span className="log-span">📝 View Log</span>
 						}
 					</a>
 				</footer>

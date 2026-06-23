@@ -11,7 +11,7 @@ import vscode from "../../Common/vscodeAPI";
 
 export interface IHistoryProps {
 	filterCondition: string;
-	isLoading: boolean;
+	loadingStatus: number;
 	selectedItem: {
 		itemId: string;
 	},
@@ -38,10 +38,9 @@ function startOfDay(d: Date): Date {
 }
 
 function startOfWeek(d: Date): Date {
-	// Monday-start week; adjust to Sunday-start if your locale prefers that
 	const x = startOfDay(d);
 	const day = x.getDay();
-	const diff = (day === 0 ? -6 : 1) - day; // shift to Monday
+	const diff = (day === 0 ? -6 : 1) - day;
 	x.setDate(x.getDate() + diff);
 	return x;
 }
@@ -78,7 +77,6 @@ export function groupHistoryByBucket(history: IHistory[]): Map<HistoryBucket, IH
 		map.get(bucket)!.push(item);
 	}
 
-	// drop empty buckets, preserve order
 	for (const b of BUCKET_ORDER) {
 		if (map.get(b)!.length === 0) { map.delete(b); }
 	}
@@ -260,7 +258,7 @@ export const HistoryBar = (props: IHistoryProps) => {
 		const grouped = groupHistoryByBucket(sourceHistory);
 
 		return Array.from(grouped.entries()).map(([bucket, items]) => (
-			<details className="history-bucket" open={props.filterCondition ? true : (bucket === "Today" || bucket === "Yesterday")} key={"bucket-" + bucket}>
+			<details className="history-bucket" open={props.filterCondition ? true : false} key={"bucket-" + bucket}>
 				<summary className="history-bucket-summary">
 					<div className="col-fol-title">{bucket}</div>
 				</summary>
@@ -278,7 +276,7 @@ export const HistoryBar = (props: IHistoryProps) => {
 	return (
 		<>
 			{
-				props.isLoading ?
+				props.loadingStatus === 0 || props.loadingStatus === 1 ?
 					<>
 						<div id="divSpinner" className="spinner loading"></div>
 						<div className="loading-history-text">{"Loading...."}</div>
