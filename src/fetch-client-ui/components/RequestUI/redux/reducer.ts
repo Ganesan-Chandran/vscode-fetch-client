@@ -413,21 +413,20 @@ function updateURL(url: string, params: ITableData[]): string {
 }
 
 function updateQueryParams(url: string, params: ITableData[]) {
-	let splitURL = url.split("?");
+	const queryIndex = url.indexOf("?");
 	let queryParams: ITableData[] = params.filter(getUnchecked);
 
-	if (splitURL.length > 1) {
-		if (splitURL[1].trim().length > 0) {
-			let searchParams = new URLSearchParams(splitURL[1].trim());
-			for (let p of searchParams) {
-				if (p[0] && p[0].trim()) {
-					let queryParam: ITableData = {
-						isChecked: true,
-						key: p[0] ? p[0].trim() : "",
-						value: p[1] ? p[1].trim() : "",
-					};
-					queryParams.splice(queryParams.length === 0 ? 0 : queryParams.length, 0, queryParam);
-				}
+	if (queryIndex !== -1) {
+		const queryString = url.substring(queryIndex + 1);
+		const searchParams = new URLSearchParams(queryString);
+		for (let p of searchParams) {
+			if (p[0] && p[0].trim()) {
+				let queryParam: ITableData = {
+					isChecked: true,
+					key: p[0] ? p[0].trim() : "",
+					value: p[1] ? p[1].trim() : "",
+				};
+				queryParams.splice(queryParams.length === 0 ? 0 : queryParams.length, 0, queryParam);
 			}
 		}
 	}

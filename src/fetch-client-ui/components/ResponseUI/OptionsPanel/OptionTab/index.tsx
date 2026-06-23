@@ -14,6 +14,8 @@ export const ResponseOptionsTab = (props: any) => {
 	const { selectedTab, setSelectedTab, isVerticalLayout } = props;
 
 	const { headers, response, testResults, cookies, preFetchResponse } = useSelector((state: IRootState) => state.responseData);
+	const preFetchCount = preFetchResponse?.filter(i => i.reqId)?.length ?? 0;
+	const testCount = testResults?.length ?? 0;
 	const { url } = useSelector((state: IRootState) => state.requestData);
 
 	const [menuShow, setMenuShow] = useState(false);
@@ -98,7 +100,7 @@ export const ResponseOptionsTab = (props: any) => {
 			return false;
 		}
 
-		if (opt === "codetype" && url ) { //&& !response.isError && isJson(response.responseData)) {
+		if (opt === "codetype" && url) { //&& !response.isError && isJson(response.responseData)) {
 			return false;
 		}
 
@@ -106,7 +108,19 @@ export const ResponseOptionsTab = (props: any) => {
 	}
 
 	function getResponseOptions(): { name: string; value: string; }[] {
-		return props.isCurl ? curlResponseOptions : responseOptions;
+		let options = props.isCurl ? curlResponseOptions : responseOptions;
+
+		return options.filter((option) => {
+			if (option.value === "testresults") {
+				return testCount > 0;
+			}
+
+			if (option.value === "prefetchresults") {
+				return preFetchCount > 0;
+			}
+
+			return true;
+		});
 	}
 
 	return (
@@ -149,24 +163,20 @@ export const ResponseOptionsTab = (props: any) => {
 										)
 									</div>
 								) : null}
-								{option.value === "testresults" && response.responseData ? (
+								{option.value === "testresults" && (
 									<div className="header-count">
-										(
-										{
-											testResults?.length
-										}
+										({
+											testCount}
 										)
 									</div>
-								) : null}
-								{option.value === "prefetchresults" && response.responseData ? (
+								)}
+								{option.value === "prefetchresults" && (
 									<div className="header-count">
 										(
-										{
-											preFetchResponse?.filter(i => i.reqId)?.length
-										}
+										{preFetchCount}
 										)
 									</div>
-								) : null}
+								)}
 							</div>
 						</button>
 					))}
