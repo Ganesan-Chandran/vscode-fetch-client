@@ -240,9 +240,16 @@ export const HistoryBar = (props: IHistoryProps) => {
 	}
 
 	useEffect(() => {
-		document.addEventListener("mousedown", handleClickOutside, false);
+		const handleBlur = () => {
+			setCurrentIndex(-1);
+		};
+
+		document.addEventListener("click", handleClickOutside, false);
+		window.addEventListener("blur", handleBlur);
+
 		return () => {
-			document.removeEventListener("mousedown", handleClickOutside, false);
+			window.removeEventListener("blur", handleBlur);
+			document.removeEventListener("click", handleClickOutside, false);
 		};
 	}, []);
 

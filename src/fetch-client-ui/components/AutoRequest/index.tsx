@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { ReactComponent as BinLogo } from '../../../../icons/bin.svg';
 import { requestTypes, responseTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
-import { formatDate } from "../../../utils/helper";
+import { formatDate } from "../../../fetch-client-core/helpers/helper";
 import vscode from "../Common/vscodeAPI";
 import "./style.css";
 import { ICollection, IColRequest, IRequestList } from "../../../fetch-client-core/types/prefetch.types";

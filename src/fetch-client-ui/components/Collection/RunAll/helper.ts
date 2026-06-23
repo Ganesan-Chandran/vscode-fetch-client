@@ -1,5 +1,5 @@
 import { FormatBytes, GetResponseTime } from "../../ResponseUI/OptionsPanel/OptionTab/util";
-import { formatDate } from "../../../../utils/helper";
+import { formatDate } from "../../../../fetch-client-core/helpers/helper";
 import { IReponseModel } from "../../../../fetch-client-core/types/response.types";
 import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
 import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";

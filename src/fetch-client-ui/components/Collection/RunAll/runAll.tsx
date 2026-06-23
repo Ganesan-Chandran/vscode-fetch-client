@@ -396,17 +396,17 @@ const RunAll = () => {
 	}
 
 	function getTestClassName(index: number) {
-		let total = refReq.current[index].tests.length - 1;
+		let total = refReq.current[index]?.tests?.length - 1;
 
 		if (!selectedReq[index]) {
 			return "runall-test-disabled";
 		}
 
-		if (total === 0) {
+		if (!total && total === 0) {
 			return "runall-test-normal";
 		}
 
-		if (res[index]) {
+		if (res[selectedIteration][index]) {
 			let pass = res[selectedIteration][index].testResults?.filter(item => item.result === true).length;
 
 			if (total === pass) {
@@ -419,11 +419,11 @@ const RunAll = () => {
 	}
 
 	function getTestResult(index: number) {
-		let total = refReq.current[index].tests.length - 1;
-		if (total === 0) {
+		let total = refReq.current[index]?.tests?.length - 1;
+		if (!total && total === 0) {
 			return "No Tests";
 		}
-		if (res[index]) {
+		if (res[selectedIteration][index]) {
 			let pass = res[selectedIteration][index].testResults?.filter(item => item.result === true).length;
 			return `${pass} / ${total}`;
 		}

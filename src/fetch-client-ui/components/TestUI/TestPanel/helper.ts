@@ -4,7 +4,7 @@ import { ISetVar, ITest } from "../../../../fetch-client-core/types/prefetch.typ
 import { ITableData } from "../../../../fetch-client-core/types/common.types";
 import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";
 import { ParametersModelMapping } from "../../../../fetch-client-core/consts/test.consts";
-import { replaceDataWithVariable } from "../../../../utils/helper";
+import { replaceDataWithVariable } from "../../../../fetch-client-core/helpers/helper";
 
 export function setVariable(variable: IVariable, setVar: ISetVar[], responseValue: IReponseModel): IVariable {
 	let actualValue: any;

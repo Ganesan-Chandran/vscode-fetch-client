@@ -1,19 +1,19 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from 'react-redux';
-import Split from 'react-split';
-import { v4 as uuidv4 } from 'uuid';
-import { requestTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
-import { formatDate } from "../../../utils/helper";
-import { IRootState } from '../../reducer/combineReducer';
-import vscode from "../Common/vscodeAPI";
-import { OptionsPanel } from "../RequestUI/OptionsPanel";
-import { Actions } from "../RequestUI/redux";
-import { RequestPanel } from "../RequestUI/RequestPanel";
-import { VariableActions } from "../Variables/redux";
-import { UIActions } from './redux';
-import { useWindowMessages } from "./hooks/useWindowMessages";
 import "./style.css";
+import { Actions } from "../RequestUI/redux";
 import { AppDispatch } from "../../store/appStore";
+import { formatDate } from "../../../fetch-client-core/helpers/helper";
+import { IRootState } from '../../reducer/combineReducer';
+import { OptionsPanel } from "../RequestUI/OptionsPanel";
+import { RequestPanel } from "../RequestUI/RequestPanel";
+import { requestTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
+import { UIActions } from './redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useWindowMessages } from "./hooks/useWindowMessages";
+import { v4 as uuidv4 } from 'uuid';
+import { VariableActions } from "../Variables/redux";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Split from 'react-split';
+import vscode from "../Common/vscodeAPI";
 
 function parseDocumentTitle() {
 	const parts = document.title.split("@:@");

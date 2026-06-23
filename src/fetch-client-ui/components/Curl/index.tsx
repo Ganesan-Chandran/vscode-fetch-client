@@ -1,6 +1,6 @@
 import "./style.css";
 import { AppDispatch } from "../../store/appStore";
-import { formatDate } from "../../../utils/helper";
+import { formatDate } from "../../../fetch-client-core/helpers/helper";
 import { HandleColSelectionValidation } from "./helper";
 import { ICollections, IFolder, IHistory } from "../../../fetch-client-core/types/sidebar.types";
 import { InitialSettings } from "../SideBar/redux/reducer";

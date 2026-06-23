@@ -1,6 +1,6 @@
 import "./style.css";
 import { DropdownPortal } from "../dropdownMenu";
-import { formatDate } from "../../../../utils/helper";
+import { formatDate } from "../../../../fetch-client-core/helpers/helper";
 import { getColFolDotMenu, getPlusIconSVG } from "../../Common/icons";
 import { getDays, getMethodClassName, getMethodName, isFolder } from "../util";
 import { ICollections, IHistory, IFolder } from "../../../../fetch-client-core/types/sidebar.types";
@@ -57,7 +57,12 @@ export const CollectionBar = (props: ICollectionProps) => {
 	const [isCopied, setCopy] = useState(false);
 
 	useEffect(() => {
+		const handleBlur = () => {
+			setCurrentHeadIndex("");
+			setCurrentIndex("");
+		};
 		document.addEventListener("mousedown", handleClickOutside, false);
+		window.addEventListener("blur", handleBlur);
 
 		const handleMessage = (event: MessageEvent) => {
 			if (event.data && event.data.type === responseTypes.copyItemResponse) {
@@ -78,6 +83,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 
 		return () => {
 			document.removeEventListener("mousedown", handleClickOutside, false);
+			window.removeEventListener("blur", handleBlur);
 			window.removeEventListener("message", handleMessage);
 		};
 	}, []);
@@ -697,14 +703,6 @@ export const CollectionBar = (props: ICollectionProps) => {
 	}
 
 	function handleClickOutside(evt: any) {
-		// if (moreHeadMenuWrapperRef.current && moreHeadMenuWrapperRef.current[refHeadIndex.current] && !moreHeadMenuWrapperRef.current[refHeadIndex.current].contains(evt.target)) {
-		// 	setCurrentHeadIndex("");
-		// }
-
-		// if (moreMenuWrapperRef.current && moreMenuWrapperRef.current[refIndex.current] && !moreMenuWrapperRef.current[refIndex.current].contains(evt.target)) {
-		// 	setCurrentIndex("");
-		// }
-
 		const headMenuEl = document.getElementById("drop-down-menu-" + refHeadIndex.current);
 		const headTriggerEl = moreHeadMenuWrapperRef.current[refHeadIndex.current];
 		if (headTriggerEl && !headTriggerEl.contains(evt.target) && !(headMenuEl && headMenuEl.contains(evt.target))) {

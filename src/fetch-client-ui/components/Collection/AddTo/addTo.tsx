@@ -1,5 +1,5 @@
 import "../style.css";
-import { formatDate } from "../../../../utils/helper";
+import { formatDate } from "../../../../fetch-client-core/helpers/helper";
 import { getMethodClassName } from "../../SideBar/util";
 import { IHistory, IFolder, ICollections } from "../../../../fetch-client-core/types/sidebar.types";
 import { InitialSettings } from "../../SideBar/redux/reducer";

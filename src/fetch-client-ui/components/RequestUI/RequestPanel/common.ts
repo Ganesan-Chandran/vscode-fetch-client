@@ -1,6 +1,6 @@
 import { Actions } from "../redux";
 import { AppDispatch } from "../../../store/appStore";
-import { formatDate } from "../../../../utils/helper";
+import { formatDate } from "../../../../fetch-client-core/helpers/helper";
 import { GetDataFromHTML, notesMaxLimit } from "../../Common/helper";
 import { IReqSettings } from '../../../../fetch-client-core/types/prefetch.types';
 import { IRequestModel } from '../../../../fetch-client-core/types/request.types';
