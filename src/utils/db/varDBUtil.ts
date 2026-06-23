@@ -1,5 +1,5 @@
 import { createAutoDBCache } from "./dbManager";
-import { FCCipher } from "../../packages/crypto/index";
+import { FCCipher } from "../../fetch-client-packages/crypto/index";
 import { FetchClientVariableProxy } from '../validators/fetchClientVariableValidator';
 import { formatDate } from '../helper';
 import { getVariableEncryptionConfiguration, getVariableEncryptionFCConfiguration, getVariableEncryptionKey } from "../vscodeConfig";
