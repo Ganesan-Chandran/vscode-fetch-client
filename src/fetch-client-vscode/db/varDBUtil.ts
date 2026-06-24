@@ -1,7 +1,7 @@
 import { FCCipher } from "../../fetch-client-packages/crypto/index";
 import { FetchClientVariableProxy } from '../validators/fetchClientVariableValidator';
 import { formatDate } from '../../fetch-client-core/helpers/helper';
-import { getVariableEncryptionConfiguration, getVariableEncryptionFCConfiguration, getVariableEncryptionKey } from "../utils/vscodeConfig";
+import { getVariableEncryptionConfiguration, getVariableEncryptionKey } from "../utils/vscodeConfig";
 import { ITableData } from "../../fetch-client-core/types/common.types";
 import { IVariable } from "../../fetch-client-core/types/sidebar.types";
 import { PostmanVariableSchema_2_1 } from '../../fetch-client-core/types/postman_2_1.variable_types';
@@ -10,28 +10,21 @@ import { pubSubTypes, responseTypes } from '../../fetch-client-core/consts/reque
 import { RemoveVariable } from './collectionDBUtil';
 import { ThunderClientVariableSchema_1_2 } from "../../fetch-client-core/types/thunderClient_1_2.variable_types";
 import { v4 as uuidv4 } from 'uuid';
-import { variableDBPath } from '../../fetch-client-core/db/dbHelper';
 import { VariableImportType } from "../../fetch-client-core/consts/import.consts";
 import { writeLog } from '../logger/logger';
 import * as vscode from 'vscode';
 import fs from "fs";
-import { createAutoDBCache } from "../../fetch-client-core/db/dbManager";
+import {
+	Var_Repository_Insert, Var_Repository_InsertDuplicate, Var_Repository_Update, Var_Repository_UpdateAndReturn,
+	Var_Repository_FindAll, Var_Repository_UpdateAllWithReEncryption, Var_Repository_EncryptAll, Var_Repository_DecryptAll,
+	Var_Repository_FindById, Var_Repository_FindByIdSync, Var_Repository_Delete, Var_Repository_Rename, Var_Repository_UpdateStatus,
+	Var_Repository_FindByIdRaw, Var_Repository_InsertRaw
+} from "../../fetch-client-core/db/variableDB.repository";
 
-const { getLoadedDB: getVariableDB, saveDB, flush: flushVariableDB, invalidate: invalidateVariableDB } = createAutoDBCache(variableDBPath);
-export { getVariableDB, flushVariableDB, invalidateVariableDB };
 
 export async function SaveVariable(item: IVariable, webview: vscode.Webview, sideBarView: vscode.WebviewView) {
 	try {
-		const db = await getVariableDB();
-
-		const userVariables = db.getCollection("userVariables");
-		const config = getVariableEncryptionConfiguration();
-		if (config) {
-			let key = getVariableEncryptionKey();
-			item.data = new FCCipher(key).EncryptBulkData(item.data);
-		}
-		userVariables.insert(item);
-		saveDB(db);
+		await Var_Repository_Insert(item);
 
 		if (webview) {
 			webview.postMessage({ type: responseTypes.saveVariableResponse });
@@ -51,20 +44,9 @@ export async function SaveVariable(item: IVariable, webview: vscode.Webview, sid
 
 export async function DuplicateVariable(id: string, webview: vscode.Webview, sideBarView: vscode.WebviewView) {
 	try {
-		const db = await getVariableDB();
+		const distData = await Var_Repository_InsertDuplicate(id);
 
-		const sourceData = db.getCollection("userVariables").chain().find({ 'id': id }).data({ forceClones: true, removeMeta: true });
-		if (sourceData && sourceData.length > 0) {
-			let distData: IVariable = {
-				id: uuidv4(),
-				name: sourceData[0].name.toUpperCase().trim() === "GLOBAL" ? "Global - Copy" : sourceData[0].name + " - Copy",
-				createdTime: formatDate(),
-				isActive: true,
-				data: sourceData[0].data
-			};
-			db.getCollection("userVariables").insert(distData);
-			await saveDB(db);
-
+		if (distData) {
 			if (webview) {
 				webview.postMessage({ type: responseTypes.saveVariableResponse });
 			}
@@ -73,7 +55,6 @@ export async function DuplicateVariable(id: string, webview: vscode.Webview, sid
 				sideBarView.webview.postMessage({ type: responseTypes.appendToVariableResponse, collection: distData });
 			}
 		}
-
 	} catch (err) {
 		writeLog("error::DuplicateVariable(): " + err);
 	}
@@ -81,15 +62,7 @@ export async function DuplicateVariable(id: string, webview: vscode.Webview, sid
 
 export async function UpdateVariable(item: IVariable, webview: vscode.Webview) {
 	try {
-		const db = await getVariableDB();
-		const config = getVariableEncryptionConfiguration();
-		if (config) {
-			let key = getVariableEncryptionKey();
-			item.data = new FCCipher(key).EncryptBulkData(item.data);
-		}
-
-		db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; });
-		saveDB(db);
+		await Var_Repository_Update(item);
 
 		if (webview) {
 			webview.postMessage({ type: responseTypes.updateVariableResponse });
@@ -98,7 +71,6 @@ export async function UpdateVariable(item: IVariable, webview: vscode.Webview) {
 		if (pubSub.size > 0) {
 			pubSub.publish({ messageType: pubSubTypes.updateVariables });
 		}
-
 	} catch (err) {
 		writeLog("error::UpdateVariable(): " + err);
 	}
@@ -107,17 +79,8 @@ export async function UpdateVariable(item: IVariable, webview: vscode.Webview) {
 export function UpdateVariableSync(item: IVariable) {
 	try {
 		return new Promise<IVariable>(async (resolve, _reject) => {
-			const db = await getVariableDB();
-			const config = getVariableEncryptionConfiguration();
-			if (config) {
-				let key = getVariableEncryptionKey();
-				item.data = new FCCipher(key).EncryptBulkData(item.data);
-			}
-
-			db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; });
-			saveDB(db);
-			let vars = db.getCollection("userVariables").find({ 'id': item.id });
-			resolve(vars && vars.length > 0 ? vars[0] as IVariable : null);
+			const result = await Var_Repository_UpdateAndReturn(item);
+			resolve(result);
 		});
 	} catch (err) {
 		writeLog("error::UpdateVariableSync(): " + err);
@@ -127,19 +90,8 @@ export function UpdateVariableSync(item: IVariable) {
 
 export async function GetAllVariable(webview: vscode.Webview) {
 	try {
-		const db = await getVariableDB();
-
-		const userVariables = db.getCollection("userVariables").chain().data({ forceClones: true, removeMeta: true });
-		const config = getVariableEncryptionConfiguration();
-
-		if (config) {
-			let key = getVariableEncryptionKey();
-			userVariables.forEach((item: IVariable) => {
-				item.data = new FCCipher(key).DecryptBulkData(item.data);
-			});
-		}
+		const userVariables = await Var_Repository_FindAll();
 		webview?.postMessage({ type: responseTypes.getAllVariableResponse, variable: userVariables });
-
 	} catch (err) {
 		writeLog("error::GetAllVariable(): " + err);
 	}
@@ -147,15 +99,7 @@ export async function GetAllVariable(webview: vscode.Webview) {
 
 export async function UpdateWithAnotherKey(oldKey: string, newKey: string) {
 	try {
-		const db = await getVariableDB();
-		const userVariables = db.getCollection("userVariables").chain().data({ forceClones: true, removeMeta: true }) as IVariable[];
-		userVariables.forEach((item: IVariable) => {
-			item.data = new FCCipher(oldKey).DecryptBulkData(item.data);
-			item.data = new FCCipher(newKey).EncryptBulkData(item.data);
-			db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; });
-		});
-		await saveDB(db);
-
+		await Var_Repository_UpdateAllWithReEncryption(oldKey, newKey);
 	} catch (err) {
 		writeLog("error::UpdateWithAnotherKey(): " + err);
 		throw err;
@@ -164,14 +108,7 @@ export async function UpdateWithAnotherKey(oldKey: string, newKey: string) {
 
 export async function UpdateToEncryptedVariables(key: string) {
 	try {
-		const db = await getVariableDB();
-		const userVariables = db.getCollection("userVariables").chain().data({ forceClones: true, removeMeta: true }) as IVariable[];
-		userVariables.forEach((item: IVariable) => {
-			item.data = new FCCipher(key).EncryptBulkData(item.data);
-			db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; });
-		});
-		await saveDB(db);
-
+		await Var_Repository_EncryptAll(key);
 	} catch (err) {
 		writeLog("error::UpdateToEncryptedVariables(): " + err);
 	}
@@ -179,14 +116,7 @@ export async function UpdateToEncryptedVariables(key: string) {
 
 export async function UpdateToDecryptedVariables(key: string) {
 	try {
-		const db = await getVariableDB();
-		const userVariables = db.getCollection("userVariables").chain().data({ forceClones: true, removeMeta: true }) as IVariable[];
-		userVariables?.forEach((item: IVariable) => {
-			item.data = new FCCipher(key).DecryptBulkData(item.data);
-			db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; });
-		});
-		await saveDB(db);
-
+		await Var_Repository_DecryptAll(key);
 	} catch (err) {
 		writeLog("error::UpdateToDecryptedVariables(): " + err);
 	}
@@ -194,20 +124,8 @@ export async function UpdateToDecryptedVariables(key: string) {
 
 export async function GetVariableById(id: string, isGlobal: boolean, webview: vscode.Webview) {
 	try {
-		const db = await getVariableDB();
-
-		let userVariables = db.getCollection("userVariables").chain().find(isGlobal ? { 'name': 'Global' } : { 'id': id }).data({ forceClones: true, removeMeta: true });
-		const config = getVariableEncryptionFCConfiguration();
-
-		if (config) {
-			let key = getVariableEncryptionKey();
-			userVariables?.forEach((item: IVariable) => {
-				item.data = new FCCipher(key).DecryptBulkData(item.data);
-			});
-		}
-
+		const userVariables = await Var_Repository_FindById(id, isGlobal);
 		webview.postMessage({ type: responseTypes.getVariableItemResponse, data: userVariables });
-
 	} catch (err) {
 		writeLog("error::GetVariableById(): " + err);
 	}
@@ -216,18 +134,9 @@ export async function GetVariableById(id: string, isGlobal: boolean, webview: vs
 export function GetVariableByIdSync(id: string) {
 	try {
 		return new Promise<IVariable>(async (resolve, _reject) => {
-			const db = await getVariableDB();
-			let userVariables = db.getCollection("userVariables").chain().find({ 'id': id }).data({ forceClones: true, removeMeta: true });
-			const config = getVariableEncryptionFCConfiguration();
-			if (config) {
-				let key = getVariableEncryptionKey();
-				userVariables?.forEach((item: IVariable) => {
-					item.data = new FCCipher(key).DecryptBulkData(item.data);
-				});
-			}
-			resolve(userVariables && userVariables.length > 0 ? userVariables[0] as IVariable : null);
+			const result = await Var_Repository_FindByIdSync(id);
+			resolve(result);
 		});
-
 	} catch (err) {
 		writeLog("error::GetVariableByIdSync(): " + err);
 		throw err;
@@ -236,10 +145,7 @@ export function GetVariableByIdSync(id: string) {
 
 export async function DeleteVariable(webviewView: vscode.WebviewView, id: string) {
 	try {
-		const db = await getVariableDB();
-
-		db.getCollection("userVariables").findAndRemove({ 'id': id });
-		await saveDB(db);
+		await Var_Repository_Delete(id);
 		RemoveVariable(id);
 		webviewView.webview.postMessage({ type: responseTypes.deleteVariableResponse, id: id });
 		if (pubSub.size > 0) {
@@ -252,10 +158,7 @@ export async function DeleteVariable(webviewView: vscode.WebviewView, id: string
 
 export async function RenameVariable(webviewView: vscode.WebviewView, id: string, name: string) {
 	try {
-		const db = await getVariableDB();
-
-		db.getCollection("userVariables").findAndUpdate({ 'id': id }, item => { item.name = name; });
-		await saveDB(db);
+		await Var_Repository_Rename(id, name);
 		webviewView.webview.postMessage({ type: responseTypes.renameVariableResponse, params: { id: id, name: name } });
 		if (pubSub.size > 0) {
 			pubSub.publish({ messageType: pubSubTypes.updateVariables });
@@ -267,25 +170,19 @@ export async function RenameVariable(webviewView: vscode.WebviewView, id: string
 
 export async function ChangeVariableStatus(id: string, status: boolean, webviewView: vscode.WebviewView) {
 	try {
-		const db = await getVariableDB();
-
-		db.getCollection("userVariables").findAndUpdate({ 'id': id }, item => { item.isActive = status; });
-		await saveDB(db);
+		await Var_Repository_UpdateStatus(id, status);
 		webviewView.webview.postMessage({ type: responseTypes.activeVariableResponse, params: { id: id, status: status } });
 	} catch (err) {
 		writeLog("error::ChangeVariableStatus(): " + err);
 	}
 }
 
-export async function BulkExportVariables(path: string, selectedVars: string[], webview: vscode.Webview) {
+export async function BulkExportVariables(path: string, selectedVars: string[], exportKey: string, webview: vscode.Webview) {
 	try {
-		const db = await getVariableDB();
-
 		selectedVars?.forEach(async (item: string) => {
-			let vars = db.getCollection("userVariables").chain().find({ 'id': item }).data({ forceClones: true, removeMeta: true });
+			let vars = await Var_Repository_FindByIdRaw(item);
 			if (vars?.length > 0) {
-				let key = getVariableEncryptionKey();
-				let exportData = FormatExportedVariables(vars, key);
+				let exportData = FormatExportedVariables(vars, exportKey);
 				let fullPath = path + "\\" + "fetch-client-variable_" + exportData.name.replace(/[/\\?%*:|"<>]/g, '-') + ".json";
 				fs.writeFile(fullPath, JSON.stringify(exportData), (error) => {
 					if (error) {
@@ -297,7 +194,6 @@ export async function BulkExportVariables(path: string, selectedVars: string[], 
 		});
 
 		webview?.postMessage({ type: responseTypes.bulkColExportResponse });
-
 	} catch (err) {
 		writeLog("error::BulkExport(): " + err);
 	}
@@ -305,9 +201,7 @@ export async function BulkExportVariables(path: string, selectedVars: string[], 
 
 export async function ExportVariable(path: string, id: string, exportKey: string) {
 	try {
-		const db = await getVariableDB();
-
-		let vars = db.getCollection("userVariables").chain().find({ 'id': id }).data({ forceClones: true, removeMeta: true });
+		let vars = await Var_Repository_FindByIdRaw(id);
 		if (vars && vars.length > 0) {
 			let exportData = FormatExportedVariables(vars, exportKey);
 			fs.writeFile(path, JSON.stringify(exportData), (error) => {
@@ -319,7 +213,6 @@ export async function ExportVariable(path: string, id: string, exportKey: string
 				}
 			});
 		}
-
 	} catch (err) {
 		writeLog("error::ExportVariable(): " + err);
 	}
@@ -387,8 +280,7 @@ function ValidateData(data: string): VariableImportType | null {
 
 			return null;
 		}
-	}
-	catch (err) {
+	} catch (err) {
 		vscode.window.showErrorMessage("Could not import the variable - Invalid Data.", { modal: true });
 		writeLog("error::ImportVariable::ValidateData() " + "Error Message : Could not import the variable - " + err);
 		return null;
@@ -552,7 +444,6 @@ export function ImportVariableFromEnvFile(webviewView: vscode.WebviewView, path:
 		}
 
 		ImportVariable(webviewView, reqData);
-
 	} catch (err) {
 		vscode.window.showErrorMessage("Could not import the variable - Invalid data.", { modal: true });
 		writeLog("error::ImportVariableFromEnvFile(): - Error Mesaage : " + err);
@@ -561,13 +452,8 @@ export function ImportVariableFromEnvFile(webviewView: vscode.WebviewView, path:
 
 export async function ImportVariable(webviewView: vscode.WebviewView, reqData: IVariable) {
 	try {
-		const db = await getVariableDB();
-
-		const userVariables = db.getCollection("userVariables");
-		userVariables.insert(reqData);
-		await saveDB(db);
+		await Var_Repository_InsertRaw(reqData);
 		webviewView.webview.postMessage({ type: responseTypes.importVariableResponse, vars: reqData });
-
 	} catch (err) {
 		vscode.window.showErrorMessage("Could not import the variable - Invalid data.", { modal: true });
 		writeLog("error::ImportVariable(): - Error Mesaage : " + err);

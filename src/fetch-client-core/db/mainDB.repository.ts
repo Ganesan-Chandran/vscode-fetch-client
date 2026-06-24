@@ -3,7 +3,7 @@ import { FetchClientDataProxy } from "../../fetch-client-vscode/validators/fetch
 import { fetchClientImporter } from "../../fetch-client-vscode/importers/fetchClient/fetchClientImporter_1_0";
 import { formatDate } from "../helpers/helper";
 import { getCollectionDB, saveCollectionDB } from "./collectionDB.repository";
-import { getVariableDB } from "../../fetch-client-vscode/db/varDBUtil";
+import { getVariableDB } from "./variableDB.repository";
 import { ICollections, IFolder } from "../types/sidebar.types";
 import { ImportType } from "../consts/import.consts";
 import { InitialSettings } from "../../fetch-client-ui/components/SideBar/redux/reducer";

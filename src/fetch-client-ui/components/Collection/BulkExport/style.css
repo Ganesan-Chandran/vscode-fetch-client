@@ -42,10 +42,6 @@
 		grid-auto-rows: 1fr;
 		grid-template-columns: 0.3fr 1fr 1fr;
 	}
-
-	.bulk-text-title{
-		text-align: right !important;
-	}
 }
 
 .bulk-path-select-panel {
@@ -65,11 +61,25 @@
 }
 
 .bulk-message-panel {
-	margin     : 0 auto;
+	margin: 0 auto;
 	padding-top: 15px;
-	text-align : center;
+	text-align: center;
 }
 
-.bulk-text-title{
+.bulk-text-title {
 	text-align: left;
+}
+
+.bulk-key-panel {
+	display: grid;
+}
+
+.bulk-key-text {
+	height: 25px;
+	width: 100%;
+}
+
+.bulk-key-note {
+	text-align: left;
+	margin-top: 10px;
 }

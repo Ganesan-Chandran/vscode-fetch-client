@@ -29,10 +29,10 @@ export const BulkExportProviderUI = (extensionUri: vscode.Uri) => {
 					}
 				});
 			} else if (message.type === requestTypes.bulkColExportRequest) {
-				if(message.data.type === "col"){
+				if (message.data.type === "col") {
 					BulkExport(message.data.path, message.data?.cols, bulkExportPanel.webview);
 				} else {
-					BulkExportVariables(message.data.path, message.data?.cols, bulkExportPanel.webview);
+					BulkExportVariables(message.data.path, message.data?.cols, message.data.exportKey, bulkExportPanel.webview);
 				}
 			} else if (message.type === requestTypes.getAllVariableRequest) {
 				GetAllVariable(bulkExportPanel.webview);

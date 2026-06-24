@@ -1,5 +1,5 @@
-import { IReponseModel } from "../../fetch-client-core/types/response.types";
-import { responseDBPath } from "../../fetch-client-core/db/dbHelper";
+import { IReponseModel } from "../types/response.types";
+import { responseDBPath } from "./dbHelper";
 import loki, { LokiFsAdapter } from "lokijs";
 
 function getDB(): loki {

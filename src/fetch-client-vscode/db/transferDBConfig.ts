@@ -3,7 +3,7 @@ import { getSaveToWorkspaceConfiguration, updateWorkspacePathConfiguration } fro
 import { invalidateCollectionDB } from "../../fetch-client-core/db/collectionDB.repository";
 import { invalidateHistoryDB } from "../../fetch-client-core/db/history.repository";
 import { invalidateMainDB } from "../../fetch-client-core/db/mainDB.repository";
-import { invalidateVariableDB } from "./varDBUtil";
+import { invalidateVariableDB } from "../../fetch-client-core/db/variableDB.repository";
 import fs from "fs";
 import path from "path";
 

@@ -14,6 +14,7 @@ const BulkExport = () => {
 	const [showModal, setShowModal] = useState(false);
 	const [isDone, setDone] = useState(false);
 	const [type, setType] = useState("col");
+	const [key, setKey] = useState("");
 
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
@@ -73,7 +74,7 @@ const BulkExport = () => {
 
 	function onSubmitClick() {
 		setShowModal(true);
-		vscode.postMessage({ type: requestTypes.bulkColExportRequest, data: { cols: selectedIds.filter(id => id !== "0"), path: filePath, type: type } });
+		vscode.postMessage({ type: requestTypes.bulkColExportRequest, data: { cols: selectedIds.filter(id => id !== "0"), path: filePath, type: type, exportKey: key } });
 	}
 
 	const onSelectFile = (evt: any) => {
@@ -86,6 +87,10 @@ const BulkExport = () => {
 			event.preventDefault();
 			event.stopPropagation();
 		};
+
+	function setKeyValue(e: any) {
+		setKey(e.target.value);
+	}
 
 	return (
 		<div>
@@ -134,7 +139,24 @@ const BulkExport = () => {
 											</div>
 											<div></div>
 										</div>
-
+										{
+											type !== "col" ? <div className="responsive-three-column-grid">
+												<div className="bulk-text-title">Encryption Key :</div>
+												<div className="bulk-key-panel">
+													<input type="text"
+														className="bulk-key-text"
+														value={key}
+														onChange={setKeyValue}
+													/>
+													<div className="bulk-key-note">
+														Note: Enter an encryption key to encrypt the variables, or leave it blank to store without encryption. Note: Share key with anyone who needs to import these variables.
+													</div>
+												</div>
+												<div></div>
+											</div>
+												:
+												<></>
+										}
 										<div className="responsive-three-column-grid">
 											<div className="bulk-text-title">Path :</div>
 											<div className="bulk-path-select-panel">
