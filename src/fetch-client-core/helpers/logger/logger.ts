@@ -1,8 +1,8 @@
 import { appendFile, stat, writeFile } from "fs/promises";
 import { writeFileSync } from "fs";
 import path from "path";
-import { getExtDbPath } from "../../fetch-client-core/db/dbHelper";
-import { formatDate } from "../../fetch-client-core/helpers/helper";
+import { getExtDbPath } from "../../db/dbHelper";
+import { formatDate } from "../helper";
 import { logPath } from "./constants";
 
 const LOG_SIZE_LIMIT_MB = 1;
@@ -30,6 +30,6 @@ async function clearLogIfOversized(logFilePath: string): Promise<void> {
 			await writeFile(logFilePath, "");
 		}
 	} catch {
-		// If the file doesn't exist yet, ignore — appendFile will create it
+		// If the file doesn't exist yet, ignore - appendFile will create it
 	}
 }

@@ -3,7 +3,7 @@ import { Actions } from "../../../redux";
 import { apiKeyAddTo, authCollection } from '../../../../../../fetch-client-core/consts/auth.consts';
 import { AppDispatch } from '../../../../../store/appStore';
 import { AwsAuth } from './aws';
-import { InitialAuth } from '../../../redux/reducer';
+import { InitialAuth } from "../../../../../../fetch-client-core/consts/initialValues.consts";
 import { IRootState } from "../../../../../reducer/combineReducer";
 import { isAvailable } from '../helper';
 import { IVariable } from "../../../../../../fetch-client-core/types/sidebar.types";

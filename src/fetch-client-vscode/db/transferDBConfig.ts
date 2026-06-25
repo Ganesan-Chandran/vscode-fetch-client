@@ -1,5 +1,5 @@
 import { getExtDbBKPPath, getExtLocalDbPath, getGlobalStorageUri } from "../../fetch-client-core/db/dbHelper";
-import { getSaveToWorkspaceConfiguration, updateWorkspacePathConfiguration } from "../utils/vscodeConfig";
+import { getSaveToWorkspaceConfiguration, updateWorkspacePathConfiguration } from "../../fetch-client-core/utils/vscodeConfig";
 import { invalidateCollectionDB } from "../../fetch-client-core/db/collectionDB.repository";
 import { invalidateHistoryDB } from "../../fetch-client-core/db/history.repository";
 import { invalidateMainDB } from "../../fetch-client-core/db/mainDB.repository";

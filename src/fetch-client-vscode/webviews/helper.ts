@@ -1,18 +1,18 @@
-import { apiFetch, FetchConfig } from "../utils/fetchUtil";
+import { apiFetch, FetchConfig } from "../../fetch-client-core/utils/fetchUtil";
 import { formatDate, getErrorResponse } from "../../fetch-client-core/helpers/helper";
-import { getResponseSaveConfiguration } from "../utils/vscodeConfig";
+import { getResponseSaveConfiguration } from "../../fetch-client-core/utils/vscodeConfig";
 import { GetVariableByIdSync } from "../db/varDBUtil";
 import { IPreFetchResponse } from "../../fetch-client-core/types/response.types";
 import { IReqSettings, IPreFetch } from "../../fetch-client-core/types/prefetch.types";
 import { IRequestModel } from "../../fetch-client-core/types/request.types";
 import { ISettings, IVariable, IHistory } from "../../fetch-client-core/types/sidebar.types";
-import { PreFetchRunner } from "../utils/preFetchRunner";
+import { PreFetchRunner } from "../../fetch-client-core/utils/preFetchRunner";
 import { responseTypes } from "../../fetch-client-core/consts/requestTypes.consts";
 import { SaveHistory, UpdateHistory } from "../db/historyDBUtil";
 import { SaveRequest, UpdateRequest } from "../db/mainDBUtil";
 import { SaveResponse } from "../db/responseDBUtil";
 import { sideBarProvider, vsCodeLogger } from "../../extension";
-import { writeLog } from "../logger/logger";
+import { writeLog } from "../../fetch-client-core/helpers/logger/logger";
 import * as vscode from "vscode";
 
 export async function ExecuteAPIRequest(message: any, fetchConfig: FetchConfig, webview: vscode.Webview) {
@@ -113,7 +113,7 @@ function _executeAPIRequest(message: any, variable: IVariable, fetchConfig: Fetc
 			UpdateHistory(item);
 		}
 
-		if(getResponseSaveConfiguration() && !data.response.responseType.isBinaryFile){
+		if (getResponseSaveConfiguration() && !data.response.responseType.isBinaryFile) {
 			SaveResponse({
 				id: reqData.id,
 				response: {

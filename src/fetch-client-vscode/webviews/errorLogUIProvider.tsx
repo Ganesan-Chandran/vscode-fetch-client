@@ -1,6 +1,6 @@
 import { buildWebviewHtml } from './webviewUtils';
 import { getExtDbPath } from '../../fetch-client-core/db/dbHelper';
-import { logPath } from '../logger/constants';
+import { logPath } from '../../fetch-client-core/helpers/logger/constants';
 import { requestTypes, responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
 import * as vscode from 'vscode';
 import fs from "fs";

@@ -1,9 +1,9 @@
 import { AddToCollection, GetAllCollectionName } from '../db/collectionDBUtil';
-import { apiFetch, FetchConfig } from '../utils/fetchUtil';
+import { apiFetch, FetchConfig } from '../../fetch-client-core/utils/fetchUtil';
 import { buildWebviewHtml } from './webviewUtils';
-import { ConvertCurlToRequest } from '../utils/curlToRequest';
+import { ConvertCurlToRequest } from '../../fetch-client-core/utils/curlToRequest';
 import { getErrorResponse } from '../../fetch-client-core/helpers/helper';
-import { getHeadersConfiguration, getTimeOutConfiguration } from '../utils/vscodeConfig';
+import { getHeadersConfiguration, getTimeOutConfiguration } from '../../fetch-client-core/utils/vscodeConfig';
 import { OpenExistingItem, sideBarProvider } from '../../extension';
 import { requestTypes, responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
 import * as vscode from 'vscode';

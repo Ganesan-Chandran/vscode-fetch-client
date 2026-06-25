@@ -4,7 +4,7 @@ import { formatDate } from "../../../../fetch-client-core/helpers/helper";
 import { getColFolDotMenu, getPlusIconSVG } from "../../Common/icons";
 import { getDays, getMethodClassName, getMethodName, isFolder } from "../util";
 import { ICollections, IHistory, IFolder } from "../../../../fetch-client-core/types/sidebar.types";
-import { InitialSettings } from "../redux/reducer";
+import { InitialSettings } from "../../../../fetch-client-core/consts/initialValues.consts";
 import { InitialState } from "../../RequestUI/redux/reducer";
 import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
 import { IRootState } from "../../../reducer/combineReducer";
@@ -551,7 +551,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 							</div>
 							<div className="divider"></div>
 							<button onClick={(e) => onRunAll(e, cols.id, item.id, cols.name + " \\ " + item.name, cols.variableId)}>Run All</button>
-							<button onClick={(e) => onReOrderItems(e, cols.id, item.id)}>Re-Order</button>
+							<button onClick={(e) => onReOrderItems(e, cols.id, item.id)}>Arrange Items</button>
 							<div className="divider"></div>
 							<button onClick={(e) => onRename(e, cols.id, "", item.id, true)}>Rename</button>
 							<button onClick={(e) => onDelete(e, cols.id, item.id, "", true, item.name)}>Delete</button>
@@ -632,7 +632,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 							</div>
 							<div className="divider"></div>
 							<button onClick={(e) => onRunAll(e, item.id, "", item.name, item.variableId)}>Run All</button>
-							<button onClick={(e) => onReOrderItems(e, item.id)}>Re-Order</button>
+							<button onClick={(e) => onReOrderItems(e, item.id)}>Arrange Items</button>
 							{index !== 0 && <div className="divider"></div>}
 							{index !== 0 && <><button onClick={(e) => onRenameCollection(e, item.id)}>Rename</button>
 								<button onClick={(e) => onDeleteCollection(e, item.id, item.name)}>Delete</button></>}

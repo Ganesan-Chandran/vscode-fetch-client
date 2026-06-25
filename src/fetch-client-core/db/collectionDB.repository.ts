@@ -1,17 +1,16 @@
 import { collectionDBPath } from './dbHelper';
-import { CopyExitingItems, RenameRequestItem, DeleteExitingItems, GetColsRequests } from '../../fetch-client-vscode/db/mainDBUtil';
 import { createAutoDBCache } from '../../fetch-client-core/db/dbManager';
-import { FetchConfig, apiFetch } from '../../fetch-client-vscode/utils/fetchUtil';
+import { FetchConfig, apiFetch } from '../utils/fetchUtil';
 import { formatDate } from '../helpers/helper';
-import { getMainDB } from './mainDB.repository';
+import { getMainDB, Main_Repository_CopyExistingItems, Main_Repository_DeleteExistingItems, Main_Repository_GetCollectionRequests, Main_Repository_RenameRequestItem } from './mainDB.repository';
 import { IFolder, IHistory, ICollections, ISettings } from '../../fetch-client-core/types/sidebar.types';
-import { InitialSettings } from '../../fetch-client-ui/components/SideBar/redux/reducer';
+import { InitialSettings } from '../consts/initialValues.consts';
 import { IRequestModel } from '../../fetch-client-core/types/request.types';
 import { isFolder } from '../../fetch-client-ui/components/SideBar/util';
 import { pubSub } from '../../extension';
 import { pubSubTypes } from '../../fetch-client-core/consts/requestTypes.consts';
 import { v4 as uuidv4 } from 'uuid';
-import { writeLog } from '../../fetch-client-vscode/logger/logger';
+import { writeLog } from '../helpers/logger/logger';
 
 
 const { getLoadedDB: getCollectionDB, saveDB: saveCollectionDB, flush: flushCollectionDB, invalidate: invalidateCollectionDB } = createAutoDBCache(collectionDBPath);
@@ -196,7 +195,7 @@ export function resolveSettings(colItem: any, folderId?: string): any {
 }
 
 // ---------------------------------------------------------------------------
-// Collection CRUD — DB only (no postMessage)
+// Collection CRUD - DB only (no postMessage)
 // ---------------------------------------------------------------------------
 
 export async function Col_Repository_CreateCollection(name: string): Promise<ICollections> {
@@ -340,7 +339,7 @@ export async function Col_Repository_DuplicateItem(
   }
 
   saveCollectionDB(colDB);
-  CopyExitingItems(oldIds, ids);
+  await Main_Repository_CopyExistingItems(oldIds, ids);
 
   return { col, oldIds, ids };
 }
@@ -403,7 +402,7 @@ export async function Col_Repository_CopyToCollection(
   }
 
   saveCollectionDB(colDB);
-  CopyExitingItems(oldIds, ids);
+  await Main_Repository_CopyExistingItems(oldIds, ids);
 
   return resultCol;
 }
@@ -461,7 +460,7 @@ export async function Col_Repository_RenameCollectionItem(
   saveCollectionDB(colDB);
 
   if (!folderType) {
-    RenameRequestItem(historyId, name);
+    await Main_Repository_RenameRequestItem(historyId, name);
   }
 }
 
@@ -487,7 +486,7 @@ export async function Col_Repository_DeleteCollectionItem(
     const deletedIds = folderType ? getAllIds(parent.data[pos], []) : [targetId];
     parent.data.splice(pos, 1);
     saveCollectionDB(colDB);
-    DeleteExitingItems(deletedIds);
+    await Main_Repository_DeleteExistingItems(deletedIds);
   }
 }
 
@@ -530,7 +529,7 @@ export async function Col_Repository_DeleteCollection(colId: string): Promise<st
 
   userCollections.findAndRemove({ id: colId });
   saveCollectionDB(colDB);
-  DeleteExitingItems(ids);
+  await Main_Repository_DeleteExistingItems(ids);
 
   return ids;
 }
@@ -545,13 +544,13 @@ export async function Col_Repository_DeleteAllCollectionItems(colId: string, fol
       const ids = getAllIds(folder, []);
       folder.data.length = 0;
       saveCollectionDB(colDB);
-      DeleteExitingItems(ids);
+      await Main_Repository_DeleteExistingItems(ids);
     }
   } else {
     const ids = getAllIds(col, []);
     col.data.length = 0;
     saveCollectionDB(colDB);
-    DeleteExitingItems(ids);
+    await Main_Repository_DeleteExistingItems(ids);
   }
 }
 
@@ -598,16 +597,15 @@ export async function Col_Repository_GetCollectionById(colId: string, folderId: 
 export async function Col_Repository_GetAllCollectionsById(
   colId: string,
   folderId: string,
-  type: string,
-  webview: any
-): Promise<{ settings: ISettings }> {
+  type: string
+): Promise<{ requests: IRequestModel[], paths: Record<string, string>, settings: ISettings }> {
   const colDB = await getCollectionDB();
   const colItem = colDB.getCollection('userCollections').by('id', colId);
 
   const source = type === "col" ? colItem : findItem(colItem, folderId);
   const { paths, ids } = getPath(source, "", {}, [], "source");
 
-  GetColsRequests(ids.reverse(), paths, webview);
+  const requests = await Main_Repository_GetCollectionRequests(ids.reverse());
 
   let settings: ISettings;
   if (folderId) {
@@ -616,7 +614,7 @@ export async function Col_Repository_GetAllCollectionsById(
     settings = colItem.settings ?? defaultSettings() as ISettings;
   }
 
-  return { settings };
+  return { requests, paths, settings };
 }
 
 export async function Col_Repository_GetAllCollectionsByIdWithPath(colId: string): Promise<Record<string, string>> {

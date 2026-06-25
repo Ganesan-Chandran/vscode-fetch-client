@@ -1,21 +1,21 @@
 import { createAutoDBCache } from "./dbManager";
-import { FetchClientDataProxy } from "../../fetch-client-vscode/validators/fetchClientCollectionValidator";
-import { fetchClientImporter } from "../../fetch-client-vscode/importers/fetchClient/fetchClientImporter_1_0";
+import { FetchClientDataProxy } from "../helpers/validators/fetchClientCollectionValidator";
+import { fetchClientImporter } from "../helpers/importers/fetchClient/fetchClientImporter_1_0";
 import { formatDate } from "../helpers/helper";
 import { getCollectionDB, saveCollectionDB } from "./collectionDB.repository";
 import { getVariableDB } from "./variableDB.repository";
 import { ICollections, IFolder } from "../types/sidebar.types";
 import { ImportType } from "../consts/import.consts";
-import { InitialSettings } from "../../fetch-client-ui/components/SideBar/redux/reducer";
+import { InitialSettings } from "../consts/initialValues.consts";
 import { IRequestModel } from "../types/request.types";
 import { isFolder } from "../../fetch-client-ui/components/SideBar/util";
 import { isJson } from "../../fetch-client-ui/components/TestUI/TestPanel/helper";
 import { mainDBPath } from "./dbHelper";
-import { postmanImporter } from "../../fetch-client-vscode/importers/postman/postmanImporter_2_1";
+import { postmanImporter } from "../helpers/importers/postman/postmanImporter_2_1";
 import { PostmanSchema_2_1, POSTMAN_SCHEMA_V2_1 } from "../types/postman_2_1.types";
 import { ThunderClient_Schema_1_2 } from "../types/thunderClient_1_2_types";
-import { thunderClientImporter } from "../../fetch-client-vscode/importers/thunderClient/thunderClientImporter_1_2";
-import { writeLog } from "../../fetch-client-vscode/logger/logger";
+import { thunderClientImporter } from "../helpers/importers/thunderClient/thunderClientImporter_1_2";
+import { writeLog } from "../helpers/logger/logger";
 import loki, { Collection } from "lokijs";
 
 const { getLoadedDB: getMainDB, saveDB: saveMainDB, flush: flushMainDB, invalidate: invalidateMainDB } = createAutoDBCache(mainDBPath);

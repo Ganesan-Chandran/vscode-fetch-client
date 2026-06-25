@@ -1,7 +1,7 @@
 import { IReponseModel } from "../../fetch-client-core/types/response.types";
 import { Response_Repository_SaveResponse, Response_Repository_GetExitingItemResponse } from "../../fetch-client-core/db/responseDB.repository";
 import { responseTypes } from "../../fetch-client-core/consts/requestTypes.consts";
-import { writeLog } from "../logger/logger";
+import { writeLog } from "../../fetch-client-core/helpers/logger/logger";
 import * as vscode from "vscode";
 
 export async function SaveResponse(resData: IReponseModel) {

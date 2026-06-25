@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
-import { getExtLocalDbPath } from '../../fetch-client-core/db/dbHelper';
+import { responseTypes } from '../consts/requestTypes.consts';
+import { getExtLocalDbPath } from '../db/dbHelper';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -65,7 +65,7 @@ export function getHistoryLimitConfiguration(): string {
 }
 
 export function getHistoryViewConfiguration(): string {
-	return getFetchClientConfiguration().get<string>("historyView", "List");
+	return getFetchClientConfiguration().get<string>("historyView", "Folder");
 }
 
 export function getTimeOutConfiguration(): number {

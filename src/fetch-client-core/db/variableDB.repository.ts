@@ -1,11 +1,11 @@
 import { createAutoDBCache } from "./dbManager";
 import { FCCipher } from "../../fetch-client-packages/crypto/index";
 import { formatDate } from '../helpers/helper';
-import { getVariableEncryptionConfiguration, getVariableEncryptionKey, getVariableEncryptionFCConfiguration } from "../../fetch-client-vscode/utils/vscodeConfig";
+import { getVariableEncryptionConfiguration, getVariableEncryptionKey, getVariableEncryptionFCConfiguration } from "../utils/vscodeConfig";
 import { IVariable } from "../types/sidebar.types";
 import { v4 as uuidv4 } from 'uuid';
 import { variableDBPath } from './dbHelper';
-import { writeLog } from "../../fetch-client-vscode/logger/logger";
+import { writeLog } from "../helpers/logger/logger";
 
 const { getLoadedDB: getVariableDB, saveDB, flush: flushVariableDB, invalidate: invalidateVariableDB } = createAutoDBCache(variableDBPath);
 export { getVariableDB, flushVariableDB, invalidateVariableDB };
@@ -84,6 +84,18 @@ export async function Var_Repository_UpdateAndReturn(item: IVariable): Promise<I
 	}
 }
 
+export function Var_Repository_UpdateVariableSync(item: IVariable) {
+	try {
+		return new Promise<IVariable>(async (resolve, _reject) => {
+			const result = await Var_Repository_UpdateAndReturn(item);
+			resolve(result);
+		});
+	} catch (err) {
+		writeLog("error::Var_Repository_UpdateVariableSync(): " + err);
+		throw err;
+	}
+}
+
 export async function Var_Repository_FindAll(): Promise<IVariable[]> {
 	try {
 		const db = await getVariableDB();
@@ -134,6 +146,18 @@ export async function Var_Repository_FindByIdSync(id: string): Promise<IVariable
 		return userVariables && userVariables.length > 0 ? userVariables[0] as IVariable : null;
 	} catch (err) {
 		writeLog("error::Var_Repository_FindByIdSync(): " + err);
+		throw err;
+	}
+}
+
+export function Var_Repository_GetVariableByIdSync(id: string) {
+	try {
+		return new Promise<IVariable>(async (resolve, _reject) => {
+			const result = await Var_Repository_FindByIdSync(id);
+			resolve(result);
+		});
+	} catch (err) {
+		writeLog("error::Var_Repository_GetVariableByIdSync(): " + err);
 		throw err;
 	}
 }

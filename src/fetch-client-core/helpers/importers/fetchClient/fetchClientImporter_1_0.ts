@@ -1,8 +1,8 @@
-import { formatDate } from "../../../fetch-client-core/helpers/helper";
-import { InitialSettings } from "../../../fetch-client-ui/components/SideBar/redux/reducer";
-import { IRequestModel } from "../../../fetch-client-core/types/request.types";
-import { ISettings, ICollections, IHistory, IFolder } from "../../../fetch-client-core/types/sidebar.types";
-import { isFolder } from "../../../fetch-client-ui/components/SideBar/util";
+import { formatDate } from "../../helper";
+import { InitialSettings } from "../../../consts/initialValues.consts";
+import { IRequestModel } from "../../../types/request.types";
+import { ISettings, ICollections, IHistory, IFolder } from "../../../types/sidebar.types";
+import { isFolder } from "../../../../fetch-client-ui/components/SideBar/util";
 import { v4 as uuidv4 } from "uuid";
 import { writeLog } from "../../logger/logger";
 

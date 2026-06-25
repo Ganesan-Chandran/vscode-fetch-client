@@ -1,9 +1,9 @@
 import { AddToCollection, AttachVariable, CopyToCollection, ExecuteMultipleRequest, GetAllCollectionName, GetAllCollectionsById, GetAllCollectionsByIdWithPath, GetCollectionById, GetCollectionSettings, GetParentSettings, SaveCollectionSettings, UpdateCollectionItems } from '../db/collectionDBUtil';
-import { apiFetch, FetchConfig } from '../utils/fetchUtil';
+import { apiFetch, FetchConfig } from '../../fetch-client-core/utils/fetchUtil';
 import { buildWebviewHtml, saveToFile } from './webviewUtils';
 import { ExecuteAPIRequest, ShowInformationDialog } from './helper';
 import { GetAllVariable, GetVariableById, UpdateVariable } from '../db/varDBUtil';
-import { getHeadersConfiguration, getTimeOutConfiguration } from '../utils/vscodeConfig';
+import { getHeadersConfiguration, getTimeOutConfiguration } from '../../fetch-client-core/utils/vscodeConfig';
 import { GetHistoryById } from '../db/historyDBUtil';
 import { getStorageManager, OpenExistingItem, sideBarProvider } from '../../extension';
 import { requestTypes, responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';

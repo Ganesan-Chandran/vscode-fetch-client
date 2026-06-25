@@ -1,7 +1,7 @@
 import { FCCipher } from "../../fetch-client-packages/crypto/index";
-import { FetchClientVariableProxy } from '../validators/fetchClientVariableValidator';
+import { FetchClientVariableProxy } from '../../fetch-client-core/helpers/validators/fetchClientVariableValidator';
 import { formatDate } from '../../fetch-client-core/helpers/helper';
-import { getVariableEncryptionConfiguration, getVariableEncryptionKey } from "../utils/vscodeConfig";
+import { getVariableEncryptionConfiguration, getVariableEncryptionKey } from "../../fetch-client-core/utils/vscodeConfig";
 import { ITableData } from "../../fetch-client-core/types/common.types";
 import { IVariable } from "../../fetch-client-core/types/sidebar.types";
 import { PostmanVariableSchema_2_1 } from '../../fetch-client-core/types/postman_2_1.variable_types';
@@ -11,7 +11,7 @@ import { RemoveVariable } from './collectionDBUtil';
 import { ThunderClientVariableSchema_1_2 } from "../../fetch-client-core/types/thunderClient_1_2.variable_types";
 import { v4 as uuidv4 } from 'uuid';
 import { VariableImportType } from "../../fetch-client-core/consts/import.consts";
-import { writeLog } from '../logger/logger';
+import { writeLog } from '../../fetch-client-core/helpers/logger/logger';
 import * as vscode from 'vscode';
 import fs from "fs";
 import {

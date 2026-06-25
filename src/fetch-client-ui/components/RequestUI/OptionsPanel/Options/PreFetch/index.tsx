@@ -1,7 +1,7 @@
 import "./style.css";
 import { Actions } from "../../../redux";
 import { AppDispatch } from "../../../../../store/appStore";
-import { InitialTest } from "../../../redux/reducer";
+import { InitialTest } from "../../../../../../fetch-client-core/consts/initialValues.consts";
 import { IRootState } from "../../../../../reducer/combineReducer";
 import { IRunRequest } from "../../../../../../fetch-client-core/types/prefetch.types";
 import { PreRequest } from "./preRequest";

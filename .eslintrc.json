@@ -22,5 +22,47 @@
     "**/*.d.ts",
     "*.config.js",
     "**/*.js"
+  ],
+  "overrides": [
+    {
+      "files":["src/fetch-client-core/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns":[
+              "**/fetch-client-vscode/**",
+              "**/fetch-client-cli/**"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files":["src/fetch-client-cli/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns":[
+              "**/fetch-client-vscode/**"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files":["src/fetch-client-vscode/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns":[
+              "**/fetch-client-cli/**"
+            ]
+          }
+        ]
+      }
+    }
   ]
 }

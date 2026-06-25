@@ -1,6 +1,6 @@
 import "./style.css";
 import { ICookie } from "../../../fetch-client-core/types/cookie.types";
-import { InitialCookie } from "./redux/reducer";
+import { InitialCookie } from "../../../fetch-client-core/consts/initialValues.consts";
 import { requestTypes, responseTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
 import { ResponseTable } from "../Common/Table/ResponseTable";
 import React, { useEffect, useRef, useState } from "react";

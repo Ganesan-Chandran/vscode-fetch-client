@@ -2,7 +2,7 @@ import { Auto_Repository_SaveAutoRequests, Auto_Repository_GetAllAutoRequests, A
 import { FCScheduler } from '../utils/scheduler';
 import { IAutoRequest } from '../../fetch-client-core/types/autorequest.types';
 import { responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
-import { writeLog } from '../logger/logger';
+import { writeLog } from '../../fetch-client-core/helpers/logger/logger';
 import * as vscode from 'vscode';
 
 export async function SaveAutoRequest(requests: IAutoRequest[]) {

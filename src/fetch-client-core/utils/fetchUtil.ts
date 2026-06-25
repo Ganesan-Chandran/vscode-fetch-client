@@ -1,18 +1,18 @@
 import { access } from "fs/promises";
 import { createReadStream } from "fs";
-import { getErrorResponse, getFileType, getRandomNumber, isFileType, replaceAuthSettingsInRequest, replaceHeaderSettingsInRequest, replaceValueWithVariable } from "../../fetch-client-core/helpers/helper";
-import { getProtocolConfiguration, getSSLConfiguration } from "./vscodeConfig";
-import { IReqSettings } from '../../fetch-client-core/types/prefetch.types';
-import { IRequestModel } from '../../fetch-client-core/types/request.types';
-import { ISettings } from '../../fetch-client-core/types/sidebar.types';
-import { ITableData } from '../../fetch-client-core/types/common.types';
-import { logDetails } from "../logger/requestLog";
+import { getErrorResponse, getFileType, getRandomNumber, isFileType, replaceAuthSettingsInRequest, replaceHeaderSettingsInRequest, replaceValueWithVariable } from "../helpers/helper";
+import { IReqSettings } from '../types/prefetch.types';
+import { IRequestModel } from '../types/request.types';
+import { ISettings } from '../types/sidebar.types';
+import { ITableData } from '../types/common.types';
 import { Request as awsRequest, sign } from 'aws4';
-import { responseTypes } from "../../fetch-client-core/consts/requestTypes.consts";
-import { writeLog } from "../logger/logger";
+import { responseTypes } from "../consts/requestTypes.consts";
+import { writeLog } from "../helpers/logger/logger";
 import * as https from "https";
 import axios, { AxiosRequestConfig, CancelTokenSource } from "axios";
 import FormData from 'form-data';
+import { logDetails } from "../helpers/logger/requestLog";
+import { getSSLConfiguration, getProtocolConfiguration } from "./vscodeConfig";
 
 export interface FetchConfig {
 	timeOut: number;

@@ -1,5 +1,4 @@
-import { InitialAuth, InitialPreFetch, InitialRequestHeaders } from "../../RequestUI/redux/reducer";
-import { ISettings, ISideBarModel, IHistory, ICollections, IVariable, IFolder } from "../../../../fetch-client-core/types/sidebar.types";
+import { ISideBarModel, IHistory, ICollections, IVariable, IFolder } from "../../../../fetch-client-core/types/sidebar.types";
 import { isFolder } from "../util";
 import {
 	FETCH_CLIENT_SET_ACTIVE_INACTIVE_VARIABLE, FETCH_CLIENT_SET_ATTACH_DETACH_VARIABLE, FETCH_CLIENT_SET_CLEAR_COLLECTION,
@@ -13,13 +12,6 @@ import {
 	FETCH_CLIENT_SET_UPDATE_COLLECTION_ITEM,
 	FETCH_CLIENT_SET_UPDATE_HISTORY_ITEM
 } from "./types";
-
-
-export const InitialSettings: ISettings = {
-	auth: InitialAuth,
-	preFetch: InitialPreFetch,
-	headers: InitialRequestHeaders
-};
 
 export const InitialState: ISideBarModel = {
 	history: [],

@@ -1,6 +1,6 @@
 import path from "path";
 import * as vscode from 'vscode';
-import { getSaveToWorkspaceConfiguration, getWorkspacePathConfiguration } from "../../fetch-client-vscode/utils/vscodeConfig";
+import { getSaveToWorkspaceConfiguration, getWorkspacePathConfiguration } from "../utils/vscodeConfig";
 
 let globalStorageUri = "";
 

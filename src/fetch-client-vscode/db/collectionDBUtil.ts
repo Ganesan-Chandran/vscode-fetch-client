@@ -7,12 +7,12 @@ import {
 	Col_Repository_GetVariableByColId, Col_Repository_NewFolderToCollection, Col_Repository_UpdateCollection, Col_Repository_GetCollectionSettings,
 	Col_Repository_GetParentSettings, Col_Repository_ExecuteRequest, Col_Repository_ExecuteMultipleRequests, Col_Repository_SaveCollectionSettings
 } from '../../fetch-client-core/db/collectionDB.repository';
-import { FetchConfig } from '../utils/fetchUtil';
+import { FetchConfig } from '../../fetch-client-core/utils/fetchUtil';
 import { IFolder, IHistory, ICollections, ISettings } from '../../fetch-client-core/types/sidebar.types';
 import { IRequestModel } from '../../fetch-client-core/types/request.types';
 import { responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
 import { SettingsType } from '../../fetch-client-ui/components/Collection/consts';
-import { writeLog } from '../logger/logger';
+import { writeLog } from '../../fetch-client-core/helpers/logger/logger';
 import * as vscode from 'vscode';
 
 export async function CreateNewCollection(name: string, sideBarView: vscode.WebviewView): Promise<void> {
@@ -327,7 +327,8 @@ export async function GetAllCollectionsById(
 	webview: vscode.Webview
 ): Promise<void> {
 	try {
-		const { settings } = await Col_Repository_GetAllCollectionsById(colId, folderId, type, webview);
+		const { requests, paths, settings } = await Col_Repository_GetAllCollectionsById(colId, folderId, type);
+		webview?.postMessage({ type: responseTypes.getCollectionsByIdResponse, collections: requests, paths: paths });
 		webview?.postMessage({ type: responseTypes.getParentSettingsResponse, settings });
 	} catch (err) {
 		writeLog("error::GetAllCollectionsById(): " + err);

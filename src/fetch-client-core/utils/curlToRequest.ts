@@ -1,9 +1,9 @@
-import { InitialAuth, InitialBinaryData, InitialBody, InitialPreFetch, InitialSetVar, InitialTest } from "../../fetch-client-ui/components/RequestUI/redux/reducer";
-import { ITableData } from "../../fetch-client-core/types/common.types";
-import { MethodType, IRequestModel } from "../../fetch-client-core/types/request.types";
-import { MIMETypes } from "../../fetch-client-core/consts/mimetype.consts";
+import { InitialAuth, InitialBody, InitialTest, InitialSetVar, InitialPreFetch, InitialBinaryData } from "../consts/initialValues.consts";
+import { ITableData } from "../types/common.types";
+import { MethodType, IRequestModel } from "../types/request.types";
+import { MIMETypes } from "../consts/mimetype.consts";
 import { v4 as uuidv4 } from 'uuid';
-import { writeLog } from "../logger/logger";
+import { writeLog } from "../helpers/logger/logger";
 import { XMLValidator } from "fast-xml-parser";
 import parser from "yargs-parser";
 
@@ -83,7 +83,7 @@ const checkAuthHeader = (request: IRequestModel, field: string[]): boolean => {
 				return true;
 			}
 		} catch {
-			// Invalid base64 — fall through to add as a regular header
+			// Invalid base64 - fall through to add as a regular header
 		}
 	}
 

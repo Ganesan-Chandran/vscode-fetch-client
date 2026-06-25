@@ -1,7 +1,7 @@
 import loki, { LokiFsAdapter, Collection } from 'lokijs';
 import { autoRequestDBPath } from '../../fetch-client-core/db/dbHelper';
 import { IAutoRequest } from '../../fetch-client-core/types/autorequest.types';
-import { writeLog } from '../../fetch-client-vscode/logger/logger';
+import { writeLog } from '../helpers/logger/logger';
 
 function getDB(): loki {
   const adapter = new LokiFsAdapter();

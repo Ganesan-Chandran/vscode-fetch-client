@@ -1,9 +1,6 @@
-import { IAwsAuth, IOAuth, ClientAuth, GrantType, IAuth } from '../../../../fetch-client-core/types/auth.types';
-import { IBinaryFileData } from '../../../../fetch-client-core/types/requestBody.types';
 import { IBodyData, IRequestModel } from '../../../../fetch-client-core/types/request.types';
 import { ITableData } from '../../../../fetch-client-core/types/common.types';
-import { ITest, ISetVar, IPreFetch, IRunRequest } from '../../../../fetch-client-core/types/prefetch.types';
-import { requestBodyRaw } from '../../../../fetch-client-core/consts/requestBody.consts';
+import { ITest, IRunRequest } from '../../../../fetch-client-core/types/prefetch.types';
 import { v4 as uuidv4 } from 'uuid';
 import {
 	FETCH_CLIENT_SET_ADD_PREREQUEST, FETCH_CLIENT_SET_COL_ID, FETCH_CLIENT_SET_DELETE_PRECONDITION, FETCH_CLIENT_SET_DELETE_PREREQUEST,
@@ -13,126 +10,22 @@ import {
 	FETCH_CLIENT_SET_REQ_RESET_BODY, FETCH_CLIENT_SET_REQ_URL, FETCH_CLIENT_SET_SET_VAR, FETCH_CLIENT_SET_TEST,
 	RequestActionTypes
 } from "./types";
-
-export const InitialRequestHeaders: ITableData[] = [
-	{
-		key: "Cache-Control",
-		value: "no-cache",
-		isChecked: true,
-	},
-	{
-		key: "Accept",
-		value: "*/*",
-		isChecked: true,
-	},
-	{
-		key: "User-Agent",
-		value: "Fetch Client",
-		isChecked: true,
-	},
-	{
-		key: "Accept-Encoding",
-		value: "gzip, deflate",
-		isChecked: true,
-	},
-	{
-		key: "Connection",
-		value: "keep-alive",
-		isChecked: true,
-	},
-	{
-		key: "",
-		value: "",
-		isChecked: false,
-	},
-];
-
-export const emptyRow: ITableData = {
-	isChecked: false,
-	key: "",
-	value: ""
-};
-
-export const InitialAwsAuth: IAwsAuth = {
-	service: "",
-	region: "",
-	accessKey: "",
-	secretAccessKey: "",
-	sessionToken: "",
-};
-
-export const InitialOAuth: IOAuth = {
-	clientAuth: ClientAuth.Body,
-	clientId: "",
-	clientSecret: "",
-	grantType: GrantType.Client_Crd,
-	password: "",
-	scope: "",
-	tokenName: "access_token",
-	tokenUrl: "",
-	username: "",
-	advancedOpt: {
-		audience: "",
-		resource: ""
-	}
-};
-
-export const InitialAuth: IAuth = {
-	authType: "noauth",
-	userName: "",
-	password: "",
-	addTo: "queryparams",
-	showPwd: false,
-	tokenPrefix: "Bearer",
-	aws: InitialAwsAuth,
-	oauth: InitialOAuth
-};
-
-export const InitialBinaryData: IBinaryFileData = {
-	fileName: "",
-	data: {},
-	contentTypeOption: "manual"
-};
-
-export const InitialBody: IBodyData = {
-	bodyType: "none",
-	formdata: [{ isChecked: false, key: "", value: "" }],
-	urlencoded: [{ isChecked: false, key: "", value: "" }],
-	raw: { data: "", lang: requestBodyRaw[1].value },
-	binary: InitialBinaryData,
-	graphql: { query: "", variables: "" },
-};
-
-export const InitialTest: ITest[] = [{
-	parameter: "",
-	action: "",
-	expectedValue: ""
-}];
-
-export const InitialSetVar: ISetVar[] = [{
-	parameter: "",
-	key: "",
-	variableName: ""
-}];
-
-export const InitialPreFetch: IPreFetch = {
-	requests: []
-};
+import { InitialAuth, InitialRequestHeaders, InitialBody, InitialTest, InitialSetVar, InitialPreFetch, emptyRow } from '../../../../fetch-client-core/consts/initialValues.consts';
 
 export const InitialState: IRequestModel = {
-	id: uuidv4(),
-	url: "",
-	name: "",
-	createdTime: "",
-	method: "get",
-	params: [{ isChecked: false, key: "", value: "" }],
-	auth: InitialAuth,
-	headers: InitialRequestHeaders,
-	body: InitialBody,
-	tests: InitialTest,
-	setvar: InitialSetVar,
-	notes: "",
-	preFetch: InitialPreFetch
+  id: uuidv4(),
+  url: "",
+  name: "",
+  createdTime: "",
+  method: "get",
+  params: [{ isChecked: false, key: "", value: "" }],
+  auth: InitialAuth,
+  headers: InitialRequestHeaders,
+  body: InitialBody,
+  tests: InitialTest,
+  setvar: InitialSetVar,
+  notes: "",
+  preFetch: InitialPreFetch
 };
 
 export const RequestReducer: (state?: IRequestModel,

@@ -2,7 +2,7 @@ import { Cookie_Repository_SaveCookie, Cookie_Repository_GetAllCookies, Cookie_R
 import { ICookie } from '../../fetch-client-core/types/cookie.types';
 import { responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
 import { ShowInformationDialog } from '../webviews/helper';
-import { writeLog } from '../logger/logger';
+import { writeLog } from '../../fetch-client-core/helpers/logger/logger';
 import * as vscode from 'vscode';
 
 export async function SaveCookie(item: ICookie, webview: vscode.Webview) {

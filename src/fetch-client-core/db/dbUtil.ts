@@ -1,7 +1,7 @@
 import loki, { LokiFsAdapter } from "lokijs";
 import { v4 as uuidv4 } from "uuid";
 import { formatDate } from "../helpers/helper";
-import { writeLog } from "../../fetch-client-vscode/logger/logger";
+import { writeLog } from "../helpers/logger/logger";
 import {
 	autoRequestDBPath,
 	collectionDBPath,

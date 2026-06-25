@@ -2,7 +2,7 @@ import "../style.css";
 import { formatDate } from "../../../../fetch-client-core/helpers/helper";
 import { getMethodClassName } from "../../SideBar/util";
 import { IHistory, IFolder, ICollections } from "../../../../fetch-client-core/types/sidebar.types";
-import { InitialSettings } from "../../SideBar/redux/reducer";
+import { InitialSettings } from "../../../../fetch-client-core/consts/initialValues.consts";
 import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
 import { useState } from "react";
 import { v4 as uuidv4 } from 'uuid';

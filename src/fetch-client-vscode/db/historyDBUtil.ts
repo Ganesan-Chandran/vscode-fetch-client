@@ -1,9 +1,9 @@
 import { DeleteExitingItem, DeleteExitingItems, RenameRequestItem } from "./mainDBUtil";
-import { getHistoryLimitConfiguration } from "../utils/vscodeConfig";
+import { getHistoryLimitConfiguration } from "../../fetch-client-core/utils/vscodeConfig";
 import { History_Repository_DeleteAllHistory, History_Repository_DeleteHistory, History_Repository_GetAllHistory, History_Repository_GetHistoryById, History_Repository_InsertHistory, History_Repository_RenameHistory, History_Repository_UpdateHistory } from "../../fetch-client-core/db/history.repository";
 import { IHistory } from "../../fetch-client-core/types/sidebar.types";
 import { responseTypes } from "../../fetch-client-core/consts/requestTypes.consts";
-import { writeLog } from "../logger/logger";
+import { writeLog } from "../../fetch-client-core/helpers/logger/logger";
 import * as vscode from "vscode";
 
 export async function SaveHistory(

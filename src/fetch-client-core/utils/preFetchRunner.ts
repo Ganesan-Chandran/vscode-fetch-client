@@ -1,14 +1,14 @@
 import { apiFetch, FetchConfig } from "./fetchUtil";
 import { executeTests, setVariable } from "../../fetch-client-ui/components/TestUI/TestPanel/helper";
-import { GetParentSettingsSync, GetVariableByColId } from "../db/collectionDBUtil";
-import { GetRequestItem } from "../db/mainDBUtil";
-import { GetVariableByIdSync, UpdateVariableSync } from "../db/varDBUtil";
 import { InitialResponse } from "../../fetch-client-ui/components/ResponseUI/redux/reducer";
-import { IPreFetch, IRunRequest } from "../../fetch-client-core/types/prefetch.types";
-import { IPreFetchResponse, IReponseModel } from "../../fetch-client-core/types/response.types";
-import { IRequestModel } from "../../fetch-client-core/types/request.types";
-import { IVariable, ISettings } from "../../fetch-client-core/types/sidebar.types";
-import { writeLog } from "../logger/logger";
+import { IPreFetch, IRunRequest } from "../types/prefetch.types";
+import { IPreFetchResponse, IReponseModel } from "../types/response.types";
+import { IRequestModel } from "../types/request.types";
+import { IVariable, ISettings } from "../types/sidebar.types";
+import { writeLog } from "../helpers/logger/logger";
+import { Col_Repository_GetParentSettings, Col_Repository_GetVariableByColId } from "../db/collectionDB.repository";
+import { Var_Repository_GetVariableByIdSync, Var_Repository_UpdateVariableSync } from "../db/variableDB.repository";
+import { Main_Repository_GetRequestItem } from "../db/mainDB.repository";
 
 function createEmptyPreFetchResponse(): IPreFetchResponse {
 	return { reqId: "", name: "", resStatus: 0, testResults: [], childrenResponse: [] };
@@ -190,12 +190,12 @@ export class PreFetchRunner {
 	private loadRequestContext = async (runRequest: IRunRequest, parentName: string): Promise<RequestContext | undefined> => {
 		const { reqId, parentId, colId } = runRequest;
 		try {
-			const varId = await GetVariableByColId(colId);
-			const variable = await GetVariableByIdSync(varId);
+			const varId = await Col_Repository_GetVariableByColId(colId);
+			const variable = await Var_Repository_GetVariableByIdSync(varId);
 			const parentSettings = parentId === colId
-				? await GetParentSettingsSync(colId, "")
-				: await GetParentSettingsSync(colId, parentId);
-			const request = await GetRequestItem(reqId);
+				? await Col_Repository_GetParentSettings(colId, "")
+				: await Col_Repository_GetParentSettings(colId, parentId);
+			const request = await Main_Repository_GetRequestItem(reqId);
 
 			if (!request) {
 				return undefined;
@@ -219,7 +219,7 @@ export class PreFetchRunner {
 		) {
 			try {
 				const updated = setVariable(variable, request.setvar, this.response);
-				return await UpdateVariableSync(updated);
+				return await Var_Repository_UpdateVariableSync(updated);
 			} catch (err) {
 				writeLog(`error::PreFetchRunner::updateVariable: ${err}`);
 			}

@@ -1,13 +1,13 @@
-import { apiFetch, FetchConfig } from "./fetchUtil";
+import { apiFetch, FetchConfig } from "../../fetch-client-core/utils/fetchUtil";
 import { CronJob } from "cron";
-import { getHeadersConfiguration, getRunMainRequestOption, getTimeOutConfiguration } from "./vscodeConfig";
+import { getHeadersConfiguration, getRunMainRequestOption, getTimeOutConfiguration } from "../../fetch-client-core/utils/vscodeConfig";
 import { GetParentSettingsSync, GetVariableByColId } from "../db/collectionDBUtil";
 import { GetRequestItem } from "../db/mainDBUtil";
 import { GetVariableByIdSync, UpdateVariableSync } from "../db/varDBUtil";
 import { IAutoRequest } from "../../fetch-client-core/types/autorequest.types";
 import { IReponseModel } from "../../fetch-client-core/types/response.types";
 import { setVariable } from "../../fetch-client-ui/components/TestUI/TestPanel/helper";
-import { writeLog } from "../logger/logger";
+import { writeLog } from "../../fetch-client-core/helpers/logger/logger";
 
 const MAX_JOB_DURATION_MINUTES = 600;
 

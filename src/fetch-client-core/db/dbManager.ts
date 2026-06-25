@@ -1,7 +1,7 @@
 import fs from "fs";
 import loki, { LokiFsAdapter } from "lokijs";
-import { writeLog } from "../../fetch-client-vscode/logger/logger";
-import { getSharedDBConfiguration } from "../../fetch-client-vscode/utils/vscodeConfig";
+import { writeLog } from "../helpers/logger/logger";
+import { getSharedDBConfiguration } from "../utils/vscodeConfig";
 
 export interface DBCache {
   getLoadedDB: () => Promise<loki>;

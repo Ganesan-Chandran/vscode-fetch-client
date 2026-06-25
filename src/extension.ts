@@ -2,7 +2,7 @@ import { access, mkdir } from "fs/promises";
 import { AddToColUI, AutoRequestProviderUI, BulkExportProviderUI, CookieUI, CurlProviderUI, ErrorLogUI, SideBarProvider, VariableUI, WebAppPanel } from "./fetch-client-vscode/webviews";
 import { autoRequestDBPath, collectionDBPath, cookieDBPath, getExtDbPath, historyDBPath, mainDBPath, setGlobalStorageUri, variableDBPath } from "./fetch-client-core/db/dbHelper";
 import { CreateAutoRequestDB, CreateCollectionDB, CreateCookieDB, CreateHistoryDB, CreateMainDB, CreateVariableDB } from './fetch-client-core/db/dbUtil';
-import { createLogFile } from './fetch-client-vscode/logger/logger';
+import { createLogFile } from './fetch-client-core/helpers/logger/logger';
 import { FCScheduler } from "./fetch-client-vscode/utils/scheduler";
 import { flushCollectionDB } from "./fetch-client-core/db/collectionDB.repository";
 import { flushHistoryDB } from "./fetch-client-core/db/history.repository";
@@ -11,10 +11,10 @@ import { flushVariableDB } from "./fetch-client-core/db/variableDB.repository";
 import { GetAllCollections } from './fetch-client-vscode/db/collectionDBUtil';
 import { GetAllHistory } from './fetch-client-vscode/db/historyDBUtil';
 import { GetAllVariable, UpdateToDecryptedVariables, UpdateToEncryptedVariables, UpdateWithAnotherKey } from './fetch-client-vscode/db/varDBUtil';
-import { getVariableEncryptionFCConfiguration, getVariableEncryptionKey, setVariableEncryptionConfiguration, updateVariableEncryptionKey } from './fetch-client-vscode/utils/vscodeConfig';
-import { IPubSubMessage, PubSub } from './fetch-client-vscode/utils/pubSub';
+import { getVariableEncryptionFCConfiguration, getVariableEncryptionKey, setVariableEncryptionConfiguration, updateVariableEncryptionKey } from './fetch-client-core/utils/vscodeConfig';
+import { IPubSubMessage, PubSub } from './fetch-client-core/utils/pubSub';
 import { LocalStorageService } from "./fetch-client-vscode/utils/localStorageService";
-import { logPath } from './fetch-client-vscode/logger/constants';
+import { logPath } from './fetch-client-core/helpers/logger/constants';
 import { MemoryCache } from "./fetch-client-vscode/utils/memoryCache";
 import { pubSubTypes } from './fetch-client-core/consts/requestTypes.consts';
 import { transferDbConfig } from './fetch-client-vscode/db/transferDBConfig';
@@ -164,7 +164,7 @@ async function initializeStorage(): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
-// Registration helpers — keep activate() lean
+// Registration helpers - keep activate() lean
 // ---------------------------------------------------------------------------
 
 function registerProviders(context: vscode.ExtensionContext): void {

@@ -4,7 +4,7 @@ import { AppDispatch } from "../../../store/appStore";
 import { AuthPanel } from "../../RequestUI/OptionsPanel/Options/Auth";
 import { basicAuthTypes, allAuthTypes } from "../../../../fetch-client-core/consts/auth.consts";
 import { ICollection } from "../../../../fetch-client-core/types/prefetch.types";
-import { InitialSettings } from "../../SideBar/redux/reducer";
+import { InitialSettings } from "../../../../fetch-client-core/consts/initialValues.consts";
 import { IResponse } from "../../../../fetch-client-core/types/response.types";
 import { IRootState } from "../../../reducer/combineReducer";
 import { IVariable, ISettings } from "../../../../fetch-client-core/types/sidebar.types";

@@ -4,7 +4,7 @@ import { AppDispatch } from "../../../../../../store/appStore";
 import { formatDate } from "../../../../../../../fetch-client-core/helpers/helper";
 import { grantTypeOpt, clientAuthOpt } from "../../../../../../../fetch-client-core/consts/auth.consts";
 import { IAuth, GrantType, ClientAuth } from "../../../../../../../fetch-client-core/types/auth.types";
-import { InitialBody, InitialPreFetch, InitialRequestHeaders, InitialSetVar, InitialTest } from "../../../../redux/reducer";
+import { InitialRequestHeaders, InitialBody, InitialTest, InitialSetVar, InitialPreFetch } from "../../../../../../../fetch-client-core/consts/initialValues.consts";
 import { IRequestModel } from "../../../../../../../fetch-client-core/types/request.types";
 import { IResponse } from "../../../../../../../fetch-client-core/types/response.types";
 import { IRootState } from "../../../../../../reducer/combineReducer";

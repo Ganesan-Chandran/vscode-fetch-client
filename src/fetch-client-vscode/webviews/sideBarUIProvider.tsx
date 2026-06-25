@@ -2,7 +2,7 @@ import { buildWebviewHtml } from './webviewUtils';
 import { DeleteAllHistory, DeleteHistory, GetAllHistory, RenameHistory } from '../db/historyDBUtil';
 import { Export, Import, SaveRequest } from '../db/mainDBUtil';
 import { formatDate } from '../../fetch-client-core/helpers/helper';
-import { getConfiguration, getVSCodeTheme } from '../utils/vscodeConfig';
+import { getConfiguration, getVSCodeTheme } from '../../fetch-client-core/utils/vscodeConfig';
 import { IHistory, IFolder, ICollections } from '../../fetch-client-core/types/sidebar.types';
 import { pubSubTypes, requestTypes, responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
 import * as vscode from 'vscode';
@@ -23,7 +23,7 @@ import {
 	getStorageManager, OpenAddToColUI, OpenAttachVariableUI, OpenAutoRequestUI, OpenBulkExportUI, OpenColSettings, OpenCopyToColUI,
 	OpenCurlUI, OpenExistingItem, OpenReOrderUI, OpenRunAllUI, OpenVariableUI, pubSub, vsCodeLogger
 } from '../../extension';
-import { IPubSubMessage, Subscription } from '../utils/pubSub';
+import { IPubSubMessage, Subscription } from '../../fetch-client-core/utils/pubSub';
 
 export class SideBarProvider implements vscode.WebviewViewProvider {
 

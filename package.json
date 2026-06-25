@@ -181,7 +181,7 @@
           },
           "fetch-client.historyView": {
             "type": "string",
-            "default": "List",
+            "default": "Folder",
             "enum": [
               "List",
               "Folder"
@@ -366,12 +366,16 @@
       ]
     }
   },
+  "bin": {
+    "fc": "./cli/cli.js"
+  },
   "scripts": {
     "vscode:prepublish": "npm run package",
-    "compile": "webpack --mode development --progress --watch",
-    "watch": "webpack --mode development --progress --watch",
-    "package": "webpack --mode production",
+    "compile": "npm run lint && webpack --mode development --progress --watch",
+    "watch": "npm run lint && webpack --mode development --progress --watch",
+    "package": "npm run lint && webpack --mode production",
     "lint-check": "editorconfig-checker",
+    "lint": "eslint src --ext .ts,.tsx",
     "md-lint": "markdownlint *.md ./**/*.md ./**/**/*.md --ignore node_modules --ignore CHANGELOG.md",
     "md-lint-fix": "markdownlint *.md ./**/*.md ./**/**/*.md --ignore node_modules --ignore CHANGELOG.md --fix",
     "md-spellcheck": "spellchecker -f *.md ./**/*.md -d dictionary.txt --language en-GB",
