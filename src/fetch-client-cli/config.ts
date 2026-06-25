@@ -1,63 +1,125 @@
 import { existsSync, readFileSync } from "fs";
 import { homedir } from "os";
-import { join } from "path";
+import { join, resolve } from "path";
 
 const PUBLISHER = 'GanesanChandran';
 const EXT_NAME = 'fetch-client';
 const EXT_ID = `${PUBLISHER}.${EXT_NAME}`;
-const CONFIG_FILE = join(homedir(), '.fc-config.json');
 
 /**
  * Resolves the directory that contains the LokiJS database files.
  *
  * Resolution order:
- * 1. FC_DB_PATH environment variable
- * 2. ~/.fc-config.json -> { "dbPath": "<path>" }
- * 3. Auto-detect from the default VS Code global-storage location
+ * 1. VS Code user settings → fetch-client.workspacePath (when saveToWorkspace=true)
+ * 2. VS Code user settings → fetch-client.saveToWorkspace (cwd/fetch-client fallback)
+ * 3. VS Code global-storage path for this extension
  */
 export function resolveDbPath(): string {
-  if (process.env.FC_DB_PATH) {
-    return process.env.FC_DB_PATH;
-  }
+    const settings = readVSCodeSettings();
 
-  if (existsSync(CONFIG_FILE)) {
-    try {
-      const cfg = JSON.parse(readFileSync(CONFIG_FILE, 'utf-8'));
-      if (cfg && typeof cfg.dbPath === 'string' && cfg.dbPath) {
-        return cfg.dbPath;
-      }
-    } catch {
-      // fall through to auto-detect
+    const saveToWorkspace: boolean =
+        settings['fetch-client.saveToWorkspace'] === true;
+
+    if (saveToWorkspace) {
+        const workspacePath: string =
+            (settings['fetch-client.workspacePath'] as string) ?? '';
+
+        if (workspacePath) {
+            return workspacePath;
+        }
+
+        // Fallback: use cwd as the workspace root (same as VS Code using workspaceFolders[0])
+        return resolve(process.cwd(), 'fetch-client');
     }
-  }
 
-  return defaultStoragePath();
+    return defaultStoragePath();
+}
+
+/**
+ * Reads the VS Code user-level settings.json and returns it as a flat object.
+ * Returns an empty object if the file cannot be read or parsed.
+ */
+function readVSCodeSettings(): Record<string, unknown> {
+    const settingsPath = vscodeUserSettingsPath();
+
+    if (!existsSync(settingsPath)) {
+        return {};
+    }
+
+    try {
+        const raw = readFileSync(settingsPath, 'utf-8');
+
+        // VS Code settings.json may contain comments (JSONC); strip them before parsing.
+        const stripped = raw
+            .replace(/\/\/[^\n]*/g, '')
+            .replace(/\/\*[\s\S]*?\*\//g, '');
+
+        return JSON.parse(stripped) as Record<string, unknown>;
+    } catch {
+        return {};
+    }
+}
+
+function vscodeUserSettingsPath(): string {
+    if (process.platform === 'win32') {
+        const appData =
+            process.env.APPDATA || join(homedir(), 'AppData', 'Roaming');
+
+        return join(appData, 'Code', 'User', 'settings.json');
+    }
+
+    if (process.platform === 'darwin') {
+        return join(
+            homedir(),
+            'Library',
+            'Application Support',
+            'Code',
+            'User',
+            'settings.json'
+        );
+    }
+
+    return join(homedir(), '.config', 'Code', 'User', 'settings.json');
 }
 
 function defaultStoragePath(): string {
-  if (process.platform === 'win32') {
-    const appData = process.env.APPDATA || join(homedir(), 'AppData', 'Roaming');
-    return join(appData, 'Code', 'User', 'globalStorage', EXT_ID);
-  }
+    if (process.platform === 'win32') {
+        const appData =
+            process.env.APPDATA || join(homedir(), 'AppData', 'Roaming');
 
-  if (process.platform === 'darwin') {
+        return join(appData, 'Code', 'User', 'globalStorage', EXT_ID);
+    }
+
+    if (process.platform === 'darwin') {
+        return join(
+            homedir(),
+            'Library',
+            'Application Support',
+            'Code',
+            'User',
+            'globalStorage',
+            EXT_ID
+        );
+    }
+
     return join(
-      homedir(),
-      'Library',
-      'Application Support',
-      'Code',
-      'User',
-      'globalStorage',
-      EXT_ID
+        homedir(),
+        '.config',
+        'Code',
+        'User',
+        'globalStorage',
+        EXT_ID
     );
-  }
+}
 
-  return join(
-    homedir(),
-    '.config',
-    'Code',
-    'User',
-    'globalStorage',
-    EXT_ID
-  );
+export function resolveEncryptionEnabled(): boolean {
+    const settings = readVSCodeSettings();
+    return settings['fetch-client.encryptedVariables'] === true;
+}
+
+
+export function resolveEncryptionKey(): string {
+    const settings = readVSCodeSettings();
+    const key = settings['fetch-client.variableEncryptionKey'];
+    return typeof key === 'string' ? key : '';
 }

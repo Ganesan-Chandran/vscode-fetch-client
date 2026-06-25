@@ -11,7 +11,7 @@ import { flushVariableDB } from "./fetch-client-core/db/variableDB.repository";
 import { GetAllCollections } from './fetch-client-vscode/db/collectionDBUtil';
 import { GetAllHistory } from './fetch-client-vscode/db/historyDBUtil';
 import { GetAllVariable, UpdateToDecryptedVariables, UpdateToEncryptedVariables, UpdateWithAnotherKey } from './fetch-client-vscode/db/varDBUtil';
-import { getVariableEncryptionFCConfiguration, getVariableEncryptionKey, setVariableEncryptionConfiguration, updateVariableEncryptionKey } from './fetch-client-core/utils/vscodeConfig';
+import { getVariableEncryptionFCConfiguration, getVariableEncryptionKey, setVariableEncryptionConfiguration, setVariableEncryptionKey, updateVariableEncryptionKey } from './fetch-client-core/utils/vscodeConfig';
 import { IPubSubMessage, PubSub } from './fetch-client-core/utils/pubSub';
 import { LocalStorageService } from "./fetch-client-vscode/utils/localStorageService";
 import { logPath } from './fetch-client-core/helpers/logger/constants';
@@ -234,6 +234,7 @@ function registerEventListeners(context: vscode.ExtensionContext): void {
 						UpdateWithAnotherKey(oldKey, newKey);
 					}
 
+					setVariableEncryptionKey(newKey);
 					extCache.set("oldKey", newKey);
 				}
 				catch (error) {

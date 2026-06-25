@@ -1,17 +1,22 @@
-import { resolveDbPath } from './config';
+import { resolveDbPath, resolveEncryptionEnabled, resolveEncryptionKey } from './config';
 import { setGlobalStorageUri } from '../fetch-client-core/db/dbHelper';
+import { setVariableEncryptionConfiguration, setVariableEncryptionKey } from '../fetch-client-core/utils/vscodeConfig';
 
 // - 1. Bootstrap DB path before any repository code opens a database -
 setGlobalStorageUri(resolveDbPath());
+setVariableEncryptionConfiguration(resolveEncryptionEnabled());
+setVariableEncryptionKey(resolveEncryptionKey());
 
 // - 2. Lazy-import command handlers (DB repos are only called inside them) -
 import { listCollections, listFolders, listVariables } from './commands/list';
 import { runCollection, runFolder, runRequest, runCurl } from './commands/run';
+import { checkDbFiles } from './commands/check';
+import { writeConsoleLog } from './utils/logger';
 
 // - Version / package info -
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const VERSION: string = require('../../../cli/package.json').version;
+const VERSION: string = require('./package.json').version;
 
 // - Help text -
 
@@ -23,6 +28,7 @@ Usage:  fc <command> [options]
 Commands:
   list      List collections, folders, or variables
   run       Execute requests, collections, folders, or a raw curl string
+  check     Verify that all Fetch Client DB files are available
 
 ── LIST ───────────────────────────────────────────────────────────────
 
@@ -60,10 +66,6 @@ fc run --curl '<curl ...>'              Execute a raw curl command
 
 By default the CLI locates the Fetch Client database at the standard
 VS Code global-storage path for this extension.
-
-Override with one of:
-  • Environment variable:  FC_DB_PATH=/path/to/db/dir fc list --col
-  • Config file:           ~/.fc-config.json  →  { "dbPath": "/path/to/db/dir" }
 `;
 
 // - Minimal argument parser -
@@ -169,12 +171,12 @@ async function main(): Promise<void> {
   const argv = parseArgs(process.argv.slice(2));
 
   if (argv.help || argv._.length === 0) {
-    console.log(HELP);
+    writeConsoleLog(HELP);
     return;
   }
 
   if (argv.version) {
-    console.log(`fc v${VERSION}`);
+    writeConsoleLog(`fc v${VERSION}`);
     return;
   }
 
@@ -187,6 +189,10 @@ async function main(): Promise<void> {
 
     case 'run':
       await handleRun(argv);
+      break;
+
+    case 'check':
+      checkDbFiles();
       break;
 
     default:

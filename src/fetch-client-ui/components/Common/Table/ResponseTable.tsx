@@ -16,7 +16,7 @@ export const ResponseTable = (props: TableProps) => {
 				</td>
 				<td>
 					<div id={props.type + "_val_" + index.toString()} className="res-table-input">
-						{row.value.split(";")[0]}
+						{props.type === "resCookies" ? row.value.split(";")[0] : row.value}
 					</div>
 				</td>
 				{props.type === "resCookies" && <td>

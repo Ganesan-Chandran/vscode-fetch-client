@@ -3,7 +3,7 @@
 import { Col_Repository_GetAllCollections } from "../../fetch-client-core/db/collectionDB.repository";
 import { Var_Repository_FindAll } from "../../fetch-client-core/db/variableDB.repository";
 import { IFolder, IHistory, ICollections } from "../../fetch-client-core/types/sidebar.types";
-import { CollectionRow, printSection, printCollections, FolderRow, printFolders, printVariables, VariableRow } from "../utils/display";
+import { CollectionRow, printSection, printCollections, FolderRow, printFolders, printVariables, VariableRow, printCollectionTree, printFolderTree, printVariableItems } from "../utils/display";
 
 function isFolder(item: any): item is IFolder {
   return item.data !== undefined;
@@ -75,6 +75,13 @@ export async function listCollections(
 
   printSection("Collections");
   printCollections(rows);
+
+  if ((opts.id || opts.name) && filtered.length > 0) {
+    printSection("Contents");
+    for (const col of filtered) {
+      printCollectionTree(col);
+    }
+  }
 }
 
 // --- list --fol ------------------------------------------------------------
@@ -115,6 +122,13 @@ export async function listFolders(
 
   printSection("Folders");
   printFolders(rows);
+
+  if ((opts.id || opts.name) && filtered.length > 0) {
+    printSection("Contents");
+    for (const { folder, collectionName } of filtered) {
+      printFolderTree(folder, collectionName);
+    }
+  }
 }
 
 // --- list --var ------------------------------------------------------------
@@ -147,4 +161,11 @@ export async function listVariables(
 
   printSection("Variables");
   printVariables(rows);
+
+  if ((opts.id || opts.name) && filtered.length > 0) {
+    printSection("Contents");
+    for (const v of filtered) {
+      printVariableItems(v.name, v.data ?? []);
+    }
+  }
 }

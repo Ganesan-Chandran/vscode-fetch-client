@@ -1,7 +1,7 @@
 import { createAutoDBCache } from "./dbManager";
 import { FCCipher } from "../../fetch-client-packages/crypto/index";
 import { formatDate } from '../helpers/dateTime.helper';
-import { getVariableEncryptionConfiguration, getVariableEncryptionKey, getVariableEncryptionFCConfiguration } from "../utils/vscodeConfig";
+import { getVariableEncryptionConfiguration, getVariableEncryptionKey } from "../utils/vscodeConfig";
 import { IVariable } from "../types/sidebar.types";
 import { v4 as uuidv4 } from 'uuid';
 import { variableDBPath } from './dbHelper';
@@ -118,7 +118,7 @@ export async function Var_Repository_FindById(id: string, isGlobal: boolean): Pr
 	try {
 		const db = await getVariableDB();
 		let userVariables = db.getCollection("userVariables").chain().find(isGlobal ? { 'name': 'Global' } : { 'id': id }).data({ forceClones: true, removeMeta: true }) as IVariable[];
-		const config = getVariableEncryptionFCConfiguration();
+		const config = getVariableEncryptionConfiguration();
 		if (config) {
 			let key = getVariableEncryptionKey();
 			userVariables?.forEach((item: IVariable) => {
@@ -136,7 +136,7 @@ export async function Var_Repository_FindByIdSync(id: string): Promise<IVariable
 	try {
 		const db = await getVariableDB();
 		let userVariables = db.getCollection("userVariables").chain().find({ 'id': id }).data({ forceClones: true, removeMeta: true }) as IVariable[];
-		const config = getVariableEncryptionFCConfiguration();
+		const config = getVariableEncryptionConfiguration();
 		if (config) {
 			let key = getVariableEncryptionKey();
 			userVariables?.forEach((item: IVariable) => {

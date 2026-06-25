@@ -9,9 +9,10 @@ import { IReponseModel, ITestResult } from "../../fetch-client-core/types/respon
 import { IFolder, IHistory, ICollections, IVariable, ISettings } from "../../fetch-client-core/types/sidebar.types";
 import { executeTests } from "../../fetch-client-core/helpers/tests.helper";
 import { ConvertCurlToRequest } from "../../fetch-client-core/utils/curlToRequest";
-import { FetchConfig, apiFetch } from "../../fetch-client-core/utils/fetchUtil";
+import { FetchConfig, apiFetch, updateVariables } from "../../fetch-client-core/utils/fetchUtil";
 import { getTimeOutConfiguration, getHeadersConfiguration } from "../../fetch-client-core/utils/vscodeConfig";
 import { printRunResult, printRunSummary, printSection, RunResult } from "../utils/display";
+import { writeConsoleLog } from "../utils/logger";
 
 function isFolder(item: any): item is IFolder {
   return item.data !== undefined;
@@ -168,6 +169,8 @@ async function executeRequest(
     );
   }
 
+  request = updateVariables(request, variableData);
+
   return {
     name: request.name || request.url,
     method: request.method,
@@ -179,9 +182,13 @@ async function executeRequest(
       typeof raw.response.size === 'number'
         ? raw.response.size
         : parseInt(raw.response.size, 10) || 0,
-    responseData: raw.response.isError
-      ? String(raw.response.responseData)
-      : '',
+    responseData: raw.response.responseType?.isBinaryFile ? ''
+      : raw.response.isError
+        ? String(raw.response.responseData)
+        : typeof raw.response.responseData === 'string' 
+        ? raw.response.responseData
+        : JSON.stringify(raw.response.responseData) ?? '',
+    responseType: raw.response.responseType,
     isError: raw.response.isError,
     testResults,
   };
@@ -327,7 +334,7 @@ export async function runCollection(
     collectLeaves(col, '', leaves);
 
     if (leaves.length === 0) {
-      console.log(
+      writeConsoleLog(
         `Collection '${col.name}' is empty, skipping.`
       );
       continue;
@@ -474,7 +481,7 @@ export async function runFolder(
   );
 
   if (leaves.length === 0) {
-    console.log(
+    writeConsoleLog(
       `Folder '${match.folder.name}' is empty.`
     );
     return;

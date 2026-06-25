@@ -27,6 +27,7 @@ interface ThemeResponse {
 // ---------------------------------------------------------------------------
 
 let variableEncryptionConfiguration = false;
+let variableEncryptionKeyCache = '';
 
 // ---------------------------------------------------------------------------
 // Internal helper
@@ -118,7 +119,7 @@ export function getSharedDBConfiguration(): boolean {
 }
 
 export function getVariableEncryptionKey(): string {
-	return getFetchClientConfiguration().get<string>("variableEncryptionKey", "");
+	return variableEncryptionKeyCache || getFetchClientConfiguration().get<string>("variableEncryptionKey", "");
 }
 
 export function updateVariableEncryptionKey(key: string) {
@@ -137,16 +138,20 @@ export function getVariableEncryptionConfiguration(): boolean {
 	return variableEncryptionConfiguration;
 }
 
+export function setVariableEncryptionKey(key: string): void {
+	variableEncryptionKeyCache = key;
+}
+
 // ---------------------------------------------------------------------------
 // Mutable config updaters
 // ---------------------------------------------------------------------------
 
 export function updateSaveToWorkspaceConfiguration(value: boolean): void {
 	const config = getFetchClientConfiguration();
-	config.update("saveToWorkspace", value,  vscode.ConfigurationTarget.Global);
+	config.update("saveToWorkspace", value, vscode.ConfigurationTarget.Global);
 	updateWorkspacePathConfiguration(value ? getExtLocalDbPath() : "");
 }
 
 export function updateWorkspacePathConfiguration(value: string): void {
-	getFetchClientConfiguration().update("workspacePath", value,  vscode.ConfigurationTarget.Global);
+	getFetchClientConfiguration().update("workspacePath", value, vscode.ConfigurationTarget.Global);
 }

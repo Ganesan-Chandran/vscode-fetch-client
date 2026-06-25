@@ -277,7 +277,7 @@ export const apiFetch = async (
 				isError: false,
 				responseType: {
 					isBinaryFile: isFile,
-					format: getFileType(respHeaders),
+					format: getFileType([...respHeaders]),
 				},
 			},
 			headers: respHeaders,

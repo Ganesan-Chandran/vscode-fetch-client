@@ -1,8 +1,20 @@
 //@ts-check
 'use strict';
 
+const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
+
+class CopyCliPackageJsonPlugin {
+    /** @param {any} compiler */
+    apply(compiler) {
+        compiler.hooks.afterEmit.tap('CopyCliPackageJsonPlugin', () => {
+            const src = path.resolve(__dirname, 'src/fetch-client-cli/package.json');
+            const dest = path.resolve(__dirname, 'cli/package.json');
+            fs.copyFileSync(src, dest);
+        });
+    }
+}
 
 /** @param {'development' | 'production' | 'none'} webpackEnv */
 module.exports = (webpackEnv = 'production') => ({
@@ -51,6 +63,7 @@ module.exports = (webpackEnv = 'production') => ({
             banner: '#!/usr/bin/env node',
             raw: true,
         }),
+        new CopyCliPackageJsonPlugin(),
     ],
     externals: {},
 });

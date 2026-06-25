@@ -6,29 +6,29 @@ let globalStorageUri = "";
 
 export const getGlobalStorageUri = () => globalStorageUri;
 
-export const cookieDBPath = () =>
-	path.resolve(getExtDbPath(), "fetchClientCookies.db");
+export const cookieDBPath = (dbPath: string = "") =>
+	path.resolve(dbPath || getExtDbPath(), "fetchClientCookies.db");
 
-export const historyDBPath = () =>
-	path.resolve(getExtDbPath(), "fetchClientHistory.db");
+export const historyDBPath = (dbPath: string = "") =>
+	path.resolve(dbPath || getExtDbPath(), "fetchClientHistory.db");
 
-export const collectionDBPath = () =>
-	path.resolve(getExtDbPath(), "fetchClientCollection.db");
+export const collectionDBPath = (dbPath: string = "") =>
+	path.resolve(dbPath || getExtDbPath(), "fetchClientCollection.db");
 
-export const mainDBPath = () =>
-	path.resolve(getExtDbPath(), "fetchClient.db");
+export const mainDBPath = (dbPath: string = "") =>
+	path.resolve(dbPath || getExtDbPath(), "fetchClient.db");
 
-export const variableDBPath = () =>
-	path.resolve(getExtDbPath(), "fetchClientVariable.db");
+export const variableDBPath = (dbPath: string = "") =>
+	path.resolve(dbPath || getExtDbPath(), "fetchClientVariable.db");
 
-export const autoRequestDBPath = () =>
-	path.resolve(getExtDbPath(), "fetchAutoRequest.db");
+export const autoRequestDBPath = (dbPath: string = "") =>
+	path.resolve(dbPath || getExtDbPath(), "fetchAutoRequest.db");
 
-export const settingsDBPath = () =>
-	path.resolve(getExtDbPath(), "fetchClientSettings.db");
+export const settingsDBPath = (dbPath: string = "") =>
+	path.resolve(dbPath || getExtDbPath(), "fetchClientSettings.db");
 
-export const responseDBPath = () =>
-	path.resolve(getExtDbPath(), "fetchClientResponse.db");
+export const responseDBPath = (dbPath: string = "") =>
+	path.resolve(dbPath || getExtDbPath(), "fetchClientResponse.db");
 
 export const setGlobalStorageUri = (pathDef: string) => {
 	globalStorageUri = pathDef;
