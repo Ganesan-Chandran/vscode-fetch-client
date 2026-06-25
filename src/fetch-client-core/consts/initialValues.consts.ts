@@ -6,6 +6,8 @@ import { ISettings } from "../types/sidebar.types";
 import { ITableData } from "../types/common.types";
 import { ITest, ISetVar, IPreFetch } from "../types/prefetch.types";
 import { requestBodyRaw } from "./requestBody.consts";
+import { IResponse } from "../types/response.types";
+import { responseType } from "./response.consts";
 
 export const InitialRequestHeaders: ITableData[] = [
   {
@@ -122,4 +124,17 @@ export const InitialCookie: ICookie = {
   id: "",
   name: "",
   data: []
+};
+
+export const InitialResponse: IResponse = {
+  responseData: "",
+  responseType: {
+    isBinaryFile: false,
+    format: responseType[1].value
+  },
+  status: 0,
+  statusText: "",
+  size: "",
+  duration: 0,
+  isError: false,
 };

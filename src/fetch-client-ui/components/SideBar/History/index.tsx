@@ -1,6 +1,7 @@
 import "./style.css";
 import { DropdownPortal } from "../dropdownMenu";
-import { getDays, getMethodClassName, getMethodName } from "../util";
+import { getDays } from "../../../../fetch-client-core/helpers/dateTime.helper";
+import { getMethodClassName, getMethodName } from "../util";
 import { IHistory } from "../../../../fetch-client-core/types/sidebar.types";
 import { IRootState } from "../../../reducer/combineReducer";
 import { ReactComponent as DotsLogo } from '../../../../../icons/dots.svg';

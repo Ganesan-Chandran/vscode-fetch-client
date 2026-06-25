@@ -1,8 +1,8 @@
 import "../style.css";
-import { executeTests, setVariable } from "../../TestUI/TestPanel/helper";
+import { executeTests, setVariable } from "../../../../fetch-client-core/helpers/tests.helper";
 import { exportCSV, exportJson } from "./helper";
 import { getMethodClassName } from "../../SideBar/util";
-import { GetResponseTime } from "../../ResponseUI/OptionsPanel/OptionTab/util";
+import { GetResponseTime } from "../../../../fetch-client-core/helpers/dateTime.helper";
 import { IReponseModel } from "../../../../fetch-client-core/types/response.types";
 import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
 import { ISettings, IVariable } from "../../../../fetch-client-core/types/sidebar.types";

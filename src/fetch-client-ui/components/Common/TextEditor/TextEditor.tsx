@@ -1,9 +1,9 @@
 import "./style.css";
-import { checkSysVariable } from "../Consts/sysVariables";
+import { checkSysVariable } from "../../../../fetch-client-core/helpers/systemVariable.helper";
 import { CompositeDecorator, ContentState, DraftHandleValue, Editor, EditorState, getDefaultKeyBinding, Modifier } from "draft-js";
 import { IRootState } from "../../../reducer/combineReducer";
-import { replaceDataWithVariable } from "../../../../fetch-client-core/helpers/helper";
-import { SysVariables } from "../../../../fetch-client-core/consts/sysvariables.consts";
+import { replaceDataWithVariable } from "../../../../fetch-client-core/helpers/variable.helper";
+import { SysVariables } from "../../../../fetch-client-core/consts/systemVariables.consts";
 import { useSelector } from "react-redux";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 

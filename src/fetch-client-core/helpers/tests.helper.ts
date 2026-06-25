@@ -1,10 +1,10 @@
 /* eslint-disable eqeqeq */
-import { IReponseModel, ITestResult } from "../../../../fetch-client-core/types/response.types";
-import { ISetVar, ITest } from "../../../../fetch-client-core/types/prefetch.types";
-import { ITableData } from "../../../../fetch-client-core/types/common.types";
-import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";
-import { ParametersModelMapping } from "../../../../fetch-client-core/consts/test.consts";
-import { replaceDataWithVariable } from "../../../../fetch-client-core/helpers/helper";
+import { IReponseModel, ITestResult } from "../types/response.types";
+import { ISetVar, ITest } from "../types/prefetch.types";
+import { ITableData } from "../types/common.types";
+import { IVariable } from "../types/sidebar.types";
+import { ParametersModelMapping } from "../consts/test.consts";
+import { replaceDataWithVariable } from "./variable.helper";
 
 export function setVariable(variable: IVariable, setVar: ISetVar[], responseValue: IReponseModel): IVariable {
 	let actualValue: any;

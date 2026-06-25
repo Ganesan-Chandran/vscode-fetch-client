@@ -1,5 +1,5 @@
 import "../style.css";
-import { formatDate } from "../../../../fetch-client-core/helpers/helper";
+import { formatDate } from "../../../../fetch-client-core/helpers/dateTime.helper";
 import { getMethodClassName } from "../../SideBar/util";
 import { IHistory, IFolder, ICollections } from "../../../../fetch-client-core/types/sidebar.types";
 import { InitialSettings } from "../../../../fetch-client-core/consts/initialValues.consts";

@@ -1,7 +1,7 @@
 import { buildWebviewHtml } from './webviewUtils';
 import { DeleteAllHistory, DeleteHistory, GetAllHistory, RenameHistory } from '../db/historyDBUtil';
 import { Export, Import, SaveRequest } from '../db/mainDBUtil';
-import { formatDate } from '../../fetch-client-core/helpers/helper';
+import { formatDate } from '../../fetch-client-core/helpers/dateTime.helper';
 import { getConfiguration, getVSCodeTheme } from '../../fetch-client-core/utils/vscodeConfig';
 import { IHistory, IFolder, ICollections } from '../../fetch-client-core/types/sidebar.types';
 import { pubSubTypes, requestTypes, responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';

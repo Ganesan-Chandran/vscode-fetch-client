@@ -1,6 +1,6 @@
 import { FCCipher } from "../../fetch-client-packages/crypto/index";
 import { FetchClientVariableProxy } from '../../fetch-client-core/helpers/validators/fetchClientVariableValidator';
-import { formatDate } from '../../fetch-client-core/helpers/helper';
+import { formatDate } from '../../fetch-client-core/helpers/dateTime.helper';
 import { getVariableEncryptionConfiguration, getVariableEncryptionKey } from "../../fetch-client-core/utils/vscodeConfig";
 import { ITableData } from "../../fetch-client-core/types/common.types";
 import { IVariable } from "../../fetch-client-core/types/sidebar.types";

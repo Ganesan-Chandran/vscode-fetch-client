@@ -1,5 +1,5 @@
+import { isFolder } from "../../../../fetch-client-core/helpers/common.helper";
 import { ISideBarModel, IHistory, ICollections, IVariable, IFolder } from "../../../../fetch-client-core/types/sidebar.types";
-import { isFolder } from "../util";
 import {
 	FETCH_CLIENT_SET_ACTIVE_INACTIVE_VARIABLE, FETCH_CLIENT_SET_ATTACH_DETACH_VARIABLE, FETCH_CLIENT_SET_CLEAR_COLLECTION,
 	FETCH_CLIENT_SET_COLLECTION, FETCH_CLIENT_SET_COPY_TO_COLLECTION, FETCH_CLIENT_SET_DELETE_COLLECTION,

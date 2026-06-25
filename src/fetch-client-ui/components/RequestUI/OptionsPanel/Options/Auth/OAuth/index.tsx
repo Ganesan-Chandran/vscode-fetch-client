@@ -1,7 +1,7 @@
 import "./style.css";
 import { Actions } from "../../../../redux";
 import { AppDispatch } from "../../../../../../store/appStore";
-import { formatDate } from "../../../../../../../fetch-client-core/helpers/helper";
+import { formatDate } from "../../../../../../../fetch-client-core/helpers/dateTime.helper";
 import { grantTypeOpt, clientAuthOpt } from "../../../../../../../fetch-client-core/consts/auth.consts";
 import { IAuth, GrantType, ClientAuth } from "../../../../../../../fetch-client-core/types/auth.types";
 import { InitialRequestHeaders, InitialBody, InitialTest, InitialSetVar, InitialPreFetch } from "../../../../../../../fetch-client-core/consts/initialValues.consts";

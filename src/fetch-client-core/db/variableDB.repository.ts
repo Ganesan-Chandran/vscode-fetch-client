@@ -1,6 +1,6 @@
 import { createAutoDBCache } from "./dbManager";
 import { FCCipher } from "../../fetch-client-packages/crypto/index";
-import { formatDate } from '../helpers/helper';
+import { formatDate } from '../helpers/dateTime.helper';
 import { getVariableEncryptionConfiguration, getVariableEncryptionKey, getVariableEncryptionFCConfiguration } from "../utils/vscodeConfig";
 import { IVariable } from "../types/sidebar.types";
 import { v4 as uuidv4 } from 'uuid';

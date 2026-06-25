@@ -1,8 +1,8 @@
-import { formatDate } from "../../helper";
+import { formatDate } from "../../dateTime.helper";
 import { InitialSettings } from "../../../consts/initialValues.consts";
 import { IRequestModel } from "../../../types/request.types";
 import { ISettings, ICollections, IHistory, IFolder } from "../../../types/sidebar.types";
-import { isFolder } from "../../../../fetch-client-ui/components/SideBar/util";
+import { isFolder } from "../../common.helper";
 import { v4 as uuidv4 } from "uuid";
 import { writeLog } from "../../logger/logger";
 

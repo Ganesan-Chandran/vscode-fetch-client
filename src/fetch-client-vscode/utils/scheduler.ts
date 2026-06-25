@@ -6,7 +6,7 @@ import { GetRequestItem } from "../db/mainDBUtil";
 import { GetVariableByIdSync, UpdateVariableSync } from "../db/varDBUtil";
 import { IAutoRequest } from "../../fetch-client-core/types/autorequest.types";
 import { IReponseModel } from "../../fetch-client-core/types/response.types";
-import { setVariable } from "../../fetch-client-ui/components/TestUI/TestPanel/helper";
+import { setVariable } from "../../fetch-client-core/helpers/tests.helper";
 import { writeLog } from "../../fetch-client-core/helpers/logger/logger";
 
 const MAX_JOB_DURATION_MINUTES = 600;

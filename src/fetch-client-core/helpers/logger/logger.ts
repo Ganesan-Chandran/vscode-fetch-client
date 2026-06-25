@@ -2,7 +2,7 @@ import { appendFile, stat, writeFile } from "fs/promises";
 import { writeFileSync } from "fs";
 import path from "path";
 import { getExtDbPath } from "../../db/dbHelper";
-import { formatDate } from "../helper";
+import { formatDate } from "../dateTime.helper";
 import { logPath } from "./constants";
 
 const LOG_SIZE_LIMIT_MB = 1;

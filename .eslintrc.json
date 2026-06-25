@@ -32,7 +32,8 @@
           {
             "patterns":[
               "**/fetch-client-vscode/**",
-              "**/fetch-client-cli/**"
+              "**/fetch-client-cli/**",
+              "**/fetch-client-ui/**"
             ]
           }
         ]
@@ -45,7 +46,8 @@
           "error",
           {
             "patterns":[
-              "**/fetch-client-vscode/**"
+              "**/fetch-client-vscode/**",
+              "**/fetch-client-ui/**"
             ]
           }
         ]
@@ -58,7 +60,38 @@
           "error",
           {
             "patterns":[
-              "**/fetch-client-cli/**"
+              "**/fetch-client-cli/**",
+              "**/fetch-client-ui/**"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files":["src/fetch-client-ui/**/*.ts", "src/fetch-client-ui/**/*.tsx"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns":[
+              "**/fetch-client-vscode/**",
+              "**/fetch-client-cli/**",
+              "**/fetch-client-packages/**"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files":["src/fetch-client-packages/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns":[
+              "**/fetch-client-vscode/**",
+              "**/fetch-client-cli/**",
+              "**/fetch-client-ui/**"
             ]
           }
         ]

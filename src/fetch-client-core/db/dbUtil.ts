@@ -1,7 +1,7 @@
-import loki, { LokiFsAdapter } from "lokijs";
+import { formatDate } from "../helpers/dateTime.helper";
 import { v4 as uuidv4 } from "uuid";
-import { formatDate } from "../helpers/helper";
 import { writeLog } from "../helpers/logger/logger";
+import loki, { LokiFsAdapter } from "lokijs";
 import {
 	autoRequestDBPath,
 	collectionDBPath,
@@ -11,6 +11,7 @@ import {
 	responseDBPath,
 	variableDBPath,
 } from "./dbHelper";
+
 
 function createDatabase(dbPath: string, fnName: string, initializer: (db: loki) => void): Promise<void> {
 	return new Promise((resolve, reject) => {

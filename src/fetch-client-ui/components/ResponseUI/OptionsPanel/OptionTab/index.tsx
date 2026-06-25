@@ -1,7 +1,8 @@
 import "./style.css";
 import { curlResponseOptions, responseOptions } from "../../../../../fetch-client-core/consts/response.consts";
-import { FormatBytes, GetResponseTime } from "./util";
+import { FormatBytes } from "../../../../../fetch-client-core/helpers/common.helper";
 import { getColFolDotMenu } from '../../../Common/icons';
+import { GetResponseTime } from "../../../../../fetch-client-core/helpers/dateTime.helper";
 import { IRootState } from "../../../../reducer/combineReducer";
 import { ReactComponent as CodeLogo } from '../../../../../../icons/code.svg';
 import { requestTypes } from '../../../../../fetch-client-core/consts/requestTypes.consts';

@@ -1,12 +1,12 @@
 import { ActionsParametersMapping } from "../../../consts/test.consts";
 import { Auth, BodyEntity, FoldersEntity, HeadersEntityOrFormEntity, ParamsEntity, RequestsEntity, Settings, TestsEntity, ThunderClient_Schema_1_2 } from "../../../types/thunderClient_1_2_types";
-import { formatDate } from "../../helper";
+import { formatDate } from "../../dateTime.helper";
 import { IAuth, ClientAuth, GrantType } from "../../../types/auth.types";
 import { IBodyData, IRequestModel, MethodType } from "../../../types/request.types";
 import { IFolder, ISettings, ICollections, IHistory } from "../../../types/sidebar.types";
 import { InitialRequestHeaders, InitialAuth, InitialBody, InitialPreFetch, InitialSettings } from "../../../consts/initialValues.consts";
-import { isFolder } from "../../../../fetch-client-ui/components/SideBar/util";
-import { isJson } from "../../../../fetch-client-ui/components/TestUI/TestPanel/helper";
+import { isFolder } from "../../common.helper";
+import { isJson } from "../../tests.helper";
 import { ITableData } from "../../../types/common.types";
 import { ITest, ISetVar } from "../../../types/prefetch.types";
 import { v4 as uuidv4 } from "uuid";

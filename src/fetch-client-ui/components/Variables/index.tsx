@@ -1,5 +1,5 @@
 import "./style.css";
-import { formatDate } from "../../../fetch-client-core/helpers/helper";
+import { formatDate } from "../../../fetch-client-core/helpers/dateTime.helper";
 import { ITableData } from "../../../fetch-client-core/types/common.types";
 import { IVariable } from "../../../fetch-client-core/types/sidebar.types";
 import { requestTypes, responseTypes } from "../../../fetch-client-core/consts/requestTypes.consts";

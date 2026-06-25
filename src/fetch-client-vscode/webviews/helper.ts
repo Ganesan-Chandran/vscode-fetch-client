@@ -1,5 +1,6 @@
 import { apiFetch, FetchConfig } from "../../fetch-client-core/utils/fetchUtil";
-import { formatDate, getErrorResponse } from "../../fetch-client-core/helpers/helper";
+import { formatDate } from "../../fetch-client-core/helpers/dateTime.helper";
+import { getErrorResponse } from "../../fetch-client-core/helpers/common.helper";
 import { getResponseSaveConfiguration } from "../../fetch-client-core/utils/vscodeConfig";
 import { GetVariableByIdSync } from "../db/varDBUtil";
 import { IPreFetchResponse } from "../../fetch-client-core/types/response.types";

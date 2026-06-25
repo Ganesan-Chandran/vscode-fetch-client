@@ -7,7 +7,7 @@ import { ITableData } from "../../fetch-client-core/types/common.types";
 import { IRequestModel } from "../../fetch-client-core/types/request.types";
 import { IReponseModel, ITestResult } from "../../fetch-client-core/types/response.types";
 import { IFolder, IHistory, ICollections, IVariable, ISettings } from "../../fetch-client-core/types/sidebar.types";
-import { executeTests } from "../../fetch-client-ui/components/TestUI/TestPanel/helper";
+import { executeTests } from "../../fetch-client-core/helpers/tests.helper";
 import { ConvertCurlToRequest } from "../../fetch-client-core/utils/curlToRequest";
 import { FetchConfig, apiFetch } from "../../fetch-client-core/utils/fetchUtil";
 import { getTimeOutConfiguration, getHeadersConfiguration } from "../../fetch-client-core/utils/vscodeConfig";

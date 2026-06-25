@@ -1,14 +1,14 @@
 import { apiFetch, FetchConfig } from "./fetchUtil";
-import { executeTests, setVariable } from "../../fetch-client-ui/components/TestUI/TestPanel/helper";
-import { InitialResponse } from "../../fetch-client-ui/components/ResponseUI/redux/reducer";
+import { Col_Repository_GetParentSettings, Col_Repository_GetVariableByColId } from "../db/collectionDB.repository";
+import { executeTests, setVariable } from "../helpers/tests.helper";
+import { InitialResponse } from "../consts/initialValues.consts";
 import { IPreFetch, IRunRequest } from "../types/prefetch.types";
 import { IPreFetchResponse, IReponseModel } from "../types/response.types";
 import { IRequestModel } from "../types/request.types";
 import { IVariable, ISettings } from "../types/sidebar.types";
-import { writeLog } from "../helpers/logger/logger";
-import { Col_Repository_GetParentSettings, Col_Repository_GetVariableByColId } from "../db/collectionDB.repository";
-import { Var_Repository_GetVariableByIdSync, Var_Repository_UpdateVariableSync } from "../db/variableDB.repository";
 import { Main_Repository_GetRequestItem } from "../db/mainDB.repository";
+import { Var_Repository_GetVariableByIdSync, Var_Repository_UpdateVariableSync } from "../db/variableDB.repository";
+import { writeLog } from "../helpers/logger/logger";
 
 function createEmptyPreFetchResponse(): IPreFetchResponse {
 	return { reqId: "", name: "", resStatus: 0, testResults: [], childrenResponse: [] };

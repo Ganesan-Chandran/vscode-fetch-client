@@ -11,7 +11,7 @@ import { FetchConfig } from '../../fetch-client-core/utils/fetchUtil';
 import { IFolder, IHistory, ICollections, ISettings } from '../../fetch-client-core/types/sidebar.types';
 import { IRequestModel } from '../../fetch-client-core/types/request.types';
 import { responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
-import { SettingsType } from '../../fetch-client-ui/components/Collection/consts';
+import { SettingsType } from '../../fetch-client-core/consts/common.consts';
 import { writeLog } from '../../fetch-client-core/helpers/logger/logger';
 import * as vscode from 'vscode';
 

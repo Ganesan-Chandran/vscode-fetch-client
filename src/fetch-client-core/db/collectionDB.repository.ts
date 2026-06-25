@@ -1,12 +1,12 @@
 import { collectionDBPath } from './dbHelper';
 import { createAutoDBCache } from '../../fetch-client-core/db/dbManager';
 import { FetchConfig, apiFetch } from '../utils/fetchUtil';
-import { formatDate } from '../helpers/helper';
+import { formatDate } from '../helpers/dateTime.helper';
 import { getMainDB, Main_Repository_CopyExistingItems, Main_Repository_DeleteExistingItems, Main_Repository_GetCollectionRequests, Main_Repository_RenameRequestItem } from './mainDB.repository';
 import { IFolder, IHistory, ICollections, ISettings } from '../../fetch-client-core/types/sidebar.types';
 import { InitialSettings } from '../consts/initialValues.consts';
 import { IRequestModel } from '../../fetch-client-core/types/request.types';
-import { isFolder } from '../../fetch-client-ui/components/SideBar/util';
+import { isFolder } from '../helpers/common.helper';
 import { pubSub } from '../../extension';
 import { pubSubTypes } from '../../fetch-client-core/consts/requestTypes.consts';
 import { v4 as uuidv4 } from 'uuid';

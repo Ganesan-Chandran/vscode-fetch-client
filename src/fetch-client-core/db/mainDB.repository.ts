@@ -1,15 +1,15 @@
 import { createAutoDBCache } from "./dbManager";
 import { FetchClientDataProxy } from "../helpers/validators/fetchClientCollectionValidator";
 import { fetchClientImporter } from "../helpers/importers/fetchClient/fetchClientImporter_1_0";
-import { formatDate } from "../helpers/helper";
+import { formatDate } from "../helpers/dateTime.helper";
 import { getCollectionDB, saveCollectionDB } from "./collectionDB.repository";
 import { getVariableDB } from "./variableDB.repository";
 import { ICollections, IFolder } from "../types/sidebar.types";
 import { ImportType } from "../consts/import.consts";
 import { InitialSettings } from "../consts/initialValues.consts";
 import { IRequestModel } from "../types/request.types";
-import { isFolder } from "../../fetch-client-ui/components/SideBar/util";
-import { isJson } from "../../fetch-client-ui/components/TestUI/TestPanel/helper";
+import { isFolder } from "../helpers/common.helper";
+import { isJson } from "../helpers/tests.helper";
 import { mainDBPath } from "./dbHelper";
 import { postmanImporter } from "../helpers/importers/postman/postmanImporter_2_1";
 import { PostmanSchema_2_1, POSTMAN_SCHEMA_V2_1 } from "../types/postman_2_1.types";

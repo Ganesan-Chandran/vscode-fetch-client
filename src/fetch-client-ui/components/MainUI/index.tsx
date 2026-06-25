@@ -1,7 +1,7 @@
 import "./style.css";
 import { Actions } from "../RequestUI/redux";
 import { AppDispatch } from "../../store/appStore";
-import { formatDate } from "../../../fetch-client-core/helpers/helper";
+import { formatDate } from "../../../fetch-client-core/helpers/dateTime.helper";
 import { IRootState } from '../../reducer/combineReducer';
 import { OptionsPanel } from "../RequestUI/OptionsPanel";
 import { RequestPanel } from "../RequestUI/RequestPanel";

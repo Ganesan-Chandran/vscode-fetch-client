@@ -1,6 +1,6 @@
 import "./style.css";
 import { IHistory, IFolder } from "../../../../fetch-client-core/types/sidebar.types";
-import { isFolder } from "../../SideBar/util";
+import { isFolder } from "../../../../fetch-client-core/helpers/common.helper";
 import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
 import React, { useEffect, useRef, useState } from "react";
 import vscode from "../../Common/vscodeAPI";

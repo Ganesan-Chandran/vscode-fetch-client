@@ -1,82 +1,14 @@
-import { checkSysVariable, getSysVariableWithValue } from "../../fetch-client-ui/components/Common/Consts/sysVariables";
 import { IRequestModel } from "../types/request.types";
 import { ISettings } from "../types/sidebar.types";
 import { ITableData } from "../types/common.types";
-import { MIMETypes } from "../consts/mimetype.consts";
-import { responseTypes } from "../consts/requestTypes.consts";
+import { checkSysVariable, getSysVariableWithValue } from "./systemVariable.helper";
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] as const;
-
 const VARIABLE_PATTERN = /({{([^}}]+)}})/;
 const VARIABLE_PATTERN_GLOBAL = /({{([^}}]+)}})/gm;
-
-/** MIME types that map to plain-text / structured-text; treated as non-binary. */
-const TEXT_CONTENT_TYPES = [
-  "application/json",
-  "application/ld+json",
-  "application/vnd.api+json",
-  "application/xml",
-  "text/javascript",
-  "application/javascript",
-  "text/html",
-  "text/css",
-  "text/plain",
-] as const;
-
-// ---------------------------------------------------------------------------
-// Content-type helpers
-// ---------------------------------------------------------------------------
-
-export function isFileType(headers: ITableData[]): boolean {
-	const item = headers.find(t => t.key.toLowerCase() === "content-type");
-	return item ? checkType(item.value) : false;
-}
-
-function checkType(value: string): boolean {
-	const lower = value.toLowerCase();
-	return !TEXT_CONTENT_TYPES.some(type => lower.includes(type));
-}
-
-export function getFileType(headers: ITableData[]): string {
-	const item = headers.find(t => t.key.toLowerCase() === "content-type");
-	if (!item) {
-		return "";
-	}
-
-	const mimeKey = item.value.includes(";")
-		? item.value.toLowerCase().split(";")[0].trim()
-		: item.value.toLowerCase().trim();
-
-	return MIMETypes[mimeKey] ?? "";
-}
-
-// ---------------------------------------------------------------------------
-// Date formatting
-// ---------------------------------------------------------------------------
-
-export function formatDate(value?: string): string {
-	const t = value ? new Date(value) : new Date();
-	const date = String(t.getDate()).padStart(2, "0");
-	const hh = String(t.getHours()).padStart(2, "0");
-	const mm = String(t.getMinutes()).padStart(2, "0");
-	const ss = String(t.getSeconds()).padStart(2, "0");
-	return `${date}-${MONTHS[t.getMonth()]}-${t.getFullYear()} ${hh}:${mm}:${ss}`;
-}
-
-export function formatDateWithMs(value?: string): string {
-	const t = value ? new Date(value) : new Date();
-	const date = String(t.getDate()).padStart(2, "0");
-	const hh = String(t.getHours()).padStart(2, "0");
-	const mm = String(t.getMinutes()).padStart(2, "0");
-	const ss = String(t.getSeconds()).padStart(2, "0");
-	const ms = String(t.getMilliseconds()).padStart(4, "0");
-	return `${date}-${MONTHS[t.getMonth()]}-${t.getFullYear()} ${hh}:${mm}:${ss}:${ms}`;
-}
 
 // ---------------------------------------------------------------------------
 // Variable substitution
@@ -211,32 +143,4 @@ function updateVariable(item: string, data: string, varData: Record<string, stri
 	}
 
 	return data;
-}
-
-// ---------------------------------------------------------------------------
-// Misc utilities
-// ---------------------------------------------------------------------------
-
-export function getRandomNumber(digit: number): string {
-	return Math.random().toFixed(digit).split('.')[1];
-}
-
-export function getErrorResponse() {
-	return {
-		type: responseTypes.apiResponse,
-		response: {
-			responseData: "",
-			status: 0,
-			statusText: "",
-			size: "0",
-			duration: 0,
-			isError: true,
-			responseType: {
-				isBinaryFile: false,
-				format: ""
-			}
-		},
-		headers: [],
-		cookies: []
-	};
 }

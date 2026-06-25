@@ -4,7 +4,7 @@ import { HTTPSnippet, type TargetId, type ClientId } from "httpsnippet";
 import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
 import { IRootState } from "../../../reducer/combineReducer";
 import { AceEditor } from "../Editor";
-import { replaceValueWithVariable } from "../../../../fetch-client-core/helpers/helper";
+import { replaceValueWithVariable } from "../../../../fetch-client-core/helpers/variable.helper";
 import { useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
 

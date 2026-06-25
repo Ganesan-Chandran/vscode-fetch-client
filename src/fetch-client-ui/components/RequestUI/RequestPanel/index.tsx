@@ -2,7 +2,7 @@ import "./style.css";
 import { Actions } from "../redux";
 import { AppDispatch } from '../../../store/appStore';
 import { CookiesActions } from '../../Cookies/redux';
-import { executeTests, setVariable } from '../../TestUI/TestPanel/helper';
+import { executeTests, setVariable } from '../../../../fetch-client-core/helpers/tests.helper';
 import { GetDomainName, getDomainNameFromURL } from '../../Common/helper';
 import { ICookie } from '../../../../fetch-client-core/types/cookie.types';
 import { IRootState } from "../../../reducer/combineReducer";

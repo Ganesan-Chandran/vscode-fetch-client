@@ -1,10 +1,9 @@
-import { formatDateWithMs } from "../helper";
 import { getLogOption } from "../../utils/vscodeConfig";
-import { GetResponseTime } from "../../../fetch-client-ui/components/ResponseUI/OptionsPanel/OptionTab/util";
 import { IRequestModel } from "../../types/request.types";
 import { ITableData } from "../../types/common.types";
 import { vsCodeLogger } from "../../../extension";
 import { writeLog } from "./logger";
+import { formatDateWithMs, GetResponseTime } from "../dateTime.helper";
 
 export function logDetails(
 	request: IRequestModel,

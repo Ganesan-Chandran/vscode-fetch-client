@@ -11,7 +11,7 @@ import { IVariable, ISettings } from "../../../../fetch-client-core/types/sideba
 import { ParentHeadersPanel } from "../../RequestUI/OptionsPanel/Options/Headers/parentHeaders";
 import { PreFetch } from "../../RequestUI/OptionsPanel/Options/PreFetch";
 import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
-import { SettingsType } from "../consts";
+import { SettingsType } from "../../../../fetch-client-core/consts/common.consts";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
 import vscode from "../../Common/vscodeAPI";

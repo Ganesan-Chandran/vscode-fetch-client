@@ -1,18 +1,19 @@
 import { access } from "fs/promises";
 import { createReadStream } from "fs";
-import { getErrorResponse, getFileType, getRandomNumber, isFileType, replaceAuthSettingsInRequest, replaceHeaderSettingsInRequest, replaceValueWithVariable } from "../helpers/helper";
+import { getSSLConfiguration, getProtocolConfiguration } from "./vscodeConfig";
 import { IReqSettings } from '../types/prefetch.types';
 import { IRequestModel } from '../types/request.types';
 import { ISettings } from '../types/sidebar.types';
+import { isFileType, getFileType, getErrorResponse, getRandomNumber } from "../helpers/common.helper";
 import { ITableData } from '../types/common.types';
+import { logDetails } from "../helpers/logger/requestLog";
+import { replaceAuthSettingsInRequest, replaceHeaderSettingsInRequest, replaceValueWithVariable } from "../helpers/variable.helper";
 import { Request as awsRequest, sign } from 'aws4';
 import { responseTypes } from "../consts/requestTypes.consts";
 import { writeLog } from "../helpers/logger/logger";
 import * as https from "https";
 import axios, { AxiosRequestConfig, CancelTokenSource } from "axios";
 import FormData from 'form-data';
-import { logDetails } from "../helpers/logger/requestLog";
-import { getSSLConfiguration, getProtocolConfiguration } from "./vscodeConfig";
 
 export interface FetchConfig {
 	timeOut: number;

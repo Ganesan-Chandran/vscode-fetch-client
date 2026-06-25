@@ -1,6 +1,6 @@
-import moment from 'moment-mini';
+import { SysVariables } from '../consts/systemVariables.consts';
 import { v4 as uuidv4 } from 'uuid';
-import { SysVariables } from '../../../../fetch-client-core/consts/sysvariables.consts';
+import moment from 'moment-mini';
 
 export function checkSysVariable(variable: string): string {
 	if ((variable.startsWith("{{#num,") || variable.startsWith("{{#date,")) && variable.endsWith("}}")) {

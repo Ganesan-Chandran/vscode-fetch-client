@@ -1,7 +1,7 @@
 import { apiFetch, FetchConfig } from "../../fetch-client-core/utils/fetchUtil";
 import { buildWebviewHtml, saveToFile } from "./webviewUtils";
 import { ExecuteAPIRequest } from "./helper";
-import { formatDate } from "../../fetch-client-core/helpers/helper";
+import { formatDate } from "../../fetch-client-core/helpers/dateTime.helper";
 import { GetAllCollectionName, GetAllCollectionsByIdWithPath, GetParentSettings, UpdateCollection } from "../db/collectionDBUtil";
 import { GetAllCookies, SaveCookie } from "../db/cookieDBUtil";
 import { GetAllVariable, GetVariableById, UpdateVariable } from "../db/varDBUtil";
