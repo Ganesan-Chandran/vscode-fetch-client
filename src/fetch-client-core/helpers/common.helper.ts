@@ -91,3 +91,11 @@ export function getErrorResponse() {
 		cookies: []
 	};
 }
+
+// ---------------------------------------------------------------------------
+// Deep-clone helper (avoids repeated JSON.parse/JSON.stringify noise)
+// ---------------------------------------------------------------------------
+
+export function deepClone<T>(value: T): T {
+	return JSON.parse(JSON.stringify(value)) as T;
+}

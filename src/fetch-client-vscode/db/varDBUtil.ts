@@ -302,7 +302,7 @@ export function ImportVariableFromJsonFile(webviewView: vscode.WebviewView, path
 				ImportThunderClientVariable(webviewView, data);
 				break;
 			default:
-				vscode.window.showErrorMessage("Could not import the collection - Invalid type.", { modal: true });
+				vscode.window.showErrorMessage("Could not import the variable - Invalid type.", { modal: true });
 		}
 	} catch (err) {
 		vscode.window.showErrorMessage("Could not import the variable - Invalid data.", { modal: true });

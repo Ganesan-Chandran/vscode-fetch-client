@@ -5,7 +5,7 @@ import { IAuth, ClientAuth, GrantType } from "../../../types/auth.types";
 import { IBodyData, IRequestModel, MethodType } from "../../../types/request.types";
 import { IFolder, ISettings, ICollections, IHistory } from "../../../types/sidebar.types";
 import { InitialRequestHeaders, InitialAuth, InitialBody, InitialPreFetch, InitialSettings } from "../../../consts/initialValues.consts";
-import { isFolder } from "../../common.helper";
+import { deepClone, isFolder } from "../../common.helper";
 import { isJson } from "../../tests.helper";
 import { ITableData } from "../../../types/common.types";
 import { ITest, ISetVar } from "../../../types/prefetch.types";
@@ -40,14 +40,6 @@ const ACTION_ALIAS_MAP: Readonly<Record<string, string>> = {
 const EMPTY_TABLE_ROW: ITableData = { isChecked: false, key: "", value: "" };
 const EMPTY_TEST: ITest = { parameter: "", action: "", expectedValue: "" };
 const EMPTY_SET_VAR: ISetVar = { parameter: "", key: "", variableName: "" };
-
-// ---------------------------------------------------------------------------
-// Deep-clone helper (avoids repeated JSON.parse/JSON.stringify noise)
-// ---------------------------------------------------------------------------
-
-function deepClone<T>(value: T): T {
-	return JSON.parse(JSON.stringify(value)) as T;
-}
 
 // ---------------------------------------------------------------------------
 // ThunderClientImport class

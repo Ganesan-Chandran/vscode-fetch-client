@@ -17,6 +17,10 @@ import { ThunderClient_Schema_1_2 } from "../types/thunderClient_1_2_types";
 import { thunderClientImporter } from "../helpers/importers/thunderClient/thunderClientImporter_1_2";
 import { writeLog } from "../helpers/logger/logger";
 import loki, { Collection } from "lokijs";
+import { CheckOpenApiFormat } from "../helpers/importers/openapi/v3/utils";
+import { importOpenApi } from "../helpers/importers/openapi/v3/openApiImporter";
+import { INSOMNIA_EXPORT_FORMAT_4, INSOMNIA_EXPORT_FORMAT_5, InsomniaExport } from "../types/insomnia.types";
+import { insomniaImporter } from "../helpers/importers/insomnia/insomniaImporter";
 
 const { getLoadedDB: getMainDB, saveDB: saveMainDB, flush: flushMainDB, invalidate: invalidateMainDB } = createAutoDBCache(mainDBPath);
 export { getMainDB, saveMainDB, flushMainDB, invalidateMainDB };
@@ -149,17 +153,29 @@ function validateImportData(data: string): ImportType | null {
   }
 
   try {
-    const postmanData = JSON.parse(data) as PostmanSchema_2_1;
+    let parsedData = JSON.parse(data);
+    const postmanData = parsedData as PostmanSchema_2_1;
     if (postmanData.info?._postman_id && postmanData.info?.schema === POSTMAN_SCHEMA_V2_1) {
       return ImportType.Postman_2_1;
     }
 
-    const thunderData = JSON.parse(data) as ThunderClient_Schema_1_2;
+    const thunderData = parsedData as ThunderClient_Schema_1_2;
     if (thunderData.clientName === "Thunder Client") {
       if (thunderData.version !== "1.2") {
         throw new Error("Invalid Thunder Client version.");
       }
       return ImportType.ThunderClient_1_2;
+    }
+
+    const insomniaData = JSON.parse(data) as InsomniaExport;
+    const fmt = Number(insomniaData.__export_format);
+    if (insomniaData._type === "export" && (fmt === INSOMNIA_EXPORT_FORMAT_4 || fmt === INSOMNIA_EXPORT_FORMAT_5)) {
+      return ImportType.Insomnia_4_5;
+    }
+
+    const detection = CheckOpenApiFormat(data);
+    if (detection.isOpenApi) {
+      return ImportType.OpenAPI_V_3;
     }
   } catch (parseErr) {
     writeLog("error::validateImportData() - " + parseErr);
@@ -389,6 +405,51 @@ async function importThunderClient(data: string): Promise<ImportResult> {
   };
 }
 
+async function importInsomnia(data: string): Promise<ImportResult> {
+  const convertedData = insomniaImporter(data);
+  if (!convertedData?.fcCollection || !convertedData?.fcRequests) {
+    throw new Error("Insomnia import produced incomplete data.");
+  }
+
+  const [db, colDB, varDB] = await Promise.all([getMainDB(), getCollectionDB(), getVariableDB()]);
+
+  getRequestCollection(db).insert(convertedData.fcRequests);
+  saveMainDB(db);
+
+  if (convertedData.fcVariable) {
+    varDB.getCollection('userVariables').insert(convertedData.fcVariable);
+  }
+
+  colDB.getCollection('userCollections').insert(convertedData.fcCollection);
+  saveCollectionDB(colDB);
+
+  return {
+    fcCollection: convertedData.fcCollection,
+    fcRequests: convertedData.fcRequests,
+    fcVariable: convertedData.fcVariable,
+  };
+}
+
+async function importOpenAPI(data: string): Promise<ImportResult> {
+  const convertedData = await importOpenApi(data);
+  if (!convertedData.success) {
+    throw new Error("OpenAPI import produced incomplete data.");
+  }
+
+  const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
+
+  getRequestCollection(db).insert(convertedData.requests);
+  saveMainDB(db);
+
+  colDB.getCollection('userCollections').insert(convertedData.collection);
+  saveCollectionDB(colDB);
+
+  return {
+    fcCollection: convertedData.collection,
+    fcRequests: convertedData.requests,
+  };
+}
+
 async function importFC(data: string): Promise<ImportResult> {
   const parsedData = JSON.parse(data);
   const convertedData = fetchClientImporter(parsedData);
@@ -417,6 +478,8 @@ export async function Main_Repository_Import(data: string): Promise<ImportResult
     case ImportType.FetchClient_1_0: return importFC(data);
     case ImportType.Postman_2_1: return importPostman(data);
     case ImportType.ThunderClient_1_2: return importThunderClient(data);
+    case ImportType.OpenAPI_V_3: return importOpenAPI(data);
+    case ImportType.Insomnia_4_5: return importInsomnia(data);
     default:
       throw new Error("Unrecognised import format.");
   }
