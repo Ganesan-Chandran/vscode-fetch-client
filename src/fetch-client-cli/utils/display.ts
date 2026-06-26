@@ -1,5 +1,5 @@
 import { ICollections, IFolder, IHistory } from "../../fetch-client-core/types/sidebar.types";
-import { ITestResult } from "../../fetch-client-core/types/response.types";
+import { IPreFetchResponse, ITestResult } from "../../fetch-client-core/types/response.types";
 import { ITableData } from "../../fetch-client-core/types/common.types";
 import { writeConsoleLog } from "./logger";
 
@@ -20,8 +20,8 @@ const C = {
 function bold(s: string) { return `${C.bold}${s}${C.reset}`; }
 function dim(s: string) { return `${C.dim}${s}${C.reset}`; }
 function green(s: string) { return `${C.green}${s}${C.reset}`; }
-function red(s: string) { return `${C.red}${s}${C.reset}`; }
-function yellow(s: string) { return `${C.yellow}${s}${C.reset}`; }
+export function red(s: string) { return `${C.red}${s}${C.reset}`; }
+export function yellow(s: string) { return `${C.yellow}${s}${C.reset}`; }
 function cyan(s: string) { return `${C.cyan}${s}${C.reset}`; }
 
 export function methodBadge(method: string): string {
@@ -245,12 +245,47 @@ export interface RunResult {
   duration: number;
   size: number;
   responseData: string;
-  responseType: { isBinaryFile: boolean; format: string };
+  responseType?: { isBinaryFile: boolean; format: string };
   isError: boolean;
   testResults: ITestResult[];
+  preFetchResponses?: IPreFetchResponse[];
+}
+
+export function printPreFetchInfo(
+  responses: IPreFetchResponse[],
+  indent: number = 1
+): void {
+  const prefix = '  '.repeat(indent);
+
+  for (const r of responses) {
+    const ok = r.resStatus >= 200 && r.resStatus < 400;
+    const icon =
+      r.reqId === '-1'
+        ? red('✗')
+        : ok
+          ? green('✓')
+          : red('✗');
+
+    const statusStr =
+      r.resStatus > 0
+        ? ` ${statusBadge(r.resStatus)}`
+        : '';
+
+    writeConsoleLog(`${prefix}${icon} ${cyan(r.name)}${statusStr}`);
+
+    if (r.childrenResponse && r.childrenResponse.length > 0) {
+      printPreFetchInfo(r.childrenResponse, indent + 1);
+    }
+  }
 }
 
 export function printRunResult(result: RunResult): void {
+  if (result.preFetchResponses && result.preFetchResponses.length > 0) {
+    writeConsoleLog(`${yellow(bold('Pre-Requests:'))}`);
+    printPreFetchInfo(result.preFetchResponses);
+    writeConsoleLog(`\n${yellow(bold('Request:'))}`);
+  }
+
   const statusStr = statusBadge(result.status);
   const durationStr = dim(`${result.duration}ms`);
   const sizeStr = dim(formatBytes(result.size));

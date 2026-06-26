@@ -1,18 +1,17 @@
-// --- Type helpers ------------------------------------------------------------
-
-import { findParentSettings, Col_Repository_GetAllCollections } from "../../fetch-client-core/db/collectionDB.repository";
-import { Main_Repository_GetRequestItem, Main_Repository_GetCollectionRequests } from "../../fetch-client-core/db/mainDB.repository";
-import { Var_Repository_FindByIdSync } from "../../fetch-client-core/db/variableDB.repository";
-import { ITableData } from "../../fetch-client-core/types/common.types";
-import { IRequestModel } from "../../fetch-client-core/types/request.types";
-import { IReponseModel, ITestResult } from "../../fetch-client-core/types/response.types";
-import { IFolder, IHistory, ICollections, IVariable, ISettings } from "../../fetch-client-core/types/sidebar.types";
-import { executeTests } from "../../fetch-client-core/helpers/tests.helper";
 import { ConvertCurlToRequest } from "../../fetch-client-core/utils/curlToRequest";
+import { executeTests } from "../../fetch-client-core/helpers/tests.helper";
 import { FetchConfig, apiFetch, updateVariables } from "../../fetch-client-core/utils/fetchUtil";
+import { findParentSettings, Col_Repository_GetAllCollections } from "../../fetch-client-core/db/collectionDB.repository";
 import { getTimeOutConfiguration, getHeadersConfiguration } from "../../fetch-client-core/utils/vscodeConfig";
-import { printRunResult, printRunSummary, printSection, RunResult } from "../utils/display";
-import { writeConsoleLog } from "../utils/logger";
+import { IFolder, IHistory, ICollections, IVariable, ISettings } from "../../fetch-client-core/types/sidebar.types";
+import { IPreFetchResponse, IReponseModel, ITestResult } from "../../fetch-client-core/types/response.types";
+import { IRequestModel } from "../../fetch-client-core/types/request.types";
+import { ITableData } from "../../fetch-client-core/types/common.types";
+import { Main_Repository_GetRequestItem, Main_Repository_GetCollectionRequests } from "../../fetch-client-core/db/mainDB.repository";
+import { PreFetchRunner } from "../../fetch-client-core/utils/preFetchRunner";
+import { printRunResult, printRunSummary, printSection, red, RunResult } from "../utils/display";
+import { Var_Repository_FindAll, Var_Repository_FindByIdSync } from "../../fetch-client-core/db/variableDB.repository";
+import { writeConsoleLog, wrtieConsleError } from "../utils/logger";
 
 function isFolder(item: any): item is IFolder {
   return item.data !== undefined;
@@ -23,7 +22,6 @@ interface RequestLeaf {
   name: string;
   method: string;
   url: string;
-  /** Nearest parent folder id (empty = direct collection child) */
   folderId: string;
 }
 
@@ -98,12 +96,58 @@ function findLeafById(
 
 // --- Variable + settings resolution ------------------------------------------
 
-async function resolveVariable(varId: string): Promise<ITableData[]> {
-  if (!varId) { return []; }
+async function resolveVariableByName(name: string): Promise<IVariable | null> {
+  const all = await Var_Repository_FindAll();
+  const lower = name.toLowerCase();
+  return all.find(v => v.name.toLowerCase() === lower) ?? null;
+}
 
-  const varSet: IVariable | null = await Var_Repository_FindByIdSync(varId);
+/**
+ * Resolves the variable set to use for a run command in a single DB read.
+ * - If the item already has a linked variable, that takes priority.
+ * - An info message is printed when the user also supplied --var-id/--var-name.
+ * - Otherwise the user-supplied --var-id or --var-name is used.
+ */
+async function resolveEffectiveForRun(
+  linkedVarId: string,
+  contextName: string,
+  opts: { varId?: string; varName?: string }
+): Promise<{ effectiveVarId: string; variableData: ITableData[] }> {
 
-  return varSet?.data ?? [];
+  if (linkedVarId) {
+    const varSet = await Var_Repository_FindByIdSync(linkedVarId);
+    if (opts.varId || opts.varName) {
+      console.info(
+        red(
+          `Info: '${contextName}' is already linked to variable set '${varSet?.name ?? linkedVarId
+          }'. The --var-id/--var-name option has no effect here.`
+        )
+      );
+    }
+
+    return { effectiveVarId: linkedVarId, variableData: varSet?.data ?? [] };
+  }
+
+  if (opts.varId) {
+    const varSet = await Var_Repository_FindByIdSync(opts.varId);
+    if (!varSet) {
+      wrtieConsleError(`Variable set with id '${opts.varId}' not found.`);
+      process.exit(1);
+    }
+    return { effectiveVarId: opts.varId, variableData: varSet?.data ?? [] };
+  }
+
+  if (opts.varName) {
+    const found = await resolveVariableByName(opts.varName);
+    if (!found) {
+      wrtieConsleError(`Variable set named '${opts.varName}' not found.`);
+      process.exit(1);
+    }
+
+    return { effectiveVarId: found.id, variableData: found?.data ?? [] };
+  }
+
+  return { effectiveVarId: '', variableData: [] };;
 }
 
 function resolveSettings(
@@ -131,8 +175,67 @@ const DEFAULT_FETCH_CONFIG: FetchConfig = {
 async function executeRequest(
   request: IRequestModel,
   variableData: ITableData[],
-  settings: ISettings
+  settings: ISettings,
+  varId?: string,
 ): Promise<RunResult> {
+
+  const preFetchResponses: IPreFetchResponse[] = [];
+  let isVariableUpdated = false;
+
+  // Run parent (collection/folder) pre-fetch
+  if (settings.preFetch?.requests?.length > 0) {
+    const runner = new PreFetchRunner(DEFAULT_FETCH_CONFIG, request.id);
+    await runner.RunPreRequests(settings.preFetch, 0, request.name, true);
+    preFetchResponses.push(...runner.preFetchResponses);
+    if (!runner.allow) {
+      return {
+        name: request.name || request.url,
+        method: request.method,
+        url: request.url,
+        status: 0,
+        statusText: 'Pre-Request Failed',
+        duration: 0,
+        size: 0,
+        responseData: runner.message,
+        isError: true,
+        testResults: [],
+        preFetchResponses,
+      };
+    }
+    isVariableUpdated = true;
+  }
+
+  // Run request-level pre-fetch
+  if (request.preFetch?.requests?.length > 0 && request.preFetch.requests[0]?.reqId) {
+    const runner = new PreFetchRunner(DEFAULT_FETCH_CONFIG, request.id);
+    await runner.RunPreRequests(request.preFetch, 0, request.name, false);
+    preFetchResponses.push(...runner.preFetchResponses);
+    if (!runner.allow) {
+      return {
+        name: request.name || request.url,
+        method: request.method,
+        url: request.url,
+        status: 0,
+        statusText: 'Pre-Request Failed',
+        duration: 0,
+        size: 0,
+        responseData: runner.message,
+        isError: true,
+        testResults: [],
+        preFetchResponses,
+      };
+    }
+    isVariableUpdated = true;
+  }
+
+  // Reload variables from DB if pre-fetch may have updated them
+  if (isVariableUpdated && varId) {
+    const updated = await Var_Repository_FindByIdSync(varId);
+
+    if (updated?.data) {
+      variableData = updated.data;
+    }
+  }
 
   const raw = await apiFetch(
     request,
@@ -156,7 +259,7 @@ async function executeRequest(
     headers: raw.headers,
     cookies: raw.cookies,
     loading: false,
-    testResults: [],
+    testResults: []
   };
 
   let testResults: ITestResult[] = [];
@@ -185,19 +288,20 @@ async function executeRequest(
     responseData: raw.response.responseType?.isBinaryFile ? ''
       : raw.response.isError
         ? String(raw.response.responseData)
-        : typeof raw.response.responseData === 'string' 
-        ? raw.response.responseData
-        : JSON.stringify(raw.response.responseData) ?? '',
+        : typeof raw.response.responseData === 'string'
+          ? raw.response.responseData
+          : JSON.stringify(raw.response.responseData) ?? '',
     responseType: raw.response.responseType,
     isError: raw.response.isError,
     testResults,
+    preFetchResponses: preFetchResponses.length > 0 ? preFetchResponses : undefined
   };
 }
 
 // --- run --req ---------------------------------------------------------------
 
 export async function runRequest(
-  opts: { name?: string; id?: string }
+  opts: { name?: string; id?: string, varId?: string, varName?: string }
 ): Promise<void> {
 
   const all: ICollections[] =
@@ -212,7 +316,7 @@ export async function runRequest(
     const found = findLeafById(all, opts.id);
 
     if (!found) {
-      console.error(
+      wrtieConsleError(
         `Request with id '${opts.id}' not found.`
       );
       process.exit(1);
@@ -227,7 +331,7 @@ export async function runRequest(
     const found = findLeafByName(all, opts.name);
 
     if (!found) {
-      console.error(
+      wrtieConsleError(
         `Request named '${opts.name}' not found.`
       );
       process.exit(1);
@@ -238,7 +342,7 @@ export async function runRequest(
     folderId = found.leaf.folderId;
 
   } else {
-    console.error(
+    wrtieConsleError(
       'Provide --name or --id to identify the request.'
     );
     process.exit(1);
@@ -248,26 +352,23 @@ export async function runRequest(
     await Main_Repository_GetRequestItem(reqId);
 
   if (!request) {
-    console.error(
+    wrtieConsleError(
       `Request data not found in DB for id '${reqId}'.`
     );
     process.exit(1);
   }
 
-  const variableData =
-    await resolveVariable(collection.variableId);
+  const { effectiveVarId, variableData } = await resolveEffectiveForRun(collection.variableId, request.name || request.url, opts);
 
-  const settings =
-    resolveSettings(collection, folderId);
+  const settings = resolveSettings(collection, folderId);
 
-  printSection(
-    `Running: ${request.name || request.url}`
-  );
+  printSection(`Running: ${request.name || request.url}`);
 
   const result = await executeRequest(
     request,
     variableData,
-    settings
+    settings,
+    effectiveVarId
   );
 
   printRunResult(result);
@@ -277,7 +378,9 @@ export async function runRequest(
 // --- run --col ---------------------------------------------------------------
 
 export async function runCollection(
-  opts: { all?: boolean; name?: string; id?: string }
+  opts: {
+    all?: boolean; name?: string; id?: string, varId?: string; varName?: string;
+  }
 ): Promise<void> {
 
   const all: ICollections[] =
@@ -294,7 +397,7 @@ export async function runCollection(
     const col = all.find(c => c.id === opts.id);
 
     if (!col) {
-      console.error(
+      wrtieConsleError(
         `Collection with id '${opts.id}' not found.`
       );
       process.exit(1);
@@ -311,7 +414,7 @@ export async function runCollection(
     );
 
     if (!col) {
-      console.error(
+      wrtieConsleError(
         `Collection named '${opts.name}' not found.`
       );
       process.exit(1);
@@ -320,13 +423,14 @@ export async function runCollection(
     targets = [col];
 
   } else {
-    console.error(
+    wrtieConsleError(
       'Provide --all, --name, or --id to identify the collection.'
     );
     process.exit(1);
   }
 
   const allResults: RunResult[] = [];
+  let count = 0;
 
   for (const col of targets) {
 
@@ -334,23 +438,17 @@ export async function runCollection(
     collectLeaves(col, '', leaves);
 
     if (leaves.length === 0) {
-      writeConsoleLog(
-        `Collection '${col.name}' is empty, skipping.`
-      );
+      writeConsoleLog(`Collection '${col.name}' is empty, skipping.`);
       continue;
     }
 
-    printSection(
-      `Collection: ${col.name} (${leaves.length} requests)`
-    );
+    printSection(`Collection: ${col.name} (${leaves.length} requests)`);
 
-    const variableData =
-      await resolveVariable(col.variableId);
+    const { effectiveVarId, variableData } = await resolveEffectiveForRun(col.variableId, col.name, opts);
 
     const reqIds = leaves.map(l => l.id);
 
-    const requestModels =
-      await Main_Repository_GetCollectionRequests(reqIds);
+    const requestModels = await Main_Repository_GetCollectionRequests(reqIds);
 
     const reqMap =
       new Map<string, IRequestModel>(
@@ -369,9 +467,12 @@ export async function runCollection(
       const result = await executeRequest(
         request,
         variableData,
-        settings
+        settings,
+        effectiveVarId
       );
 
+      count++;
+      printSection(`Request ${count}`);
       printRunResult(result);
       allResults.push(result);
     }
@@ -383,7 +484,7 @@ export async function runCollection(
 // --- run --fol ---------------------------------------------------------------
 
 export async function runFolder(
-  opts: { name?: string; id?: string }
+  opts: { name?: string; id?: string, varId?: string, varName?: string }
 ): Promise<void> {
 
   const all: ICollections[] =
@@ -444,7 +545,7 @@ export async function runFolder(
     );
 
     if (!match) {
-      console.error(
+      wrtieConsleError(
         `Folder with id '${opts.id}' not found.`
       );
       process.exit(1);
@@ -459,14 +560,14 @@ export async function runFolder(
     );
 
     if (!match) {
-      console.error(
+      wrtieConsleError(
         `Folder named '${opts.name}' not found.`
       );
       process.exit(1);
     }
 
   } else {
-    console.error(
+    wrtieConsleError(
       'Provide --name or --id to identify the folder.'
     );
     process.exit(1);
@@ -491,10 +592,7 @@ export async function runFolder(
     `Folder: ${match.folder.name} (${leaves.length} requests)`
   );
 
-  const variableData =
-    await resolveVariable(
-      match.collection.variableId
-    );
+  const { effectiveVarId, variableData } = await resolveEffectiveForRun(match.collection.variableId, match.folder.name, opts);
 
   const reqIds = leaves.map(l => l.id);
 
@@ -507,6 +605,7 @@ export async function runFolder(
     );
 
   const allResults: RunResult[] = [];
+  let count = 0;
 
   for (const leaf of leaves) {
 
@@ -522,9 +621,12 @@ export async function runFolder(
     const result = await executeRequest(
       request,
       variableData,
-      settings
+      settings,
+      effectiveVarId
     );
 
+    count++;
+    printSection(`Request ${count}`);
     printRunResult(result);
     allResults.push(result);
   }
@@ -542,7 +644,7 @@ export async function runCurl(
     ConvertCurlToRequest(curlString);
 
   if (!request) {
-    console.error(
+    wrtieConsleError(
       'Failed to parse the curl command.'
     );
     process.exit(1);

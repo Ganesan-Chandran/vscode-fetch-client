@@ -11,7 +11,7 @@ setVariableEncryptionKey(resolveEncryptionKey());
 import { listCollections, listFolders, listVariables } from './commands/list';
 import { runCollection, runFolder, runRequest, runCurl } from './commands/run';
 import { checkDbFiles } from './commands/check';
-import { writeConsoleLog } from './utils/logger';
+import { writeConsoleLog, wrtieConsleError } from './utils/logger';
 
 // - Version / package info -
 
@@ -30,37 +30,51 @@ Commands:
   run       Execute requests, collections, folders, or a raw curl string
   check     Verify that all Fetch Client DB files are available
 
-── LIST ───────────────────────────────────────────────────────────────
+── LIST ──────────────────────────────────────────────────────
 
-fc list --col                           List all collections
-fc list --col --name <name>             Filter collections by name
-fc list --col --id   <uuid>             Filter collections by id
+fc list --col --id <uuid>                  Filter collections by id
 
-fc list --fol --name <name>             Find folder by name
-fc list --fol --id   <uuid>             Find folder by id
+fc list --fol --name <name>                Find folder by name
+fc list --fol --id <uuid>                  Find folder by id
 
-fc list --var                           List all variable sets
-fc list --var --name <name>             Filter variable sets by name
-fc list --var --id   <uuid>             Filter variable sets by id
+fc list --var                              List all variable sets
+fc list --var --name <name>                Filter variable sets by name
+fc list --var --id <uuid>                  Filter variable sets by id
 
-── RUN ────────────────────────────────────────────────────────────────
+── RUN ─────────────────────────────────────────────────────────────
 
-fc run --req --name <name>              Run a request by name
-fc run --req --id   <uuid>              Run a request by id
+fc run --req --name <name>                      Run a request by name
+fc run --req --id <uuid>                        Run a request by id
+fc run --req --name <name> --var-id <uuid>      Override variable set (by id)
+fc run --req --name <name> --var-name <name>    Override variable set (by name)
 
-fc run --col --all                      Run every request in every collection
-fc run --col --name <name>              Run all requests in a collection by name
-fc run --col --id   <uuid>              Run all requests in a collection by id
+fc run --col --all                              Run every request in every collection
+fc run --col --name <name>                      Run all requests in a collection by name
+fc run --col --id <uuid>                        Run all requests in a collection by id
+fc run --col --name <name> --var-id <uuid>      Run collection with a specific variable set (by id)
+fc run --col --name <name> --var-name <name>    Run collection with a specific variable set (by name)
+fc run --col --name <name> --var-id <uuid>      Override variable set (by id)
+fc run --col --name <name> --var-name <name>    Override variable set (by name)
+                                        Note: if the collection is already linked to a variable set,
+                                        the linked variable takes priority and --var-id/--var-name
+                                        is ignored (an info message is printed).
 
-fc run --fol --name <name>              Run all requests in a folder by name
-fc run --fol --id   <uuid>              Run all requests in a folder by id
+fc run --fol --name <name>                      Run all requests in a folder by name
+fc run --fol --id <uuid>                        Run all requests in a folder by id
+fc run --fol --name <name> --var-id <uuid>      Override variable set (by id)
+fc run --fol --name <name> --var-name <name>    Override variable set (by name)
+                                        Note: same priority rule applies - linked variable wins.
 
-fc run --curl '<curl ...>'              Execute a raw curl command
+fc run --curl '<curl ...>'                 Execute a raw curl command
 
-── OPTIONS ────────────────────────────────────────────────────────────
+── CHECK ───────────────────────────────────────────────────────────
 
---help, -h                              Show this help message
---version, -v                           Show CLI version
+fc check                                   Check if all DB files exist
+
+── OPTIONS ─────────────────────────────────────────────────────────
+
+--help, -h                                    Show this help message
+--version, -v                                 Show CLI version
 
 ── CONFIGURATION ──────────────────────────────────────────────────────
 
@@ -83,6 +97,8 @@ interface ParsedArgs {
   name?: string;
   id?: string;
   curl?: string;
+  varId?: string;
+  varName?: string;
 }
 
 function parseArgs(argv: string[]): ParsedArgs {
@@ -135,6 +151,16 @@ function parseArgs(argv: string[]): ParsedArgs {
       continue;
     }
 
+    if (arg === '--var-id' && i + 1 < argv.length) {
+      result.varId = argv[++i];
+      continue;
+    }
+
+    if (arg === '--var-name' && i + 1 < argv.length) {
+      result.varName = argv[++i];
+      continue;
+    }
+
     if (arg === '--name' && i + 1 < argv.length) {
       result.name = argv[++i];
       continue;
@@ -150,10 +176,11 @@ function parseArgs(argv: string[]): ParsedArgs {
       continue;
     }
 
-    // Handle --name=value / --id=value / --curl=value forms
-    const eqMatch = /^--(name|id|curl)=(.+)$/.exec(arg);
+    // Handle --name=value / --id=value / --curl=value / --var-id=value / --var-name=value forms
+    const eqMatch = /^--(name|id|curl|var-id|var-name)=(.+)$/.exec(arg);
     if (eqMatch) {
-      (result as any)[eqMatch[1]] = eqMatch[2];
+      const key = eqMatch[1].replace(/-([a-z])/g, (_, c) => c.toUpperCase()) as keyof ParsedArgs;
+      (result as any)[key] = eqMatch[2];
       continue;
     }
 
@@ -170,13 +197,13 @@ function parseArgs(argv: string[]): ParsedArgs {
 async function main(): Promise<void> {
   const argv = parseArgs(process.argv.slice(2));
 
-  if (argv.help || argv._.length === 0) {
-    writeConsoleLog(HELP);
+  if (argv.version) {
+    writeConsoleLog(`fc v${VERSION}`);
     return;
   }
 
-  if (argv.version) {
-    writeConsoleLog(`fc v${VERSION}`);
+  if (argv.help || argv._.length === 0) {
+    writeConsoleLog(HELP);
     return;
   }
 
@@ -196,7 +223,7 @@ async function main(): Promise<void> {
       break;
 
     default:
-      console.error(`Unknown command: '${command}'. Run 'fc --help' for usage.`);
+      wrtieConsleError(`Unknown command: '${command}'. Run 'fc --help' for usage.`);
       process.exit(1);
   }
 }
@@ -213,7 +240,7 @@ async function handleList(argv: ParsedArgs): Promise<void> {
 
   if (argv.fol) {
     if (!name && !id) {
-      console.error("'fc list --fol' requires --name or --id.");
+      wrtieConsleError("'fc list --fol' requires --name or --id.");
       process.exit(1);
     }
 
@@ -226,7 +253,7 @@ async function handleList(argv: ParsedArgs): Promise<void> {
     return;
   }
 
-  console.error("Specify --col, --fol, or --var after 'list'. Run 'fc --help' for usage.");
+  wrtieConsleError("Specify --col, --fol, or --var after 'list'. Run 'fc --help' for usage.");
   process.exit(1);
 }
 
@@ -242,11 +269,11 @@ async function handleRun(argv: ParsedArgs): Promise<void> {
 
   if (argv.req) {
     if (!name && !id) {
-      console.error("'fc run --req' requires --name or --id.");
+      wrtieConsleError("'fc run --req' requires --name or --id.");
       process.exit(1);
     }
 
-    await runRequest({ name, id });
+    await runRequest({ name, id, varId: argv.varId, varName: argv.varName });
     return;
   }
 
@@ -255,21 +282,26 @@ async function handleRun(argv: ParsedArgs): Promise<void> {
       all: argv.all,
       name,
       id,
+      varId: argv.varId,
+      varName: argv.varName,
     });
     return;
   }
 
   if (argv.fol) {
     if (!name && !id) {
-      console.error("'fc run --fol' requires --name or --id.");
+      wrtieConsleError("'fc run --fol' requires --name or --id.");
       process.exit(1);
     }
 
-    await runFolder({ name, id });
+    await runFolder({ name, id, varId: argv.varId, varName: argv.varName });
     return;
   }
 
-  console.error("Specify --req, --col, --fol, or --curl after 'run'. Run 'fc --help' for usage.");
+  wrtieConsleError(
+    "Specify --req, --col, --fol, or --curl after 'run'. Run 'fc --help' for usage."
+  );
+
   process.exit(1);
 }
 
