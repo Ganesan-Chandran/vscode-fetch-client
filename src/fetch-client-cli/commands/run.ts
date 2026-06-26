@@ -3,15 +3,18 @@ import { executeTests } from "../../fetch-client-core/helpers/tests.helper";
 import { FetchConfig, apiFetch, updateVariables } from "../../fetch-client-core/utils/fetchUtil";
 import { findParentSettings, Col_Repository_GetAllCollections } from "../../fetch-client-core/db/collectionDB.repository";
 import { getTimeOutConfiguration, getHeadersConfiguration } from "../../fetch-client-core/utils/vscodeConfig";
+import { History_Repository_InsertHistory } from "../../fetch-client-core/db/history.repository";
 import { IFolder, IHistory, ICollections, IVariable, ISettings } from "../../fetch-client-core/types/sidebar.types";
 import { IPreFetchResponse, IReponseModel, ITestResult } from "../../fetch-client-core/types/response.types";
 import { IRequestModel } from "../../fetch-client-core/types/request.types";
 import { ITableData } from "../../fetch-client-core/types/common.types";
-import { Main_Repository_GetRequestItem, Main_Repository_GetCollectionRequests } from "../../fetch-client-core/db/mainDB.repository";
+import { Main_Repository_GetRequestItem, Main_Repository_GetCollectionRequests, Main_Repository_SaveRequest } from "../../fetch-client-core/db/mainDB.repository";
 import { PreFetchRunner } from "../../fetch-client-core/utils/preFetchRunner";
 import { printRunResult, printRunSummary, printSection, red, RunResult } from "../utils/display";
-import { Var_Repository_FindAll, Var_Repository_FindByIdSync } from "../../fetch-client-core/db/variableDB.repository";
+import { v4 as uuidv4 } from 'uuid';
+import { Var_Repository_FindAll, Var_Repository_FindById, Var_Repository_FindByIdSync } from "../../fetch-client-core/db/variableDB.repository";
 import { writeConsoleLog, wrtieConsleError } from "../utils/logger";
+import { formatDate } from "../../fetch-client-core/helpers/dateTime.helper";
 
 function isFolder(item: any): item is IFolder {
   return item.data !== undefined;
@@ -142,6 +145,11 @@ async function resolveEffectiveForRun(
     if (!found) {
       wrtieConsleError(`Variable set named '${opts.varName}' not found.`);
       process.exit(1);
+    }
+
+    const globalVars = await Var_Repository_FindById('', true);
+    if (globalVars && globalVars.length > 0) {
+      return { effectiveVarId: globalVars[0].id, variableData: globalVars[0]?.data ?? [] };
     }
 
     return { effectiveVarId: found.id, variableData: found?.data ?? [] };
@@ -640,8 +648,7 @@ export async function runCurl(
   curlString: string
 ): Promise<void> {
 
-  const request =
-    ConvertCurlToRequest(curlString);
+  const request = ConvertCurlToRequest(curlString);
 
   if (!request) {
     wrtieConsleError(
@@ -663,6 +670,18 @@ export async function runCurl(
     [],
     emptySettings
   );
+
+  request.id = uuidv4();
+  await Main_Repository_SaveRequest(request);
+
+  const historyItem: IHistory = {
+    id: request.id,
+    method: request.method,
+    name: request.name ? request.name : request.url,
+    url: request.url,
+    createdTime: request.createdTime ? request.createdTime : formatDate()
+  };
+  await History_Repository_InsertHistory(historyItem);
 
   printRunResult(result);
   printRunSummary([result]);
