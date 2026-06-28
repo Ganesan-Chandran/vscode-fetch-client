@@ -7,11 +7,11 @@
  * Reference: https://github.com/Kong/insomnia/blob/develop/packages/insomnia/src/common/
  */
 
-// — Export format version constants
+// -Export format version constants
 export const INSOMNIA_EXPORT_FORMAT_4 = 4;
 export const INSOMNIA_EXPORT_FORMAT_5 = 5;
 
-// — Top-level export document
+// -Top-level export document
 export interface InsomniaExport {
     _type: "export";
     __export_format: 4 | 5;
@@ -20,7 +20,7 @@ export interface InsomniaExport {
     resources: InsomniaResource[];
 }
 
-// — Discriminated union of all resource types
+// -Discriminated union of all resource types
 export type InsomniaResource =
     | InsomniaWorkspace
     | InsomniaRequestGroup
@@ -32,7 +32,7 @@ export type InsomniaResource =
     | InsomniaWebSocketRequest
     | InsomniaUnknownResource;
 
-// — Base resource
+// -Base resource
 export interface InsomniaResourceBase {
     _id: string;
     _type: string;
@@ -44,7 +44,7 @@ export interface InsomniaResourceBase {
     metaSortKey?: number;
 }
 
-// — Workspace (collection root)
+// -Workspace (collection root)
 export interface InsomniaWorkspace extends InsomniaResourceBase {
     _type: "workspace";
     /**
@@ -54,7 +54,7 @@ export interface InsomniaWorkspace extends InsomniaResourceBase {
     scope?: string;
 }
 
-// — Request Group (folder)
+// -Request Group (folder)
 export interface InsomniaRequestGroup extends InsomniaResourceBase {
     _type: "request_group";
     environment?: Record<string, unknown>;
@@ -62,7 +62,7 @@ export interface InsomniaRequestGroup extends InsomniaResourceBase {
     authentication?: InsomniaAuthentication;
 }
 
-// — HTTP Request
+// -HTTP Request
 export interface InsomniaRequest extends InsomniaResourceBase {
     _type: "request";
     method: string;
@@ -81,7 +81,7 @@ export interface InsomniaRequest extends InsomniaResourceBase {
     settingFollowRedirects?: string;
 }
 
-// — Request body
+// -Request body
 export interface InsomniaBody {
     mimeType?: string;
     /** Raw text / JSON / XML body content */
@@ -105,7 +105,7 @@ export interface InsomniaFormParam {
     multiline?: string;
 }
 
-// — Headers
+// -Headers
 export interface InsomniaHeader {
     id?: string;
     name: string;
@@ -114,7 +114,7 @@ export interface InsomniaHeader {
     disabled?: boolean;
 }
 
-// — Query / path parameters
+// -Query / path parameters
 export interface InsomniaParameter {
     id?: string;
     name: string;
@@ -129,7 +129,7 @@ export interface InsomniaPathParameter {
     value: string;
 }
 
-// — Authentication
+// -Authentication
 export interface InsomniaAuthentication {
     type?: string;
     disabled?: boolean;
@@ -171,7 +171,7 @@ export interface InsomniaAuthentication {
     sessionToken?: string;
 }
 
-// — Environment (variables)
+// -Environment (variables)
 export interface InsomniaEnvironment extends InsomniaResourceBase {
     _type: "environment";
 
@@ -182,7 +182,7 @@ export interface InsomniaEnvironment extends InsomniaResourceBase {
     isPrivate?: boolean;
 }
 
-// — Stub types for resource kinds we intentionally skip
+// -Stub types for resource kinds we intentionally skip
 export interface InsomniaCookieJar extends InsomniaResourceBase {
     _type: "cookie_jar";
     cookies: unknown[];

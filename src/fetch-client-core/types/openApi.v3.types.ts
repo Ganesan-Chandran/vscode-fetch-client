@@ -1,127 +1,148 @@
-// Minimal OpenAPI v3 type definitions for the importer
+// ─────────────────────────────────────────────────────────────────────────────
+// Public result type
+// ─────────────────────────────────────────────────────────────────────────────
 
-export interface OpenAPIV3Document {
-  openapi: string;
-  info: {
-    title: string;
-    version: string;
-    description?: string;
-  };
-  servers?: Array<{
-    url: string;
-    description?: string;
-    variables?: Record<string, { default: string; enum?: string[]; description?: string }>;
-  }>;
-  paths?: Record<string, OpenAPIV3PathItem>;
-  components?: {
-    securitySchemes?: Record<string, OpenAPIV3SecurityScheme>;
-    schemas?: Record<string, OpenAPIV3Schema>;
-    parameters?: Record<string, OpenAPIV3Parameter>;
-    requestBodies?: Record<string, OpenAPIV3RequestBody>;
-  };
-  security?: Array<Record<string, string[]>>;
-  tags?: Array<{ name: string; description?: string }>;
+import { IRequestModel } from "./request.types";
+import { ICollections, IVariable } from "./sidebar.types";
+
+export interface OpenApiImportResult {
+  fcCollection: ICollections;
+  fcRequests: IRequestModel[];
+  fcVariable: IVariable | null;
 }
 
-export interface OpenAPIV3PathItem {
+// ─────────────────────────────────────────────────────────────────────────────
+// OpenAPI v3 type definitions
+//
+// Only fields that the importer actually reads are declared.  Extra fields in
+// the document are ignored – no accidental use of undeclared data.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface OARef { $ref: string }
+export type MaybeRef<T> = T | OARef;
+
+export interface OADocument {
+  openapi: string;
+  info: OAInfo;
+  servers?: OAServer[];
+  paths?: Record<string, OAPathItem>;
+  components?: OAComponents;
+  tags?: OATag[];
+  security?: OASecurityRequirement[];
+}
+
+export interface OAInfo { title: string; version: string; description?: string }
+export interface OATag { name: string; description?: string }
+
+export interface OAServer {
+  url: string;
+  description?: string;
+  variables?: Record<string, OAServerVariable>;
+}
+export interface OAServerVariable { default: string; enum?: string[]; description?: string }
+
+export interface OAPathItem {
   summary?: string;
   description?: string;
-  parameters?: Array<OpenAPIV3Parameter | OpenAPIV3Reference>;
-  get?: OpenAPIV3Operation;
-  put?: OpenAPIV3Operation;
-  post?: OpenAPIV3Operation;
-  delete?: OpenAPIV3Operation;
-  options?: OpenAPIV3Operation;
-  head?: OpenAPIV3Operation;
-  patch?: OpenAPIV3Operation;
-  trace?: OpenAPIV3Operation;
-  servers?: Array<{ url: string }>;
+  parameters?: MaybeRef<OAParameter>[];
+  servers?: OAServer[];
+  // HTTP verbs – typed as the full union so we can index by method string
+  get?: OAOperation;
+  post?: OAOperation;
+  put?: OAOperation;
+  patch?: OAOperation;
+  delete?: OAOperation;
+  options?: OAOperation;
+  head?: OAOperation;
 }
 
-export interface OpenAPIV3Operation {
+export interface OAOperation {
   operationId?: string;
   summary?: string;
   description?: string;
   tags?: string[];
-  parameters?: Array<OpenAPIV3Parameter | OpenAPIV3Reference>;
-  requestBody?: OpenAPIV3RequestBody | OpenAPIV3Reference;
-  security?: Array<Record<string, string[]>>;
+  parameters?: MaybeRef<OAParameter>[];
+  requestBody?: MaybeRef<OARequestBody>;
+  security?: OASecurityRequirement[];
   deprecated?: boolean;
-  responses?: Record<string, unknown>;
 }
 
-export interface OpenAPIV3Parameter {
+export interface OAParameter {
   name: string;
   in: "query" | "header" | "path" | "cookie";
   description?: string;
   required?: boolean;
   deprecated?: boolean;
-  schema?: OpenAPIV3Schema;
+  schema?: MaybeRef<OASchema>;
   example?: unknown;
-  examples?: Record<string, unknown>;
-  style?: string;
-  explode?: boolean;
+  examples?: Record<string, MaybeRef<OAExample>>;
 }
 
-export interface OpenAPIV3RequestBody {
+export interface OARequestBody {
   description?: string;
   required?: boolean;
-  content: Record<string, OpenAPIV3MediaType>;
+  content: Record<string, OAMediaType>;
 }
 
-export interface OpenAPIV3MediaType {
-  schema?: OpenAPIV3Schema;
+export interface OAMediaType {
+  schema?: MaybeRef<OASchema>;
   example?: unknown;
-  examples?: Record<string, unknown>;
-  encoding?: Record<string, unknown>;
+  examples?: Record<string, MaybeRef<OAExample>>;
 }
 
-export interface OpenAPIV3Schema {
+export interface OASchema {
   type?: string;
   format?: string;
-  title?: string;
-  description?: string;
-  properties?: Record<string, OpenAPIV3Schema>;
-  items?: OpenAPIV3Schema;
+  properties?: Record<string, MaybeRef<OASchema>>;
+  items?: MaybeRef<OASchema>;
   required?: string[];
-  enum?: unknown[];
-  default?: unknown;
   example?: unknown;
-  allOf?: OpenAPIV3Schema[];
-  anyOf?: OpenAPIV3Schema[];
-  oneOf?: OpenAPIV3Schema[];
+  default?: unknown;
+  enum?: unknown[];
   $ref?: string;
+  allOf?: MaybeRef<OASchema>[];
+  oneOf?: MaybeRef<OASchema>[];
+  anyOf?: MaybeRef<OASchema>[];
+  additionalProperties?: boolean | MaybeRef<OASchema>;
+  description?: string;
   nullable?: boolean;
-  additionalProperties?: boolean | OpenAPIV3Schema;
 }
 
-export interface OpenAPIV3SecurityScheme {
-  type: "apiKey" | "http" | "oauth2" | "openIdConnect" | "mutualTLS";
+export interface OAExample { summary?: string; description?: string; value?: unknown }
+
+export interface OAComponents {
+  schemas?: Record<string, OASchema>;
+  securitySchemes?: Record<string, OASecurityScheme>;
+  parameters?: Record<string, OAParameter>;
+  requestBodies?: Record<string, OARequestBody>;
+}
+
+type OASecuritySchemeType = "apiKey" | "http" | "oauth2" | "openIdConnect";
+
+export interface OASecurityScheme {
+  type: OASecuritySchemeType;
   description?: string;
+  // apiKey
   name?: string;
   in?: "query" | "header" | "cookie";
-  scheme?: string; // "bearer", "basic", "digest", etc.
+  // http
+  scheme?: string;
   bearerFormat?: string;
-  flows?: {
-    implicit?: OpenAPIV3OAuthFlow;
-    password?: OpenAPIV3OAuthFlow;
-    clientCredentials?: OpenAPIV3OAuthFlow;
-    authorizationCode?: OpenAPIV3OAuthFlow;
-  };
-  openIdConnectUrl?: string;
+  // oauth2
+  flows?: OAOAuthFlows;
 }
 
-export interface OpenAPIV3OAuthFlow {
+export interface OAOAuthFlows {
+  implicit?: OAOAuthFlow;
+  password?: OAOAuthFlow;
+  clientCredentials?: OAOAuthFlow;
+  authorizationCode?: OAOAuthFlow;
+}
+
+export interface OAOAuthFlow {
   authorizationUrl?: string;
   tokenUrl?: string;
-  refreshUrl?: string;
   scopes: Record<string, string>;
 }
 
-export interface OpenAPIV3Reference {
-  $ref: string;
-}
-
-export type HttpMethod = "get" | "put" | "post" | "delete" | "options" | "head" | "patch" | "trace";
-
-export const HTTP_METHODS: HttpMethod[] = ["get", "put", "post", "delete", "options", "head", "patch", "trace"];
+export type OASecurityRequirement = Record<string, string[]>;

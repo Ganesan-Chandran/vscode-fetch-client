@@ -17,7 +17,7 @@ export interface InsomniaImportResult {
   fcVariable: IVariable | null;
 }
 
-// — Internal constants =======================================================
+// -Internal constants =======================================================
 
 const EMPTY_TABLE_ROW: ITableData = { isChecked: false, key: "", value: "" };
 
@@ -39,7 +39,7 @@ const BLOCKED_KEYS = new Set(["__proto__", "prototype", "constructor"]);
 /** CRLF characters used to detect header-injection attempts. */
 const CRLF_RE = /[\r\n]/g;
 
-// — Helpers ==================================================================
+// -Helpers ==================================================================
 
 function normaliseMethod(raw: string | undefined): MethodType {
   const lower = (raw ?? "get").toLowerCase().trim();
@@ -63,7 +63,7 @@ function sanitiseHeaderPart(input: string): string {
   return input.replace(CRLF_RE, "");
 }
 
-// — Main importer class ======================================================
+// -Main importer class ======================================================
 
 export class InsomniaImport {
   private readonly resources: InsomniaResource[];
@@ -92,7 +92,7 @@ export class InsomniaImport {
     }
   }
 
-  // — Variables ============================================================
+  // -Variables ============================================================
 
   /**
    * Convert an Insomnia environment (the "Base Environment" of a workspace)
@@ -146,7 +146,7 @@ export class InsomniaImport {
     };
   }
 
-  // — Headers ==============================================================
+  // -Headers ==============================================================
 
   private getHeaders(
     headers: InsomniaHeader[] | undefined
@@ -172,7 +172,7 @@ export class InsomniaImport {
     return result;
   }
 
-  // — Query parameters
+  // -Query parameters
 
   private getParams(params: InsomniaParameter[] | undefined): ITableData[] {
     const result: ITableData[] = (params ?? []).map(p => ({
@@ -185,7 +185,7 @@ export class InsomniaImport {
     return result;
   }
 
-  // — Authentication
+  // -Authentication
 
   /**
    * Map Insomnia authentication schemes to Fetch Client's `IAuth` model.
@@ -208,7 +208,7 @@ export class InsomniaImport {
 
     switch (type) {
 
-      // — HTTP Basic / Digest / NTLM
+      // -HTTP Basic / Digest / NTLM
       case "basic":
       case "digest":
       case "ntlm": {
@@ -218,7 +218,7 @@ export class InsomniaImport {
         return fcAuth;
       }
 
-      // — Bearer token
+      // -Bearer token
       case "bearer": {
         fcAuth.password = normaliseTplVars(auth.token ?? "");
         fcAuth.tokenPrefix = (auth.prefix || "Bearer").trim();
@@ -226,7 +226,7 @@ export class InsomniaImport {
         return fcAuth;
       }
 
-      // — API key
+      // -API key
       case "apikey": {
         fcAuth.userName = auth.key ?? "";
         fcAuth.password = normaliseTplVars(auth.value ?? "");
@@ -241,7 +241,7 @@ export class InsomniaImport {
         return fcAuth;
       }
 
-      // — OAuth 2
+      // -OAuth 2
       case "oauth2": {
         const grantType = (auth.grantType ?? "").toLowerCase();
 
@@ -292,7 +292,7 @@ export class InsomniaImport {
         return fcAuth;
       }
 
-      // — AWS Signature v4
+      // -AWS Signature v4
       case "aws":
       case "iam":
       case "awsv4": {
@@ -319,12 +319,12 @@ export class InsomniaImport {
         return fcAuth;
       }
 
-      // — Inherit / unknown
+      // -Inherit / unknown
       default:
         return fcAuth;
     }
   }
-  // — Request body ------------------------------------------------------------
+  // -Request body ------------------------------------------------------------
 
   private getRawBodyLang(data: string): string {
     const trimmed = data.replace(NEWLINE_RE, "");
@@ -370,7 +370,7 @@ export class InsomniaImport {
 
     switch (mime) {
 
-      // — Multipart form data --------------------------------------------
+      // -Multipart form data --------------------------------------------
 
       case "multipart/form-data": {
         fcBody.bodyType = "formdata";
@@ -399,7 +399,7 @@ export class InsomniaImport {
         return fcBody;
       }
 
-      // — URL-encoded form -----------------------------------------------
+      // -URL-encoded form -----------------------------------------------
 
       case "application/x-www-form-urlencoded": {
         fcBody.bodyType = "formurlencoded";
@@ -420,7 +420,7 @@ export class InsomniaImport {
         return fcBody;
       }
 
-      // — GraphQL ---------------------------------------------------------
+      // -GraphQL ---------------------------------------------------------
 
       case "application/graphql":
       case "application/graphql+json":
@@ -468,7 +468,7 @@ export class InsomniaImport {
         return fcBody;
       }
 
-      // — Binary / file upload -------------------------------------------
+      // -Binary / file upload -------------------------------------------
       case "application/octet-stream":
       case "application/binary": {
         fcBody.bodyType = "binary";
@@ -479,12 +479,12 @@ export class InsomniaImport {
         return fcBody;
       }
 
-      // — Empty body (no content) ----------------------------------------
+      // -Empty body (no content) ----------------------------------------
       case "": {
         return fcBody; // bodyType = "none"
       }
 
-      // — Raw (JSON, XML, HTML, plain text, etc.) ------------------------
+      // -Raw (JSON, XML, HTML, plain text, etc.) ------------------------
       default: {
         const rawData = normaliseTplVars(body.text ?? "");
         fcBody.bodyType = "raw";
@@ -496,7 +496,7 @@ export class InsomniaImport {
     }
   }
 
-  // — Collection-level settings -----------------------------------------------
+  // -Collection-level settings -----------------------------------------------
 
   /**
    * Build an `ISettings` block for a collection root or folder.
@@ -521,7 +521,7 @@ export class InsomniaImport {
     };
   }
 
-  // — Request builder —————————————————————————————————————————————
+  // -Request builder —————————————————————————————————————————————
 
   private buildRequest(resource: InsomniaRequest,): { history: IHistory; model: IRequestModel } {
     const id = uuidv4();
@@ -555,7 +555,7 @@ export class InsomniaImport {
     return { history, model };
   }
 
-  // — Tree builder (recursive) —————————————————————————————————————————————
+  // -Tree builder (recursive) —————————————————————————————————————————————
 
   /**
    * Build the collection data tree from `parentId` down.
@@ -638,7 +638,7 @@ export class InsomniaImport {
     return result;
   }
 
-  // — Workspace resolver —————————————————————————————————————————————
+  // -Workspace resolver —————————————————————————————————————————————
 
   /**
    * Resolve the primary workspace to import.

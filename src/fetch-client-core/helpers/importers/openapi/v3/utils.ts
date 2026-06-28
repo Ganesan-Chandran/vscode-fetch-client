@@ -1,46 +1,11 @@
-/**
- * Detect whether a string looks like YAML or JSON.
- */
-export function detectFormat(content: string): "json" | "yaml" {
-  const trimmed = content.trimStart();
-  return trimmed.startsWith("{") || trimmed.startsWith("[") ? "json" : "yaml";
-}
-
-/**
- * Deep-merge two plain objects (b wins on conflict). Non-destructive.
- */
-export function deepMerge<T extends Record<string, unknown>>(a: T, b: Partial<T>): T {
-  const result: Record<string, unknown> = { ...a };
-  for (const [k, v] of Object.entries(b)) {
-    if (
-      typeof v === "object" &&
-      v !== null &&
-      !Array.isArray(v) &&
-      typeof result[k] === "object" &&
-      result[k] !== null &&
-      !Array.isArray(result[k])
-    ) {
-      result[k] = deepMerge(result[k] as Record<string, unknown>, v as Record<string, unknown>);
-    } else {
-      result[k] = v;
-    }
-  }
-  return result as T;
-}
-
-// ─── Format detection ─────────────────────────────────────────────────────────
-
-export type KnownFormat = "openapi" | "unknown";
-
-export interface FormatDetectionResult {
+interface FormatDetectionResult {
   isOpenApi: boolean;
   /** "3.0" | "3.1" | null */
   version: string | null;
-  /** "json" | "yaml" — the serialization used */
+  /** "json" | "yaml" -the serialization used */
   serialization: "json" | "yaml";
   reason: string;
 }
-
 
 export function CheckOpenApiFormat(content: string): FormatDetectionResult {
   if (!content || content.trim().length === 0) {

@@ -1,3 +1,4 @@
+import { CheckOpenApiFormat } from "../helpers/importers/openapi/v3/utils";
 import { createAutoDBCache } from "./dbManager";
 import { FetchClientDataProxy } from "../helpers/validators/fetchClientCollectionValidator";
 import { fetchClientImporter } from "../helpers/importers/fetchClient/fetchClientImporter_1_0";
@@ -7,20 +8,19 @@ import { getVariableDB } from "./variableDB.repository";
 import { ICollections, IFolder } from "../types/sidebar.types";
 import { ImportType } from "../consts/import.consts";
 import { InitialSettings } from "../consts/initialValues.consts";
+import { INSOMNIA_EXPORT_FORMAT_4, INSOMNIA_EXPORT_FORMAT_5, InsomniaExport } from "../types/insomnia.types";
+import { insomniaImporter } from "../helpers/importers/insomnia/insomniaImporter";
 import { IRequestModel } from "../types/request.types";
 import { isFolder } from "../helpers/common.helper";
 import { isJson } from "../helpers/tests.helper";
 import { mainDBPath } from "./dbHelper";
+import { openApiImporter } from "../helpers/importers/openapi/v3/openApiImporter";
 import { postmanImporter } from "../helpers/importers/postman/postmanImporter_2_1";
 import { PostmanSchema_2_1, POSTMAN_SCHEMA_V2_1 } from "../types/postman_2_1.types";
 import { ThunderClient_Schema_1_2 } from "../types/thunderClient_1_2_types";
 import { thunderClientImporter } from "../helpers/importers/thunderClient/thunderClientImporter_1_2";
 import { writeLog } from "../helpers/logger/logger";
 import loki, { Collection } from "lokijs";
-import { CheckOpenApiFormat } from "../helpers/importers/openapi/v3/utils";
-import { importOpenApi } from "../helpers/importers/openapi/v3/openApiImporter";
-import { INSOMNIA_EXPORT_FORMAT_4, INSOMNIA_EXPORT_FORMAT_5, InsomniaExport } from "../types/insomnia.types";
-import { insomniaImporter } from "../helpers/importers/insomnia/insomniaImporter";
 
 const { getLoadedDB: getMainDB, saveDB: saveMainDB, flush: flushMainDB, invalidate: invalidateMainDB } = createAutoDBCache(mainDBPath);
 export { getMainDB, saveMainDB, flushMainDB, invalidateMainDB };
@@ -431,22 +431,22 @@ async function importInsomnia(data: string): Promise<ImportResult> {
 }
 
 async function importOpenAPI(data: string): Promise<ImportResult> {
-  const convertedData = await importOpenApi(data);
-  if (!convertedData.success) {
-    throw new Error("OpenAPI import produced incomplete data.");
+  const convertedData = await openApiImporter(data);
+  if (!convertedData?.fcCollection || !convertedData?.fcRequests) {
+    throw new Error("Fetch Client import produced incomplete data.");
   }
 
   const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
 
-  getRequestCollection(db).insert(convertedData.requests);
+  getRequestCollection(db).insert(convertedData.fcRequests);
   saveMainDB(db);
 
-  colDB.getCollection('userCollections').insert(convertedData.collection);
+  colDB.getCollection('userCollections').insert(convertedData.fcCollection);
   saveCollectionDB(colDB);
 
   return {
-    fcCollection: convertedData.collection,
-    fcRequests: convertedData.requests,
+    fcCollection: convertedData.fcCollection,
+    fcRequests: convertedData.fcRequests,
   };
 }
 
