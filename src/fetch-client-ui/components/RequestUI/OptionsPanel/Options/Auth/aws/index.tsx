@@ -20,6 +20,13 @@ export const AwsAuth = (props: IAwsAuthProps) => {
 
 	const { auth } = useSelector((state: IRootState) => state.requestData);
 
+	const useSettingAuth =
+		props.settingAuth &&
+		props.settingAuth.aws?.accessKey?.trim() &&
+		props.settingAuth.aws?.secretAccessKey?.trim();
+
+	const awsAuth = useSettingAuth ? props.settingAuth.aws : auth.aws;
+
 	const onSetAccessKey = (value: string) => {
 		let localAuth = { ...auth };
 		localAuth.aws.accessKey = value;
@@ -58,7 +65,7 @@ export const AwsAuth = (props: IAwsAuthProps) => {
 					props.envVar && props.selectedVariable.id && <TextEditor
 						varWords={props.envVar}
 						onChange={onSetAccessKey}
-						value={props.settingAuth ? props.settingAuth.aws.accessKey : auth.aws.accessKey}
+						value={awsAuth.accessKey}
 						focus={false}
 					/>
 				}
@@ -69,7 +76,7 @@ export const AwsAuth = (props: IAwsAuthProps) => {
 					props.envVar && props.selectedVariable.id && <TextEditor
 						varWords={props.envVar}
 						onChange={onSetSecretKey}
-						value={props.settingAuth ? props.settingAuth.aws.secretAccessKey : auth.aws.secretAccessKey}
+						value={awsAuth.secretAccessKey}
 						focus={false}
 					/>
 				}
@@ -88,7 +95,7 @@ export const AwsAuth = (props: IAwsAuthProps) => {
 							props.envVar && props.selectedVariable.id && <TextEditor
 								varWords={props.envVar}
 								onChange={onSetRegion}
-								value={props.settingAuth ? props.settingAuth.aws.region : auth.aws.region}
+								value={awsAuth.region}
 								focus={false}
 							/>
 						}
@@ -99,7 +106,7 @@ export const AwsAuth = (props: IAwsAuthProps) => {
 							props.envVar && props.selectedVariable.id && <TextEditor
 								varWords={props.envVar}
 								onChange={onSetServiceName}
-								value={props.settingAuth ? props.settingAuth.aws.service : auth.aws.service}
+								value={awsAuth.service}
 								focus={false}
 							/>
 						}
@@ -110,7 +117,7 @@ export const AwsAuth = (props: IAwsAuthProps) => {
 							props.envVar && props.selectedVariable.id && <TextEditor
 								varWords={props.envVar}
 								onChange={onSetSessionToken}
-								value={props.settingAuth ? props.settingAuth.aws.sessionToken : auth.aws.sessionToken}
+								value={awsAuth.sessionToken}
 								focus={false}
 							/>
 						}

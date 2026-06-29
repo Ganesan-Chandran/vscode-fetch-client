@@ -21,6 +21,9 @@ import { ThunderClient_Schema_1_2 } from "../types/thunderClient_1_2_types";
 import { thunderClientImporter } from "../helpers/importers/thunderClient/thunderClientImporter_1_2";
 import { writeLog } from "../helpers/logger/logger";
 import loki, { Collection } from "lokijs";
+import { ExportBuilderV2 } from "../helpers/exporters/fetchClient/fetchClientExporter_2_0";
+import { IFetchClientExportV2 } from "../types/fetchClient_2_0_types";
+import { fetchClientV2Importer, isFetchClientV2 } from "../helpers/importers/fetchClient/fetchClientImporter_2_0";
 
 const { getLoadedDB: getMainDB, saveDB: saveMainDB, flush: flushMainDB, invalidate: invalidateMainDB } = createAutoDBCache(mainDBPath);
 export { getMainDB, saveMainDB, flushMainDB, invalidateMainDB };
@@ -145,6 +148,16 @@ function validateImportData(data: string): ImportType | null {
     throw new Error("Empty or invalid JSON data.");
   }
 
+  let parsedData = JSON.parse(data);
+
+  try {
+    if (isFetchClientV2(parsedData)) {
+      return ImportType.FetchClient_2_0;
+    }
+  } catch (fcErr) {
+    writeLog("error::validateImportData() " + fcErr);
+  }
+
   try {
     FetchClientDataProxy.Parse(data);
     return ImportType.FetchClient_1_0;
@@ -153,7 +166,6 @@ function validateImportData(data: string): ImportType | null {
   }
 
   try {
-    let parsedData = JSON.parse(data);
     const postmanData = parsedData as PostmanSchema_2_1;
     if (postmanData.info?._postman_id && postmanData.info?.schema === POSTMAN_SCHEMA_V2_1) {
       return ImportType.Postman_2_1;
@@ -329,11 +341,7 @@ export async function Main_Repository_GetCollectionRequests(ids: string[]): Prom
   }
 }
 
-export async function Main_Repository_BuildExport(
-  colId: string,
-  hisId: string,
-  folderId: string
-): Promise<ExportPayload> {
+export async function Main_Repository_BuildExport(colId: string, hisId: string, folderId: string): Promise<ExportPayload> {
   const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
 
   const cols = colDB
@@ -343,6 +351,18 @@ export async function Main_Repository_BuildExport(
     .data({ forceClones: true, removeMeta: true });
 
   return buildExportPayload(cols, getRequestCollection(db), hisId, folderId);
+}
+
+export async function Main_Repository_BuildExport_V2(colId: string, hisId: string, folderId: string): Promise<IFetchClientExportV2> {
+  const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
+
+  const cols = colDB
+    .getCollection('userCollections')
+    .chain()
+    .find({ id: colId })
+    .data({ forceClones: true, removeMeta: true });
+
+  return ExportBuilderV2(cols[0], getRequestCollection(db), hisId, folderId);
 }
 
 export async function Main_Repository_BuildBulkExport(selectedCols: string[]): Promise<ExportPayload[]> {
@@ -357,6 +377,21 @@ export async function Main_Repository_BuildBulkExport(selectedCols: string[]): P
       .data({ forceClones: true, removeMeta: true });
 
     return buildExportPayload(cols, apiRequests, "", "");
+  });
+}
+
+export async function Main_Repository_BuildBulkExportV2(selectedCols: string[]): Promise<IFetchClientExportV2[]> {
+  const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
+  const apiRequests = getRequestCollection(db);
+
+  return selectedCols.map((colId) => {
+    const cols = colDB
+      .getCollection('userCollections')
+      .chain()
+      .find({ id: colId })
+      .data({ forceClones: true, removeMeta: true });
+
+    return ExportBuilderV2(cols[0], apiRequests, "", "");
   });
 }
 
@@ -450,9 +485,9 @@ async function importOpenAPI(data: string): Promise<ImportResult> {
   };
 }
 
-async function importFC(data: string): Promise<ImportResult> {
+async function importFC(data: string, verison: number): Promise<ImportResult> {
   const parsedData = JSON.parse(data);
-  const convertedData = fetchClientImporter(parsedData);
+  const convertedData = verison === 1 ? fetchClientImporter(parsedData) : fetchClientV2Importer(parsedData);
   if (!convertedData?.fcCollection || !convertedData?.fcRequests) {
     throw new Error("Fetch Client import produced incomplete data.");
   }
@@ -475,7 +510,8 @@ export async function Main_Repository_Import(data: string): Promise<ImportResult
   const type = validateImportData(data);
 
   switch (type) {
-    case ImportType.FetchClient_1_0: return importFC(data);
+    case ImportType.FetchClient_1_0: return importFC(data, 1);
+    case ImportType.FetchClient_2_0: return importFC(data, 2);
     case ImportType.Postman_2_1: return importPostman(data);
     case ImportType.ThunderClient_1_2: return importThunderClient(data);
     case ImportType.OpenAPI_V_3: return importOpenAPI(data);

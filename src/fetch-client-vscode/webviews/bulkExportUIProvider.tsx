@@ -1,5 +1,5 @@
 import { buildWebviewHtml } from './webviewUtils';
-import { BulkExport } from '../db/mainDBUtil';
+import { BulkExportV2 } from '../db/mainDBUtil';
 import { BulkExportVariables, GetAllVariable } from '../db/varDBUtil';
 import { GetAllCollectionName } from '../db/collectionDBUtil';
 import { requestTypes, responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
@@ -30,7 +30,7 @@ export const BulkExportProviderUI = (extensionUri: vscode.Uri) => {
 				});
 			} else if (message.type === requestTypes.bulkColExportRequest) {
 				if (message.data.type === "col") {
-					BulkExport(message.data.path, message.data?.cols, bulkExportPanel.webview);
+					BulkExportV2(message.data.path, message.data?.cols, bulkExportPanel.webview);
 				} else {
 					BulkExportVariables(message.data.path, message.data?.cols, message.data.exportKey, bulkExportPanel.webview);
 				}

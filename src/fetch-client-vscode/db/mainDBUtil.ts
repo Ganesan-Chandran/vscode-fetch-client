@@ -1,6 +1,7 @@
 import { IRequestModel } from '../../fetch-client-core/types/request.types';
 import {
-	Main_Repository_BuildBulkExport, Main_Repository_BuildExport, Main_Repository_CopyExistingItems,
+	ExportPayload,
+	Main_Repository_BuildBulkExport, Main_Repository_BuildBulkExportV2, Main_Repository_BuildExport, Main_Repository_BuildExport_V2, Main_Repository_CopyExistingItems,
 	Main_Repository_DeleteExistingItem, Main_Repository_DeleteExistingItems,
 	Main_Repository_GetCollectionRequests, Main_Repository_GetExistingItem,
 	Main_Repository_GetRequestItem, Main_Repository_Import,
@@ -11,6 +12,7 @@ import { responseTypes } from '../../fetch-client-core/consts/requestTypes.const
 import { writeLog } from '../../fetch-client-core/helpers/logger/logger';
 import * as vscode from "vscode";
 import fs from "fs";
+import { IFetchClientExportV2 } from '../../fetch-client-core/types/fetchClient_2_0_types';
 
 export async function SaveRequest(reqData: IRequestModel): Promise<void> {
 	try {
@@ -94,13 +96,13 @@ export async function GetColsRequests(ids: string[], paths: unknown, webview: vs
 	}
 }
 
-export async function Export(path: string, colId: string, hisId: string, folderId: string): Promise<void> {
+export async function Export(path: string, colId: string, hisId: string, folderId: string, version: number): Promise<void> {
 
 	try {
-		const exportData = await Main_Repository_BuildExport(colId, hisId, folderId);
+		const exportData = version === 1 ? await Main_Repository_BuildExport(colId, hisId, folderId) : await Main_Repository_BuildExport_V2(colId, hisId, folderId);
 		fs.writeFile(
 			path,
-			JSON.stringify(exportData),
+			version === 1 ? JSON.stringify(exportData) : JSON.stringify(exportData, null, "\t"),
 			(error) => {
 				if (error) {
 					vscode.window.showErrorMessage(`Could not save to '${path}'. Error Message : ${error.message}`, { modal: true });
@@ -117,6 +119,25 @@ export async function Export(path: string, colId: string, hisId: string, folderI
 	}
 }
 
+export async function BulkExportV2(path: string, selectedCols: string[], webview: vscode.Webview): Promise<void> {
+	if (!selectedCols?.length) {
+		webview?.postMessage({ type: responseTypes.bulkColExportResponse });
+		return;
+	}
+
+	try {
+		const exportPayloads = await Main_Repository_BuildBulkExportV2(selectedCols);
+		const writePromises = exportPayloads.map((exportData) => {
+			return exportIntoFile(path, exportData, 2);
+		});
+		await Promise.all(writePromises);
+		webview?.postMessage({ type: responseTypes.bulkColExportResponse });
+	} catch (err) {
+		writeLog("error::BulkExport(): " + err);
+		vscode.window.showErrorMessage("Bulk export failed.", { modal: true });
+	}
+}
+
 export async function BulkExport(path: string, selectedCols: string[], webview: vscode.Webview): Promise<void> {
 	if (!selectedCols?.length) {
 		webview?.postMessage({ type: responseTypes.bulkColExportResponse });
@@ -126,31 +147,7 @@ export async function BulkExport(path: string, selectedCols: string[], webview: 
 	try {
 		const exportPayloads = await Main_Repository_BuildBulkExport(selectedCols);
 		const writePromises = exportPayloads.map((exportData) => {
-			const safeName = exportData.name.replace(/[/\\?%*:|"<>]/g, "-");
-			const fullPath = `${path}\\fetch-client-collection_${safeName}.json`;
-
-			return new Promise<void>((resolve) => {
-				fs.writeFile(
-					fullPath,
-					JSON.stringify(exportData),
-					(error) => {
-
-						if (error) {
-							vscode.window.showErrorMessage(
-								`Could not save to '${fullPath}'. Error Message : ${error.message}`,
-								{ modal: true }
-							);
-
-							writeLog(
-								"error::BulkExport()::FileWrite() " +
-								error.message
-							);
-						}
-
-						resolve();
-					}
-				);
-			});
+			return exportIntoFile(path, exportData, 1);
 		});
 
 		await Promise.all(writePromises);
@@ -159,6 +156,35 @@ export async function BulkExport(path: string, selectedCols: string[], webview: 
 		writeLog("error::BulkExport(): " + err);
 		vscode.window.showErrorMessage("Bulk export failed.", { modal: true });
 	}
+}
+
+async function exportIntoFile(path: string, exportData: ExportPayload | IFetchClientExportV2, version: number): Promise<void> {
+	const name = "name" in exportData ? exportData.name : exportData.metadata.name;
+	const safeName = name.replace(/[/\\?%*:|"<>]/g, "-");
+	const fullPath = `${path}\\fetch-client-collection_${safeName}.json`;
+
+	return new Promise<void>((resolve) => {
+		fs.writeFile(
+			fullPath,
+			version === 1 ? JSON.stringify(exportData) : JSON.stringify(exportData, null, "\t"),
+			(error) => {
+
+				if (error) {
+					vscode.window.showErrorMessage(
+						`Could not save to '${fullPath}'. Error Message : ${error.message}`,
+						{ modal: true }
+					);
+
+					writeLog(
+						"error::BulkExport()::FileWrite() " +
+						error.message
+					);
+				}
+
+				resolve();
+			}
+		);
+	});
 }
 
 export async function Import(webviewView: vscode.WebviewView, path: string): Promise<void> {

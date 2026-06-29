@@ -1,16 +1,11 @@
 import { formatDate } from "../../dateTime.helper";
 import { InitialSettings } from "../../../consts/initialValues.consts";
 import { IRequestModel } from "../../../types/request.types";
-import { ISettings, ICollections, IHistory, IFolder } from "../../../types/sidebar.types";
+import { ISettings, ICollections, IFolder } from "../../../types/sidebar.types";
 import { isFolder } from "../../common.helper";
 import { v4 as uuidv4 } from "uuid";
 import { writeLog } from "../../logger/logger";
-
-/** Shape of a request entry as it appears in a raw fetchClient export file. */
-type IRawImportRequest = Omit<IRequestModel, "id" | "createdTime"> & {
-	id?: string;
-	createdTime?: string;
-};
+import { IRawImportRequest, buildHistoryEntry } from "./utils";
 
 /** Shape of a folder entry as it appears in a raw fetchClient export file. */
 interface IRawImportFolder {
@@ -34,16 +29,6 @@ export interface IImportResult {
 
 function cloneSettings(settings?: ISettings): ISettings {
 	return JSON.parse(JSON.stringify(settings ?? InitialSettings));
-}
-
-function buildHistoryEntry(id: string, req: IRawImportRequest): IHistory {
-	return {
-		id,
-		method: req.method,
-		name: req.name,
-		url: req.url,
-		createdTime: formatDate(),
-	};
 }
 
 function importFolder(source: IRawImportFolder, reqData: IRequestModel[]): IFolder {

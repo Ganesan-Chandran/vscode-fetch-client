@@ -154,6 +154,7 @@ export const OAuth = (props: IOAuthProps) => {
 						varWords={props.envVar}
 						value={auth.password}
 						focus={false}
+						disabled={true}
 					/>
 				}
 
