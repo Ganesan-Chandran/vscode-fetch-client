@@ -13,7 +13,7 @@ import { XMLValidator } from "fast-xml-parser";
 export interface PostmanImportResult {
 	fcCollection: ICollections;
 	fcRequests: IRequestModel[];
-	fcVariable: IVariable | null;
+	fcVariables: IVariable | null;
 }
 
 const EMPTY_TABLE_ROW: ITableData = { isChecked: false, key: "", value: "" };
@@ -382,7 +382,7 @@ export class PostmanImport {
 			settings: this.buildSettings(this.collection.auth),
 		};
 
-		return { fcCollection: collection, fcRequests: requests, fcVariable: variable };
+		return { fcCollection: collection, fcRequests: requests, fcVariables: variable };
 	}
 }
 

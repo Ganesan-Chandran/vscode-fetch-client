@@ -59,7 +59,7 @@ export interface IExportKeyValue {
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
-export interface IAuthNone    { type: "noauth"; }
+export interface IAuthNone { type: "noauth"; }
 export interface IAuthInherit { type: "inherit"; }
 
 export interface IAuthBasic {
@@ -130,7 +130,7 @@ export type IExportAuth =
 
 // ── Request body ──────────────────────────────────────────────────────────────
 
-export interface IExportBodyNone       { type: "none"; }
+export interface IExportBodyNone { type: "none"; }
 
 export interface IExportBodyFormData {
   type: "formdata";
@@ -299,6 +299,17 @@ export interface IExportMetadata {
   generator: string;
 }
 
+// ── Export variables ───────────────────────────────────────────────────────────
+
+export interface IExportVariables {
+  /** Variable UUID */
+  id: string;
+  /** Human-readable variable name */
+  name: string;
+  /** List of variables */
+  items: IExportKeyValue[];
+}
+
 
 // ── Top-level envelope ────────────────────────────────────────────────────────
 
@@ -320,4 +331,6 @@ export interface IFetchClientExportV2 {
    * Sort siblings by their `order` field before rendering.
    */
   items: IExportItem[];
+  /** List of variable linked with the collection */
+  variables?: IExportVariables;
 }

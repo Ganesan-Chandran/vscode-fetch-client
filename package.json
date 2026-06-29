@@ -279,19 +279,26 @@
             "markdownDescription": "Encryption key to encrypt the variable in store",
             "order": 16
           },
+          "fetch-client.exportCollectionWithVariables": {
+            "type": "boolean",
+            "default": false,
+            "scope": "resource",
+            "markdownDescription": "Export the collection with any variables linked to it. If this option is selected, the linked variables will be exported in an unencrypted format.",
+            "order": 17
+          },
           "fetch-client.saveResponse": {
             "type": "boolean",
             "default": false,
             "scope": "resource",
             "markdownDescription": "Save the response data (File response won't be saved).",
-            "order": 17
+            "order": 18
           },
           "fetch-client.multipleUser": {
             "type": "boolean",
             "default": false,
             "scope": "resource",
             "markdownDescription": "Database can be shared to multiple user. Reload the extension after enabling it",
-            "order": 18
+            "order": 19
           }
         }
       }

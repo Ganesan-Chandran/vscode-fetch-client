@@ -122,6 +122,10 @@ export function getVariableEncryptionKey(): string {
 	return variableEncryptionKeyCache || getFetchClientConfiguration().get<string>("variableEncryptionKey", "");
 }
 
+export function getExportCollectionConfiguration(): boolean {
+	return getFetchClientConfiguration().get<boolean>("exportCollectionWithVariables", false);
+}
+
 export function updateVariableEncryptionKey(key: string) {
 	return getFetchClientConfiguration().update("variableEncryptionKey", key, vscode.ConfigurationTarget.Global);
 }

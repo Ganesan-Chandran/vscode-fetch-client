@@ -1,7 +1,7 @@
 import { buildHistoryEntry } from "./utils";
 import { formatDate } from "../../dateTime.helper";
 import { IAuth, IAwsAuth, IAdvancedOAuth, IOAuth, ClientAuth, GrantType } from "../../../types/auth.types";
-import { ICollections, IFolder, ISettings } from "../../../types/sidebar.types";
+import { ICollections, IFolder, ISettings, IVariable } from "../../../types/sidebar.types";
 import { IExportRequest, IExportFolder, IExportCollectionSettings, IExportFolderDefaults, IExportAuth, IExportBody, IExportKeyValue, IExportAssertion, IExportVariableExtractor, IExportPreRunRequest, AssertionSource, IFetchClientExportV2 } from "../../../types/fetchClient_2_0_types";
 import { IImportResult } from "./fetchClientImporter_1_0";
 import { IRequestModel, IBodyData } from "../../../types/request.types";
@@ -65,7 +65,28 @@ export function fetchClientV2Importer(
       }
     }
 
-    return { fcCollection: colData, fcRequests: reqData };
+    let variable: IVariable;
+
+    if (parsed.variables) {
+      const newVariableId = uuidv4();
+      variable = {
+        id: newVariableId,
+        name: parsed.variables.name,
+        createdTime: formatDate(),
+        isActive: true,
+        data: []
+      };
+      for (const item of parsed.variables.items) {
+        variable.data.push({
+          key: item.key,
+          value: item.value,
+          isChecked: true
+        });
+      }
+      colData.variableId = newVariableId;
+    }
+
+    return { fcCollection: colData, fcRequests: reqData, fcVariables: parsed.variables ? variable : null };
   } catch (err) {
     writeLog(
       `error::fetchClientV2Importer() - ${err instanceof Error ? err.message : String(err)

@@ -1,7 +1,7 @@
 import { formatDate } from "../../dateTime.helper";
 import { InitialSettings } from "../../../consts/initialValues.consts";
 import { IRequestModel } from "../../../types/request.types";
-import { ISettings, ICollections, IFolder } from "../../../types/sidebar.types";
+import { ISettings, ICollections, IFolder, IVariable } from "../../../types/sidebar.types";
 import { isFolder } from "../../common.helper";
 import { v4 as uuidv4 } from "uuid";
 import { writeLog } from "../../logger/logger";
@@ -25,6 +25,7 @@ interface IRawImportCollection {
 export interface IImportResult {
 	fcCollection: ICollections;
 	fcRequests: IRequestModel[];
+	fcVariables?: IVariable | null;
 }
 
 function cloneSettings(settings?: ISettings): ISettings {

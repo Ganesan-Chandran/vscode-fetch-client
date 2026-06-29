@@ -1,16 +1,17 @@
 import { IAuth } from "../../../types/auth.types";
 import { ITableData } from "../../../types/common.types";
-import { IExportItem, IExportFolder, IExportRequest, HttpMethod, IExportCollectionSettings, IExportFolderDefaults, IExportAuth, IExportBody, IExportKeyValue, IExportAssertion, AssertionAction, AssertionSource, IExportVariableExtractor, IExportPreRunRequest, IFetchClientExportV2 } from "../../../types/fetchClient_2_0_types";
+import { IExportItem, IExportFolder, IExportRequest, HttpMethod, IExportCollectionSettings, IExportFolderDefaults, IExportAuth, IExportBody, IExportKeyValue, IExportAssertion, AssertionAction, AssertionSource, IExportVariableExtractor, IExportPreRunRequest, IFetchClientExportV2, IExportVariables } from "../../../types/fetchClient_2_0_types";
 import { ITest, ISetVar, IPreFetch } from "../../../types/prefetch.types";
 import { IRequestModel, IBodyData } from "../../../types/request.types";
-import { IFolder, ISettings } from "../../../types/sidebar.types";
+import { IFolder, ISettings, IVariable } from "../../../types/sidebar.types";
 import { version } from '../../../../../package.json';
 
 export function ExportBuilderV2(
   col: any,
   apiRequests: Collection<IRequestModel>,
   hisId: string,
-  folderId: string
+  folderId: string,
+  variable: IVariable,
 ): IFetchClientExportV2 {
   const items: IExportItem[] = [];
 
@@ -42,6 +43,22 @@ export function ExportBuilderV2(
     });
   }
 
+  let variables: IExportVariables = null;
+  if (variable) {
+    variables = {
+      id: variable.id,
+      name: variable.name,
+      items: []
+    };
+    for (const item of variable.data) {
+      variables.items.push({
+        key: item.key,
+        value: item.value,
+        enabled: true
+      });
+    }
+  }
+
   return {
     schemaVersion: 2,
     metadata: {
@@ -56,6 +73,7 @@ export function ExportBuilderV2(
     },
     settings: mapCollectionSettings(col.settings),
     items,
+    variables
   };
 }
 

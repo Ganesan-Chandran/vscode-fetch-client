@@ -1,11 +1,14 @@
 import { CheckOpenApiFormat } from "../helpers/importers/openapi/v3/utils";
 import { createAutoDBCache } from "./dbManager";
+import { ExportBuilderV2 } from "../helpers/exporters/fetchClient/fetchClientExporter_2_0";
 import { FetchClientDataProxy } from "../helpers/validators/fetchClientCollectionValidator";
 import { fetchClientImporter } from "../helpers/importers/fetchClient/fetchClientImporter_1_0";
+import { fetchClientV2Importer, isFetchClientV2 } from "../helpers/importers/fetchClient/fetchClientImporter_2_0";
 import { formatDate } from "../helpers/dateTime.helper";
 import { getCollectionDB, saveCollectionDB } from "./collectionDB.repository";
-import { getVariableDB } from "./variableDB.repository";
-import { ICollections, IFolder } from "../types/sidebar.types";
+import { getExportCollectionConfiguration } from "../utils/vscodeConfig";
+import { ICollections, IFolder, IVariable } from "../types/sidebar.types";
+import { IFetchClientExportV2 } from "../types/fetchClient_2_0_types";
 import { ImportType } from "../consts/import.consts";
 import { InitialSettings } from "../consts/initialValues.consts";
 import { INSOMNIA_EXPORT_FORMAT_4, INSOMNIA_EXPORT_FORMAT_5, InsomniaExport } from "../types/insomnia.types";
@@ -19,11 +22,9 @@ import { postmanImporter } from "../helpers/importers/postman/postmanImporter_2_
 import { PostmanSchema_2_1, POSTMAN_SCHEMA_V2_1 } from "../types/postman_2_1.types";
 import { ThunderClient_Schema_1_2 } from "../types/thunderClient_1_2_types";
 import { thunderClientImporter } from "../helpers/importers/thunderClient/thunderClientImporter_1_2";
+import { Var_Repository_FindById, Var_Repository_Insert } from "./variableDB.repository";
 import { writeLog } from "../helpers/logger/logger";
 import loki, { Collection } from "lokijs";
-import { ExportBuilderV2 } from "../helpers/exporters/fetchClient/fetchClientExporter_2_0";
-import { IFetchClientExportV2 } from "../types/fetchClient_2_0_types";
-import { fetchClientV2Importer, isFetchClientV2 } from "../helpers/importers/fetchClient/fetchClientImporter_2_0";
 
 const { getLoadedDB: getMainDB, saveDB: saveMainDB, flush: flushMainDB, invalidate: invalidateMainDB } = createAutoDBCache(mainDBPath);
 export { getMainDB, saveMainDB, flushMainDB, invalidateMainDB };
@@ -31,7 +32,7 @@ export { getMainDB, saveMainDB, flushMainDB, invalidateMainDB };
 export type ImportResult = {
   fcCollection: ICollections;
   fcRequests: IRequestModel[];
-  fcVariable?: unknown;
+  fcVariables?: IVariable;
 };
 
 export type ExportPayload = {
@@ -353,18 +354,6 @@ export async function Main_Repository_BuildExport(colId: string, hisId: string, 
   return buildExportPayload(cols, getRequestCollection(db), hisId, folderId);
 }
 
-export async function Main_Repository_BuildExport_V2(colId: string, hisId: string, folderId: string): Promise<IFetchClientExportV2> {
-  const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
-
-  const cols = colDB
-    .getCollection('userCollections')
-    .chain()
-    .find({ id: colId })
-    .data({ forceClones: true, removeMeta: true });
-
-  return ExportBuilderV2(cols[0], getRequestCollection(db), hisId, folderId);
-}
-
 export async function Main_Repository_BuildBulkExport(selectedCols: string[]): Promise<ExportPayload[]> {
   const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
   const apiRequests = getRequestCollection(db);
@@ -380,19 +369,41 @@ export async function Main_Repository_BuildBulkExport(selectedCols: string[]): P
   });
 }
 
+export async function Main_Repository_BuildExport_V2(colId: string, hisId: string, folderId: string): Promise<IFetchClientExportV2> {
+  const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
+
+  const cols = colDB
+    .getCollection('userCollections')
+    .chain()
+    .find({ id: colId })
+    .data({ forceClones: true, removeMeta: true });
+
+  const linkedVariables = getExportCollectionConfiguration();
+  const variableId = linkedVariables ? cols[0].variableId : "";
+  const variables = variableId ? await Var_Repository_FindById(variableId, false) : [];
+  return ExportBuilderV2(cols[0], getRequestCollection(db), hisId, folderId, variables.length > 0 ? variables[0] : null);
+}
+
 export async function Main_Repository_BuildBulkExportV2(selectedCols: string[]): Promise<IFetchClientExportV2[]> {
   const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
   const apiRequests = getRequestCollection(db);
 
-  return selectedCols.map((colId) => {
+  const linkedVariables = getExportCollectionConfiguration();
+  const result: IFetchClientExportV2[] = [];
+
+  for (const colId of selectedCols) {
     const cols = colDB
-      .getCollection('userCollections')
+      .getCollection("userCollections")
       .chain()
       .find({ id: colId })
       .data({ forceClones: true, removeMeta: true });
 
-    return ExportBuilderV2(cols[0], apiRequests, "", "");
-  });
+    const variableId = linkedVariables ? cols[0].variableId : "";
+    const variables = variableId ? await Var_Repository_FindById(variableId, false) : [];
+    result.push(ExportBuilderV2(cols[0], apiRequests, "", "", variables.length > 0 ? variables[0] : null));
+  }
+
+  return result;
 }
 
 async function importPostman(data: string): Promise<ImportResult> {
@@ -401,13 +412,13 @@ async function importPostman(data: string): Promise<ImportResult> {
     throw new Error("Postman import produced incomplete data.");
   }
 
-  const [db, colDB, varDB] = await Promise.all([getMainDB(), getCollectionDB(), getVariableDB()]);
+  const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
 
   getRequestCollection(db).insert(convertedData.fcRequests);
   saveMainDB(db);
 
-  if (convertedData.fcVariable) {
-    varDB.getCollection('userVariables').insert(convertedData.fcVariable);
+  if (convertedData.fcVariables) {
+    await Var_Repository_Insert(convertedData.fcVariables);
   }
 
   colDB.getCollection('userCollections').insert(convertedData.fcCollection);
@@ -416,7 +427,7 @@ async function importPostman(data: string): Promise<ImportResult> {
   return {
     fcCollection: convertedData.fcCollection,
     fcRequests: convertedData.fcRequests,
-    fcVariable: convertedData.fcVariable,
+    fcVariables: convertedData.fcVariables,
   };
 }
 
@@ -446,13 +457,13 @@ async function importInsomnia(data: string): Promise<ImportResult> {
     throw new Error("Insomnia import produced incomplete data.");
   }
 
-  const [db, colDB, varDB] = await Promise.all([getMainDB(), getCollectionDB(), getVariableDB()]);
+  const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
 
   getRequestCollection(db).insert(convertedData.fcRequests);
   saveMainDB(db);
 
-  if (convertedData.fcVariable) {
-    varDB.getCollection('userVariables').insert(convertedData.fcVariable);
+  if (convertedData.fcVariables) {
+    await Var_Repository_Insert(convertedData.fcVariables);
   }
 
   colDB.getCollection('userCollections').insert(convertedData.fcCollection);
@@ -461,12 +472,12 @@ async function importInsomnia(data: string): Promise<ImportResult> {
   return {
     fcCollection: convertedData.fcCollection,
     fcRequests: convertedData.fcRequests,
-    fcVariable: convertedData.fcVariable,
+    fcVariables: convertedData.fcVariables,
   };
 }
 
 async function importOpenAPI(data: string): Promise<ImportResult> {
-  const convertedData = await openApiImporter(data);
+  const convertedData = openApiImporter(data);
   if (!convertedData?.fcCollection || !convertedData?.fcRequests) {
     throw new Error("Fetch Client import produced incomplete data.");
   }
@@ -500,9 +511,14 @@ async function importFC(data: string, verison: number): Promise<ImportResult> {
   colDB.getCollection('userCollections').insert(convertedData.fcCollection);
   saveCollectionDB(colDB);
 
+  if (convertedData.fcVariables) {
+    await Var_Repository_Insert(convertedData.fcVariables);
+  }
+
   return {
     fcCollection: convertedData.fcCollection,
     fcRequests: convertedData.fcRequests,
+    fcVariables: convertedData.fcVariables
   };
 }
 

@@ -197,10 +197,10 @@ export async function Import(webviewView: vscode.WebviewView, path: string): Pro
 			data: result.fcCollection
 		});
 
-		if (result.fcVariable) {
+		if (result.fcVariables) {
 			webviewView?.webview?.postMessage({
 				type: responseTypes.importVariableResponse,
-				vars: result.fcVariable
+				vars: result.fcVariables
 			});
 		}
 	} catch (err) {

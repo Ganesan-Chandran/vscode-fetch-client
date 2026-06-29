@@ -14,7 +14,7 @@ import { XMLValidator } from "fast-xml-parser";
 export interface InsomniaImportResult {
   fcCollection: ICollections;
   fcRequests: IRequestModel[];
-  fcVariable: IVariable | null;
+  fcVariables: IVariable | null;
 }
 
 // -Internal constants =======================================================
@@ -709,7 +709,7 @@ export class InsomniaImport {
     return {
       fcCollection: collection,
       fcRequests: requests,
-      fcVariable: variable
+      fcVariables: variable
     };
   }
 }
