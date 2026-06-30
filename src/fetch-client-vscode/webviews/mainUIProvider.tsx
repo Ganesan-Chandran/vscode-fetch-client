@@ -134,7 +134,7 @@ export class WebAppPanel {
 						this._panel.webview.postMessage(getConfiguration());
 					} else if (message.type === requestTypes.openExistingItemRequest) {
 						GetExitingItem(this._panel.webview, message.data);
-						GetExitingItemResponse(this._panel.webview, message.data.id);
+						GetExitingItemResponse(this._panel.webview, message.data);
 					} else if (message.type === requestTypes.getOpenAndRunItemDataRequest) {
 						GetExitingItem(this._panel.webview, message.data, null, "OpenAndRun");
 					} else if (message.type === requestTypes.saveResponseRequest) {

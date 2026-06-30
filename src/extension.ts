@@ -1,7 +1,7 @@
 import { access, mkdir } from "fs/promises";
 import { AddToColUI, AutoRequestProviderUI, BulkExportProviderUI, CookieUI, CurlProviderUI, ErrorLogUI, SideBarProvider, VariableUI, WebAppPanel } from "./fetch-client-vscode/webviews";
-import { autoRequestDBPath, collectionDBPath, cookieDBPath, getExtDbPath, getExtLocalDbPath, getGlobalStorageUri, historyDBPath, mainDBPath, setGlobalStorageUri, variableDBPath } from "./fetch-client-core/db/dbHelper";
-import { CreateAutoRequestDB, CreateCollectionDB, CreateCookieDB, CreateHistoryDB, CreateMainDB, CreateVariableDB } from './fetch-client-core/db/dbUtil';
+import { autoRequestDBPath, collectionDBPath, cookieDBPath, getExtDbPath, getExtLocalDbPath, getGlobalStorageUri, historyDBPath, mainDBPath, responseDBPath, setGlobalStorageUri, variableDBPath } from "./fetch-client-core/db/dbHelper";
+import { CreateAutoRequestDB, CreateCollectionDB, CreateCookieDB, CreateHistoryDB, CreateMainDB, CreateResponseDB, CreateVariableDB } from './fetch-client-core/db/dbUtil';
 import { createLogFile } from './fetch-client-core/helpers/logger/logger';
 import { DbPathOption, getCustomDbPathConfiguration, getDbPathConfiguration, getSaveToWorkspaceConfiguration, getVariableEncryptionFCConfiguration, getVariableEncryptionKey, setVariableEncryptionConfiguration, setVariableEncryptionKey, updateDbPathConfiguration, updateVariableEncryptionKey } from './fetch-client-core/utils/vscodeConfig';
 import { FCScheduler } from "./fetch-client-vscode/utils/scheduler";
@@ -167,6 +167,7 @@ async function initializeStorage(): Promise<void> {
 		ensureDb(variableDBPath(), CreateVariableDB),
 		ensureDb(cookieDBPath(), CreateCookieDB),
 		ensureDb(autoRequestDBPath(), CreateAutoRequestDB),
+		ensureDb(responseDBPath(), CreateResponseDB),
 		ensureDb(path.resolve(extPath, logPath), createLogFile),
 	]);
 }

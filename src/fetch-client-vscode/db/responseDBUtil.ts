@@ -19,10 +19,12 @@ export async function GetExitingItemResponse(
 	try {
 		const results = await Response_Repository_GetExitingItemResponse(id);
 
-		if (results) {
+		if (results?.length > 0) {
 			webview.postMessage({
 				type: responseTypes.apiResponse,
-				data: results
+				response: results[0].response,
+				cookies: results[0].cookies,
+				headers: results[0].headers,
 			});
 		}
 	} catch (err) {
