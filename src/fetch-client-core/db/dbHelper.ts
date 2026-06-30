@@ -1,6 +1,6 @@
 import path from "path";
 import * as vscode from 'vscode';
-import { getSaveToWorkspaceConfiguration, getWorkspacePathConfiguration } from "../utils/vscodeConfig";
+import { getCustomDbPathConfiguration, getDbPathConfiguration, getSaveToWorkspaceConfiguration, getWorkspacePathConfiguration } from "../utils/vscodeConfig";
 
 let globalStorageUri = "";
 
@@ -24,9 +24,6 @@ export const variableDBPath = (dbPath: string = "") =>
 export const autoRequestDBPath = (dbPath: string = "") =>
 	path.resolve(dbPath || getExtDbPath(), "fetchAutoRequest.db");
 
-export const settingsDBPath = (dbPath: string = "") =>
-	path.resolve(dbPath || getExtDbPath(), "fetchClientSettings.db");
-
 export const responseDBPath = (dbPath: string = "") =>
 	path.resolve(dbPath || getExtDbPath(), "fetchClientResponse.db");
 
@@ -44,8 +41,28 @@ export function getExtLocalDbPath(): string {
 }
 
 export function getExtDbPath(): string {
-	const pathState = getSaveToWorkspaceConfiguration();
-	return pathState ? getExtLocalDbPath() : globalStorageUri;
+    const pathState = getSaveToWorkspaceConfiguration();
+
+    if (pathState) {
+        return getExtLocalDbPath();
+    }
+
+    const mode = getDbPathConfiguration();
+
+    if (mode === "Workspace") {
+        return getExtLocalDbPath();
+    }
+
+    if (mode === "Custom Path") {
+        const custom = getCustomDbPathConfiguration();
+        return custom || globalStorageUri;
+    }
+
+    if (getSaveToWorkspaceConfiguration()) {
+        return getExtLocalDbPath();
+    }
+
+    return globalStorageUri;
 }
 
 export function getExtDbBKPPath(): string {

@@ -1,73 +1,113 @@
-import { getExtDbBKPPath, getExtLocalDbPath, getGlobalStorageUri } from "../../fetch-client-core/db/dbHelper";
-import { getSaveToWorkspaceConfiguration, updateWorkspacePathConfiguration } from "../../fetch-client-core/utils/vscodeConfig";
-import { invalidateCollectionDB } from "../../fetch-client-core/db/collectionDB.repository";
-import { invalidateHistoryDB } from "../../fetch-client-core/db/history.repository";
-import { invalidateMainDB } from "../../fetch-client-core/db/mainDB.repository";
-import { invalidateVariableDB } from "../../fetch-client-core/db/variableDB.repository";
+import { DbPathOption, getCustomDbPathConfiguration, updateWorkspacePathConfiguration } from "../../fetch-client-core/utils/vscodeConfig";
+import { getExtLocalDbPath, getGlobalStorageUri } from "../../fetch-client-core/db/dbHelper";
+import { flushCollectionDB, invalidateCollectionDB } from "../../fetch-client-core/db/collectionDB.repository";
+import { flushHistoryDB, invalidateHistoryDB } from "../../fetch-client-core/db/history.repository";
+import { flushMainDB, invalidateMainDB } from "../../fetch-client-core/db/mainDB.repository";
+import { flushVariableDB, invalidateVariableDB } from "../../fetch-client-core/db/variableDB.repository";
+import * as vscode from 'vscode';
 import fs from "fs";
 import path from "path";
 
-const DB_FILES = ['fetchClientCookies.db', 'fetchClientHistory.db', 'fetchClientCollection.db', 'fetchClient.db', 'fetchClientVariable.db', 'fetchClientSettings.db', 'fetchClientResponse.db', 'fetch-client.log'] as const;
+const DB_FILES = [
+	'fetchClientCookies.db',
+	'fetchClientHistory.db',
+	'fetchClientCollection.db',
+	'fetchClient.db',
+	'fetchClientVariable.db',
+	'fetchClientResponse.db',
+	'fetch-client.log'
+] as const;
 
 function safeCopyFile(src: string, dest: string): void {
 	try {
 		fs.cpSync(src, dest, { recursive: true, force: true });
-	} catch (err) {
+	} catch {
 		// Individual file may not exist (e.g. log file on first run); skip silently
 	}
 }
 
-function safeDeleteFile(filePath: string): void {
-	try {
-		if (fs.existsSync(filePath)) {
-			fs.unlinkSync(filePath);
-		}
-	} catch (err) {
-		// Ignore deletion errors for non-critical files
-	}
+function targetHasDbFiles(targetPath: string): boolean {
+	return fs.existsSync(path.join(targetPath, "fetchClientCollection.db")) || fs.existsSync(path.join(targetPath, "fetchClientHistory.db"));
 }
 
-export const transferDbConfig = () => {
-	const customPath = getExtLocalDbPath();
-	const pathState = getSaveToWorkspaceConfiguration();
-	const actualPath = getGlobalStorageUri();
-	const dbFile = path.join(customPath, "fetchClientCollection.db");
+function resolveTargetPath(newMode: DbPathOption): string | null {
+	if (newMode === "Default") { return getGlobalStorageUri(); }
+	if (newMode === "Workspace") { return getExtLocalDbPath(); }
+	if (newMode === "Custom Path") {
+		const custom = getCustomDbPathConfiguration();
+		return custom || null;
+	}
+	return null;
+}
 
-	if (actualPath && customPath && actualPath !== customPath) {
-		if (pathState) {
-			const bkpPath = getExtDbBKPPath();
-			if (!fs.existsSync(bkpPath)) {
-				fs.cpSync(actualPath, bkpPath, { recursive: true });
-			}
+function applyPathSwitch(newMode: DbPathOption, targetPath: string): void {
+	if (newMode !== "Custom Path") {
+		updateWorkspacePathConfiguration(newMode === "Default" ? "" : targetPath);
+	}
+	invalidateCollectionDB();
+	invalidateHistoryDB();
+	invalidateMainDB();
+	invalidateVariableDB();
+}
 
-			if (fs.existsSync(dbFile)) {
-				const customBKPPath = path.join(customPath, "BKP");
-				if (!fs.existsSync(customBKPPath)) {
-					fs.mkdirSync(customBKPPath, { recursive: true });
-				}
+export async function transferDbConfig(
+	newMode: DbPathOption,
+	currentPath: string,
+): Promise<boolean> {
 
-				DB_FILES.forEach(file => {
-					safeCopyFile(path.join(customPath, file), path.join(customBKPPath, file));
-				});
-			}
+	const targetPath = resolveTargetPath(newMode);
 
-			DB_FILES.forEach(file => {
-				safeCopyFile(path.join(actualPath, file), path.join(customPath, file));
-				safeDeleteFile(path.join(actualPath, file));
-			});
-			updateWorkspacePathConfiguration(customPath);
-		} else {
-			DB_FILES.forEach(file => {
-				safeCopyFile(path.join(customPath, file), path.join(actualPath, file));
-				safeDeleteFile(path.join(customPath, file));
-			});
-			updateWorkspacePathConfiguration("");
+	if (!targetPath) {
+		// Custom Path chosen but customDbPath is empty - caller already validated this
+		return false;
+	}
+
+	if (targetPath === currentPath) { return true; }
+
+	// Ensure the target directory exists
+	try {
+		fs.mkdirSync(targetPath, { recursive: true });
+	} catch {
+		vscode.window.showErrorMessage(`Fetch Client: Could not create directory at "${targetPath}".`);
+		return false;
+	}
+
+	// Overwrite confirmation
+	if (newMode !== "Default" && targetHasDbFiles(targetPath)) {
+		const choice = await vscode.window.showWarningMessage(
+			`Fetch Client: DB files already exist at "${targetPath}". Overwrite them with your current data?`,
+			{ modal: true },
+			"Overwrite",
+			"Keep Existing",
+		);
+
+		if (!choice) {
+			// Dialog dismissed - signal caller to revert
+			return false;
 		}
 
-		invalidateCollectionDB();
-		invalidateHistoryDB();
-		invalidateMainDB();
-		invalidateVariableDB();
-	}
-};
+		if (choice === "Keep Existing") {
+			// Switch path without copying
+			applyPathSwitch(newMode, targetPath);
+			return true;
+		}
 
+		// "Overwrite" -> fall through to copy
+	}
+
+	await Promise.allSettled([
+		flushMainDB(),
+		flushCollectionDB(),
+		flushHistoryDB(),
+		flushVariableDB()
+	]);
+
+	// Copy all DB files from currentPath to targetPath
+	DB_FILES.forEach(file => {
+		safeCopyFile(path.join(currentPath, file), path.join(targetPath, file));
+	});
+
+	applyPathSwitch(newMode, targetPath);
+
+	return true;
+}

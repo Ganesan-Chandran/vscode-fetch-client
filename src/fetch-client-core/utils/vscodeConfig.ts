@@ -6,6 +6,8 @@ import { getExtLocalDbPath } from '../db/dbHelper';
 // Types
 // ---------------------------------------------------------------------------
 
+export type DbPathOption = "Default" | "Workspace" | "Custom Path";
+
 interface LayoutConfigResponse {
 	type: string;
 	layoutConfigData: string;
@@ -94,11 +96,27 @@ export function getRunMainRequestOption(): boolean {
 }
 
 export function getSaveToWorkspaceConfiguration(): boolean {
-	return getFetchClientConfiguration().get<boolean>("saveToWorkspace", false);
+    return getFetchClientConfiguration().get<boolean>("saveToWorkspace", false);
 }
 
 export function getWorkspacePathConfiguration(): string {
-	return getFetchClientConfiguration().get<string>("workspacePath", "");
+    return getFetchClientConfiguration().get<string>("workspacePath", "");
+}
+
+export function getDbPathConfiguration(): DbPathOption {
+    return getFetchClientConfiguration().get<DbPathOption>("dbPath", "Default");
+}
+
+export function getCustomDbPathConfiguration(): string {
+    return getFetchClientConfiguration().get<string>("customDbPath", "");
+}
+
+export function updateDbPathConfiguration(value: DbPathOption): void {
+    getFetchClientConfiguration().update(
+        "dbPath",
+        value,
+        vscode.ConfigurationTarget.Global
+    );
 }
 
 export function getVariableEncryptionFCConfiguration(): boolean {
@@ -115,7 +133,7 @@ export function getResponseSaveConfiguration(): boolean {
 }
 
 export function getSharedDBConfiguration(): boolean {
-	return getFetchClientConfiguration().get<boolean>("multipleUser", false);
+	return false;
 }
 
 export function getVariableEncryptionKey(): string {

@@ -1,8 +1,9 @@
 import { access, mkdir } from "fs/promises";
 import { AddToColUI, AutoRequestProviderUI, BulkExportProviderUI, CookieUI, CurlProviderUI, ErrorLogUI, SideBarProvider, VariableUI, WebAppPanel } from "./fetch-client-vscode/webviews";
-import { autoRequestDBPath, collectionDBPath, cookieDBPath, getExtDbPath, historyDBPath, mainDBPath, setGlobalStorageUri, variableDBPath } from "./fetch-client-core/db/dbHelper";
+import { autoRequestDBPath, collectionDBPath, cookieDBPath, getExtDbPath, getExtLocalDbPath, getGlobalStorageUri, historyDBPath, mainDBPath, setGlobalStorageUri, variableDBPath } from "./fetch-client-core/db/dbHelper";
 import { CreateAutoRequestDB, CreateCollectionDB, CreateCookieDB, CreateHistoryDB, CreateMainDB, CreateVariableDB } from './fetch-client-core/db/dbUtil';
 import { createLogFile } from './fetch-client-core/helpers/logger/logger';
+import { DbPathOption, getCustomDbPathConfiguration, getDbPathConfiguration, getSaveToWorkspaceConfiguration, getVariableEncryptionFCConfiguration, getVariableEncryptionKey, setVariableEncryptionConfiguration, setVariableEncryptionKey, updateDbPathConfiguration, updateVariableEncryptionKey } from './fetch-client-core/utils/vscodeConfig';
 import { FCScheduler } from "./fetch-client-vscode/utils/scheduler";
 import { flushCollectionDB } from "./fetch-client-core/db/collectionDB.repository";
 import { flushHistoryDB } from "./fetch-client-core/db/history.repository";
@@ -11,7 +12,6 @@ import { flushVariableDB } from "./fetch-client-core/db/variableDB.repository";
 import { GetAllCollections } from './fetch-client-vscode/db/collectionDBUtil';
 import { GetAllHistory } from './fetch-client-vscode/db/historyDBUtil';
 import { GetAllVariable, UpdateToDecryptedVariables, UpdateToEncryptedVariables, UpdateWithAnotherKey } from './fetch-client-vscode/db/varDBUtil';
-import { getVariableEncryptionFCConfiguration, getVariableEncryptionKey, setVariableEncryptionConfiguration, setVariableEncryptionKey, updateVariableEncryptionKey } from './fetch-client-core/utils/vscodeConfig';
 import { IPubSubMessage, PubSub } from './fetch-client-core/utils/pubSub';
 import { LocalStorageService } from "./fetch-client-vscode/utils/localStorageService";
 import { logPath } from './fetch-client-core/helpers/logger/constants';
@@ -20,6 +20,7 @@ import { pubSubTypes } from './fetch-client-core/consts/requestTypes.consts';
 import { transferDbConfig } from './fetch-client-vscode/db/transferDBConfig';
 import { VSCodeLogger } from './fetch-client-vscode/logger/vsCodeLogger';
 import * as vscode from 'vscode';
+import fs from "fs";
 import path from "path";
 
 export let pubSub: PubSub<IPubSubMessage>;
@@ -97,6 +98,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 	storageManager = new LocalStorageService(context.workspaceState);
 	extCache = new MemoryCache<string>();
 
+	// Migrate legacy saveToWorkspace boolean -> new dbPath enum
+	if (getDbPathConfiguration() === "Default" && getSaveToWorkspaceConfiguration()) {
+		updateDbPathConfiguration("Workspace");
+	}
+
 	try {
 		await initializeStorage();
 	} catch (err) {
@@ -107,6 +113,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 	registerCommands(context);
 	registerEventListeners(context);
 	extCache.set("oldKey", getVariableEncryptionKey());
+	extCache.set("oldDbPathMode", getDbPathConfiguration());
+	extCache.set("oldCustomDbPath", getCustomDbPathConfiguration());
 }
 
 export function getStorageManager(): LocalStorageService {
@@ -207,15 +215,120 @@ function registerCommands(context: vscode.ExtensionContext): void {
 	);
 }
 
+function getSourcePath(mode: DbPathOption): string {
+	if (mode === "Workspace") { return getExtLocalDbPath(); }
+	if (mode === "Custom Path") { return extCache.get("oldCustomDbPath") ?? ""; }
+	return getGlobalStorageUri();
+}
+
 function registerEventListeners(context: vscode.ExtensionContext): void {
 	context.subscriptions.push(
 		vscode.window.onDidChangeActiveColorTheme(() => {
 			pubSub?.publish({ messageType: pubSubTypes.themeChanged });
 		}),
 		vscode.workspace.onDidChangeConfiguration(async (e) => {
-			if (e.affectsConfiguration("fetch-client.saveToWorkspace")) {
-				transferDbConfig();
+			if (e.affectsConfiguration("fetch-client.dbPath")) {
+				const oldMode = (extCache.get("oldDbPathMode") ?? "Default") as DbPathOption;
+				const newMode = getDbPathConfiguration();
+
+				if (newMode === oldMode) { return; }
+
+				if (newMode === "Custom Path") {
+					const customPath = getCustomDbPathConfiguration().trim();
+					if (!customPath) {
+						vscode.window.showErrorMessage(
+							"Fetch Client: Please enter a Custom DB Path first, then change the DB Path option."
+						);
+						updateDbPathConfiguration(oldMode);
+						return;
+					}
+
+					if (!fs.existsSync(customPath)) {
+						vscode.window.showErrorMessage(
+							`Fetch Client: Custom DB Path "${customPath}" does not exist. Please enther a valid directory path`
+						);
+						updateDbPathConfiguration(oldMode);
+						return;
+					}
+
+					if (!fs.statSync(customPath).isDirectory()) {
+						vscode.window.showErrorMessage(
+							`Fetch Client: Custom DB Path "${customPath}" is not a directory.`
+						);
+						updateDbPathConfiguration(oldMode);
+						return;
+					}
+				}
+
+				if (newMode === "Workspace") {
+					const wsPath = vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath;
+					if (!wsPath) {
+						vscode.window.showErrorMessage(
+							"Fetch Client: No workspace folder is open. Open a folder first before using Workspace DB Path."
+						);
+						updateDbPathConfiguration(oldMode);
+						return;
+					}
+				}
+
+				const sourcePath = getSourcePath(oldMode);
+				if (!sourcePath) {
+					vscode.window.showErrorMessage("Fetch Client: Could not determine the current DB location. Please check your settings.");
+					updateDbPathConfiguration(oldMode);
+					return;
+				}
+				transferDbConfig(newMode, sourcePath).then((applied) => {
+					if (applied) {
+						extCache.set("oldDbPathMode", newMode);
+					} else {
+						// Transfer was cancelled or failed - revert the config setting.
+						// Do NOT update cache so the next change event sees the correct oldMode.
+						updateDbPathConfiguration(oldMode);
+					}
+				}).catch(() => {
+					updateDbPathConfiguration(oldMode);
+				});
 			}
+
+			if (e.affectsConfiguration("fetch-client.customDbPath")) {
+				const currentMode = getDbPathConfiguration();
+				const newCustom = getCustomDbPathConfiguration().trim();
+				const oldCustom = (extCache.get("oldCustomDbPath") ?? "").trim();
+
+				// Always keep the cache up to date
+				extCache.set("oldCustomDbPath", newCustom);
+
+				// Only act if mode is already Custom Path and the path actually changed
+				if (currentMode === "Custom Path" && newCustom !== oldCustom && oldCustom) {
+					if (!newCustom) {
+						vscode.window.showWarningMessage(
+							"Fetch Client: Custom DB Path is now empty. Enter a valid path or change the DB Path option."
+						);
+						return;
+					}
+					if (!fs.existsSync(newCustom)) {
+						vscode.window.showErrorMessage(
+							`Fetch Client: New custom DB path "${newCustom}" does not exist.`
+						);
+						return;
+					}
+					if (!fs.statSync(newCustom).isDirectory()) {
+						vscode.window.showErrorMessage(
+							`Fetch Client: New custom DB path "${newCustom}" is not a directory.`
+						);
+						return;
+					}
+					// Migrate DB files from old custom path to new custom path
+					const currentActivePath = oldCustom || getGlobalStorageUri();
+					transferDbConfig("Custom Path", currentActivePath,).then((applied) => {
+						extCache.set("oldCustomDbPath", applied ? newCustom : oldCustom);
+					}).catch(() => {
+						extCache.set("oldCustomDbPath", oldCustom);
+					}
+					);
+				}
+			}
+
 			if (e.affectsConfiguration("fetch-client.variableEncryptionKey")) {
 				const oldKey = extCache.get("oldKey");
 
@@ -236,8 +349,8 @@ function registerEventListeners(context: vscode.ExtensionContext): void {
 
 					setVariableEncryptionKey(newKey);
 					extCache.set("oldKey", newKey);
-				}
-				catch (error) {
+
+				} catch (error) {
 					updateVariableEncryptionKey(oldKey);
 				}
 			}
@@ -245,8 +358,9 @@ function registerEventListeners(context: vscode.ExtensionContext): void {
 			if (e.affectsConfiguration("fetch-client.encryptedVariables")) {
 				const shouldEncrypt = getVariableEncryptionFCConfiguration();
 				let key = getVariableEncryptionKey();
+
 				if (!key) {
-					vscode.window.showInformationMessage("Encryption key is required. Enter the encryption key in Fetch Client Settings → Variable Encryption Key");
+					vscode.window.showInformationMessage("Encryption key is required. Enter the encryption key in Fetch Client Settings -> Variable Encryption Key");
 					return;
 				}
 				if (shouldEncrypt) {

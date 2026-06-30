@@ -9,20 +9,27 @@ const EXT_ID = `${PUBLISHER}.${EXT_NAME}`;
 /**
  * Resolves the directory that contains the LokiJS database files.
  *
- * Resolution order:
- * 1. VS Code user settings → fetch-client.workspacePath (when saveToWorkspace=true)
- * 2. VS Code user settings → fetch-client.saveToWorkspace (cwd/fetch-client fallback)
- * 3. VS Code global-storage path for this extension
+ * Resolution order (mirrors the VS Code extension's getExtDbPath()):
+ * 1. fetch-client.dbPath = "Custom Path"  → fetch-client.customDbPath
+ * 2. fetch-client.dbPath = "Workspace"    → fetch-client.workspacePath, or cwd/fetch-client
+ * 3. fetch-client.dbPath = "Default"      → global-storage path
+ * 4. Legacy: fetch-client.saveToWorkspace = true (deprecated boolean)
  */
+
 export function resolveDbPath(): string {
     const settings = readVSCodeSettings();
+    const dbPathMode = (settings['fetch-client.dbPath'] as string) ?? 'Default';
+    if (dbPathMode === 'Custom Path') {
+        const customPath = (settings['fetch-client.customDbPath'] as string) ?? '';
+        if (customPath) {
+            return customPath;
+        }
+        // customDbPath is empty – fall back to default storage
+        return defaultStoragePath();
+    }
 
-    const saveToWorkspace: boolean =
-        settings['fetch-client.saveToWorkspace'] === true;
-
-    if (saveToWorkspace) {
-        const workspacePath: string =
-            (settings['fetch-client.workspacePath'] as string) ?? '';
+    if (dbPathMode === 'Workspace') {
+        const workspacePath: string = (settings['fetch-client.workspacePath'] as string) ?? '';
 
         if (workspacePath) {
             return workspacePath;
@@ -32,6 +39,19 @@ export function resolveDbPath(): string {
         return resolve(process.cwd(), 'fetch-client');
     }
 
+    // "Default" mode – but also handle legacy saveToWorkspace boolean for older configs
+    const saveToWorkspace: boolean = settings['fetch-client.saveToWorkspace'] === true;
+
+    if (saveToWorkspace) {
+        const workspacePath: string =
+            (settings['fetch-client.workspacePath'] as string) ?? '';
+
+        if (workspacePath) {
+            return workspacePath;
+        }
+
+        return resolve(process.cwd(), 'fetch-client');
+    }
     return defaultStoragePath();
 }
 

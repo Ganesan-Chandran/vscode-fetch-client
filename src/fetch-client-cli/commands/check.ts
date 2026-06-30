@@ -5,7 +5,6 @@ import {
   historyDBPath,
   variableDBPath,
   cookieDBPath,
-  settingsDBPath,
   responseDBPath,
   getExtDbPath,
 } from "../../fetch-client-core/db/dbHelper";
@@ -30,7 +29,6 @@ const DB_FILES: DbFileEntry[] = [
   { label: "History DB", pathFn: historyDBPath },
   { label: "Variables DB", pathFn: variableDBPath },
   { label: "Cookies DB", pathFn: cookieDBPath },
-  { label: "Settings DB", pathFn: settingsDBPath },
   { label: "Response DB", pathFn: responseDBPath },
 ];
 
