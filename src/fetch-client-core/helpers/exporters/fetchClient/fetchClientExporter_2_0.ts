@@ -1,9 +1,9 @@
 import { IAuth } from "../../../types/auth.types";
-import { ITableData } from "../../../types/common.types";
 import { IExportItem, IExportFolder, IExportRequest, HttpMethod, IExportCollectionSettings, IExportFolderDefaults, IExportAuth, IExportBody, IExportKeyValue, IExportAssertion, AssertionAction, AssertionSource, IExportVariableExtractor, IExportPreRunRequest, IFetchClientExportV2, IExportVariables } from "../../../types/fetchClient_2_0_types";
-import { ITest, ISetVar, IPreFetch } from "../../../types/prefetch.types";
-import { IRequestModel, IBodyData } from "../../../types/request.types";
 import { IFolder, ISettings, IVariable } from "../../../types/sidebar.types";
+import { IRequestModel, IBodyData } from "../../../types/request.types";
+import { ITableData } from "../../../types/common.types";
+import { ITest, ISetVar, IPreFetch } from "../../../types/prefetch.types";
 import { version } from '../../../../../package.json';
 
 export function ExportBuilderV2(
@@ -28,7 +28,12 @@ export function ExportBuilderV2(
         // Folder itself at root, request nested inside it
         flattenFolder(folder, null, 1, [requests[0]], items);
       } else {
-        items.push(mapRequest(requests[0], null, 1));
+        // Scope is just this single request - no other item is part of the
+        // export, so preRunRequests cannot resolve to anything and must be
+        // omitted entirely rather than pruned down to an empty array.
+        const mapped = mapRequest(requests[0], null, 1);
+        delete mapped.preRunRequests;
+        items.push(mapped);
       }
     }
   } else if (folderId) {
@@ -42,6 +47,13 @@ export function ExportBuilderV2(
       flattenItem(item, null, index + 1, items, apiRequests);
     });
   }
+
+  // preRunRequests may reference requests that live in other collections or
+  // folders that are NOT part of this export. Those targets won't exist on
+  // import, so strip any preRunRequest entry whose requestId isn't among the
+  // items actually included in this export (collection settings, folder
+  // defaults, and every request's own preRunRequests are all checked).
+  const exportedIds = new Set(items.map((i) => i.id));
 
   let variables: IExportVariables = null;
   if (variable) {
@@ -71,10 +83,50 @@ export function ExportBuilderV2(
       exportedAt: new Date().toISOString(),
       generator: `Fetch Client ${version}`,
     },
-    settings: mapCollectionSettings(col.settings),
-    items,
+    settings: prunePreRunRequests(mapCollectionSettings(col.settings), exportedIds),
+    items: items.map((item) => pruneItemPreRunRequests(item, exportedIds)),
     variables
   };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Pre-run request pruning
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Strips preRunRequests whose requestId is not part of this export.
+ * A request elsewhere in the user's collections that wasn't included won't
+ * exist on import, so referencing it would produce a dangling reference.
+ */
+function prunePreRunRequests<
+  T extends { preRunRequests?: IExportPreRunRequest[] }
+>(target: T, exportedIds: Set<string>): T {
+  if (!target.preRunRequests?.length) { return target; }
+
+  const filtered = target.preRunRequests.filter((r) =>
+    exportedIds.has(r.requestId)
+  );
+
+  if (filtered.length === target.preRunRequests.length) { return target; }
+
+  const { preRunRequests, ...rest } = target;
+  return filtered.length > 0
+    ? ({ ...rest, preRunRequests: filtered } as T)
+    : (rest as T);
+}
+
+/** Applies prunePreRunRequests to a request item, or to a folder's defaults. */
+function pruneItemPreRunRequests(
+  item: IExportItem,
+  exportedIds: Set<string>
+): IExportItem {
+  if (item.type === "folder") {
+    return {
+      ...item,
+      defaults: prunePreRunRequests(item.defaults, exportedIds),
+    };
+  }
+  return prunePreRunRequests(item, exportedIds);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

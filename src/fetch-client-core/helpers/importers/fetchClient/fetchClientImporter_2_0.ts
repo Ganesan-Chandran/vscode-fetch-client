@@ -12,7 +12,7 @@ import { writeLog } from "../../logger/logger";
 
 /**
  * Returns true when the parsed JSON is a valid Fetch Client v2 export.
- * Gate on `schemaVersion === 2` — that is the single authoritative signal.
+ * Gate on `schemaVersion === 2` - that is the single authoritative signal.
  */
 export function isFetchClientV2(parsed: unknown): parsed is IFetchClientExportV2 {
   if (typeof parsed !== "object" || parsed === null) {
@@ -38,28 +38,62 @@ export function fetchClientV2Importer(
     // Build an id-lookup so we can resolve parentId references in O(1)
     const itemMap = new Map(parsed.items.map((item) => [item.id, item]));
 
+    // ── Pass 1: pre-generate new ids for every request and folder up front ───
+    // preRunRequests reference request ids that get regenerated during import
+    // (to avoid collisions with existing data), and each pre-run entry also
+    // needs to carry the NEW parentId/colId of the referenced request so the
+    // UI can resolve it. Building both maps first means every mapper can
+    // resolve old→new ids consistently, regardless of visit order.
+    const idMap = new Map<string, string>();      // old request id → new request id
+    const folderIdMap = new Map<string, string>(); // old folder id → new folder id
+    for (const item of parsed.items) {
+      if (item.type === "request") {
+        idMap.set(item.id, uuidv4());
+      } else {
+        folderIdMap.set(item.id, uuidv4());
+      }
+    }
+
+    // For every request, resolve the NEW parentId it will live under once
+    // imported: its containing folder's new id, or "" if it sits at the
+    // collection root. Used to populate IRunRequest.parentId on preRunRequests
+    // that reference this request.
+    const reqParentMap = new Map<string, string>(); // old request id → new parentId
+    for (const item of parsed.items) {
+      if (item.type === "request") {
+        reqParentMap.set(
+          item.id,
+          item.parentId ? folderIdMap.get(item.parentId) ?? "" : ""
+        );
+      }
+    }
+
     // Separate root-level items (no parentId), sorted by order
     const rootItems = parsed.items
       .filter((item) => item.parentId === undefined)
       .sort((a, b) => a.order - b.order);
 
+    const newCollectionId = uuidv4();
+
     const colData: ICollections = {
-      id: uuidv4(),
+      id: newCollectionId,
       name: parsed.metadata.name,
       createdTime: formatDate(),
       variableId: "",
       data: [],
-      settings: mapCollectionSettings(parsed.settings),
+      settings: mapCollectionSettings(parsed.settings, idMap, reqParentMap, newCollectionId),
     };
 
+    // ── Pass 2: build the tree, using idMap/folderIdMap to resolve each
+    // item's own new id and any preRunRequest.requestId references ──────────
     for (const item of rootItems) {
       if (item.type === "folder") {
         colData.data!.push(
-          importV2Folder(item, itemMap, reqData)
+          importV2Folder(item, itemMap, reqData, idMap, folderIdMap, reqParentMap, newCollectionId)
         );
       } else {
-        const id = uuidv4();
-        const model = mapRequest(item as IExportRequest, id);
+        const id = idMap.get(item.id)!;
+        const model = mapRequest(item as IExportRequest, id, idMap, reqParentMap, newCollectionId);
         reqData.push(model);
         colData.data!.push(buildHistoryEntry(id, model));
       }
@@ -103,15 +137,19 @@ export function fetchClientV2Importer(
 function importV2Folder(
   exportFolder: IExportFolder,
   itemMap: Map<string, IExportFolder | IExportRequest>,
-  reqData: IRequestModel[]
+  reqData: IRequestModel[],
+  idMap: Map<string, string>,
+  folderIdMap: Map<string, string>,
+  reqParentMap: Map<string, string>,
+  colId: string
 ): IFolder {
   const folder: IFolder = {
-    id: uuidv4(),
+    id: folderIdMap.get(exportFolder.id)!,
     name: exportFolder.name,
     createdTime: formatDate(),
     type: "folder",
     data: [],
-    settings: mapFolderDefaults(exportFolder.defaults),
+    settings: mapFolderDefaults(exportFolder.defaults, idMap, reqParentMap, colId),
   };
 
   // Find direct children of this folder, sorted by order
@@ -121,10 +159,10 @@ function importV2Folder(
 
   for (const child of children) {
     if (child.type === "folder") {
-      folder.data!.push(importV2Folder(child, itemMap, reqData));
+      folder.data!.push(importV2Folder(child, itemMap, reqData, idMap, folderIdMap, reqParentMap, colId));
     } else {
-      const id = uuidv4();
-      const model = mapRequest(child as IExportRequest, id);
+      const id = idMap.get(child.id)!;
+      const model = mapRequest(child as IExportRequest, id, idMap, reqParentMap, colId);
       reqData.push(model);
       folder.data!.push(buildHistoryEntry(id, model));
     }
@@ -137,7 +175,13 @@ function importV2Folder(
 // IExportRequest → IRequestModel
 // ─────────────────────────────────────────────────────────────────────────────
 
-function mapRequest(req: IExportRequest, newId: string): IRequestModel {
+function mapRequest(
+  req: IExportRequest,
+  newId: string,
+  idMap: Map<string, string>,
+  reqParentMap: Map<string, string>,
+  colId: string
+): IRequestModel {
   return {
     id: newId,
     name: req.name,
@@ -150,7 +194,7 @@ function mapRequest(req: IExportRequest, newId: string): IRequestModel {
     body: mapBody(req.body),
     tests: mapAssertions(req.assertions),
     setvar: mapVariableExtractors(req.variableExtractors),
-    preFetch: mapPreRunRequests(req.preRunRequests),
+    preFetch: mapPreRunRequests(req.preRunRequests, idMap, reqParentMap, colId),
     notes: req.notes ?? "",
   };
 }
@@ -160,20 +204,28 @@ function mapRequest(req: IExportRequest, newId: string): IRequestModel {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function mapCollectionSettings(
-  settings: IExportCollectionSettings
+  settings: IExportCollectionSettings,
+  idMap: Map<string, string>,
+  reqParentMap: Map<string, string>,
+  colId: string
 ): ISettings {
   return {
     auth: mapAuth(settings.auth),
     headers: mapKeyValues(settings.headers),
-    preFetch: mapPreRunRequests(settings.preRunRequests),
+    preFetch: mapPreRunRequests(settings.preRunRequests, idMap, reqParentMap, colId),
   };
 }
 
-function mapFolderDefaults(defaults: IExportFolderDefaults): ISettings {
+function mapFolderDefaults(
+  defaults: IExportFolderDefaults,
+  idMap: Map<string, string>,
+  reqParentMap: Map<string, string>,
+  colId: string
+): ISettings {
   return {
     auth: mapAuth(defaults.auth),
     headers: mapKeyValues(defaults.headers),
-    preFetch: mapPreRunRequests(defaults.preRunRequests),
+    preFetch: mapPreRunRequests(defaults.preRunRequests, idMap, reqParentMap, colId),
   };
 }
 
@@ -182,7 +234,7 @@ function mapFolderDefaults(defaults: IExportFolderDefaults): ISettings {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function mapAuth(exportAuth: IExportAuth): IAuth {
-  // Base scaffold — fields not relevant to a given authType stay as empty strings
+  // Base scaffold - fields not relevant to a given authType stay as empty strings
   const base: IAuth = {
     authType: exportAuth.type,
     userName: "",
@@ -260,7 +312,7 @@ function mapAuth(exportAuth: IExportAuth): IAuth {
 // Body mapper  IExportBody → IBodyData
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Empty scaffold — ensures all optional body sub-fields are always present */
+/** Empty scaffold - ensures all optional body sub-fields are always present */
 function emptyBodyScaffold(): IBodyData {
   return {
     bodyType: "none",
@@ -397,39 +449,57 @@ function mapVariableExtractors(
 // Pre-run requests mapper  IExportPreRunRequest[] → IPreFetch
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * Maps exported preRunRequests to internal IRunRequest[], rewriting each
+ * `requestId` (the OLD id from the export file) to the NEW id assigned to
+ * that request during this import, via idMap. Also resolves the NEW
+ * parentId (the referenced request's containing folder, or "" if it sits
+ * at collection root) and colId (the importing collection's new id) — the
+ * UI uses these to locate the referenced request, so leaving them blank
+ * silently hides the pre-run entry even though reqId itself is correct.
+ *
+ * If a referenced requestId is not in idMap, the request it points to was
+ * not part of this import (export only included a subset, or the reference
+ * is stale/broken). In that case the entry is dropped.
+ */
 function mapPreRunRequests(
-  preRunRequests: IExportPreRunRequest[] | undefined
+  preRunRequests: IExportPreRunRequest[] | undefined,
+  idMap: Map<string, string>,
+  reqParentMap: Map<string, string>,
+  colId: string
 ): IPreFetch {
   if (!preRunRequests?.length) {
     return { requests: [] };
   }
 
-  const requests: IRunRequest[] = preRunRequests.map((r) => {
-    const condition: ITest[] = r.condition
-      ? (() => {
-        const { parameter, customParameter } = resolveParameter(
-          r.condition.source,
-          r.condition.path
-        );
-        return [
-          {
-            parameter,
-            action: r.condition.action,
-            expectedValue: r.condition.expectedValue,
-            ...(customParameter !== undefined && { customParameter }),
-          },
-        ];
-      })()
-      : [{ parameter: "", action: "", expectedValue: "" }];
+  const requests: IRunRequest[] = preRunRequests
+    .filter((r) => idMap.has(r.requestId))
+    .map((r) => {
+      const condition: ITest[] = r.condition
+        ? (() => {
+          const { parameter, customParameter } = resolveParameter(
+            r.condition.source,
+            r.condition.path
+          );
+          return [
+            {
+              parameter,
+              action: r.condition.action,
+              expectedValue: r.condition.expectedValue,
+              ...(customParameter !== undefined && { customParameter }),
+            },
+          ];
+        })()
+        : [{ parameter: "", action: "", expectedValue: "" }];
 
-    return {
-      reqId: r.requestId,
-      parentId: "",   // resolved at runtime, not stored in export
-      colId: "",      // resolved at runtime, not stored in export
-      order: r.order,
-      condition,
-    };
-  });
+      return {
+        reqId: idMap.get(r.requestId)!,             // old id → new id
+        parentId: reqParentMap.get(r.requestId) ?? "", // referenced request's new parent folder, or root
+        colId,                                        // the importing collection's new id
+        order: r.order,
+        condition,
+      };
+    });
 
   return { requests };
 }

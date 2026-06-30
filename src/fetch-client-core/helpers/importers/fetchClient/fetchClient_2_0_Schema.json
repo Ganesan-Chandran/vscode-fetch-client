@@ -4,12 +4,19 @@
 	"title": "Fetch Client Collection",
 	"description": "A Fetch Client collection defines a group of HTTP requests along with their configuration, assertions, variable extractors, and pre-run request chains.",
 	"type": "object",
-	"required": ["schemaVersion", "metadata", "settings", "items"],
+	"required": [
+		"schemaVersion",
+		"metadata",
+		"settings",
+		"items"
+	],
 	"properties": {
 		"schemaVersion": {
 			"type": "integer",
-			"enum": [2],
-			"description": "The version of the Fetch Client export schema. Integer — importers gate on this with a numeric comparison (schemaVersion >= 2). Increment only on breaking structural changes."
+			"enum": [
+				2
+			],
+			"description": "The version of the Fetch Client export schema. Integer - importers gate on this with a numeric comparison (schemaVersion >= 2). Increment only on breaking structural changes."
 		},
 		"metadata": {
 			"$ref": "#/definitions/metadata"
@@ -23,22 +30,33 @@
 			"items": {
 				"title": "Item",
 				"oneOf": [
-					{ "$ref": "#/definitions/folder" },
-					{ "$ref": "#/definitions/request" }
+					{
+						"$ref": "#/definitions/folder"
+					},
+					{
+						"$ref": "#/definitions/request"
+					}
 				]
 			}
+		},
+		"variables": {
+			"$ref": "#/definitions/collection-variables"
 		}
 	},
-
 	"definitions": {
-
 		"metadata": {
 			"$schema": "http://json-schema.org/draft-04/schema#",
 			"id": "#/definitions/metadata",
 			"title": "Metadata",
 			"description": "Identity and timestamp information for this export.",
 			"type": "object",
-			"required": ["id", "name", "createdAt", "exportedAt", "generator"],
+			"required": [
+				"id",
+				"name",
+				"createdAt",
+				"exportedAt",
+				"generator"
+			],
 			"properties": {
 				"id": {
 					"type": "string",
@@ -62,14 +80,15 @@
 				}
 			}
 		},
-
 		"collection-settings": {
 			"$schema": "http://json-schema.org/draft-04/schema#",
 			"id": "#/definitions/collection-settings",
 			"title": "Collection Settings",
 			"description": "Application-level defaults inherited by all root-level items unless they override them.",
 			"type": "object",
-			"required": ["auth"],
+			"required": [
+				"auth"
+			],
 			"properties": {
 				"auth": {
 					"$ref": "#/definitions/auth"
@@ -82,14 +101,15 @@
 				}
 			}
 		},
-
 		"folder-defaults": {
 			"$schema": "http://json-schema.org/draft-04/schema#",
 			"id": "#/definitions/folder-defaults",
 			"title": "Folder Defaults",
-			"description": "Values cascaded to all direct children of a folder unless a child overrides them. Semantically different from collection settings — these are inherited defaults, not application-level configuration.",
+			"description": "Values cascaded to all direct children of a folder unless a child overrides them. Semantically different from collection settings - these are inherited defaults, not application-level configuration.",
 			"type": "object",
-			"required": ["auth"],
+			"required": [
+				"auth"
+			],
 			"properties": {
 				"auth": {
 					"$ref": "#/definitions/auth"
@@ -102,14 +122,20 @@
 				}
 			}
 		},
-
 		"folder": {
 			"$schema": "http://json-schema.org/draft-04/schema#",
 			"id": "#/definitions/folder",
 			"title": "Folder",
 			"description": "A folder groups related requests. Folders can be nested by setting parentId to another folder's id. Root-level folders omit parentId.",
 			"type": "object",
-			"required": ["id", "type", "name", "createdAt", "order", "defaults"],
+			"required": [
+				"id",
+				"type",
+				"name",
+				"createdAt",
+				"order",
+				"defaults"
+			],
 			"properties": {
 				"id": {
 					"type": "string",
@@ -117,7 +143,9 @@
 				},
 				"type": {
 					"type": "string",
-					"enum": ["folder"],
+					"enum": [
+						"folder"
+					],
 					"description": "Discriminator field. Always 'folder' for folder items."
 				},
 				"name": {
@@ -131,7 +159,7 @@
 				"order": {
 					"type": "integer",
 					"minimum": 1,
-					"description": "1-based position of this folder among its siblings. Importers must sort by this field — do not rely on array position."
+					"description": "1-based position of this folder among its siblings. Importers must sort by this field - do not rely on array position."
 				},
 				"parentId": {
 					"type": "string",
@@ -142,14 +170,23 @@
 				}
 			}
 		},
-
 		"request": {
 			"$schema": "http://json-schema.org/draft-04/schema#",
 			"id": "#/definitions/request",
 			"title": "Request",
 			"description": "A single HTTP request with its configuration, auth, body, assertions, variable extractors, and pre-run chain.",
 			"type": "object",
-			"required": ["id", "type", "name", "createdAt", "order", "method", "url", "auth", "body"],
+			"required": [
+				"id",
+				"type",
+				"name",
+				"createdAt",
+				"order",
+				"method",
+				"url",
+				"auth",
+				"body"
+			],
 			"properties": {
 				"id": {
 					"type": "string",
@@ -157,7 +194,9 @@
 				},
 				"type": {
 					"type": "string",
-					"enum": ["request"],
+					"enum": [
+						"request"
+					],
 					"description": "Discriminator field. Always 'request' for request items."
 				},
 				"name": {
@@ -171,7 +210,7 @@
 				"order": {
 					"type": "integer",
 					"minimum": 1,
-					"description": "1-based position of this request among its siblings. Importers must sort by this field — do not rely on array position."
+					"description": "1-based position of this request among its siblings. Importers must sort by this field - do not rely on array position."
 				},
 				"parentId": {
 					"type": "string",
@@ -179,7 +218,15 @@
 				},
 				"method": {
 					"type": "string",
-					"enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
+					"enum": [
+						"GET",
+						"POST",
+						"PUT",
+						"PATCH",
+						"DELETE",
+						"OPTIONS",
+						"HEAD"
+					],
 					"description": "The HTTP method for this request. Always uppercase."
 				},
 				"url": {
@@ -213,14 +260,17 @@
 				}
 			}
 		},
-
 		"key-value": {
 			"$schema": "http://json-schema.org/draft-04/schema#",
 			"id": "#/definitions/key-value",
 			"title": "Key-Value",
 			"description": "A single key-value pair used for headers, query params, form fields, and url-encoded fields.",
 			"type": "object",
-			"required": ["key", "value", "enabled"],
+			"required": [
+				"key",
+				"value",
+				"enabled"
+			],
 			"properties": {
 				"key": {
 					"type": "string",
@@ -240,7 +290,6 @@
 				}
 			}
 		},
-
 		"key-value-list": {
 			"$schema": "http://json-schema.org/draft-04/schema#",
 			"id": "#/definitions/key-value-list",
@@ -251,52 +300,79 @@
 				"$ref": "#/definitions/key-value"
 			}
 		},
-
 		"auth": {
 			"$schema": "http://json-schema.org/draft-04/schema#",
 			"id": "#/definitions/auth",
 			"title": "Auth",
-			"description": "Authentication configuration for a request, folder, or collection. Parse by switching on the `type` field — only the relevant credentials object is present.",
+			"description": "Authentication configuration for a request, folder, or collection. Parse by switching on the `type` field - only the relevant credentials object is present.",
 			"type": "object",
-			"required": ["type"],
+			"required": [
+				"type"
+			],
 			"properties": {
 				"type": {
 					"type": "string",
-					"enum": ["noauth", "inherit", "basic", "bearertoken", "apikey", "aws", "oauth2"],
+					"enum": [
+						"noauth",
+						"inherit",
+						"basic",
+						"bearertoken",
+						"apikey",
+						"aws",
+						"oauth2"
+					],
 					"description": "The authentication type. 'inherit' means resolve auth from the parent folder or collection settings."
 				},
 				"credentials": {
 					"title": "Auth Credentials",
-					"description": "The credentials object. Shape varies by type — absent for 'noauth' and 'inherit'.",
+					"description": "The credentials object. Shape varies by type - absent for 'noauth' and 'inherit'.",
 					"oneOf": [
-						{ "$ref": "#/definitions/auth-basic-credentials" },
-						{ "$ref": "#/definitions/auth-bearer-credentials" },
-						{ "$ref": "#/definitions/auth-apikey-credentials" },
-						{ "$ref": "#/definitions/auth-aws-credentials" },
-						{ "$ref": "#/definitions/auth-oauth2-credentials" }
+						{
+							"$ref": "#/definitions/auth-basic-credentials"
+						},
+						{
+							"$ref": "#/definitions/auth-bearer-credentials"
+						},
+						{
+							"$ref": "#/definitions/auth-apikey-credentials"
+						},
+						{
+							"$ref": "#/definitions/auth-aws-credentials"
+						},
+						{
+							"$ref": "#/definitions/auth-oauth2-credentials"
+						}
 					]
 				}
 			}
 		},
-
 		"auth-basic-credentials": {
 			"id": "#/definitions/auth-basic-credentials",
 			"title": "Basic Auth Credentials",
 			"description": "Credentials for HTTP Basic Authentication.",
 			"type": "object",
-			"required": ["username", "password"],
+			"required": [
+				"username",
+				"password"
+			],
 			"properties": {
-				"username": { "type": "string" },
-				"password": { "type": "string" }
+				"username": {
+					"type": "string"
+				},
+				"password": {
+					"type": "string"
+				}
 			}
 		},
-
 		"auth-bearer-credentials": {
 			"id": "#/definitions/auth-bearer-credentials",
 			"title": "Bearer Token Credentials",
 			"description": "Credentials for Bearer Token Authentication.",
 			"type": "object",
-			"required": ["token", "prefix"],
+			"required": [
+				"token",
+				"prefix"
+			],
 			"properties": {
 				"token": {
 					"type": "string",
@@ -308,13 +384,16 @@
 				}
 			}
 		},
-
 		"auth-apikey-credentials": {
 			"id": "#/definitions/auth-apikey-credentials",
 			"title": "API Key Credentials",
 			"description": "Credentials for API Key Authentication.",
 			"type": "object",
-			"required": ["key", "value", "addTo"],
+			"required": [
+				"key",
+				"value",
+				"addTo"
+			],
 			"properties": {
 				"key": {
 					"type": "string",
@@ -326,18 +405,25 @@
 				},
 				"addTo": {
 					"type": "string",
-					"enum": ["header", "queryparams"],
-					"description": "Where to attach the API key — as a request header or as a query parameter."
+					"enum": [
+						"header",
+						"queryparams"
+					],
+					"description": "Where to attach the API key - as a request header or as a query parameter."
 				}
 			}
 		},
-
 		"auth-aws-credentials": {
 			"id": "#/definitions/auth-aws-credentials",
 			"title": "AWS Signature v4 Credentials",
 			"description": "Credentials for AWS Signature Version 4 Authentication.",
 			"type": "object",
-			"required": ["service", "region", "accessKey", "secretAccessKey"],
+			"required": [
+				"service",
+				"region",
+				"accessKey",
+				"secretAccessKey"
+			],
 			"properties": {
 				"service": {
 					"type": "string",
@@ -361,13 +447,20 @@
 				}
 			}
 		},
-
 		"auth-oauth2-credentials": {
 			"id": "#/definitions/auth-oauth2-credentials",
 			"title": "OAuth 2.0 Credentials",
 			"description": "Credentials for OAuth 2.0 Authentication.",
 			"type": "object",
-			"required": ["tokenName", "tokenUrl", "clientId", "clientSecret", "scope", "grantType", "clientAuth"],
+			"required": [
+				"tokenName",
+				"tokenUrl",
+				"clientId",
+				"clientSecret",
+				"scope",
+				"grantType",
+				"clientAuth"
+			],
 			"properties": {
 				"tokenName": {
 					"type": "string",
@@ -391,12 +484,18 @@
 				},
 				"grantType": {
 					"type": "string",
-					"enum": ["password_credentials", "client_credentials"],
+					"enum": [
+						"password_credentials",
+						"client_credentials"
+					],
 					"description": "The OAuth 2.0 grant type."
 				},
 				"clientAuth": {
 					"type": "string",
-					"enum": ["header", "body"],
+					"enum": [
+						"header",
+						"body"
+					],
 					"description": "How client credentials are sent to the token endpoint."
 				},
 				"username": {
@@ -412,7 +511,6 @@
 				}
 			}
 		},
-
 		"auth-oauth2-advanced": {
 			"id": "#/definitions/auth-oauth2-advanced",
 			"title": "OAuth 2.0 Advanced Options",
@@ -429,18 +527,26 @@
 				}
 			}
 		},
-
 		"body": {
 			"$schema": "http://json-schema.org/draft-04/schema#",
 			"id": "#/definitions/body",
 			"title": "Request Body",
-			"description": "The body of the HTTP request. Parse by switching on the `type` field — only the fields relevant to the active body type are present.",
+			"description": "The body of the HTTP request. Parse by switching on the `type` field - only the fields relevant to the active body type are present.",
 			"type": "object",
-			"required": ["type"],
+			"required": [
+				"type"
+			],
 			"properties": {
 				"type": {
 					"type": "string",
-					"enum": ["none", "formdata", "urlencoded", "raw", "binary", "graphql"],
+					"enum": [
+						"none",
+						"formdata",
+						"urlencoded",
+						"raw",
+						"binary",
+						"graphql"
+					],
 					"description": "The active body type."
 				},
 				"fields": {
@@ -465,7 +571,10 @@
 				},
 				"contentTypeOption": {
 					"type": "string",
-					"enum": ["auto", "manual"],
+					"enum": [
+						"auto",
+						"manual"
+					],
 					"description": "'auto' means the MIME type was derived from the file extension. 'manual' means it was user-overridden. Present only when type is 'binary'."
 				},
 				"query": {
@@ -478,14 +587,17 @@
 				}
 			}
 		},
-
 		"assertion": {
 			"$schema": "http://json-schema.org/draft-04/schema#",
 			"id": "#/definitions/assertion",
 			"title": "Assertion",
 			"description": "A single test assertion evaluated against the HTTP response. The `source` field identifies what is being tested; `path` provides a sub-path when the source requires it.",
 			"type": "object",
-			"required": ["source", "action", "expectedValue"],
+			"required": [
+				"source",
+				"action",
+				"expectedValue"
+			],
 			"properties": {
 				"source": {
 					"$ref": "#/definitions/assertion-source"
@@ -503,7 +615,6 @@
 				}
 			}
 		},
-
 		"assertion-list": {
 			"id": "#/definitions/assertion-list",
 			"title": "Assertion List",
@@ -513,7 +624,6 @@
 				"$ref": "#/definitions/assertion"
 			}
 		},
-
 		"assertion-source": {
 			"id": "#/definitions/assertion-source",
 			"title": "Assertion Source",
@@ -531,7 +641,6 @@
 				"variable"
 			]
 		},
-
 		"assertion-action": {
 			"id": "#/definitions/assertion-action",
 			"title": "Assertion Action",
@@ -552,14 +661,16 @@
 				">="
 			]
 		},
-
 		"variable-extractor": {
 			"$schema": "http://json-schema.org/draft-04/schema#",
 			"id": "#/definitions/variable-extractor",
 			"title": "Variable Extractor",
 			"description": "Extracts a value from the response and assigns it to a named variable for use in subsequent requests.",
 			"type": "object",
-			"required": ["source", "variableName"],
+			"required": [
+				"source",
+				"variableName"
+			],
 			"properties": {
 				"source": {
 					"$ref": "#/definitions/assertion-source"
@@ -574,7 +685,6 @@
 				}
 			}
 		},
-
 		"variable-extractor-list": {
 			"id": "#/definitions/variable-extractor-list",
 			"title": "Variable Extractor List",
@@ -584,14 +694,16 @@
 				"$ref": "#/definitions/variable-extractor"
 			}
 		},
-
 		"pre-run-request": {
 			"$schema": "http://json-schema.org/draft-04/schema#",
 			"id": "#/definitions/pre-run-request",
 			"title": "Pre-Run Request",
 			"description": "A reference to another request in the collection that should be executed before the current request runs. An optional condition controls whether execution is skipped.",
 			"type": "object",
-			"required": ["requestId", "order"],
+			"required": [
+				"requestId",
+				"order"
+			],
 			"properties": {
 				"requestId": {
 					"type": "string",
@@ -608,7 +720,6 @@
 				}
 			}
 		},
-
 		"pre-run-request-list": {
 			"id": "#/definitions/pre-run-request-list",
 			"title": "Pre-Run Request List",
@@ -616,6 +727,34 @@
 			"type": "array",
 			"items": {
 				"$ref": "#/definitions/pre-run-request"
+			}
+		},
+		"collection-variables": {
+			"$schema": "http://json-schema.org/draft-04/schema#",
+			"id": "#/definitions/collection-variables",
+			"title": "Collection Variables",
+			"description": "List of variables linked to the collection",
+			"type": "object",
+			"required": [
+				"id",
+				"name",
+				"items"
+			],
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "The UUID of the variables."
+				},
+				"name": {
+					"type": "string",
+					"description": "Human-readable name of the variables."
+				},
+				"items": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/key-value"
+					}
+				}
 			}
 		}
 	}
