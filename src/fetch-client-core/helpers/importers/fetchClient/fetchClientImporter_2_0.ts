@@ -454,7 +454,7 @@ function mapVariableExtractors(
  * `requestId` (the OLD id from the export file) to the NEW id assigned to
  * that request during this import, via idMap. Also resolves the NEW
  * parentId (the referenced request's containing folder, or "" if it sits
- * at collection root) and colId (the importing collection's new id) — the
+ * at collection root) and colId (the importing collection's new id) - the
  * UI uses these to locate the referenced request, so leaving them blank
  * silently hides the pre-run entry even though reqId itself is correct.
  *

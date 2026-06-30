@@ -13,7 +13,8 @@ import vscode from "../../../../Common/vscodeAPI";
 
 export interface IPreRequestProps {
 	request: IRunRequest,
-	reqIndex: number
+	reqIndex: number,
+	totalCount: number
 }
 
 export const PreRequest = (props: IPreRequestProps) => {
@@ -29,15 +30,9 @@ export const PreRequest = (props: IPreRequestProps) => {
 			if (event.data && event.data.type === responseTypes.getCollectionsByIdWithPathResponse && props.request.colId === event.data.colId) {
 				let reqList: IRequestList[] = [];
 				for (const [key, value] of Object.entries(event.data.paths)) {
-					reqList.push({
-						id: key,
-						name: value as string
-					});
+					reqList.push({ id: key, name: value as string });
 				}
-				let col: IColRequest = {
-					id: event.data.colId,
-					reqs: reqList
-				};
+				let col: IColRequest = { id: event.data.colId, reqs: reqList };
 
 				dispatch(Actions.SetColRequestListAction(col));
 				setSelectedRequestList(col.reqs);
@@ -48,12 +43,17 @@ export const PreRequest = (props: IPreRequestProps) => {
 			}
 		};
 		window.addEventListener("message", handleMessage);
-		if (props.request.colId && colRequestList?.findIndex(i => i.id === props.request.colId) === -1) {
-			vscode.postMessage({ type: requestTypes.getCollectionsByIdWithPathRequest, data: props.request.colId });
+
+		if (props.request.colId) {
+			if (colRequestList?.findIndex(i => i.id === props.request.colId) === -1) {
+				vscode.postMessage({ type: requestTypes.getCollectionsByIdWithPathRequest, data: props.request.colId });
+			} else {
+				setSelectedRequestList(colRequestList.find(i => i.id === props.request.colId)?.reqs ?? []);
+			}
 		}
 
 		return () => window.removeEventListener("message", handleMessage);
-	}, []);
+	}, [props.request.colId]);
 
 	useEffect(() => {
 		if (props.request.colId && colRequestList.length > 0) {
@@ -174,11 +174,25 @@ export const PreRequest = (props: IPreRequestProps) => {
 		);
 	}
 
+	// Condition is rendered nested inside the SAME card as the request it
+	// gates. Per the original tooltip copy: "Request N will execute only if
+	// below conditions succeed" - so this is a precondition on this card,
+	// not a trailing rule from the previous one.
 	const makeCondition = (conditions: ITest[], reqIndex: number) => {
 
 		return (
-			<fieldset>
-				<legend>Condition {reqIndex} <span><label className="runall-settings-info-label" title={`Request ${reqIndex + 1} will execute only if below conditions are succeed`}>ⓘ</label></span></legend>
+			<div className="preReq-condition-block">
+				<div className="preReq-condition-header">
+					<span className="preReq-condition-header-label">
+						Runs only if
+						<label
+							className="runall-settings-info-label"
+							title={`Request ${reqIndex + 1} will execute only if below conditions succeed`}
+						>
+							ⓘ
+						</label>
+					</span>
+				</div>
 				{
 					conditions.map((item: ITest, conIndex: number) => {
 						return (
@@ -206,57 +220,56 @@ export const PreRequest = (props: IPreRequestProps) => {
 										<></>
 									}
 								</div>
-							</div >
+							</div>
 						);
 					})
 				}
-			</fieldset>
+			</div>
 		);
 	};
 
 	const makeRequest = (req: IRunRequest, reqIndex: number) => {
 		return (
-			<>
-				{
-					reqIndex > 0 && makeCondition(req.condition, reqIndex)
-				}
-				<fieldset className={reqIndex !== 0 ? "preReq-field-panel" : ""}>
-					<legend>Pre-request {reqIndex + 1}</legend>
-					<div>
-						<div className="preReq-delete-panel">
-							<BinLogo className="delete-button" onClick={() => onDeleteReqClick(reqIndex)} />
-						</div>
-						<div className="preReq-text-panel">
-							<label className="oauth-label">Collection</label>
-							<select className="preReq-col-select"
-								id={"preReq_col_" + reqIndex.toString()}
-								required={true}
-								value={props.request.colId}
-								onChange={(e) => onSelectCollection(e.target.value, reqIndex)}>
-								{collectionList?.length > 0 && collectionList.map((item, index) => (
-									<option value={item.id} key={index + item.name} disabled={index === 0 ? true : false} hidden={index === 0 ? true : false}>
-										{item.name}
-									</option>
-								))}
-							</select>
-						</div>
-						<div className="preReq-text-panel">
-							<label className="oauth-label">Request</label>
-							<select className="preReq-col-select"
-								id={"preReq_req_" + reqIndex.toString()}
-								required={true}
-								value={props.request.reqId}
-								onChange={(e) => onSelectRequest(e.target.value, e.target.selectedIndex, reqIndex)}>
-								{selectedRequestList?.length > 0 && selectedRequestList.map(({ id, name }) => (
-									<option value={id} key={id}>
-										{name.split(";")[0]}
-									</option>
-								))}
-							</select>
-						</div>
+			<fieldset className={reqIndex !== 0 ? "preReq-field-panel" : ""}>
+				<legend>Pre-request {reqIndex + 1}</legend>
+				<div className="preReq-step-index">{reqIndex + 1}</div>
+
+				{reqIndex > 0 && makeCondition(req.condition, reqIndex)}
+
+				<div className="preReq-fields-row">
+					<div className="preReq-text-panel">
+						<label className="oauth-label">Collection</label>
+						<select className="preReq-col-select"
+							id={"preReq_col_" + reqIndex.toString()}
+							required={true}
+							value={props.request.colId}
+							onChange={(e) => onSelectCollection(e.target.value, reqIndex)}>
+							{collectionList?.length > 0 && collectionList.map((item, index) => (
+								<option value={item.id} key={index + item.name} disabled={index === 0 ? true : false} hidden={index === 0 ? true : false}>
+									{item.name}
+								</option>
+							))}
+						</select>
 					</div>
-				</fieldset>
-			</>
+					<div className="preReq-text-panel">
+						<label className="oauth-label">Request</label>
+						<select className="preReq-col-select"
+							id={"preReq_req_" + reqIndex.toString()}
+							required={true}
+							value={props.request.reqId}
+							onChange={(e) => onSelectRequest(e.target.value, e.target.selectedIndex, reqIndex)}>
+							{selectedRequestList?.length > 0 && selectedRequestList.map(({ id, name }) => (
+								<option value={id} key={id}>
+									{name.split(";")[0]}
+								</option>
+							))}
+						</select>
+					</div>
+					<div className="preReq-delete-panel">
+						<BinLogo title="delete pre-request" className="delete-button" onClick={() => onDeleteReqClick(reqIndex)} />
+					</div>
+				</div>
+			</fieldset>
 		);
 	};
 

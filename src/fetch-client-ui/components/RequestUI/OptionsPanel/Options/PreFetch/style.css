@@ -1,48 +1,161 @@
+/* ===== Container & toolbar ===== */
+
 .preReq-container {
 	display: grid;
 	padding: 10px 0 5px 0;
 }
 
+.preReq-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding-bottom: 10px;
+}
+
+.max-req {
+	color: red;
+	font-size: 14px;
+	padding-left: 5px;
+}
+
+.request-prefetch-panel {
+	padding: 0 0 14px 0;
+}
+
+/* ===== Stepper track ===== */
+/* Wraps the list of pre-request cards and draws the connecting line
+   that visually threads steps 1 -> 2 -> 3 together. */
+
+.preReq-stepper {
+	position: relative;
+	padding-left: 28px;
+}
+
+.preReq-stepper::before {
+	content: "";
+	position: absolute;
+	left: 11px;
+	top: 12px;
+	bottom: 12px;
+	width: 1px;
+	background-color: var(--border-color);
+}
+
 .preReq-panel {
-	padding: 3px 0px 2px 0;
+	position: relative;
+	padding: 0 0 16px 0;
+}
+
+.preReq-panel:last-child {
+	padding-bottom: 0;
+}
+
+.preReq-step-index {
+	position: absolute;
+	left: -28px;
+	top: 0;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	background-color: var(--background-color);
+	border: 1px solid var(--border-color);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--text-color);
+}
+
+/* Gate label shown on the connector between a condition and the
+   pre-request it controls. */
+
+.preReq-gate-label {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 6px 0 10px 4px;
+	font-size: 11px;
+}
+
+.preReq-gate-label span {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 8px;
+	border-radius: 10px;
+}
+
+.preReq-gate-true {
+	color: #1d9e75;
+	background-color: rgba(29, 158, 117, 0.12);
+}
+
+.preReq-gate-false {
+	color: #d85a30;
+	background-color: rgba(216, 90, 48, 0.12);
+}
+
+/* ===== Card (fieldset) ===== */
+
+fieldset {
+	border: 1px solid var(--border-color);
+	/* fallback for browsers without color-mix support */
+	border: 1px solid color-mix(in srgb, var(--border-color) 60%, transparent);
+	border-radius: 6px;
+	padding: 10px 12px 12px 12px;
+}
+
+.preReq-field-panel {
+	margin-top: 0;
+}
+
+legend {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 13px;
+	font-weight: 600;
+	padding: 0 4px;
+}
+
+/* ===== Card header row: title + delete ===== */
+
+.preReq-card-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 }
 
 .preReq-delete-panel {
-	float: right;
-}
-
-.preReq-condition-panel {
-	display: flex;
-	padding: 3px 0 7px 0;
-}
-
-.preReq-select {
-	padding: 2px 4px 4px 4px !important;
-	border: 1px solid !important;
-}
-
-.preReq-condition-param-panel {
-	width: 30%;
-	margin-right: 10px;
-}
-
-.preReq-condition-param-panel .public-DraftEditorPlaceholder-inner {
-	padding: 2px 4px 4px 4px;
-}
-
-.preReq-condition-param-panel .DraftEditor-editorContainer {
-	padding: 2px 4px 4px 4px;
-	border: var(--border-size) solid var(--border-color);
-	border-radius: 2px;
-}
-
-.preReq-condition-delete-panel {
 	display: flex;
 	align-items: center;
+	padding-top: 25px;
 }
 
-.preReq-condition-delete-btn {
-	transform: scale(0.80);
+.delete-button {
+	cursor: pointer;
+	opacity: 0.75;
+}
+
+.delete-button:hover {
+	opacity: 1;
+}
+
+/* ===== Collection / Request row ===== */
+
+.preReq-fields-row {
+	display: flex;
+	gap: 12px;
+}
+
+.preReq-text-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 0;
+	max-width: 100%;
+	flex: 1;
 }
 
 .preReq-col-select {
@@ -51,7 +164,9 @@
 	border-radius: 3px;
 	background-color: var(--background-color);
 	color: var(--text-color);
-	width: 170px !important;
+	border: 1px solid var(--border-color);
+	width: 100% !important;
+	border: 1px solid color-mix(in srgb, var(--border-color) 60%, transparent) !important;
 }
 
 .preReq-col-select option {
@@ -72,26 +187,83 @@
 	display: none;
 }
 
-.preReq-field-panel {
-	margin-top: 3px
+/* ===== Condition block, nested inside its owning pre-request card ===== */
+
+.preReq-condition-block {
+	margin-top: 5px;
+	padding-bottom: 10px;
 }
 
-.preReq-text-panel {
+.preReq-condition-header {
 	display: flex;
-	padding: 5px 5px 5px 0;
-	max-width: 100%;
+	align-items: center;
+	justify-content: space-between;
+	padding-bottom: 8px;
+	font-size: 12px;
+	opacity: 0.85;
 }
 
-.max-req {
-	float: left;
-	color: red;
-	padding-bottom: 7px;
+.preReq-condition-header-label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
 }
 
-fieldset {
-	border: 1px solid rgb(161 161 161) !important;
+.preReq-condition-panel {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 0 0 6px 0;
 }
 
-.request-prefetch-panel {
-	padding: 5px 0 10px 0;
+.preReq-select {
+	padding: 2px 4px 4px 4px !important;
+	border: 1px solid var(--border-color) !important;
+	border: 1px solid color-mix(in srgb, var(--border-color) 60%, transparent) !important;	
+}
+
+.preReq-condition-param-panel {
+	width: 30%;
+}
+
+.preReq-condition-param-panel .public-DraftEditorPlaceholder-inner {
+	padding: 2px 4px 4px 4px;
+}
+
+.preReq-condition-param-panel .DraftEditor-editorContainer {
+	padding: 2px 4px 4px 4px;
+	border: var(--border-size) solid var(--border-color);
+	border-radius: 2px;
+}
+
+.preReq-condition-delete-panel {
+	display: flex;
+	align-items: center;
+}
+
+.preReq-condition-delete-btn {
+	transform: scale(0.8);
+}
+
+.preReq-add-condition-btn {
+	background: none;
+	border: none;
+	color: var(--text-color);
+	opacity: 0.7;
+	font-size: 12px;
+	cursor: pointer;
+	padding: 2px 0;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.preReq-add-condition-btn:hover {
+	opacity: 1;
+}
+
+/* ===== Add pre-request button ===== */
+
+.format-button {
+	white-space: nowrap;
 }
