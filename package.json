@@ -18,10 +18,17 @@
   "license": "MIT",
   "homepage": "https://github.com/Ganesan-Chandran/vscode-fetch-client",
   "categories": [
-    "Testing",
-    "Other"
+    "Programming Languages",
+    "Testing"
   ],
   "keywords": [
+    "API Testing",
+    "API",
+    "OpenAPI",
+    "API Client",
+    "REST",
+    "GraphQL",
+    "api",
     "rest client",
     "api client",
     "api testing",
@@ -31,6 +38,9 @@
     "curl",
     "graphql",
     "postman",
+    "insomnia",
+    "testing",
+    "fetchclient",
     "fetch client",
     "fetch api client",
     "bearer token",
@@ -122,7 +132,8 @@
           "type": "webview",
           "id": "fetch-client.sideBar",
           "name": "Fetch Client",
-          "contextualTitle": "Fetch Client"
+          "contextualTitle": "Fetch Client",
+          "icon": "icons/fetch-client.svg"
         }
       ]
     },
