@@ -679,7 +679,8 @@ export async function runCurl(
     method: request.method,
     name: request.name ? request.name : request.url,
     url: request.url,
-    createdTime: request.createdTime ? request.createdTime : formatDate()
+    createdTime: request.createdTime ? request.createdTime : formatDate(),
+    modifiedTime: request.modifiedTime ? request.modifiedTime : formatDate()
   };
   await History_Repository_InsertHistory(historyItem);
 

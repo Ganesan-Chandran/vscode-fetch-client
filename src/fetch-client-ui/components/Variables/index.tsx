@@ -93,6 +93,7 @@ const Variables = (_props: IVariableProps) => {
 				name: "",
 				isActive: true,
 				createdTime: formatDate(),
+				modifiedTime: formatDate(),
 				data: [{
 					isChecked: false,
 					key: "",

@@ -102,6 +102,7 @@ export function duplicateFolderItems(
         id: uuidv4(),
         name: item.name,
         createdTime: formatDate(),
+        modifiedTime: formatDate(),
         type: "folder",
         data: [],
         settings: (item as IFolder).settings ?? defaultSettings(),
@@ -123,6 +124,7 @@ export function duplicateFolderItems(
         name: item.name,
         url: (item as IHistory).url,
         createdTime: formatDate(),
+        modifiedTime: formatDate(),
       } as IHistory);
     }
   }
@@ -140,6 +142,7 @@ export function cloneCollectionItems(
         id: uuidv4(),
         name: item.name,
         createdTime: formatDate(),
+        modifiedTime: formatDate(),
         type: "folder",
         data: [],
         settings: (item as IFolder).settings ?? defaultSettings(),
@@ -158,6 +161,7 @@ export function cloneCollectionItems(
         name: item.name,
         url: (item as IHistory).url,
         createdTime: formatDate(),
+        modifiedTime: formatDate(),
       } as IHistory;
     }
   });
@@ -203,6 +207,7 @@ export async function Col_Repository_CreateCollection(name: string): Promise<ICo
   const item: ICollections = {
     id: uuidv4(),
     createdTime: formatDate(),
+    modifiedTime: formatDate(),
     name,
     data: [],
     variableId: "",
@@ -294,6 +299,7 @@ export async function Col_Repository_DuplicateItem(
         id: uuidv4(),
         name: `${item.name} (Copy)`,
         createdTime: formatDate(),
+        modifiedTime: formatDate(),
         type: "folder",
         data: [],
         settings: item.settings ?? defaultSettings(),
@@ -317,6 +323,7 @@ export async function Col_Repository_DuplicateItem(
         name: `${item.name} (Copy)`,
         url: item.url,
         createdTime: formatDate(),
+        modifiedTime: formatDate(),
       } as IHistory);
     }
   } else if (historyId) {
@@ -332,6 +339,7 @@ export async function Col_Repository_DuplicateItem(
         name: `${item.name} (Copy)`,
         url: item.url,
         createdTime: formatDate(),
+        modifiedTime: formatDate(),
       } as IHistory);
     }
   } else if (colId) {
@@ -390,6 +398,7 @@ export async function Col_Repository_CopyToCollection(
       id: destId,
       name: destName,
       createdTime: formatDate(),
+      modifiedTime: formatDate(),
       variableId: "",
       settings: sourceCol.settings ?? defaultSettings(),
       data: clonedItems,

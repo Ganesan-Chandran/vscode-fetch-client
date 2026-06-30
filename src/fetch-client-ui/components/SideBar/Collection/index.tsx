@@ -177,6 +177,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 				id: folderData.id,
 				name: folderData.name,
 				createdTime: folderData.createdTime,
+				modifiedTime: folderData.modifiedTime,
 				type: "folder",
 				data: [],
 				settings: folderData.settings ? folderData.settings : InitialSettings
@@ -186,6 +187,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 		let collection: ICollections = {
 			id: colId,
 			createdTime: formatDate(),
+			modifiedTime: formatDate(),
 			name: "Copy",
 			data: isFolder ? [folder] : [],
 			variableId: "",
@@ -387,6 +389,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 			name: "New Folder",
 			type: "folder",
 			createdTime: formatDate(),
+			modifiedTime: formatDate(),
 			data: [],
 			settings: InitialSettings
 		};

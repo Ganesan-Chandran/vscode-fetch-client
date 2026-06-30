@@ -20,6 +20,7 @@ export const SendRequest = (dispatch: AppDispatch, newReq: boolean, colId: strin
 		reqData.id = uuidv4();
 		reqData.name = reqData.url.trim();
 		reqData.createdTime = formatDate();
+		reqData.modifiedTime = formatDate();
 		dispatch(Actions.SetRequestAction(reqData));
 	}
 

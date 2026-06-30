@@ -14,5 +14,6 @@ export function buildHistoryEntry(id: string, req: IRawImportRequest): IHistory 
 		name: req.name,
 		url: req.url,
 		createdTime: formatDate(),
+		modifiedTime: formatDate(),
 	};
 }

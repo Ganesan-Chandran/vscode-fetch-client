@@ -55,7 +55,7 @@ export function CreateCollectionDB(): Promise<void> {
 		if (userCollections === null) {
 			userCollections = db.addCollection("userCollections", { autoupdate: true, disableMeta: true, unique: ["id"], indices: ["id", "variableId"] });
 		}
-		userCollections.insert({ id: uuidv4(), name: "Default", variableId: "", createdTime: formatDate(), data: [] });
+		userCollections.insert({ id: uuidv4(), name: "Default", variableId: "", createdTime: formatDate(), modifiedTime: formatDate(), data: [] });
 	});
 }
 
@@ -73,7 +73,7 @@ export function CreateVariableDB(): Promise<void> {
 		if (userVariables === null) {
 			userVariables = db.addCollection("userVariables", { autoupdate: true, disableMeta: true, unique: ["id"], indices: "id" });
 		}
-		userVariables.insert({ id: uuidv4(), name: "Global", isActive: true, createdTime: formatDate(), data: [] });
+		userVariables.insert({ id: uuidv4(), name: "Global", isActive: true, createdTime: formatDate(), modifiedTime: formatDate(), data: [] });
 	});
 }
 

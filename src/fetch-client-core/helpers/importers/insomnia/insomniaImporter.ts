@@ -141,6 +141,7 @@ export class InsomniaImport {
       id: uuidv4(),
       name: variableName,
       createdTime: formatDate(),
+      modifiedTime: formatDate(),
       isActive: true,
       data: varData,
     };
@@ -534,6 +535,7 @@ export class InsomniaImport {
       method,
       url,
       createdTime: formatDate(),
+      modifiedTime: formatDate(),
     };
 
     const model: IRequestModel = {
@@ -541,6 +543,7 @@ export class InsomniaImport {
       url,
       name: history.name,
       createdTime: history.createdTime,
+      modifiedTime: history.modifiedTime,
       method,
       params: this.getParams(resource.parameters),
       auth: this.getAuthDetails(resource.authentication),
@@ -619,6 +622,7 @@ export class InsomniaImport {
             id: uuidv4(),
             name: group.name || "Folder",
             createdTime: formatDate(),
+            modifiedTime: formatDate(),
             type: "folder",
             data: this.buildTree(group._id, requests, visited, depth + 1),
             settings: this.buildSettings(group.authentication),
@@ -701,6 +705,7 @@ export class InsomniaImport {
       id: uuidv4(),
       name: workspace.name || "Insomnia Import",
       createdTime: formatDate(),
+      modifiedTime: formatDate(),
       variableId: variable?.id ?? "",
       data,
       settings: this.buildSettings(),

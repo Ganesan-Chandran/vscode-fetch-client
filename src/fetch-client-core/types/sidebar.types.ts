@@ -8,6 +8,7 @@ export interface IHistory {
 	name: string;
 	url: string;
 	createdTime: string;
+	modifiedTime: string;
 }
 
 export interface ISettings {
@@ -21,6 +22,7 @@ export interface ICollections {
 	id: string;
 	name: string;
 	createdTime: string;
+	modifiedTime: string;
 	data?: (IHistory | IFolder)[];
 	variableId: string;
 	settings: ISettings;
@@ -30,6 +32,7 @@ export interface IFolder {
 	id: string;
 	name: string;
 	createdTime: string;
+	modifiedTime: string;
 	type: "folder";
 	data?: (IHistory | IFolder)[];
 	settings: ISettings;	
@@ -39,6 +42,7 @@ export interface IVariable {
 	id: string;
 	name: string;
 	createdTime: string;
+	modifiedTime: string;
 	isActive: boolean;
 	data: ITableData[];
 }

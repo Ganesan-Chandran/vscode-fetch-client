@@ -98,7 +98,8 @@ function _executeAPIRequest(message: any, variable: IVariable, fetchConfig: Fetc
 			method: message.data.reqData.method,
 			name: message.data.reqData.name ? message.data.reqData.name : message.data.reqData.url,
 			url: message.data.reqData.url,
-			createdTime: message.data.reqData.createdTime ? message.data.reqData.createdTime : formatDate()
+			createdTime: message.data.reqData.createdTime ? message.data.reqData.createdTime : formatDate(),
+			modifiedTime: message.data.reqData.modifiedTime ? message.data.reqData.modifiedTime : formatDate(),
 		};
 
 		let reqData = message.data.reqData as IRequestModel;

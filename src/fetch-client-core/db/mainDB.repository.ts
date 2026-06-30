@@ -230,6 +230,7 @@ export async function Main_Repository_UpdateRequest(reqData: IRequestModel): Pro
     req.setvar = reqData.setvar;
     req.notes = reqData.notes;
     req.preFetch = reqData.preFetch;
+    req.modifiedTime = formatDate();
 
     collection.update(req);
     saveMainDB(db);

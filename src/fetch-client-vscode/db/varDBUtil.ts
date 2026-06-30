@@ -317,6 +317,7 @@ function ImportFetchClientVariable(webviewView: vscode.WebviewView, data: string
 	let reqData: IVariable = {
 		id: uuidv4(),
 		createdTime: formatDate(),
+		modifiedTime: formatDate(),
 		name: parsedData.name,
 		isActive: parsedData.isActive,
 		data: parsedData.data
@@ -372,6 +373,7 @@ function ImportPostmanVariable(webviewView: vscode.WebviewView, data: string) {
 	let convertedData: IVariable = {
 		id: uuidv4(),
 		createdTime: formatDate(),
+		modifiedTime: formatDate(),
 		name: parsedData.name,
 		isActive: true,
 		data: varData
@@ -403,6 +405,7 @@ function ImportThunderClientVariable(webviewView: vscode.WebviewView, data: stri
 	let convertedData: IVariable = {
 		id: uuidv4(),
 		createdTime: formatDate(),
+		modifiedTime: formatDate(),
 		name: parsedData.environmentName,
 		isActive: true,
 		data: varData
@@ -420,6 +423,7 @@ export function ImportVariableFromEnvFile(webviewView: vscode.WebviewView, path:
 			id: uuidv4(),
 			name: fileName ? fileName : ".env",
 			createdTime: formatDate(),
+			modifiedTime: formatDate(),
 			isActive: true,
 			data: []
 		};

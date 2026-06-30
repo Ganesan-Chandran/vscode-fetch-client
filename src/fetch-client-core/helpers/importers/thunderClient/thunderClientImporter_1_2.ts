@@ -320,6 +320,7 @@ export class ThunderClientImport {
 			url: req.url,
 			name: req.name,
 			createdTime: formatDate(),
+			modifiedTime: formatDate(),
 			method: req.method.toLowerCase() as MethodType,
 			params: this.getParams(req.params),
 			auth: this.getAuthDetails(req.auth),
@@ -338,6 +339,7 @@ export class ThunderClientImport {
 			name: item.name,
 			type: "folder",
 			createdTime: formatDate(),
+			modifiedTime: formatDate(),
 			data: [],
 			settings: item.settings ? this.importSettings(item.settings) : deepClone(InitialSettings),
 		};
@@ -377,6 +379,7 @@ export class ThunderClientImport {
 			id: uuidv4(),
 			name: this.collection.collectionName,
 			createdTime: formatDate(),
+			modifiedTime: formatDate(),
 			variableId: "",
 			data: [],
 			settings: this.collection.settings
@@ -405,6 +408,7 @@ export class ThunderClientImport {
 				method: req.method,
 				url: req.url,
 				createdTime: formatDate(),
+				modifiedTime: formatDate(),
 			};
 
 			requests.push(req);

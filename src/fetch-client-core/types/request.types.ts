@@ -10,6 +10,7 @@ export interface IRequestModel {
   url: string;
   name: string;
   createdTime: string;
+  modifiedTime: string;
   method: MethodType;
   params: ITableData[];
   auth: IAuth;

@@ -116,6 +116,7 @@ const AddToCollection = () => {
 					id: selectedFolder === "0" ? uuidv4() : selectedFolder,
 					name: selectedFolder === "0" ? folderName : "",
 					createdTime: formatDate(),
+					modifiedTime: formatDate(),
 					type: "folder",
 					data: [history],
 					settings: InitialSettings
@@ -125,6 +126,7 @@ const AddToCollection = () => {
 			let collection: ICollections = {
 				id: selectedCollection === "0" ? uuidv4() : selectedCollection,
 				createdTime: formatDate(),
+				modifiedTime: formatDate(),
 				name: selectedCollection === "0" ? colName : "",
 				data: folder ? [folder] : [history],
 				variableId: "",

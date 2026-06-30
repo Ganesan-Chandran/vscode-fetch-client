@@ -13,19 +13,20 @@ import {
 import { InitialAuth, InitialRequestHeaders, InitialBody, InitialTest, InitialSetVar, InitialPreFetch, emptyRow } from '../../../../fetch-client-core/consts/initialValues.consts';
 
 export const InitialState: IRequestModel = {
-  id: uuidv4(),
-  url: "",
-  name: "",
-  createdTime: "",
-  method: "get",
-  params: [{ isChecked: false, key: "", value: "" }],
-  auth: InitialAuth,
-  headers: InitialRequestHeaders,
-  body: InitialBody,
-  tests: InitialTest,
-  setvar: InitialSetVar,
-  notes: "",
-  preFetch: InitialPreFetch
+	id: uuidv4(),
+	url: "",
+	name: "",
+	createdTime: "",
+	modifiedTime: "",
+	method: "get",
+	params: [{ isChecked: false, key: "", value: "" }],
+	auth: InitialAuth,
+	headers: InitialRequestHeaders,
+	body: InitialBody,
+	tests: InitialTest,
+	setvar: InitialSetVar,
+	notes: "",
+	preFetch: InitialPreFetch
 };
 
 export const RequestReducer: (state?: IRequestModel,
@@ -84,6 +85,7 @@ export const RequestReducer: (state?: IRequestModel,
 					url: action.payload.req.url.trim(),
 					name: action.payload.req.name.trim(),
 					createdTime: action.payload.req.createdTime,
+					modifiedTime: action.payload.req.modifiedTime,
 					method: action.payload.req.method,
 					params: action.payload.req.params,
 					auth: action.payload.req.auth,

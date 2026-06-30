@@ -43,6 +43,7 @@ const createInitialRequest = (): IRequestModel => ({
 	url: "",
 	name: "",
 	createdTime: "",
+	modifiedTime: "",
 	method: "get",
 	params: [],
 	auth: JSON.parse(JSON.stringify(InitialAuth)),

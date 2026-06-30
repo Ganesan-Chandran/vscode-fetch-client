@@ -36,6 +36,7 @@ export async function Var_Repository_InsertDuplicate(id: string): Promise<IVaria
 				id: uuidv4(),
 				name: sourceData[0].name.toUpperCase().trim() === "GLOBAL" ? "Global - Copy" : sourceData[0].name + " - Copy",
 				createdTime: formatDate(),
+				modifiedTime: formatDate(),
 				isActive: true,
 				data: sourceData[0].data
 			};
@@ -58,7 +59,7 @@ export async function Var_Repository_Update(item: IVariable): Promise<void> {
 			let key = getVariableEncryptionKey();
 			item.data = new FCCipher(key).EncryptBulkData(item.data);
 		}
-		db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; });
+		db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; itm.modifiedTime = formatDate(); });
 		saveDB(db);
 	} catch (err) {
 		writeLog("error::Var_Repository_Update(): " + err);
@@ -74,7 +75,7 @@ export async function Var_Repository_UpdateAndReturn(item: IVariable): Promise<I
 			let key = getVariableEncryptionKey();
 			item.data = new FCCipher(key).EncryptBulkData(item.data);
 		}
-		db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; });
+		db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; itm.modifiedTime = formatDate(); });
 		saveDB(db);
 		let vars = db.getCollection("userVariables").find({ 'id': item.id });
 		return vars && vars.length > 0 ? vars[0] as IVariable : null;

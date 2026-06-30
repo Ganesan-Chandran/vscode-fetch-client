@@ -240,7 +240,8 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 								method: reqData.data.request.method,
 								name: data,
 								url: reqData.data.request.url,
-								createdTime: reqData.data.request.createdTime ? reqData.data.request.createdTime : formatDate()
+								createdTime: reqData.data.request.createdTime ? reqData.data.request.createdTime : formatDate(),
+								modifiedTime: reqData.data.request.modifiedTime ? reqData.data.request.modifiedTime : formatDate()
 							};
 							NewRequestToCollection(item, reqData.data.colId, reqData.data.folderId, webviewView);
 						}

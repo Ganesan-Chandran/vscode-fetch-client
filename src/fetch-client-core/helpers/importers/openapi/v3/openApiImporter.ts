@@ -1147,6 +1147,7 @@ class VariableBuilder {
       id: uuidv4(),
       name: this.doc.info.title || "OpenAPI Variables",
       createdTime: formatDate(),
+      modifiedTime: formatDate(),
       isActive: true,
       data: rows,
     };
@@ -1219,6 +1220,7 @@ class CollectionBuilder {
         id: uuidv4(),
         name: tag,
         createdTime: formatDate(),
+        modifiedTime: formatDate(),
         type: "folder",
         data: histories,
         settings: buildDefaultSettings(),
@@ -1284,6 +1286,7 @@ export class OpenApiImport {
     const url = baseUrl + convertPathParams(path);
     const fcMethod = toFCMethod(method);
     const createdTime = formatDate();
+    const modifiedTime = formatDate();
 
     const name =
       operation.summary?.trim() ||
@@ -1303,10 +1306,10 @@ export class OpenApiImport {
       operation.deprecated ?? false,
     );
 
-    const history: IHistory = { id, name, method: fcMethod, url, createdTime };
+    const history: IHistory = { id, name, method: fcMethod, url, createdTime, modifiedTime };
 
     const model: IRequestModel = {
-      id, url, name, createdTime,
+      id, url, name, createdTime, modifiedTime,
       method: fcMethod,
       params: query,
       auth: this.security.build(operation.security),
@@ -1335,6 +1338,7 @@ export class OpenApiImport {
       id: uuidv4(),
       name: this.doc.info.title?.trim() || "OpenAPI Import",
       createdTime: formatDate(),
+      modifiedTime: formatDate(),
       variableId: variable?.id ?? "",
       data,
       settings: buildDefaultSettings(globalAuth),

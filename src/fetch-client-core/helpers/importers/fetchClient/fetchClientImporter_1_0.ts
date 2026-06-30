@@ -37,6 +37,7 @@ function importFolder(source: IRawImportFolder, reqData: IRequestModel[]): IFold
 		id: uuidv4(),
 		name: source.name,
 		createdTime: formatDate(),
+		modifiedTime: formatDate(),
 		type: "folder",
 		data: [],
 		settings: cloneSettings(source.settings),
@@ -48,7 +49,7 @@ function importFolder(source: IRawImportFolder, reqData: IRequestModel[]): IFold
 		} else {
 			const req = item as IRawImportRequest;
 			const id = uuidv4();
-			const requestModel: IRequestModel = { ...req, id, createdTime: formatDate() };
+			const requestModel: IRequestModel = { ...req, id, createdTime: formatDate(), modifiedTime: formatDate() };
 			reqData.push(requestModel);
 			folder.data!.push(buildHistoryEntry(id, req));
 		}
@@ -65,6 +66,7 @@ export const fetchClientImporter = (parsedData: IRawImportCollection): IImportRe
 			id: uuidv4(),
 			name: parsedData.name,
 			createdTime: formatDate(),
+			modifiedTime: formatDate(),
 			variableId: "",
 			data: [],
 			settings: cloneSettings(parsedData.settings),
@@ -76,7 +78,7 @@ export const fetchClientImporter = (parsedData: IRawImportCollection): IImportRe
 			} else {
 				const req = item as IRawImportRequest;
 				const id = uuidv4();
-				const requestModel: IRequestModel = { ...req, id, createdTime: formatDate() };
+				const requestModel: IRequestModel = { ...req, id, createdTime: formatDate(), modifiedTime: formatDate() };
 				reqData.push(requestModel);
 				colData.data!.push(buildHistoryEntry(id, req));
 			}

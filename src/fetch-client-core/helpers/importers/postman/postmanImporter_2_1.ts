@@ -46,6 +46,7 @@ export class PostmanImport {
 			id: uuidv4(),
 			name,
 			createdTime: formatDate(),
+			modifiedTime: formatDate(),
 			isActive: true,
 			data: varData,
 		};
@@ -315,6 +316,7 @@ export class PostmanImport {
 			method: reqObject?.method ?? "get",
 			url: this.getUrl(reqObject?.url),
 			createdTime: formatDate(),
+			modifiedTime: formatDate(),
 		};
 
 		if (reqObject) {
@@ -323,6 +325,7 @@ export class PostmanImport {
 				url: history.url,
 				name: history.name,
 				createdTime: history.createdTime,
+				modifiedTime: history.modifiedTime,
 				method: history.method as MethodType,
 				params: this.getParams(reqObject.url),
 				auth: this.getAuthDetails(reqObject.auth),
@@ -353,6 +356,7 @@ export class PostmanImport {
 			name: item.name,
 			type: "folder",
 			createdTime: formatDate(),
+			modifiedTime: formatDate(),
 			data: this.reduceItems(item.item ?? [], requests),
 			settings: this.buildSettings(item.auth),
 		};
@@ -377,6 +381,7 @@ export class PostmanImport {
 			id: uuidv4(),
 			name: this.collection.info.name,
 			createdTime: formatDate(),
+			modifiedTime: formatDate(),
 			variableId: variable?.id ?? "",
 			data: this.reduceItems(this.collection.item, requests),
 			settings: this.buildSettings(this.collection.auth),

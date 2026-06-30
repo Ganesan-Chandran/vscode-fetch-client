@@ -79,6 +79,7 @@ export function fetchClientV2Importer(
       id: newCollectionId,
       name: parsed.metadata.name,
       createdTime: formatDate(),
+      modifiedTime: formatDate(),
       variableId: "",
       data: [],
       settings: mapCollectionSettings(parsed.settings, idMap, reqParentMap, newCollectionId),
@@ -107,6 +108,7 @@ export function fetchClientV2Importer(
         id: newVariableId,
         name: parsed.variables.name,
         createdTime: formatDate(),
+        modifiedTime: formatDate(),
         isActive: true,
         data: []
       };
@@ -147,6 +149,7 @@ function importV2Folder(
     id: folderIdMap.get(exportFolder.id)!,
     name: exportFolder.name,
     createdTime: formatDate(),
+    modifiedTime: formatDate(),
     type: "folder",
     data: [],
     settings: mapFolderDefaults(exportFolder.defaults, idMap, reqParentMap, colId),
@@ -187,6 +190,7 @@ function mapRequest(
     name: req.name,
     url: req.url,
     createdTime: formatDate(),
+    modifiedTime: formatDate(),
     method: req.method.toLowerCase() as IRequestModel["method"],
     params: mapKeyValues(req.queryParams),
     headers: mapKeyValues(req.headers),

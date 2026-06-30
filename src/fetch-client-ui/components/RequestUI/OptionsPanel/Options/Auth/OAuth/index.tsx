@@ -77,6 +77,7 @@ export const OAuth = (props: IOAuthProps) => {
 			url: auth.oauth.tokenUrl,
 			name: "tokenGen",
 			createdTime: formatDate(),
+			modifiedTime: formatDate(),
 			method: "post",
 			params: [{ isChecked: false, key: "", value: "" }],
 			auth: {

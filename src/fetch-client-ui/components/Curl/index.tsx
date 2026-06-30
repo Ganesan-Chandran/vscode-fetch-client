@@ -93,7 +93,8 @@ const CurlUI = () => {
 				method: "",
 				name: "",
 				url: "",
-				createdTime: formatDate()
+				createdTime: formatDate(),
+				modifiedTime: formatDate(),
 			};
 
 			if (selectedFolder) {
@@ -101,6 +102,7 @@ const CurlUI = () => {
 					id: selectedFolder === "0" ? uuidv4() : selectedFolder,
 					name: selectedFolder === "0" ? folderName : "",
 					createdTime: formatDate(),
+					modifiedTime: formatDate(),
 					type: "folder",
 					data: [history],
 					settings: InitialSettings
@@ -110,6 +112,7 @@ const CurlUI = () => {
 			let collection: ICollections = {
 				id: selectedCollection === "0" ? uuidv4() : selectedCollection,
 				createdTime: formatDate(),
+				modifiedTime: formatDate(),
 				name: selectedCollection === "0" ? colName : "",
 				data: folder ? [folder] : [history],
 				variableId: "",
