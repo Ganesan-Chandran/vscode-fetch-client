@@ -8,7 +8,7 @@ export class VSCodeLogger implements vscode.Disposable {
 	private _isOpen = false;
 
 	constructor() {
-		this._logChannel = vscode.window.createOutputChannel("Fetch Client");
+		this._logChannel = vscode.window.createOutputChannel("Fetch Client", { log: true });
 	}
 
 	public showLog(): void {

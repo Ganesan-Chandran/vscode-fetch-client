@@ -206,6 +206,15 @@ const AutoRequest = () => {
 		vscode.postMessage({ type: requestTypes.saveAutoRequestRequest, data: selectedRequestList });
 	};
 
+	const formatDuration = (totalMinutes: number): string => {
+		if (totalMinutes > 60) {
+			const hours = Math.floor(totalMinutes / 60);
+			const minutes = String(totalMinutes % 60).padStart(2, '0');
+			return `${hours}:${minutes} hours`;
+		}
+		return `${totalMinutes} minutes`;
+	};
+
 	return (
 		<div>
 			{
@@ -231,13 +240,20 @@ const AutoRequest = () => {
 							</div>
 							<div className="autorequest-text-panel">
 								Interval (minutes)
-								<label className="runall-settings-info-label" title="Time between the request exection.
-								min value is 15 and max value is 600">ⓘ</label>
+								<label
+									className="runall-settings-info-label"
+									title={"Time between the request exection. \nmin value is 15 and max value is 600"}>
+									ⓘ
+								</label>
 							</div>
 							<div className="autorequest-text-panel">
 								Duration (minutes)
-								<label className="runall-settings-info-label" title="Total duration of the auto request execution.
-								min value is 15 and max value is 600">ⓘ</label>
+								<label
+									className="runall-settings-info-label"
+									title={"Total duration of the auto request execution.\nmin value is 15 and max value is 600"}
+								>
+									ⓘ
+								</label>
 							</div>
 							<div className="autorequest-text-panel">
 								Remove
@@ -289,14 +305,23 @@ const AutoRequest = () => {
 										<input
 											id={"preReq_dur_" + index.toString()}
 											className={getCss(item.duration)}
+											style={{ width: "70%", marginRight: "5px" }}
 											value={item.duration}
 											onChange={(event) => onDurationUpdate(event, index)}
 											disabled={selectedRequestList[index].colId ? false : true}
 											placeholder={"interval"}
 											type="text"
 										/>
-										<label className="runall-settings-info-label" title={item.colId && item.reqId ? `The request will be executed every ${item.interval > 60 ? ((item.interval / 60 ^ 0) + ":" + (('0' + item.interval % 60).slice(-2)) + " hours") : (item.interval + " minutes")}
-										until the next ${item.duration > 60 ? (item.duration / 60 ^ 0) + ":" + (('0' + item.duration % 60).slice(-2)) + " hours" : item.duration + " minutes"}` : ""}>ⓘ</label>
+										<label
+											className="runall-settings-info-label"
+											title={
+												item.colId && item.reqId
+													? `The request will be executed every ${formatDuration(item.interval)}. \nuntil the next ${formatDuration(item.duration)}`
+													: ""
+											}
+										>
+											ⓘ
+										</label>
 									</div>
 									<div className="autorequest-text-panel">
 										{(selectedRequestList[index].colId || selectedRequestList[index].reqId) && <BinLogo className="delete-button" onClick={() => onDeleteReqClick(index)} />}

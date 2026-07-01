@@ -14,65 +14,55 @@ export function logDetails(
 	responseData: unknown,
 	duration: number
 ): void {
-	logRequestDetails(request, reqHeaders, requestBody);
-	logResponseDetails(responseStatus, responseHeaders, responseData, duration);
-}
-
-function logRequestDetails(request: IRequestModel, reqHeaders: Record<string, string>, requestBody: unknown): void {
 	try {
-		let reqLog = `\n\n-----------------------------------------------------------------------------`;
-		reqLog += `\n▶ ${request.method.toUpperCase()}    ${request.url}\n`;
-		reqLog += `-----------------------------------------------------------------------------\n`;
-		reqLog += `𝘙𝘦𝘲𝘶𝘦𝘴𝘵 𝘋𝘦𝘵𝘢𝘪𝘭𝘴: \n Url: ${request.url}\n Method: ${request.method.toUpperCase()}\n`;
-		reqLog += ` Time: ${formatDateWithMs()}\n`;
+		let log = `\n-----------------------------------------------------------------------------\n`;
+		log += `▶ ${request.method.toUpperCase()}    ${request.url}\n`;
+		log += `-----------------------------------------------------------------------------\n`;
+		log += `𝘙𝘦𝘲𝘶𝘦𝘴𝘵 𝘋𝘦𝘵𝘢𝘪𝘭𝘴: \n Url: ${request.url}\n Method: ${request.method.toUpperCase()}\n`;
+		log += ` Time: ${formatDateWithMs()}\n`;
 
 		if (request.headers.filter(i => i.isChecked).length > 0) {
-			reqLog += ` Request Headers:`;
+			log += ` Request Headers:`;
 			for (const [prop, val] of Object.entries(reqHeaders)) {
-				reqLog += `\n\t${prop}: "${val}"`;
+				log += `\n\t${prop}: "${val}"`;
 			}
+			log += "\n";
 		}
 
 		if (requestBody) {
-			reqLog += `\n Request Body:\n`;
+			log += ` Request Body:\n`;
 			const body = request.body;
 			if (body.bodyType === "binary") {
-				reqLog += `\tsrc: ${body.binary?.fileName ?? ''}\n`;
+				log += `\tsrc: ${body.binary?.fileName ?? ''}\n`;
 			} else if (body.bodyType === "formurlencoded") {
-				reqLog += `\t${decodeURIComponent(String(requestBody).replace(/\+/g, ' '))}`;
+				log += `\t${decodeURIComponent(String(requestBody).replace(/\+/g, ' '))}`;
 			} else if (body.bodyType === "formdata") {
 				const formData = requestBody as { getBuffer(): Buffer };
-				reqLog += `\t${formData.getBuffer()}`;
+				log += `\t${formData.getBuffer()}`;
 			} else {
-				reqLog += `\t${requestBody}`;
+				log += `\t${requestBody}`;
 			}
+
+			log += "\n";
 		}
 
-		vsCodeLogger.log("info", reqLog);
-	} catch (err) {
-		writeLog(`error::logRequestDetails(): ${err}`);
-	}
-}
-
-function logResponseDetails(status: number, headers: ITableData[], responseData: unknown, duration: number): void {
-	try {
-		let resLog = `\n𝘙𝘦𝘴𝘱𝘰𝘯𝘴𝘦 𝘋𝘦𝘵𝘢𝘪𝘭𝘴: \n Status: ${status} ${status <= 399 ? "✅" : "❌"}\n`;
-		resLog += ` Time: ${GetResponseTime(duration)}\n\n`;
+		log += `𝘙𝘦𝘴𝘱𝘰𝘯𝘴𝘦 𝘋𝘦𝘵𝘢𝘪𝘭𝘴: \n Status: ${responseStatus} ${responseStatus <= 399 ? "✅" : "❌"}\n`;
+		log += ` Time: ${GetResponseTime(duration)}\n\n`;
 
 		if (getLogOption()) {
-			if (headers.length > 0) {
-				resLog += ` Response Headers:\n`;
-				for (const { key, value } of headers) {
-					resLog += `\t${key}: "${value}"\n`;
+			if (responseHeaders.length > 0) {
+				log += ` Response Headers:\n`;
+				for (const { key, value } of responseHeaders) {
+					log += `\t${key}: "${value}"\n`;
 				}
 			}
 
-			resLog += ` Response Body:\n`;
-			resLog += `\t${responseData}`;
+			log += ` Response Body:\n`;
+			log += `\t${responseData}`;
 		}
 
-		vsCodeLogger.log("info", resLog);
+		vsCodeLogger.log("info", log);
 	} catch (err) {
-		writeLog(`error::logResponseDetails(): ${err}`);
+		writeLog(`error::logRequestDetails(): ${err}`);
 	}
 }
