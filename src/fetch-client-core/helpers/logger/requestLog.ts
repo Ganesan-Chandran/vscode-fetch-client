@@ -46,8 +46,8 @@ export function logDetails(
 			log += "\n";
 		}
 
-		log += `𝘙𝘦𝘴𝘱𝘰𝘯𝘴𝘦 𝘋𝘦𝘵𝘢𝘪𝘭𝘴: \n Status: ${responseStatus} ${responseStatus <= 399 ? "✅" : "❌"}\n`;
-		log += ` Time: ${GetResponseTime(duration)}\n\n`;
+		log += `\n𝘙𝘦𝘴𝘱𝘰𝘯𝘴𝘦 𝘋𝘦𝘵𝘢𝘪𝘭𝘴: \n Status: ${responseStatus} ${responseStatus <= 399 ? "✅" : "❌"}\n`;
+		log += ` Time: ${GetResponseTime(duration)}\n`;
 
 		if (getLogOption()) {
 			if (responseHeaders.length > 0) {
@@ -59,6 +59,9 @@ export function logDetails(
 
 			log += ` Response Body:\n`;
 			log += `\t${responseData}`;
+			log += "\n\n";
+		} else {
+			log += "\n";
 		}
 
 		vsCodeLogger.log("info", log);
