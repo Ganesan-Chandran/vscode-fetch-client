@@ -366,7 +366,7 @@ const ReOrder: React.FC = () => {
 
 	return (
 		<div className="reorder-panel">
-			<div className="reorder-header">🔁 ReOrder Items</div>
+			<div className="reorder-header">🔁 Arrange Items</div>
 			<div className="reorder-body">
 				{renderHeader()}
 				{loading ? (
