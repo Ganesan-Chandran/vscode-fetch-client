@@ -2,6 +2,7 @@ import "./style.css";
 import { EditorProps } from ".";
 import { syncAceWithVSCodeTheme } from "./themeHelper";
 import * as prettier from "prettier/standalone";
+import * as prettierGraphqlNS from "prettier/plugins/graphql";
 import AceEditor from "react-ace";
 import prettierBabel from "prettier/plugins/babel";
 import prettierEstree from "prettier/plugins/estree";
@@ -10,31 +11,33 @@ import prettierTypescript from "prettier/plugins/typescript";
 import React, { useEffect, useRef, useState } from "react";
 import xmlFormatter from "xml-formatter";
 
+import "ace-builds/src-noconflict/ext-language_tools";
+import "ace-builds/src-noconflict/ext-searchbox";
 import "ace-builds/src-noconflict/mode-c_cpp";
 import "ace-builds/src-noconflict/mode-csharp";
 import "ace-builds/src-noconflict/mode-dart";
 import "ace-builds/src-noconflict/mode-golang";
+import "ace-builds/src-noconflict/mode-graphqlschema";
+import "ace-builds/src-noconflict/mode-graphqlschema";
+import "ace-builds/src-noconflict/mode-html";
 import "ace-builds/src-noconflict/mode-java";
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/mode-json";
 import "ace-builds/src-noconflict/mode-kotlin";
-import "ace-builds/src-noconflict/mode-ruby";
-import "ace-builds/src-noconflict/mode-typescript";
-import "ace-builds/src-noconflict/mode-html";
-import "ace-builds/src-noconflict/mode-xml";
 import "ace-builds/src-noconflict/mode-php";
 import "ace-builds/src-noconflict/mode-python";
+import "ace-builds/src-noconflict/mode-rdoc";
+import "ace-builds/src-noconflict/mode-ruby";
 import "ace-builds/src-noconflict/mode-sh";
 import "ace-builds/src-noconflict/mode-swift";
-import "ace-builds/src-noconflict/mode-graphqlschema";
-import "ace-builds/src-noconflict/mode-rdoc";
 import "ace-builds/src-noconflict/mode-text";
+import "ace-builds/src-noconflict/mode-typescript";
+import "ace-builds/src-noconflict/mode-xml";
+import "ace-builds/src-noconflict/theme-github_dark";
 import "ace-builds/src-noconflict/theme-github";
 import "ace-builds/src-noconflict/theme-tomorrow_night";
-import "ace-builds/src-noconflict/theme-github_dark";
-import "ace-builds/src-noconflict/ext-searchbox";
-import "ace-builds/src-noconflict/ext-language_tools";
 
+const prettierGraphql = (prettierGraphqlNS as any).default ?? prettierGraphqlNS;
 const languageToAceMode: Record<string, string> = {
 	cpp: "c_cpp",
 	csharp: "csharp",
@@ -83,6 +86,11 @@ async function formatValue(value: string, language: string): Promise<string> {
 				return await prettier.format(value, {
 					parser: "html",
 					plugins: [prettierHtml],
+				});
+			case "graphql":
+				return await prettier.format(value, {
+					parser: "graphql",
+					plugins: [prettierGraphql],
 				});
 			case "xml": {
 				return formatXml(value);

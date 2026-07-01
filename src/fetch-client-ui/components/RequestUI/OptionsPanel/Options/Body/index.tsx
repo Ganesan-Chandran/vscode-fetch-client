@@ -41,7 +41,7 @@ export const Body = () => {
 			case "binary":
 				return <Binary />;
 			default:
-				return <GraphQL />;
+				return <GraphQL format={format} />;
 		}
 	};
 
@@ -49,16 +49,20 @@ export const Body = () => {
 		setFormat(!format);
 	}
 
-	function renderTextmodeUI() {
+	function renderTextmodeUI(type: string) {
 		return (
 			<>
-				<select className="raw-lang-select" value={raw.lang} onChange={(e) => setBodyLang(e.target.value)}>
-					{requestBodyRaw.map((type) => (
-						<option key={type.value} value={type.value}>
-							{type.name}
-						</option>
-					))}
-				</select>
+				{type === "raw" &&
+					<>
+						<span className="reqest-body-raw-type-text">Type : </span>
+						<select className="raw-lang-select" value={raw.lang} onChange={(e) => setBodyLang(e.target.value)}>
+							{requestBodyRaw.map((type) => (
+								<option key={type.value} value={type.value}>
+									{type.name}
+								</option>
+							))}
+						</select>
+					</>}
 				<button onClick={onFormatClick} className="format-button">Format</button>
 			</>
 		);
@@ -86,8 +90,8 @@ export const Body = () => {
 				))}
 			</div>
 			{
-				bodyType === "raw" && <div className="reqest-body-raw-type">
-					<span className="reqest-body-raw-type-text">Type : </span>{renderTextmodeUI()}
+				(bodyType === "raw" || bodyType === "graphql") && <div className="reqest-body-raw-type">
+					{renderTextmodeUI(bodyType)}
 				</div>
 			}
 			<div className={bodyType === "raw" ? "request-body-details-panel raw-type" : "request-body-details-panel"}>

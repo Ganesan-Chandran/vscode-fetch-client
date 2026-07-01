@@ -6,7 +6,7 @@ import { AceEditor } from "../../../../../Common/Editor";
 import { useDispatch, useSelector } from "react-redux";
 import React from "react";
 
-export const GraphQL = () => {
+export const GraphQL = (props: { format: boolean }) => {
 
 	const dispatch = useDispatch<AppDispatch>();
 	const { body } = useSelector((state: IRootState) => state.requestData);
@@ -37,7 +37,7 @@ export const GraphQL = () => {
 					language="graphql"
 					readOnly={false}
 					copyButtonVisible={false}
-					format={false}
+					format={props.format}
 					onContentChange={onQueryContentChange}
 					className="graphql-editor"
 				/>
@@ -46,10 +46,10 @@ export const GraphQL = () => {
 				<span className="graphql-variable-head">Variables</span>
 				<AceEditor
 					value={body.graphql.variables ?? ""}
-					language="graphql"
+					language="json"
 					readOnly={false}
 					copyButtonVisible={false}
-					format={false}
+					format={props.format}
 					onContentChange={onVariablesContentChange}
 					className="graphql-editor"
 				/>
