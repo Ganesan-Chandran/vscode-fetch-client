@@ -8,11 +8,12 @@ import {
 	Main_Repository_RenameRequestItem, Main_Repository_SaveRequest,
 	Main_Repository_UpdateRequest
 } from '../../fetch-client-core/db/mainDB.repository';
+import { getVariableEncryptionConfiguration, getVariableEncryptionKey } from '../../fetch-client-core/utils/vscodeConfig';
+import { IFetchClientExportV2 } from '../../fetch-client-core/types/fetchClient_2_0_types';
 import { responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
 import { writeLog } from '../../fetch-client-core/helpers/logger/logger';
 import * as vscode from "vscode";
 import fs from "fs";
-import { IFetchClientExportV2 } from '../../fetch-client-core/types/fetchClient_2_0_types';
 
 export async function SaveRequest(reqData: IRequestModel): Promise<void> {
 	try {
@@ -97,9 +98,9 @@ export async function GetColsRequests(ids: string[], paths: unknown, webview: vs
 }
 
 export async function Export(path: string, colId: string, hisId: string, folderId: string, version: number): Promise<void> {
-
 	try {
-		const exportData = version === 1 ? await Main_Repository_BuildExport(colId, hisId, folderId) : await Main_Repository_BuildExport_V2(colId, hisId, folderId);
+		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
+		const exportData = version === 1 ? await Main_Repository_BuildExport(colId, hisId, folderId) : await Main_Repository_BuildExport_V2(colId, hisId, folderId, key);
 		fs.writeFile(
 			path,
 			version === 1 ? JSON.stringify(exportData) : JSON.stringify(exportData, null, "\t"),
@@ -126,7 +127,8 @@ export async function BulkExportV2(path: string, selectedCols: string[], webview
 	}
 
 	try {
-		const exportPayloads = await Main_Repository_BuildBulkExportV2(selectedCols);
+		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
+		const exportPayloads = await Main_Repository_BuildBulkExportV2(selectedCols, key);
 		const writePromises = exportPayloads.map((exportData) => {
 			return exportIntoFile(path, exportData, 2);
 		});
@@ -190,7 +192,8 @@ async function exportIntoFile(path: string, exportData: ExportPayload | IFetchCl
 export async function Import(webviewView: vscode.WebviewView, path: string): Promise<void> {
 	try {
 		const data = fs.readFileSync(path, "utf8");
-		const result = await Main_Repository_Import(data);
+		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
+		const result = await Main_Repository_Import(data, key);
 
 		webviewView?.webview?.postMessage({
 			type: responseTypes.importResponse,

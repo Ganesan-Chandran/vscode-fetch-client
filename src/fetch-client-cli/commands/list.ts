@@ -1,9 +1,10 @@
 // --- Helpers ---------------------------------------------------------------
 
+import { cliConfig } from "../config";
 import { Col_Repository_GetAllCollections } from "../../fetch-client-core/db/collectionDB.repository";
-import { Var_Repository_FindAll } from "../../fetch-client-core/db/variableDB.repository";
-import { IFolder, IHistory, ICollections } from "../../fetch-client-core/types/sidebar.types";
 import { CollectionRow, printSection, printCollections, FolderRow, printFolders, printVariables, VariableRow, printCollectionTree, printFolderTree, printVariableItems } from "../utils/display";
+import { IFolder, IHistory, ICollections } from "../../fetch-client-core/types/sidebar.types";
+import { Var_Repository_FindAll } from "../../fetch-client-core/db/variableDB.repository";
 
 function isFolder(item: any): item is IFolder {
   return item.data !== undefined;
@@ -137,7 +138,7 @@ export async function listVariables(
   opts: { name?: string; id?: string }
 ): Promise<void> {
 
-  const all = await Var_Repository_FindAll();
+  const all = await Var_Repository_FindAll(cliConfig.encryptionKey);
 
   let filtered = all;
 

@@ -1,3 +1,4 @@
+import { cliConfig } from "../config";
 import { ConvertCurlToRequest } from "../../fetch-client-core/utils/curlToRequest";
 import { executeTests } from "../../fetch-client-core/helpers/tests.helper";
 import { ExportFormat } from "../types/export.types";
@@ -101,8 +102,8 @@ function findLeafById(
 
 // --- Variable + settings resolution ------------------------------------------
 
-async function resolveVariableByName(name: string): Promise<IVariable | null> {
-  const all = await Var_Repository_FindAll();
+async function resolveVariableByName(name: string, key: string): Promise<IVariable | null> {
+  const all = await Var_Repository_FindAll(key);
   const lower = name.toLowerCase();
   return all.find(v => v.name.toLowerCase() === lower) ?? null;
 }
@@ -116,11 +117,12 @@ async function resolveVariableByName(name: string): Promise<IVariable | null> {
 async function resolveEffectiveForRun(
   linkedVarId: string,
   contextName: string,
-  opts: { varId?: string; varName?: string }
+  opts: { varId?: string; varName?: string },
+  key: string
 ): Promise<{ effectiveVarId: string; variableData: ITableData[] }> {
 
   if (linkedVarId) {
-    const varSet = await Var_Repository_FindByIdSync(linkedVarId);
+    const varSet = await Var_Repository_FindByIdSync(linkedVarId, key);
     if (opts.varId || opts.varName) {
       console.info(
         red(
@@ -134,7 +136,7 @@ async function resolveEffectiveForRun(
   }
 
   if (opts.varId) {
-    const varSet = await Var_Repository_FindByIdSync(opts.varId);
+    const varSet = await Var_Repository_FindByIdSync(opts.varId, key);
     if (!varSet) {
       wrtieConsleError(`Variable set with id '${opts.varId}' not found.`);
       process.exit(1);
@@ -143,13 +145,13 @@ async function resolveEffectiveForRun(
   }
 
   if (opts.varName) {
-    const found = await resolveVariableByName(opts.varName);
+    const found = await resolveVariableByName(opts.varName, key);
     if (!found) {
       wrtieConsleError(`Variable set named '${opts.varName}' not found.`);
       process.exit(1);
     }
 
-    const globalVars = await Var_Repository_FindById('', true);
+    const globalVars = await Var_Repository_FindById('', true, key);
     if (globalVars && globalVars.length > 0) {
       return { effectiveVarId: globalVars[0].id, variableData: globalVars[0]?.data ?? [] };
     }
@@ -187,7 +189,8 @@ async function executeRequest(
   variableData: ITableData[],
   settings: ISettings,
   varId?: string,
-  parent?: string
+  parent?: string,
+  key?: string
 ): Promise<RunResult> {
 
   const preFetchResponses: IPreFetchResponse[] = [];
@@ -245,7 +248,7 @@ async function executeRequest(
 
   // Reload variables from DB if pre-fetch may have updated them
   if (isVariableUpdated && varId) {
-    const updated = await Var_Repository_FindByIdSync(varId);
+    const updated = await Var_Repository_FindByIdSync(varId, key);
 
     if (updated?.data) {
       variableData = updated.data;
@@ -321,8 +324,7 @@ export async function runRequest(
   opts: { name?: string; id?: string; varId?: string; varName?: string; exportFormat?: ExportFormat; exportPath?: string }
 ): Promise<void> {
 
-  const all: ICollections[] =
-    await Col_Repository_GetAllCollections();
+  const all: ICollections[] = await Col_Repository_GetAllCollections();
 
   let reqId: string | undefined;
   let collection: ICollections | undefined;
@@ -375,7 +377,7 @@ export async function runRequest(
     process.exit(1);
   }
 
-  const { effectiveVarId, variableData } = await resolveEffectiveForRun(collection.variableId, request.name || request.url, opts);
+  const { effectiveVarId, variableData } = await resolveEffectiveForRun(collection.variableId, request.name || request.url, opts, cliConfig.encryptionKey);
 
   const settings = resolveSettings(collection, folderId);
 
@@ -386,7 +388,8 @@ export async function runRequest(
     variableData,
     settings,
     effectiveVarId,
-    collection.name
+    collection.name,
+    cliConfig.encryptionKey
   );
 
   printRunResult(result);
@@ -473,7 +476,7 @@ export async function runCollection(
 
     printSection(`Collection: ${col.name} (${leaves.length} requests)`);
 
-    const { effectiveVarId, variableData } = await resolveEffectiveForRun(col.variableId, col.name, opts);
+    const { effectiveVarId, variableData } = await resolveEffectiveForRun(col.variableId, col.name, opts, cliConfig.encryptionKey);
 
     const reqIds = leaves.map(l => l.id);
 
@@ -498,7 +501,8 @@ export async function runCollection(
         variableData,
         settings,
         effectiveVarId,
-        col.name
+        col.name,
+        cliConfig.encryptionKey
       );
 
       count++;
@@ -637,7 +641,7 @@ export async function runFolder(
     `Folder: ${match.folder.name} (${leaves.length} requests)`
   );
 
-  const { effectiveVarId, variableData } = await resolveEffectiveForRun(match.collection.variableId, match.folder.name, opts);
+  const { effectiveVarId, variableData } = await resolveEffectiveForRun(match.collection.variableId, match.folder.name, opts, cliConfig.encryptionKey);
 
   const reqIds = leaves.map(l => l.id);
 
@@ -668,7 +672,8 @@ export async function runFolder(
       variableData,
       settings,
       effectiveVarId,
-      match.folder.name
+      match.folder.name,
+      cliConfig.encryptionKey
     );
 
     count++;

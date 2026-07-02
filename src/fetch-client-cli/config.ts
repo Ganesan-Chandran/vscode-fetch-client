@@ -1,10 +1,14 @@
 import { existsSync, readFileSync } from "fs";
 import { homedir } from "os";
+import { ICliConfig } from "./types/common.types";
 import { join, resolve } from "path";
+import { wrtieConsleError } from "./utils/logger";
 
 const PUBLISHER = 'GanesanChandran';
 const EXT_NAME = 'fetch-client';
 const EXT_ID = `${PUBLISHER}.${EXT_NAME}`;
+export const cliConfig = getCliConfig();
+
 
 /**
  * Resolves the directory that contains the LokiJS database files.
@@ -16,8 +20,39 @@ const EXT_ID = `${PUBLISHER}.${EXT_NAME}`;
  * 4. Legacy: fetch-client.saveToWorkspace = true (deprecated boolean)
  */
 
-export function resolveDbPath(): string {
-    const settings = readVSCodeSettings();
+export function getCliConfig(): ICliConfig {
+    let cliConfig: ICliConfig = {
+        dbPath: null,
+        encryptionEnabled: null,
+        encryptionKey: null
+    };
+
+    if (process.env.FC_DB_PATH) {
+        cliConfig.dbPath = process.env.FC_DB_PATH;
+        cliConfig.encryptionEnabled = process.env.FC_ENCRYPTION_ENABLED?.toLowerCase() === "true";
+        if (cliConfig.encryptionEnabled && !process.env.FC_ENCRYPTION_KEY) {
+            wrtieConsleError("An encryption key is required when encryption is enabled. If you are running the CLI standalone, configure encryption using environment variables.");
+            process.exit(1);
+        }
+        cliConfig.encryptionKey = process.env.FC_ENCRYPTION_KEY;
+    } else {
+        const settings = readVSCodeSettings();
+        if (settings) {
+            cliConfig.dbPath = resolveDbPath(settings);
+            cliConfig.encryptionEnabled = resolveEncryptionEnabled(settings);
+            cliConfig.encryptionKey = resolveEncryptionKey(settings);
+        } else {
+            wrtieConsleError(
+                "Database path and encryption configuration not found. If you are running the CLI standalone, set the database path and encryption configuration using environment variables."
+            );
+            process.exit(1);
+        }
+    }
+
+    return cliConfig;
+}
+
+export function resolveDbPath(settings: Record<string, unknown>): string {
     const dbPathMode = (settings['fetch-client.dbPath'] as string) ?? 'Default';
     if (dbPathMode === 'Custom Path') {
         const customPath = (settings['fetch-client.customDbPath'] as string) ?? '';
@@ -59,11 +94,11 @@ export function resolveDbPath(): string {
  * Reads the VS Code user-level settings.json and returns it as a flat object.
  * Returns an empty object if the file cannot be read or parsed.
  */
-function readVSCodeSettings(): Record<string, unknown> {
+function readVSCodeSettings(): Record<string, unknown> | null {
     const settingsPath = vscodeUserSettingsPath();
 
     if (!existsSync(settingsPath)) {
-        return {};
+        return null;
     }
 
     try {
@@ -76,7 +111,7 @@ function readVSCodeSettings(): Record<string, unknown> {
 
         return JSON.parse(stripped) as Record<string, unknown>;
     } catch {
-        return {};
+        return null;
     }
 }
 
@@ -132,14 +167,12 @@ function defaultStoragePath(): string {
     );
 }
 
-export function resolveEncryptionEnabled(): boolean {
-    const settings = readVSCodeSettings();
+export function resolveEncryptionEnabled(settings: Record<string, unknown>): boolean {
     return settings['fetch-client.encryptedVariables'] === true;
 }
 
 
-export function resolveEncryptionKey(): string {
-    const settings = readVSCodeSettings();
+export function resolveEncryptionKey(settings: Record<string, unknown>): string {
     const key = settings['fetch-client.variableEncryptionKey'];
     return typeof key === 'string' ? key : '';
 }

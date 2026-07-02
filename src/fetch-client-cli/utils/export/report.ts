@@ -1,5 +1,5 @@
 import { ExportFormat, ExportSummary, ExportContext, ExportReport } from '../../types/export.types';
-import { resolveDbPath } from '../../config';
+import { cliConfig } from '../../config';
 import { RunResult } from '../display';
 import { toCsv } from './csvExporter';
 import { toHtml } from './htmlExporter';
@@ -9,6 +9,7 @@ import { toXml } from './xmlExporter';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { toExportRequestResults } from './transform';
+import { wrtieConsleError } from '../logger';
 
 const EXPORT_DIR_NAME = 'fetch-client-exports';
 
@@ -84,7 +85,8 @@ function renderReport(report: ExportReport, format: ExportFormat): string {
     default: {
       // Exhaustiveness check - compiler error if a new ExportFormat is added but not handled above.
       const exhaustiveCheck: never = format;
-      throw new Error(`Unsupported export format: ${exhaustiveCheck}`);
+      wrtieConsleError(`Unsupported export format: ${exhaustiveCheck}`);
+      process.exit(1);
     }
   }
 }
@@ -102,7 +104,7 @@ async function resolveExportDirectory(customPath?: string): Promise<string> {
     return path.resolve(customPath);
   }
 
-  return path.join(resolveDbPath(), EXPORT_DIR_NAME);
+  return path.join(cliConfig.dbPath, EXPORT_DIR_NAME);
 }
 
 export async function writeExportReport(

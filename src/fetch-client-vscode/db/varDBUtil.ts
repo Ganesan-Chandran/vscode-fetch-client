@@ -24,7 +24,8 @@ import {
 
 export async function SaveVariable(item: IVariable, webview: vscode.Webview, sideBarView: vscode.WebviewView) {
 	try {
-		await Var_Repository_Insert(item);
+		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
+		await Var_Repository_Insert(item, key);
 
 		if (webview) {
 			webview.postMessage({ type: responseTypes.saveVariableResponse });
@@ -62,7 +63,8 @@ export async function DuplicateVariable(id: string, webview: vscode.Webview, sid
 
 export async function UpdateVariable(item: IVariable, webview: vscode.Webview) {
 	try {
-		await Var_Repository_Update(item);
+		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
+		await Var_Repository_Update(item, key);
 
 		if (webview) {
 			webview.postMessage({ type: responseTypes.updateVariableResponse });
@@ -78,8 +80,9 @@ export async function UpdateVariable(item: IVariable, webview: vscode.Webview) {
 
 export function UpdateVariableSync(item: IVariable) {
 	try {
+		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
 		return new Promise<IVariable>(async (resolve, _reject) => {
-			const result = await Var_Repository_UpdateAndReturn(item);
+			const result = await Var_Repository_UpdateAndReturn(item, key);
 			resolve(result);
 		});
 	} catch (err) {
@@ -90,7 +93,8 @@ export function UpdateVariableSync(item: IVariable) {
 
 export async function GetAllVariable(webview: vscode.Webview) {
 	try {
-		const userVariables = await Var_Repository_FindAll();
+		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
+		const userVariables = await Var_Repository_FindAll(key);
 		webview?.postMessage({ type: responseTypes.getAllVariableResponse, variable: userVariables });
 	} catch (err) {
 		writeLog("error::GetAllVariable(): " + err);
@@ -124,7 +128,8 @@ export async function UpdateToDecryptedVariables(key: string) {
 
 export async function GetVariableById(id: string, isGlobal: boolean, webview: vscode.Webview) {
 	try {
-		const userVariables = await Var_Repository_FindById(id, isGlobal);
+		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
+		const userVariables = await Var_Repository_FindById(id, isGlobal, key);
 		webview.postMessage({ type: responseTypes.getVariableItemResponse, data: userVariables });
 	} catch (err) {
 		writeLog("error::GetVariableById(): " + err);
@@ -133,8 +138,9 @@ export async function GetVariableById(id: string, isGlobal: boolean, webview: vs
 
 export function GetVariableByIdSync(id: string) {
 	try {
+		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
 		return new Promise<IVariable>(async (resolve, _reject) => {
-			const result = await Var_Repository_FindByIdSync(id);
+			const result = await Var_Repository_FindByIdSync(id, key);
 			resolve(result);
 		});
 	} catch (err) {

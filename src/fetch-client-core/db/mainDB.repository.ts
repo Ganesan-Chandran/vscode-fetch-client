@@ -370,7 +370,7 @@ export async function Main_Repository_BuildBulkExport(selectedCols: string[]): P
   });
 }
 
-export async function Main_Repository_BuildExport_V2(colId: string, hisId: string, folderId: string): Promise<IFetchClientExportV2> {
+export async function Main_Repository_BuildExport_V2(colId: string, hisId: string, folderId: string, key: string): Promise<IFetchClientExportV2> {
   const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
 
   const cols = colDB
@@ -381,11 +381,11 @@ export async function Main_Repository_BuildExport_V2(colId: string, hisId: strin
 
   const linkedVariables = getExportCollectionConfiguration();
   const variableId = linkedVariables ? cols[0].variableId : "";
-  const variables = variableId ? await Var_Repository_FindById(variableId, false) : [];
+  const variables = variableId ? await Var_Repository_FindById(variableId, false, key) : [];
   return ExportBuilderV2(cols[0], getRequestCollection(db), hisId, folderId, variables.length > 0 ? variables[0] : null);
 }
 
-export async function Main_Repository_BuildBulkExportV2(selectedCols: string[]): Promise<IFetchClientExportV2[]> {
+export async function Main_Repository_BuildBulkExportV2(selectedCols: string[], key: string): Promise<IFetchClientExportV2[]> {
   const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
   const apiRequests = getRequestCollection(db);
 
@@ -400,14 +400,14 @@ export async function Main_Repository_BuildBulkExportV2(selectedCols: string[]):
       .data({ forceClones: true, removeMeta: true });
 
     const variableId = linkedVariables ? cols[0].variableId : "";
-    const variables = variableId ? await Var_Repository_FindById(variableId, false) : [];
+    const variables = variableId ? await Var_Repository_FindById(variableId, false, key) : [];
     result.push(ExportBuilderV2(cols[0], apiRequests, "", "", variables.length > 0 ? variables[0] : null));
   }
 
   return result;
 }
 
-async function importPostman(data: string): Promise<ImportResult> {
+async function importPostman(data: string, key: string): Promise<ImportResult> {
   const convertedData = postmanImporter(data);
   if (!convertedData?.fcCollection || !convertedData?.fcRequests) {
     throw new Error("Postman import produced incomplete data.");
@@ -419,7 +419,7 @@ async function importPostman(data: string): Promise<ImportResult> {
   saveMainDB(db);
 
   if (convertedData.fcVariables) {
-    await Var_Repository_Insert(convertedData.fcVariables);
+    await Var_Repository_Insert(convertedData.fcVariables, key);
   }
 
   colDB.getCollection('userCollections').insert(convertedData.fcCollection);
@@ -452,7 +452,7 @@ async function importThunderClient(data: string): Promise<ImportResult> {
   };
 }
 
-async function importInsomnia(data: string): Promise<ImportResult> {
+async function importInsomnia(data: string, key: string): Promise<ImportResult> {
   const convertedData = insomniaImporter(data);
   if (!convertedData?.fcCollection || !convertedData?.fcRequests) {
     throw new Error("Insomnia import produced incomplete data.");
@@ -464,7 +464,7 @@ async function importInsomnia(data: string): Promise<ImportResult> {
   saveMainDB(db);
 
   if (convertedData.fcVariables) {
-    await Var_Repository_Insert(convertedData.fcVariables);
+    await Var_Repository_Insert(convertedData.fcVariables, key);
   }
 
   colDB.getCollection('userCollections').insert(convertedData.fcCollection);
@@ -497,7 +497,7 @@ async function importOpenAPI(data: string): Promise<ImportResult> {
   };
 }
 
-async function importFC(data: string, verison: number): Promise<ImportResult> {
+async function importFC(data: string, verison: number, key: string): Promise<ImportResult> {
   const parsedData = JSON.parse(data);
   const convertedData = verison === 1 ? fetchClientImporter(parsedData) : fetchClientV2Importer(parsedData);
   if (!convertedData?.fcCollection || !convertedData?.fcRequests) {
@@ -513,7 +513,7 @@ async function importFC(data: string, verison: number): Promise<ImportResult> {
   saveCollectionDB(colDB);
 
   if (convertedData.fcVariables) {
-    await Var_Repository_Insert(convertedData.fcVariables);
+    await Var_Repository_Insert(convertedData.fcVariables, key);
   }
 
   return {
@@ -523,16 +523,16 @@ async function importFC(data: string, verison: number): Promise<ImportResult> {
   };
 }
 
-export async function Main_Repository_Import(data: string): Promise<ImportResult> {
+export async function Main_Repository_Import(data: string, key: string): Promise<ImportResult> {
   const type = validateImportData(data);
 
   switch (type) {
-    case ImportType.FetchClient_1_0: return importFC(data, 1);
-    case ImportType.FetchClient_2_0: return importFC(data, 2);
-    case ImportType.Postman_2_1: return importPostman(data);
+    case ImportType.FetchClient_1_0: return importFC(data, 1, key);
+    case ImportType.FetchClient_2_0: return importFC(data, 2, key);
+    case ImportType.Postman_2_1: return importPostman(data, key);
     case ImportType.ThunderClient_1_2: return importThunderClient(data);
     case ImportType.OpenAPI_V_3: return importOpenAPI(data);
-    case ImportType.Insomnia_4_5: return importInsomnia(data);
+    case ImportType.Insomnia_4_5: return importInsomnia(data, key);
     default:
       throw new Error("Unrecognised import format.");
   }

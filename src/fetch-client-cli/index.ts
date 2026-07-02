@@ -1,11 +1,11 @@
-import { resolveDbPath, resolveEncryptionEnabled, resolveEncryptionKey } from './config';
+import { cliConfig } from './config';
 import { setGlobalStorageUri } from '../fetch-client-core/db/dbHelper';
 import { setVariableEncryptionConfiguration, setVariableEncryptionKey } from '../fetch-client-core/utils/vscodeConfig';
 
 // - 1. Bootstrap DB path before any repository code opens a database -
-setGlobalStorageUri(resolveDbPath());
-setVariableEncryptionConfiguration(resolveEncryptionEnabled());
-setVariableEncryptionKey(resolveEncryptionKey());
+setGlobalStorageUri(cliConfig.dbPath);
+setVariableEncryptionConfiguration(cliConfig.encryptionEnabled);
+setVariableEncryptionKey(cliConfig.encryptionKey);
 
 // - 2. Lazy-import command handlers (DB repos are only called inside them) -
 import { listCollections, listFolders, listVariables } from './commands/list';

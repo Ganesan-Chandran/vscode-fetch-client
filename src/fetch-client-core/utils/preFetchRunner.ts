@@ -1,6 +1,7 @@
 import { apiFetch, FetchConfig } from "./fetchUtil";
 import { Col_Repository_GetParentSettings, Col_Repository_GetVariableByColId } from "../db/collectionDB.repository";
 import { executeTests, setVariable } from "../helpers/tests.helper";
+import { getVariableEncryptionConfiguration, getVariableEncryptionKey } from "./vscodeConfig";
 import { InitialResponse } from "../consts/initialValues.consts";
 import { IPreFetch, IRunRequest } from "../types/prefetch.types";
 import { IPreFetchResponse, IReponseModel } from "../types/response.types";
@@ -27,6 +28,7 @@ export class PreFetchRunner {
 	private _message: string = "";
 	private readonly response: IReponseModel;
 	public preFetchResponses: IPreFetchResponse[] = [];
+	private _encryptionKey = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
 
 	get allow(): boolean {
 		return this._allow;
@@ -191,7 +193,7 @@ export class PreFetchRunner {
 		const { reqId, parentId, colId } = runRequest;
 		try {
 			const varId = await Col_Repository_GetVariableByColId(colId);
-			const variable = await Var_Repository_GetVariableByIdSync(varId);
+			const variable = await Var_Repository_GetVariableByIdSync(varId, this._encryptionKey);
 			const parentSettings = parentId === colId
 				? await Col_Repository_GetParentSettings(colId, "")
 				: await Col_Repository_GetParentSettings(colId, parentId);
@@ -219,7 +221,7 @@ export class PreFetchRunner {
 		) {
 			try {
 				const updated = setVariable(variable, request.setvar, this.response);
-				return await Var_Repository_UpdateVariableSync(updated);
+				return await Var_Repository_UpdateVariableSync(updated, this._encryptionKey);
 			} catch (err) {
 				writeLog(`error::PreFetchRunner::updateVariable: ${err}`);
 			}

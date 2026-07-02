@@ -1,7 +1,6 @@
 import { createAutoDBCache } from "./dbManager";
 import { FCCipher } from "../../fetch-client-packages/crypto/index";
 import { formatDate } from '../helpers/dateTime.helper';
-import { getVariableEncryptionConfiguration, getVariableEncryptionKey } from "../utils/vscodeConfig";
 import { IVariable } from "../types/sidebar.types";
 import { v4 as uuidv4 } from 'uuid';
 import { variableDBPath } from './dbHelper';
@@ -10,13 +9,11 @@ import { writeLog } from "../helpers/logger/logger";
 const { getLoadedDB: getVariableDB, saveDB, flush: flushVariableDB, invalidate: invalidateVariableDB } = createAutoDBCache(variableDBPath);
 export { getVariableDB, flushVariableDB, invalidateVariableDB };
 
-export async function Var_Repository_Insert(item: IVariable): Promise<void> {
+export async function Var_Repository_Insert(item: IVariable, key: string): Promise<void> {
 	try {
 		const db = await getVariableDB();
 		const userVariables = db.getCollection("userVariables");
-		const config = getVariableEncryptionConfiguration();
-		if (config) {
-			let key = getVariableEncryptionKey();
+		if (key) {
 			item.data = new FCCipher(key).EncryptBulkData(item.data);
 		}
 		userVariables.insert(item);
@@ -51,12 +48,10 @@ export async function Var_Repository_InsertDuplicate(id: string): Promise<IVaria
 	}
 }
 
-export async function Var_Repository_Update(item: IVariable): Promise<void> {
+export async function Var_Repository_Update(item: IVariable, key: string): Promise<void> {
 	try {
 		const db = await getVariableDB();
-		const config = getVariableEncryptionConfiguration();
-		if (config) {
-			let key = getVariableEncryptionKey();
+		if (key) {
 			item.data = new FCCipher(key).EncryptBulkData(item.data);
 		}
 		db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; itm.modifiedTime = formatDate(); });
@@ -67,12 +62,10 @@ export async function Var_Repository_Update(item: IVariable): Promise<void> {
 	}
 }
 
-export async function Var_Repository_UpdateAndReturn(item: IVariable): Promise<IVariable | null> {
+export async function Var_Repository_UpdateAndReturn(item: IVariable, key: string): Promise<IVariable | null> {
 	try {
 		const db = await getVariableDB();
-		const config = getVariableEncryptionConfiguration();
-		if (config) {
-			let key = getVariableEncryptionKey();
+		if (key) {
 			item.data = new FCCipher(key).EncryptBulkData(item.data);
 		}
 		db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; itm.modifiedTime = formatDate(); });
@@ -85,10 +78,10 @@ export async function Var_Repository_UpdateAndReturn(item: IVariable): Promise<I
 	}
 }
 
-export function Var_Repository_UpdateVariableSync(item: IVariable) {
+export function Var_Repository_UpdateVariableSync(item: IVariable, key: string) {
 	try {
 		return new Promise<IVariable>(async (resolve, _reject) => {
-			const result = await Var_Repository_UpdateAndReturn(item);
+			const result = await Var_Repository_UpdateAndReturn(item, key);
 			resolve(result);
 		});
 	} catch (err) {
@@ -97,13 +90,11 @@ export function Var_Repository_UpdateVariableSync(item: IVariable) {
 	}
 }
 
-export async function Var_Repository_FindAll(): Promise<IVariable[]> {
+export async function Var_Repository_FindAll(key: string): Promise<IVariable[]> {
 	try {
 		const db = await getVariableDB();
 		const userVariables = db.getCollection("userVariables").chain().data({ forceClones: true, removeMeta: true }) as IVariable[];
-		const config = getVariableEncryptionConfiguration();
-		if (config) {
-			let key = getVariableEncryptionKey();
+		if (key) {
 			userVariables.forEach((item: IVariable) => {
 				item.data = new FCCipher(key).DecryptBulkData(item.data);
 			});
@@ -115,13 +106,11 @@ export async function Var_Repository_FindAll(): Promise<IVariable[]> {
 	}
 }
 
-export async function Var_Repository_FindById(id: string, isGlobal: boolean): Promise<IVariable[]> {
+export async function Var_Repository_FindById(id: string, isGlobal: boolean, key: string): Promise<IVariable[]> {
 	try {
 		const db = await getVariableDB();
 		let userVariables = db.getCollection("userVariables").chain().find(isGlobal ? { 'name': 'Global' } : { 'id': id }).data({ forceClones: true, removeMeta: true }) as IVariable[];
-		const config = getVariableEncryptionConfiguration();
-		if (config) {
-			let key = getVariableEncryptionKey();
+		if (key) {
 			userVariables?.forEach((item: IVariable) => {
 				item.data = new FCCipher(key).DecryptBulkData(item.data);
 			});
@@ -133,13 +122,11 @@ export async function Var_Repository_FindById(id: string, isGlobal: boolean): Pr
 	}
 }
 
-export async function Var_Repository_FindByIdSync(id: string): Promise<IVariable | null> {
+export async function Var_Repository_FindByIdSync(id: string, key: string): Promise<IVariable | null> {
 	try {
 		const db = await getVariableDB();
 		let userVariables = db.getCollection("userVariables").chain().find({ 'id': id }).data({ forceClones: true, removeMeta: true }) as IVariable[];
-		const config = getVariableEncryptionConfiguration();
-		if (config) {
-			let key = getVariableEncryptionKey();
+		if (key) {
 			userVariables?.forEach((item: IVariable) => {
 				item.data = new FCCipher(key).DecryptBulkData(item.data);
 			});
@@ -151,10 +138,10 @@ export async function Var_Repository_FindByIdSync(id: string): Promise<IVariable
 	}
 }
 
-export function Var_Repository_GetVariableByIdSync(id: string) {
+export function Var_Repository_GetVariableByIdSync(id: string, key: string) {
 	try {
 		return new Promise<IVariable>(async (resolve, _reject) => {
-			const result = await Var_Repository_FindByIdSync(id);
+			const result = await Var_Repository_FindByIdSync(id, key);
 			resolve(result);
 		});
 	} catch (err) {
