@@ -237,9 +237,11 @@ export function printFolderTree(folder: IFolder, collectionName: string): void {
 // ── Request execution result ───────────────────────────────────────────
 
 export interface RunResult {
+  id: string;
   name: string;
   method: string;
   url: string;
+  parent?: string;
   status: number;
   statusText: string;
   duration: number;
@@ -323,28 +325,105 @@ export function printRunSummary(results: RunResult[]): void {
   const total = results.length;
   const passed = results.filter(r => !r.isError && r.status >= 200 && r.status < 400).length;
   const failed = total - passed;
-
   const totalTests = results.reduce((s, r) => s + (r.testResults?.length ?? 0), 0);
-  const passedTests = results.reduce(
-    (s, r) => s + (r.testResults?.filter(t => t.result).length ?? 0),
-    0
-  );
+  const passedTests = results.reduce((s, r) => s + (r.testResults?.filter(t => t.result).length ?? 0), 0);
   const failedTests = totalTests - passedTests;
 
-  printSection('Summary');
+  printSection("Summary");
 
+  const separator = "-".repeat(150);
+
+  writeConsoleLog(separator);
   writeConsoleLog(
-    ` Requests : ${green(String(passed))} passed, ${failed > 0 ? red(String(failed)) : dim('0')} failed, ${dim(String(total))} total`
+    fit("Id", 38) +
+    fit("Name", 22) +
+    fit("Method", 8) +
+    fit("URL", 35) +
+    fit("Location", 18) +
+    fit("Status", 8) +
+    fit("Duration", 11) +
+    fit("Pre", 7) +
+    fit("Test", 7)
   );
+  writeConsoleLog(separator);
 
-  if (totalTests > 0) {
+  for (const r of results) {
+    const ok =
+      !r.isError &&
+      r.status >= 200 &&
+      r.status < 400;
+
+    const icon = ok ? green("✓") : red("✗");
+    const preTotal = r.preFetchResponses?.length ?? 0;
+    const prePassed = r.preFetchResponses?.filter(x => x.resStatus >= 200 && x.resStatus < 400).length ?? 0;
+    const pre = preTotal === 0 ? "-" : `${prePassed}/${preTotal}`;
+    const testTotal = r.testResults?.length ?? 0;
+    const testPassed = r.testResults?.filter(x => x.result).length ?? 0;
+    const test = testTotal === 0 ? "-" : `${testPassed}/${testTotal}`;
+
     writeConsoleLog(
-      ` Tests    : ${green(String(passedTests))} passed, ${failedTests > 0 ? red(String(failedTests)) : dim('0')} failed, ${dim(String(totalTests))} total`
+      fitAnsi(`${icon} ${r.id}`, 40) +
+      fitAnsi(cyan(r.name), 22) +
+      fitAnsi(methodBadge(r.method.toUpperCase()), 8) +
+      fitAnsi(dim(shortUrl(r.url)), 35) +
+      fitAnsi(yellow(r.parent ?? "-"), 18) +
+      fitAnsi(statusBadge(r.status), 8) +
+      fitAnsi(dim(`${r.duration} ms`), 11) +
+      fitAnsi(pre, 7) +
+      fitAnsi(test, 7)
     );
   }
 
-  writeConsoleLog('');
+  writeConsoleLog(separator);
+  writeConsoleLog("");
+  writeConsoleLog(`Requests : ${green(String(passed))} passed, ${failed > 0 ? red(String(failed)) : dim("0")} failed, ${dim(String(total))} total`);
+  if (totalTests > 0) {
+    writeConsoleLog(`Tests    : ${green(String(passedTests))} passed, ${failedTests > 0 ? red(String(failedTests)) : dim("0")} failed, ${dim(String(totalTests))} total`);
+  }
+  writeConsoleLog("");
 }
+
+function fitAnsi(value: string, width: number): string {
+  const visibleLength = stripAnsi(value).length;
+  if (visibleLength > width) {
+    const plain = stripAnsi(value);
+    value = plain.substring(0, width - 3) + "...";
+    return value.padEnd(width);
+  }
+  return value + " ".repeat(width - visibleLength);
+}
+
+function fit(value: string, width: number): string {
+  if (!value) {
+    return "".padEnd(width);
+  }
+  value = stripAnsi(value);
+  if (value.length > width) {
+    value = value.substring(0, width - 3) + "...";
+  }
+  return value.padEnd(width);
+}
+
+function shortUrl(url: string): string {
+  if (!url) {
+    return "";
+  }
+
+  try {
+    const u = new URL(url);
+    const value = u.pathname + u.search;
+    if (value.length <= 32) {
+      return value;
+    }
+    return value.substring(0, 29) + "...";
+  } catch {
+    if (url.length <= 32) {
+      return url;
+    }
+    return url.substring(0, 29) + "...";
+  }
+}
+
 
 function printResponseBody(data: string, format?: string): void {
   writeConsoleLog(`${bold(yellow('Response:'))}`);

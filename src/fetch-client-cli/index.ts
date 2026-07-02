@@ -12,6 +12,8 @@ import { listCollections, listFolders, listVariables } from './commands/list';
 import { runCollection, runFolder, runRequest, runCurl } from './commands/run';
 import { checkDbFiles } from './commands/check';
 import { writeConsoleLog, wrtieConsleError } from './utils/logger';
+import { isSupportedExportFormat, SUPPORTED_EXPORT_FORMATS, ExportFormat } from './types/export.types';
+
 
 // - Version / package info -
 
@@ -55,17 +57,31 @@ fc run --col --name <name> --var-id <uuid>      Run collection with a specific v
 fc run --col --name <name> --var-name <name>    Run collection with a specific variable set (by name)
 fc run --col --name <name> --var-id <uuid>      Override variable set (by id)
 fc run --col --name <name> --var-name <name>    Override variable set (by name)
-                                        Note: if the collection is already linked to a variable set,
-                                        the linked variable takes priority and --var-id/--var-name
-                                        is ignored (an info message is printed).
+                                                Note: if the collection is already linked to a variable set,
+                                                the linked variable takes priority and --var-id/--var-name
+                                                is ignored (an info message is printed).
 
 fc run --fol --name <name>                      Run all requests in a folder by name
 fc run --fol --id <uuid>                        Run all requests in a folder by id
 fc run --fol --name <name> --var-id <uuid>      Override variable set (by id)
 fc run --fol --name <name> --var-name <name>    Override variable set (by name)
-                                        Note: same priority rule applies - linked variable wins.
+                                                Note: same priority rule applies - linked variable wins.
 
-fc run --curl '<curl ...>'                 Execute a raw curl command
+fc run --curl '<curl ...>'                      Execute a raw curl command
+
+── EXPORT ────────────────────────────────────────────────────────
+
+fc run --req --name <name> --export <format> --var-id <uuid>        Export a detailed report after running
+fc run --col --id <uuid> --export <format> --var-name <name>        Supported formats: csv, html, json, xml, nunit
+fc run --col --name <name> --export <format>
+fc run --fol --id <uuid> --export <format>            
+fc run --fol --name <name> --export <format>
+fc run --col --all --export json --export-path <dir>                Export to a custom directory
+                                                                    Notes:
+                                                                    --export is only supported with --req, --col, and --fol.
+                                                                    --export-path must be a directory. If omitted, reports are
+                                                                      written to a "fetch-client-exports" folder alongside the
+                                                                      Fetch Client database.
 
 ── CHECK ───────────────────────────────────────────────────────────
 
@@ -99,7 +115,13 @@ interface ParsedArgs {
   curl?: string;
   varId?: string;
   varName?: string;
+  export?: string;
+  exportPath?: string;
 }
+
+const VALUE_FLAGS = new Set([
+  '--name', '--id', '--curl', '--var-id', '--var-name', '--export', '--export-path',
+]);
 
 function parseArgs(argv: string[]): ParsedArgs {
   const result: ParsedArgs = {
@@ -151,36 +173,29 @@ function parseArgs(argv: string[]): ParsedArgs {
       continue;
     }
 
-    if (arg === '--var-id' && i + 1 < argv.length) {
-      result.varId = argv[++i];
-      continue;
-    }
-
-    if (arg === '--var-name' && i + 1 < argv.length) {
-      result.varName = argv[++i];
-      continue;
-    }
-
-    if (arg === '--name' && i + 1 < argv.length) {
-      result.name = argv[++i];
-      continue;
-    }
-
-    if (arg === '--id' && i + 1 < argv.length) {
-      result.id = argv[++i];
-      continue;
-    }
-
-    if (arg === '--curl' && i + 1 < argv.length) {
-      result.curl = argv[++i];
-      continue;
-    }
-
-    // Handle --name=value / --id=value / --curl=value / --var-id=value / --var-name=value forms
-    const eqMatch = /^--(name|id|curl|var-id|var-name)=(.+)$/.exec(arg);
+    // --name=value / --id=value / --curl=value / --var-id=value /
+    // --var-name=value / --export=value / --export-path=value
+    const eqMatch = /^--(name|id|curl|var-id|var-name|export|export-path)=(.+)$/.exec(arg);
     if (eqMatch) {
       const key = eqMatch[1].replace(/-([a-z])/g, (_, c) => c.toUpperCase()) as keyof ParsedArgs;
       (result as any)[key] = eqMatch[2];
+      continue;
+    }
+
+    if (VALUE_FLAGS.has(arg)) {
+      const next = argv[i + 1];
+
+      // Missing value entirely, or the "value" is actually another flag.
+      if (next === undefined || next.startsWith('--')) {
+        wrtieConsleError(`Missing value for '${arg}'.`);
+        process.exit(1);
+      }
+
+      const key = arg
+        .replace(/^--/, '')
+        .replace(/-([a-z])/g, (_, c) => c.toUpperCase()) as keyof ParsedArgs;
+      (result as any)[key] = next;
+      i++;
       continue;
     }
 
@@ -260,9 +275,21 @@ async function handleList(argv: ParsedArgs): Promise<void> {
 // - run -
 
 async function handleRun(argv: ParsedArgs): Promise<void> {
-  const { name, id, curl } = argv;
+  const { name, id, curl, export: exportFormatRaw, exportPath } = argv;
+
+  if (exportFormatRaw && !isSupportedExportFormat(exportFormatRaw)) {
+    wrtieConsleError(
+      `Invalid --export format '${exportFormatRaw}'. Supported formats: ${SUPPORTED_EXPORT_FORMATS.join(', ')}.`
+    );
+    process.exit(1);
+  }
+
+  const exportFormat = exportFormatRaw as ExportFormat | undefined;
 
   if (curl) {
+    if (exportFormat) {
+      writeConsoleLog("Note: --export is not supported with --curl and will be ignored.");
+    }
     await runCurl(curl);
     return;
   }
@@ -273,7 +300,7 @@ async function handleRun(argv: ParsedArgs): Promise<void> {
       process.exit(1);
     }
 
-    await runRequest({ name, id, varId: argv.varId, varName: argv.varName });
+    await runRequest({ name, id, varId: argv.varId, varName: argv.varName, exportFormat, exportPath });
     return;
   }
 
@@ -284,6 +311,8 @@ async function handleRun(argv: ParsedArgs): Promise<void> {
       id,
       varId: argv.varId,
       varName: argv.varName,
+      exportFormat,
+      exportPath,
     });
     return;
   }
@@ -294,7 +323,7 @@ async function handleRun(argv: ParsedArgs): Promise<void> {
       process.exit(1);
     }
 
-    await runFolder({ name, id, varId: argv.varId, varName: argv.varName });
+    await runFolder({ name, id, varId: argv.varId, varName: argv.varName, exportFormat, exportPath });
     return;
   }
 

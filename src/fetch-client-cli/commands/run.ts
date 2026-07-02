@@ -1,7 +1,9 @@
 import { ConvertCurlToRequest } from "../../fetch-client-core/utils/curlToRequest";
 import { executeTests } from "../../fetch-client-core/helpers/tests.helper";
+import { ExportFormat } from "../types/export.types";
 import { FetchConfig, apiFetch, updateVariables } from "../../fetch-client-core/utils/fetchUtil";
 import { findParentSettings, Col_Repository_GetAllCollections } from "../../fetch-client-core/db/collectionDB.repository";
+import { formatDate } from "../../fetch-client-core/helpers/dateTime.helper";
 import { getTimeOutConfiguration, getHeadersConfiguration } from "../../fetch-client-core/utils/vscodeConfig";
 import { History_Repository_InsertHistory } from "../../fetch-client-core/db/history.repository";
 import { IFolder, IHistory, ICollections, IVariable, ISettings } from "../../fetch-client-core/types/sidebar.types";
@@ -14,7 +16,7 @@ import { printRunResult, printRunSummary, printSection, red, RunResult } from ".
 import { v4 as uuidv4 } from 'uuid';
 import { Var_Repository_FindAll, Var_Repository_FindById, Var_Repository_FindByIdSync } from "../../fetch-client-core/db/variableDB.repository";
 import { writeConsoleLog, wrtieConsleError } from "../utils/logger";
-import { formatDate } from "../../fetch-client-core/helpers/dateTime.helper";
+import { writeExportReport } from "../utils/export/report";
 
 function isFolder(item: any): item is IFolder {
   return item.data !== undefined;
@@ -185,6 +187,7 @@ async function executeRequest(
   variableData: ITableData[],
   settings: ISettings,
   varId?: string,
+  parent?: string
 ): Promise<RunResult> {
 
   const preFetchResponses: IPreFetchResponse[] = [];
@@ -197,9 +200,11 @@ async function executeRequest(
     preFetchResponses.push(...runner.preFetchResponses);
     if (!runner.allow) {
       return {
+        id: request.id,
         name: request.name || request.url,
         method: request.method,
         url: request.url,
+        parent,
         status: 0,
         statusText: 'Pre-Request Failed',
         duration: 0,
@@ -220,9 +225,11 @@ async function executeRequest(
     preFetchResponses.push(...runner.preFetchResponses);
     if (!runner.allow) {
       return {
+        id: request.id,
         name: request.name || request.url,
         method: request.method,
         url: request.url,
+        parent,
         status: 0,
         statusText: 'Pre-Request Failed',
         duration: 0,
@@ -283,9 +290,11 @@ async function executeRequest(
   request = updateVariables(request, variableData);
 
   return {
+    id: request.id,
     name: request.name || request.url,
     method: request.method,
     url: request.url,
+    parent,
     status: raw.response.status,
     statusText: raw.response.statusText,
     duration: raw.response.duration,
@@ -309,7 +318,7 @@ async function executeRequest(
 // --- run --req ---------------------------------------------------------------
 
 export async function runRequest(
-  opts: { name?: string; id?: string, varId?: string, varName?: string }
+  opts: { name?: string; id?: string; varId?: string; varName?: string; exportFormat?: ExportFormat; exportPath?: string }
 ): Promise<void> {
 
   const all: ICollections[] =
@@ -376,18 +385,30 @@ export async function runRequest(
     request,
     variableData,
     settings,
-    effectiveVarId
+    effectiveVarId,
+    collection.name
   );
 
   printRunResult(result);
   printRunSummary([result]);
+
+  if (opts.exportFormat) {
+    const filePath = await writeExportReport(
+      [result],
+      opts.exportFormat,
+      { scope: 'request', name: request.name || request.url },
+      opts.exportPath
+    );
+    writeConsoleLog(`Report exported to: ${filePath}`);
+  }
 }
 
 // --- run --col ---------------------------------------------------------------
 
 export async function runCollection(
   opts: {
-    all?: boolean; name?: string; id?: string, varId?: string; varName?: string;
+    all?: boolean; name?: string; id?: string; varId?: string; varName?: string;
+    exportFormat?: ExportFormat; exportPath?: string;
   }
 ): Promise<void> {
 
@@ -476,7 +497,8 @@ export async function runCollection(
         request,
         variableData,
         settings,
-        effectiveVarId
+        effectiveVarId,
+        col.name
       );
 
       count++;
@@ -487,12 +509,27 @@ export async function runCollection(
   }
 
   printRunSummary(allResults);
+
+  if (opts.exportFormat) {
+    if (allResults.length === 0) {
+      writeConsoleLog('Nothing to export — no requests were run.');
+    } else {
+      const exportName = opts.all ? 'All-Collections' : (targets[0]?.name ?? 'Collection');
+      const filePath = await writeExportReport(
+        allResults,
+        opts.exportFormat,
+        { scope: 'collection', name: exportName },
+        opts.exportPath
+      );
+      writeConsoleLog(`Report exported to: ${filePath}`);
+    }
+  }
 }
 
 // --- run --fol ---------------------------------------------------------------
 
 export async function runFolder(
-  opts: { name?: string; id?: string, varId?: string, varName?: string }
+  opts: { name?: string; id?: string; varId?: string; varName?: string; exportFormat?: ExportFormat; exportPath?: string }
 ): Promise<void> {
 
   const all: ICollections[] =
@@ -630,7 +667,8 @@ export async function runFolder(
       request,
       variableData,
       settings,
-      effectiveVarId
+      effectiveVarId,
+      match.folder.name
     );
 
     count++;
@@ -640,6 +678,16 @@ export async function runFolder(
   }
 
   printRunSummary(allResults);
+
+  if (opts.exportFormat) {
+    const filePath = await writeExportReport(
+      allResults,
+      opts.exportFormat,
+      { scope: 'folder', name: match.folder.name },
+      opts.exportPath
+    );
+    writeConsoleLog(`Report exported to: ${filePath}`);
+  }
 }
 
 // --- run --curl --------------------------------------------------------------
