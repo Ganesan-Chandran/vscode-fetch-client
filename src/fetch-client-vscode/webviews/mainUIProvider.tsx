@@ -22,9 +22,11 @@ import fs from "fs";
 export class WebAppPanel {
 
 	public static currentPanel: WebAppPanel | undefined;
+	private static readonly panels = new Map<string, WebAppPanel>();
 	private readonly _panel: vscode.WebviewPanel;
 	private readonly _extensionUri: vscode.Uri;
 	private _disposables: vscode.Disposable[] = [];
+	private _currentId: string | undefined;
 
 	private _subscriptionId: Subscription;
 
@@ -33,10 +35,22 @@ export class WebAppPanel {
 			? vscode.window.activeTextEditor.viewColumn : undefined;
 		let tabOption = getRequestTabOption();
 
+		if (id && WebAppPanel.panels.has(id)) {
+			const existing = WebAppPanel.panels.get(id);
+			existing._panel.reveal(column);
+			existing._panel.title = name ? name : "New Request";
+			WebAppPanel.currentPanel = existing;
+			return;
+		}
+
 		if (!tabOption && !newTab && WebAppPanel.currentPanel) {
-			WebAppPanel.currentPanel._update(id, colId, varId, type, folderId);
-			WebAppPanel.currentPanel._panel.reveal(column);
-			WebAppPanel.currentPanel._panel.title = name ? name : "New Request";
+			const prev = WebAppPanel.currentPanel;
+			if (prev._currentId) { WebAppPanel.panels.delete(prev._currentId); }
+			prev._currentId = id;
+			if (id) { WebAppPanel.panels.set(id, prev); }
+			prev._update(id, colId, varId, type, folderId);
+			prev._panel.reveal(column);
+			prev._panel.title = name ? name : "New Request";
 			return;
 		}
 		const panel = vscode.window.createWebviewPanel(
@@ -53,7 +67,8 @@ export class WebAppPanel {
 	}
 
 	public static kill() {
-		WebAppPanel.currentPanel?.dispose();
+		WebAppPanel.panels.forEach(p => p._panel.dispose());
+		WebAppPanel.panels.clear();
 		WebAppPanel.currentPanel = undefined;
 	}
 
@@ -74,6 +89,8 @@ export class WebAppPanel {
 	) {
 		this._panel = panel;
 		this._extensionUri = extensionUri;
+		this._currentId = id;
+		if (id) { WebAppPanel.panels.set(id, this); }
 
 		this._update(id, colId, varId, type, folderId);
 
@@ -83,7 +100,8 @@ export class WebAppPanel {
 
 		this._panel.onDidDispose(() => {
 			this._subscriptionId.unsubscribe();
-			this.dispose(id, colId, folderId);
+			if (this._currentId) { WebAppPanel.panels.delete(this._currentId); }
+			this.dispose(this._currentId, colId, folderId);
 		}, null, this._disposables);
 
 		this._panel.onDidChangeViewState(function (event) {
@@ -248,7 +266,9 @@ export class WebAppPanel {
 
 		sideBarProvider.view.webview.postMessage({ type: requestTypes.closeItemRequest, id: id, colId: colId, folderId: folderId });
 
-		WebAppPanel.currentPanel = undefined;
+		if (WebAppPanel.currentPanel === this) {
+			WebAppPanel.currentPanel = undefined;
+		}
 
 		// Clean up our resources
 		this._panel.dispose();
