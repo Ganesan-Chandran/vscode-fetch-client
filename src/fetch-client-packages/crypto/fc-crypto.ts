@@ -1,63 +1,71 @@
 import { ITableData } from "../../fetch-client-core/types/common.types";
 import * as crypto from "crypto";
 
+const ALGORITHM = "aes-256-cbc";
+const KEY_LENGTH = 32; // AES-256 key length in bytes
+const IV_LENGTH = 16;  // CBC IV length in bytes
+
 export class FCCipher {
-	secret_key: string;
-	secret_iv: string;
-	algorithm = 'aes-256-cbc';
+	private readonly key: Buffer;
+	private readonly iv: Buffer;
 
 	constructor(secretKey: string) {
-		this.secret_key = crypto.createHash('sha512').update(secretKey).digest('hex').substring(0, 32);
-		this.secret_iv = crypto.createHash('sha512').update(secretKey).digest('hex').substring(0, 16);
+		const digest = crypto.createHash("sha512").update(secretKey).digest("hex");
+		this.key = Buffer.from(digest.substring(0, KEY_LENGTH), "utf8");
+		this.iv = Buffer.from(digest.substring(0, IV_LENGTH), "utf8");
 	}
 
 	EncryptData(text: string): string {
-		try {
-			if (!text) {
-				return "";
-			}
-			const cipher = crypto.createCipheriv(this.algorithm, this.secret_key, this.secret_iv);
-			return Buffer.from(
-				cipher.update(text.toString(), 'utf8', 'hex') + cipher.final('hex')
-			).toString('base64');
+		if (!text) {
+			return "";
 		}
-		catch (err) {
-			console.log("error::EncryptData(): - Error Mesaage : " + err);
+		try {
+			const cipher = crypto.createCipheriv(ALGORITHM, this.key, this.iv);
+			const hexEncrypted = cipher.update(text, "utf8", "hex") + cipher.final("hex");
+			return Buffer.from(hexEncrypted, "utf8").toString("base64");
+		} catch (err) {
+			this.logError("EncryptData", err);
 			return "";
 		}
 	}
 
 	DecryptData(encryptedData: string): string {
 		try {
-			if (!encryptedData) {
-				return "";
-			}
-			const buff = Buffer.from(encryptedData.toString(), 'base64');
-			const decipher = crypto.createDecipheriv(this.algorithm, this.secret_key, this.secret_iv);
-			return (
-				decipher.update(buff.toString('utf8'), 'hex', 'utf8') +
-				decipher.final('utf8')
-			);
-		}
-		catch (err) {
-			console.log("error::DecryptData(): - Error Mesaage : " + err);
+			return this.decryptInternal(encryptedData);
+		} catch (err) {
+			this.logError("DecryptData", err);
 			return "";
 		}
 	}
 
-	EncryptBulkData(data: ITableData[]): ITableData[] {
-		data.forEach((data) => {
-			data.value = this.EncryptData(data.value);
-		});
-
-		return data;
+	private decryptInternal(encryptedData: string): string {
+		if (!encryptedData) {
+			return "";
+		}
+		const hexEncrypted = Buffer.from(encryptedData, "base64").toString("utf8");
+		const decipher = crypto.createDecipheriv(ALGORITHM, this.key, this.iv);
+		return decipher.update(hexEncrypted, "hex", "utf8") + decipher.final("utf8");
 	}
 
-	DecryptBulkData(data: ITableData[]): ITableData[] {
-		data.forEach((data) => {
-			data.value = this.DecryptData(data.value);
-		});
+	EncryptBulkData(records: ITableData[]): ITableData[] {
+		for (const record of records) {
+			record.value = this.EncryptData(record.value);
+		}
+		return records;
+	}
 
-		return data;
+	DecryptBulkData(records: ITableData[]): ITableData[] {
+		for (const record of records) {
+			try {
+				record.value = this.decryptInternal(record.value);
+			} catch {
+				// leave value as-is if it isn't decryptable
+			}
+		}
+		return records;
+	}
+
+	private logError(method: string, err: unknown): void {
+		console.log(`error::${method}(): - Error Message: ${err instanceof Error ? err.message : String(err)}`);
 	}
 }

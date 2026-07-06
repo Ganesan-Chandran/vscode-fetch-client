@@ -96,27 +96,23 @@ export function getRunMainRequestOption(): boolean {
 }
 
 export function getSaveToWorkspaceConfiguration(): boolean {
-    return getFetchClientConfiguration().get<boolean>("saveToWorkspace", false);
+	return getFetchClientConfiguration().get<boolean>("saveToWorkspace", false);
 }
 
 export function getWorkspacePathConfiguration(): string {
-    return getFetchClientConfiguration().get<string>("workspacePath", "");
+	return getFetchClientConfiguration().get<string>("workspacePath", "");
 }
 
 export function getDbPathConfiguration(): DbPathOption {
-    return getFetchClientConfiguration().get<DbPathOption>("dbPath", "Default");
+	return getFetchClientConfiguration().get<DbPathOption>("dbPath", "Default");
 }
 
 export function getCustomDbPathConfiguration(): string {
-    return getFetchClientConfiguration().get<string>("customDbPath", "");
+	return getFetchClientConfiguration().get<string>("customDbPath", "");
 }
 
 export function updateDbPathConfiguration(value: DbPathOption): void {
-    getFetchClientConfiguration().update(
-        "dbPath",
-        value,
-        vscode.ConfigurationTarget.Global
-    );
+	getFetchClientConfiguration().update("dbPath", value, vscode.ConfigurationTarget.Global);
 }
 
 export function getVariableEncryptionFCConfiguration(): boolean {
@@ -146,6 +142,10 @@ export function getExportCollectionConfiguration(): boolean {
 
 export function updateVariableEncryptionKey(key: string) {
 	return getFetchClientConfiguration().update("variableEncryptionKey", key, vscode.ConfigurationTarget.Global);
+}
+
+export function updateVariableEncryption(shouldEncrypt: boolean) {
+	return getFetchClientConfiguration().update("encryptedVariables", shouldEncrypt, vscode.ConfigurationTarget.Global);
 }
 
 // ---------------------------------------------------------------------------

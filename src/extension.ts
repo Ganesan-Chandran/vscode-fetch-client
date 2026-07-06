@@ -1,9 +1,29 @@
-import { access, mkdir } from "fs/promises";
-import { AddToColUI, AutoRequestProviderUI, BulkExportProviderUI, CookieUI, CurlProviderUI, ErrorLogUI, SideBarProvider, VariableUI, WebAppPanel } from "./fetch-client-vscode/webviews";
-import { autoRequestDBPath, collectionDBPath, cookieDBPath, getExtDbPath, getExtLocalDbPath, getGlobalStorageUri, historyDBPath, mainDBPath, responseDBPath, setGlobalStorageUri, variableDBPath } from "./fetch-client-core/db/dbHelper";
-import { CreateAutoRequestDB, CreateCollectionDB, CreateCookieDB, CreateHistoryDB, CreateMainDB, CreateResponseDB, CreateVariableDB } from './fetch-client-core/db/dbUtil';
+import {
+	AddToColUI, AutoRequestProviderUI, BulkExportProviderUI, CookieUI, CurlProviderUI,
+	ErrorLogUI, SideBarProvider, VariableUI, WebAppPanel
+} from "./fetch-client-vscode/webviews";
+import {
+	autoRequestDBPath, collectionDBPath, cookieDBPath, getExtDbPath, getExtLocalDbPath,
+	getGlobalStorageUri, historyDBPath, mainDBPath,
+	responseDBPath, setGlobalStorageUri, variableDBPath
+} from "./fetch-client-core/db/dbHelper";
+import {
+	CreateAutoRequestDB, CreateCollectionDB, CreateCookieDB, CreateHistoryDB, CreateMainDB,
+	CreateResponseDB, CreateVariableDB
+} from './fetch-client-core/db/dbUtil';
 import { createLogFile } from './fetch-client-core/helpers/logger/logger';
-import { DbPathOption, getCustomDbPathConfiguration, getDbPathConfiguration, getSaveToWorkspaceConfiguration, getVariableEncryptionFCConfiguration, getVariableEncryptionKey, setVariableEncryptionConfiguration, setVariableEncryptionKey, updateDbPathConfiguration, updateVariableEncryptionKey } from './fetch-client-core/utils/vscodeConfig';
+import {
+	DbPathOption, getCustomDbPathConfiguration, getDbPathConfiguration, getSaveToWorkspaceConfiguration,
+	getVariableEncryptionFCConfiguration, getVariableEncryptionKey, setVariableEncryptionConfiguration,
+	setVariableEncryptionKey, updateDbPathConfiguration, updateSaveToWorkspaceConfiguration,
+	updateVariableEncryption, updateVariableEncryptionKey
+} from './fetch-client-core/utils/vscodeConfig';
+import {
+	GetAllVariable, UpdateToDecryptedVariables, UpdateToEncryptedVariables,
+	UpdateWithAnotherKey
+} from './fetch-client-vscode/db/varDBUtil';
+import { access, mkdir } from "fs/promises";
+import { backupFile } from "./fetch-client-vscode/utils/common.utils";
 import { FCScheduler } from "./fetch-client-vscode/utils/scheduler";
 import { flushCollectionDB } from "./fetch-client-core/db/collectionDB.repository";
 import { flushHistoryDB } from "./fetch-client-core/db/history.repository";
@@ -11,7 +31,6 @@ import { flushMainDB } from "./fetch-client-core/db/mainDB.repository";
 import { flushVariableDB } from "./fetch-client-core/db/variableDB.repository";
 import { GetAllCollections } from './fetch-client-vscode/db/collectionDBUtil';
 import { GetAllHistory } from './fetch-client-vscode/db/historyDBUtil';
-import { GetAllVariable, UpdateToDecryptedVariables, UpdateToEncryptedVariables, UpdateWithAnotherKey } from './fetch-client-vscode/db/varDBUtil';
 import { IPubSubMessage, PubSub } from './fetch-client-core/utils/pubSub';
 import { LocalStorageService } from "./fetch-client-vscode/utils/localStorageService";
 import { logPath } from './fetch-client-core/helpers/logger/constants';
@@ -222,6 +241,8 @@ function getSourcePath(mode: DbPathOption): string {
 	return getGlobalStorageUri();
 }
 
+let isUpdatingEncryptionSetting = false;
+
 function registerEventListeners(context: vscode.ExtensionContext): void {
 	context.subscriptions.push(
 		vscode.window.onDidChangeActiveColorTheme(() => {
@@ -281,6 +302,7 @@ function registerEventListeners(context: vscode.ExtensionContext): void {
 				transferDbConfig(newMode, sourcePath).then((applied) => {
 					if (applied) {
 						extCache.set("oldDbPathMode", newMode);
+						updateSaveToWorkspaceConfiguration(newMode === "Workspace" ? true : false);
 					} else {
 						// Transfer was cancelled or failed - revert the config setting.
 						// Do NOT update cache so the next change event sees the correct oldMode.
@@ -357,21 +379,58 @@ function registerEventListeners(context: vscode.ExtensionContext): void {
 			}
 
 			if (e.affectsConfiguration("fetch-client.encryptedVariables")) {
-				const shouldEncrypt = getVariableEncryptionFCConfiguration();
-				let key = getVariableEncryptionKey();
-
-				if (!key) {
-					vscode.window.showInformationMessage("Encryption key is required. Enter the encryption key in Fetch Client Settings -> Variable Encryption Key");
-					return;
-				}
-				if (shouldEncrypt) {
-					UpdateToEncryptedVariables(key);
-					setVariableEncryptionConfiguration(true);
-				} else {
-					UpdateToDecryptedVariables(key);
-					setVariableEncryptionConfiguration(false);
-				}
+				await handleEncryptedVariablesChange();
 			}
 		}),
 	);
+}
+
+const BACKUP_DIR_SUFFIX = "\\backups\\";
+
+function getBackupDir(): string {
+	return `${getGlobalStorageUri() + BACKUP_DIR_SUFFIX}`;
+}
+
+async function handleEncryptedVariablesChange(): Promise<void> {
+	if (isUpdatingEncryptionSetting) {
+		return;
+	}
+
+	const shouldEncrypt = getVariableEncryptionFCConfiguration();
+	const key = getVariableEncryptionKey();
+
+	if (!key) {
+		vscode.window.showInformationMessage(
+			"Encryption key is required. Enter the encryption key in Fetch Client Settings -> Variable Encryption Key"
+		);
+
+		isUpdatingEncryptionSetting = true;
+		try {
+			await updateVariableEncryption(!shouldEncrypt);
+		} finally {
+			isUpdatingEncryptionSetting = false;
+		}
+		return;
+	}
+
+	try {
+		backupFile(variableDBPath(), getBackupDir());
+
+		if (shouldEncrypt) {
+			await UpdateToEncryptedVariables(key);
+		} else {
+			await UpdateToDecryptedVariables(key);
+		}
+
+		isUpdatingEncryptionSetting = true;
+		try {
+			setVariableEncryptionConfiguration(shouldEncrypt);
+		} finally {
+			isUpdatingEncryptionSetting = false;
+		}
+	} finally {
+		await vscode.window.showInformationMessage("Reload VS Code to apply the changes", { modal: true });
+		await deactivate();
+		await vscode.commands.executeCommand("workbench.action.reloadWindow");
+	}
 }

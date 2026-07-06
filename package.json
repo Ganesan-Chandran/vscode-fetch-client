@@ -300,7 +300,7 @@
             "type": "boolean",
             "default": false,
             "scope": "resource",
-            "markdownDescription": "Encrypt the environment variable values in the local store.",
+            "markdownDescription": "Encrypt environment variable values stored locally. **`Note: Changes to this setting require reloading VS Code to take effect.`**",
             "order": 17
           },
           "fetch-client.variableEncryptionKey": {
