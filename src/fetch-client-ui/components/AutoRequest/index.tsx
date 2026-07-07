@@ -1,12 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
-import { v4 as uuidv4 } from 'uuid';
+import "./style.css";
+import { formatDate } from "../../../fetch-client-core/helpers/dateTime.helper";
+import { IAutoRequest } from "../../../fetch-client-core/types/autorequest.types";
+import { ICollection, IColRequest, IRequestList } from "../../../fetch-client-core/types/prefetch.types";
 import { ReactComponent as BinLogo } from '../../../../icons/bin.svg';
 import { requestTypes, responseTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
-import { formatDate } from "../../../fetch-client-core/helpers/dateTime.helper";
+import { v4 as uuidv4 } from 'uuid';
+import React, { useEffect, useRef, useState } from "react";
 import vscode from "../Common/vscodeAPI";
-import "./style.css";
-import { ICollection, IColRequest, IRequestList } from "../../../fetch-client-core/types/prefetch.types";
-import { IAutoRequest } from "../../../fetch-client-core/types/autorequest.types";
 
 const AutoRequest = () => {
 
@@ -26,6 +26,8 @@ const AutoRequest = () => {
 		refSelectedRequestList.current = data;
 		_setSelectedRequestList(refSelectedRequestList.current);
 	};
+
+	const [statusMsg, setStatusMsg] = useState<{ text: string; isError?: boolean } | null>(null);
 
 
 	useEffect(() => {
@@ -204,6 +206,7 @@ const AutoRequest = () => {
 
 	const onEnableAutoRequest = () => {
 		vscode.postMessage({ type: requestTypes.saveAutoRequestRequest, data: selectedRequestList });
+		setStatusMsg({ text: "Auto request settings saved successfully." });
 	};
 
 	const formatDuration = (totalMinutes: number): string => {
@@ -215,136 +218,148 @@ const AutoRequest = () => {
 		return `${totalMinutes} minutes`;
 	};
 
+	function renderStatus() {
+		if (!statusMsg) { return null; }
+		return (
+			<div className={`reorder-status ${statusMsg.isError ? "reorder-status--error" : "reorder-status--ok"}`}>
+				{statusMsg.text}
+			</div>
+		);
+	}
+
+	function renderHeader() {
+		return (
+			<div className="autorequest-row autorequest-row--header">
+				<div className="autorequest-cell">Collection</div>
+				<div className="autorequest-cell">Request</div>
+				<div className="autorequest-cell">
+					Interval (minutes)
+					<label
+						className="runall-settings-info-label"
+						title={"Time between the request exection. \nmin value is 15 and max value is 600"}>
+						ⓘ
+					</label>
+				</div>
+				<div className="autorequest-cell">
+					Duration (minutes)
+					<label
+						className="runall-settings-info-label"
+						title={"Total duration of the auto request execution.\nmin value is 15 and max value is 600"}
+					>
+						ⓘ
+					</label>
+				</div>
+				<div className="autorequest-cell">Remove</div>
+			</div>
+		);
+	}
+
+	function renderRequests() {
+		return (
+			selectedRequestList.map((item, index) => {
+				return (
+					<div className="autorequest-row" key={item.id}>
+						<div className="autorequest-cell">
+							<select className="preReq-col-select"
+								id={"preReq_col_" + index.toString()}
+								required={true}
+								value={item.colId}
+								onChange={(e) => onSelectRequest(e.target.value, index, "col")}
+							>
+								{collections?.length > 0 && collections.map((item, index) => (
+									<option value={item.id} key={index + item.name} disabled={index === 0 ? true : false} hidden={index === 0 ? true : false}>
+										{item.name}
+									</option>
+								))}
+							</select>
+						</div>
+						<div className="autorequest-cell">
+							<select className="preReq-col-select"
+								id={"preReq_req_" + index.toString()}
+								required={true}
+								value={item.reqId}
+								onChange={(e) => onSelectRequest(e.target.value, index, "req")}
+							>
+								{getRequestList(index)?.map(({ id, name }) => (
+									<option value={id} key={id}>
+										{name.split(";")[0]}
+									</option>
+								))}
+							</select>
+						</div>
+						<div className="autorequest-cell">
+							<input
+								id={"preReq_int_" + index.toString()}
+								className={getCss(item.interval)}
+								value={item.interval}
+								onChange={(event) => onIntervalUpdate(event, index)}
+								disabled={selectedRequestList[index].colId ? false : true}
+								placeholder={"interval"}
+								type="text"
+							/>
+						</div>
+						<div className="autorequest-cell">
+							<input
+								id={"preReq_dur_" + index.toString()}
+								className={getCss(item.duration)}
+								value={item.duration}
+								onChange={(event) => onDurationUpdate(event, index)}
+								disabled={selectedRequestList[index].colId ? false : true}
+								placeholder={"interval"}
+								type="text"
+							/>
+							<label
+								className="runall-settings-info-label"
+								title={
+									item.colId && item.reqId
+										? `The request will be executed every ${formatDuration(item.interval)}. \nuntil the next ${formatDuration(item.duration)}`
+										: ""
+								}
+							>
+								ⓘ
+							</label>
+						</div>
+						<div className="autorequest-cell">
+							{(selectedRequestList[index].colId || selectedRequestList[index].reqId) && <BinLogo className="delete-button" onClick={() => onDeleteReqClick(index)} />}
+						</div>
+					</div>
+				);
+			})
+		);
+	}
+
 	return (
-		<div>
-			{
-				loading === true ?
+		<div className="reorder-panel">
+			<div className="reorder-header">🔁 Auto Request</div>
+			<div className="reorder-body">
+				{loading ? (
 					<>
-						<div id="divSpinner" className="spinner loading"></div>
-						<div className="loading-history-text">{"Loading...."}</div>
+						<div id="divSpinner" className="spinner loading" />
+						<div className="loading-history-text">Loading....</div>
 					</>
-					:
+				) : (
 					<>
-						<div className="addto-header">🔁 Auto Request</div>
-						<div className="addto-body autorequest-header-panel note-panel">
-							<div className="autorequest-max-note">
-								* Max 5 request (It is recommended that each request does not contain any PreFetch requests. If there are any PreFetch requests, then the PreFetch requests won't be executed.)
-							</div>
+						<div className="autorequest-max-note">
+							Max 5 requests · Requests containing PreFetch steps will skip PreFetch execution
 						</div>
-						<div className="addto-body autorequest-header-panel autorequest-panel">
-							<div className="autorequest-text-panel">
-								Collection
-							</div>
-							<div className="autorequest-text-panel">
-								Request
-							</div>
-							<div className="autorequest-text-panel">
-								Interval (minutes)
-								<label
-									className="runall-settings-info-label"
-									title={"Time between the request exection. \nmin value is 15 and max value is 600"}>
-									ⓘ
-								</label>
-							</div>
-							<div className="autorequest-text-panel">
-								Duration (minutes)
-								<label
-									className="runall-settings-info-label"
-									title={"Total duration of the auto request execution.\nmin value is 15 and max value is 600"}
-								>
-									ⓘ
-								</label>
-							</div>
-							<div className="autorequest-text-panel">
-								Remove
-							</div>
+						<div className="reorder-tree-panel autorequest-scroll-panel">
+							{renderHeader()}
+							{renderRequests()}
 						</div>
-						{
-							selectedRequestList.map((item, index) => {
-								return (<div className="addto-body autorequest-panel">
-									<div className="autorequest-text-panel">
-										<select className="preReq-col-select autorequest-control-width"
-											id={"preReq_col_" + index.toString()}
-											required={true}
-											value={item.colId}
-											onChange={(e) => onSelectRequest(e.target.value, index, "col")}
-										>
-											{collections?.length > 0 && collections.map((item, index) => (
-												<option value={item.id} key={index + item.name} disabled={index === 0 ? true : false} hidden={index === 0 ? true : false}>
-													{item.name}
-												</option>
-											))}
-										</select>
-									</div>
-									<div className="autorequest-text-panel">
-										<select className="preReq-col-select autorequest-control-width"
-											id={"preReq_req_" + index.toString()}
-											required={true}
-											value={item.reqId}
-											onChange={(e) => onSelectRequest(e.target.value, index, "req")}
-										>
-											{getRequestList(index)?.map(({ id, name }) => (
-												<option value={id} key={id}>
-													{name.split(";")[0]}
-												</option>
-											))}
-										</select>
-									</div>
-									<div className="autorequest-text-panel">
-										<input
-											id={"preReq_int_" + index.toString()}
-											className={getCss(item.interval)}
-											value={item.interval}
-											onChange={(event) => onIntervalUpdate(event, index)}
-											disabled={selectedRequestList[index].colId ? false : true}
-											placeholder={"interval"}
-											type="text"
-										/>
-									</div>
-									<div className="autorequest-text-panel">
-										<input
-											id={"preReq_dur_" + index.toString()}
-											className={getCss(item.duration)}
-											style={{ width: "70%", marginRight: "5px" }}
-											value={item.duration}
-											onChange={(event) => onDurationUpdate(event, index)}
-											disabled={selectedRequestList[index].colId ? false : true}
-											placeholder={"interval"}
-											type="text"
-										/>
-										<label
-											className="runall-settings-info-label"
-											title={
-												item.colId && item.reqId
-													? `The request will be executed every ${formatDuration(item.interval)}. \nuntil the next ${formatDuration(item.duration)}`
-													: ""
-											}
-										>
-											ⓘ
-										</label>
-									</div>
-									<div className="autorequest-text-panel">
-										{(selectedRequestList[index].colId || selectedRequestList[index].reqId) && <BinLogo className="delete-button" onClick={() => onDeleteReqClick(index)} />}
-									</div>
-								</div>);
-							})
-						}
-						<div className="autorequest-button-panel">
-							<div></div>
-							<div className="button-panel bulk-button-panel">
-								<button
-									type="submit"
-									className="submit-button"
-									disabled={getButtonDisabledStatus()}
-									onClick={onEnableAutoRequest}
-								>
-									Enable
-								</button>
-							</div>
-							<div></div>
+						{renderStatus()}
+						<div className="reorder-btn-panel">
+							<button
+								type="button"
+								className="submit-button reorder-btn"
+								disabled={getButtonDisabledStatus()}
+								onClick={onEnableAutoRequest}
+							>
+								Enable
+							</button>
 						</div>
 					</>
-			}
+				)}
+			</div>
 		</div>
 	);
 };

@@ -315,3 +315,32 @@
 .log-icon {
 	transform: scale(0.3);
 }
+
+.dropdown-item-with-submenu {
+	position: relative;
+}
+
+.submenu-trigger {
+	display: flex !important;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.submenu-arrow {
+	margin-left: 6px;
+}
+
+.tools-submenu {
+	display: none;
+	top: 0;
+	right: 100%; /* opens to the left of the parent dropdown */
+	width: 130px;
+}
+
+.dropdown-item-with-submenu:hover .tools-submenu {
+	display: block;
+}
+
+.dropdown-content.has-submenu {
+	overflow: visible;
+}

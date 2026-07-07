@@ -554,7 +554,13 @@ export const CollectionBar = (props: ICollectionProps) => {
 								</div>
 							</div>
 							<div className="divider"></div>
-							<button onClick={(e) => onRunAll(e, cols.id, item.id, cols.name + " \\ " + item.name, cols.variableId)}>Run All</button>
+							<div className="parent-menu"
+								onClick={(e) => { e.stopPropagation(); e.preventDefault(); }} onContextMenu={(e) => { e.stopPropagation(); e.preventDefault(); }}>
+								Tools <span className="col-menu-submenu-arrow">›</span>
+								<div className="dropdown-more sub-menu tools-sub-menu">
+									<button onClick={(e) => onRunAll(e, cols.id, item.id, cols.name + " \\ " + item.name, cols.variableId)}>Run All</button>
+								</div>
+							</div>
 							<button onClick={(e) => onReOrderItems(e, cols.id, item.id)}>Arrange Items</button>
 							<div className="divider"></div>
 							<button onClick={(e) => onRename(e, cols.id, "", item.id, true)}>Rename</button>
@@ -628,14 +634,22 @@ export const CollectionBar = (props: ICollectionProps) => {
 						{getColFolDotMenu("three-dots-" + item.id, "collection Menu", "col-fol-icon", (e) => { e.stopPropagation(); e.preventDefault(); }, (e) => openMoreMenu(e, item.id))}
 						<input type="checkbox" className="dd-input" checked={item.id === currentHeadIndex} readOnly />
 						<DropdownPortal id={item.id} open={item.id === currentHeadIndex}>
-							<div className="parent-menu" onClick={(e) => { e.stopPropagation(); e.preventDefault(); }} onContextMenu={(e) => { e.stopPropagation(); e.preventDefault(); }}> New
+							<div className="parent-menu"
+								onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
+								onContextMenu={(e) => { e.stopPropagation(); e.preventDefault(); }}> New <span className="col-menu-submenu-arrow">›</span>
 								<div className="dropdown-more sub-menu">
 									<button onClick={(e) => addNewRequest(e, item.id, "")}>Request</button>
 									<button onClick={(e) => addNewFolder(e, item.id, "")}>Folder</button>
 								</div>
 							</div>
 							<div className="divider"></div>
-							<button onClick={(e) => onRunAll(e, item.id, "", item.name, item.variableId)}>Run All</button>
+							<div className="parent-menu"
+								onClick={(e) => { e.stopPropagation(); e.preventDefault(); }} onContextMenu={(e) => { e.stopPropagation(); e.preventDefault(); }}>
+								Tools <span className="col-menu-submenu-arrow">›</span>
+								<div className="dropdown-more sub-menu tools-sub-menu">
+									<button onClick={(e) => onRunAll(e, item.id, "", item.name, item.variableId)}>Run All</button>
+								</div>
+							</div>
 							<button onClick={(e) => onReOrderItems(e, item.id)}>Arrange Items</button>
 							{index !== 0 && <div className="divider"></div>}
 							{index !== 0 && <><button onClick={(e) => onRenameCollection(e, item.id)}>Rename</button>

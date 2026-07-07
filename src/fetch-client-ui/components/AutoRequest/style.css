@@ -57,7 +57,8 @@
 
 .autorequest-max-note {
 	color: red;
-	padding-bottom: 7px;
+	font-size: 13px;
+	padding: 4px 0;
 }
 
 .detail-note {
@@ -65,6 +66,50 @@
 	width: 100%;
 }
 
-.autorequest-control-width {
-	width: 85% !important;
+/* Table container */
+.autorequest-scroll-panel {
+	overflow: auto;
+}
+
+/* Header + rows */
+.autorequest-row {
+	display: grid;
+	grid-template-columns: 2fr 2fr 140px 140px 50px;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 12px;
+	border-bottom: 1px solid var(--vscode-editorGroup-border);
+}
+
+/* Header */
+.autorequest-row--header {
+	position: sticky;
+	top: 0;
+	background: var(--vscode-sideBar-background);
+	font-weight: 600;
+	z-index: 2;
+}
+
+/* Cells */
+.autorequest-cell {
+	display: flex;
+	align-items: center;
+	min-width: 0;
+}
+
+/* Controls */
+.autorequest-cell select {
+	width: 80% !important;
+	box-sizing: border-box;
+}
+
+.autorequest-cell input {
+	width: 70% !important;
+	box-sizing: border-box;
+	margin-right: 5px;
+}
+
+/* Delete icon */
+.autorequest-cell:last-child {
+	justify-content: center;
 }

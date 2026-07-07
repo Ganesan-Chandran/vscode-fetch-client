@@ -251,7 +251,15 @@ const SideBar = () => {
 		return (
 			<>
 				<button onClick={(e) => onNewCollection(e)}>New Collection</button>
-				<button onClick={(e) => onAutoRequest(e)}>Auto Request</button>
+				<div className="dropdown-item-with-submenu">
+					<button className="submenu-trigger"
+						onClick={(e) => { e.stopPropagation(); e.preventDefault(); }} onContextMenu={(e) => { e.stopPropagation(); e.preventDefault(); }}>
+						Tools <span className="submenu-arrow">›</span>
+					</button>
+					<div className="dropdown-more tools-submenu">
+						<button onClick={(e) => onAutoRequest(e)}>Auto Request</button>
+					</div>
+				</div>
 				<hr />
 				<button onClick={(e) => onImportCurl(e)}>Import/Run Curl</button>
 				<button onClick={(e) => onImportData(e)}>Import</button>
@@ -302,7 +310,7 @@ const SideBar = () => {
 							(e) => setShowMenu(e)
 						)}
 						{menuShow && (
-							<div id="myDropdown" className={"dropdown-content show"}>
+							<div id="myDropdown" className={"dropdown-content show has-submenu"}>
 								{selectedTab === "History" ? getHistoryMenuItems()
 									: selectedTab === "Collection" ? getCollectionsMenuItems()
 										: getVariableMenuItems()}
