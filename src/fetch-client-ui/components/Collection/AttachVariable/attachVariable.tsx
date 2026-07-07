@@ -4,6 +4,7 @@ import { requestTypes, responseTypes } from "../../../../fetch-client-core/const
 import { useState } from "react";
 import React, { useEffect } from "react";
 import vscode from "../../Common/vscodeAPI";
+import PanelLayout from "../../Common/Layout/panelLayout";
 
 const AttachVariable = () => {
 	const [colName, setColName] = useState("");
@@ -64,73 +65,106 @@ const AttachVariable = () => {
 		}
 	}
 
+	function renderHint() {
+		return (
+			<div className="reorder-hint">
+				Select a variable to attach to the selected collection.
+			</div>
+		);
+	}
+
+	function renderForm() {
+		return (
+			<div className="reorder-tree-panel">
+				<table className="addto-table attach-variable-scroll-panel" cellPadding={0} cellSpacing={0}>
+					<tbody>
+						<tr>
+							<td className="col-1-size">
+								<span className="addto-label">Selected Collection</span>
+							</td>
+							<td className="col-2-size">
+								<input
+									className="addto-text disabled"
+									type="text"
+									value={colName}
+									disabled
+								/>
+							</td>
+						</tr>
+
+						<tr>
+							<td className="col-1-size">
+								<span className="addto-label">Variable</span>
+							</td>
+
+							<td className="col-2-size block-display">
+								<select
+									className={
+										errors["varId"]
+											? "addto-select var-select error-select"
+											: "addto-select var-select"
+									}
+									value={selectedVarId}
+									onChange={onSelect}
+								>
+									{names.map((item: any, index: number) => (
+										<option
+											key={index + item.name}
+											value={item.value}
+											disabled={item.disabled}
+											hidden={index === 0}
+										>
+											{item.name}
+										</option>
+									))}
+								</select>
+
+								{errors["varId"] && (
+									<div className="error-text">
+										{errors["varId"]}
+									</div>
+								)}
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		);
+	}
+
+	function renderFooter() {
+		return (
+			<>
+				{isDone && (
+					<div className="reorder-status reorder-status--ok">
+						{`Collection '${colName}' is attached to variable successfully`}
+					</div>
+				)}
+
+				<div className="reorder-btn-panel">
+					<button
+						type="button"
+						className="submit-button reorder-btn"
+						onClick={onSubmitClick}
+						disabled={isDone}
+					>
+						{isDone ? "✓ Attached" : "Attach Variable"}
+					</button>
+				</div>
+			</>
+		);
+	}
+
 	return (
 		colId ?
-			<div>
-				<div className="addto-header">🔗 Attach Variable</div>
-				<div className="addto-body">
-					<table className="addto-table center" cellPadding={0} cellSpacing={0}>
-						<tbody>
-							<tr>
-								<td className="col-1-size">
-									<span className="addto-label">Selected Collection</span>
-								</td>
-								<td className="col-2-size">
-									<input className="addto-text disabled" type="text" title="Name" value={colName} disabled={true}></input>
-								</td>
-							</tr>
-							<tr>
-								<td className="col-1-size">
-									<span className="addto-label">Variable</span>
-								</td>
-								<td className="col-2-size block-display">
-									<select
-										className={errors["varId"] ? "addto-select var-select error-select" : "addto-select var-select"}
-										required={true}
-										value={selectedVarId}
-										onChange={(e) => onSelect(e)}
-									>
-										{
-											names.map((param: any, index: number) => {
-												return (
-													<option
-														disabled={param.disabled}
-														hidden={index === 0 ? true : false}
-														key={index + param.name}
-														value={param.value}
-													>
-														{param.name}
-													</option>
-												);
-											})
-										}
-									</select>
-								</td>
-							</tr>
-							<tr>
-								<td className="col-1-size">
-								</td>
-								<td className="col-2-size">
-									{errors["varId"] && <div className="error-text">{errors["varId"]}</div>}
-								</td>
-							</tr>
-						</tbody>
-					</table>
-					<div className="button-panel">
-						<button
-							type="submit"
-							className="submit-button"
-							onClick={onSubmitClick}
-							disabled={isDone}
-						>
-							Submit
-						</button>
-					</div>
-					<div className="message-panel">
-						{isDone && (<span className="success-message">{`Collection '${colName}' is attached to variable successfully`}</span>)}
-					</div>
-				</div>
-			</div>
+			<PanelLayout
+				title="🔗 Attach Variable"
+				loading={!colId}
+				footer={renderFooter()}
+			>
+				{renderHint()}
+				{renderForm()}
+			</PanelLayout>
 			:
 			<></>
 	);

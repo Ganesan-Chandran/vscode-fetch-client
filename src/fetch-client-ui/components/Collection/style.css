@@ -604,3 +604,15 @@ select.runall-order-select option {
 .table-padding-left {
 	padding-left : 10px;
 }
+
+.addto-scroll-panel {
+  padding: 15px 10px 15px 10px;
+}
+
+.copyto-scroll-panel {
+  padding: 15px;
+}
+
+.attach-variable-scroll-panel {
+  padding: 15px;
+}

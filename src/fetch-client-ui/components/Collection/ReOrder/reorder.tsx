@@ -4,6 +4,7 @@ import { isFolder } from "../../../../fetch-client-core/helpers/common.helper";
 import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
 import React, { useEffect, useRef, useState } from "react";
 import vscode from "../../Common/vscodeAPI";
+import PanelLayout from "../../Common/Layout/panelLayout";
 
 type TreeItem = IHistory | IFolder;
 
@@ -365,27 +366,18 @@ const ReOrder: React.FC = () => {
 	}
 
 	return (
-		<div className="reorder-panel">
-			<div className="reorder-header">🔁 Arrange Items</div>
-			<div className="reorder-body">
-				{renderHeader()}
-				{loading ? (
-					<>
-						<div id="divSpinner" className="spinner loading" />
-						<div className="loading-history-text">Loading....</div>
-					</>
-				) : (
-					<>
-						<div className="reorder-hint">
-							Drag <span>⠿</span> to reorder · Drop onto a folder's middle to move inside it
-						</div>
-						{renderTree()}
-						{renderStatus()}
-						{renderButton()}
-					</>
-				)}
+		<PanelLayout
+			title="🔁 Arrange Items"
+			loading={loading}
+			header={renderHeader()}
+			footer={renderButton()}
+		>
+			<div className="reorder-hint">
+				Drag <span>⠿</span> to reorder · Drop onto a folder's middle to move inside it
 			</div>
-		</div>
+			{renderTree()}
+			{renderStatus()}
+		</PanelLayout>
 	);
 };
 

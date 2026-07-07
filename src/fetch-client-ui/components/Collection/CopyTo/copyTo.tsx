@@ -1,9 +1,10 @@
-import React, { useEffect } from "react";
+import "../style.css";
+import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
 import { useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
-import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
+import PanelLayout from "../../Common/Layout/panelLayout";
+import React, { useEffect } from "react";
 import vscode from "../../Common/vscodeAPI";
-import "../style.css";
 
 const CopyTo = () => {
 
@@ -81,84 +82,137 @@ const CopyTo = () => {
 		setErrors({ ...errors, "colName": (e.target.value ? (e.target.value.toUpperCase().trim() === "DEFAULT" ? "Collection name should not be 'Default'" : "") : "Cannot be empty") });
 	}
 
-	return (
-		sourceColName ?
-			<div>
-				<div className="addto-header">📑 Copy Collection To</div>
-				<div className="addto-body">
-					<table className="addto-table center" cellPadding={0} cellSpacing={0}>
-						<tbody>
-							<tr>
-								<td className="col-1-size">
-									<span className="addto-label">Selected Collection :</span>
-								</td>
-								<td className="col-2-size">
-									<input className="addto-text disabled" type="text" title="Name" value={sourceColName} disabled={true}></input>
-								</td>
-							</tr>
-							<tr>
-								<td className="col-1-size">
-									<span className="addto-label">Copy To :</span>
-								</td>
-								<td className="col-2-size block-display">
-									<select
-										className="addto-select"
-										required={true}
-										value={destColId}
-										onChange={(e) => onSelect(e)}
-									>
-										{
-											collectionNames.map((param: any, index: number) => {
-												return (
-													<option
-														disabled={param.disabled}
-														hidden={index === 0 ? true : false}
-														key={index + param.name}
-														value={param.value}
-													>
-														{param.name}
-													</option>
-												);
-											})
-										}
-									</select>
-								</td>
-							</tr>
-							{destColId === "0" && (<tr>
-								<td className="col-1-size">
-									<span className="addto-label">New Collection Name :</span>
-								</td>
-								<td className="col-2-size">
-									<input className={errors["colName"] ? "addto-text required-value" : "addto-text"} type="text" title="Collection Name" onChange={onNameChange}></input>
-								</td>
-							</tr>)}
-							{errors["colName"] && <tr>
-								<td className="col-1-size">
-								</td>
-								<td className="col-2-size">
-									<div className="error-text">{errors["colName"]}</div>
-								</td>
-							</tr>}
-						</tbody>
-					</table>
-					<div className="button-panel">
-						<button
-							type="submit"
-							className="submit-button"
-							onClick={onSubmitClick}
-							disabled={isDone}
-						>
-							Submit
-						</button>
-					</div>
-					<div className="message-panel">
-						{isDone && (<span className="success-message">Collection items are copied successfully</span>)}
-					</div>
-				</div>
+	function renderHint() {
+		return (
+			<div className="reorder-hint">
+				Copy the selected collection to another collection or create a new one.
 			</div>
-			:
-			<></>
-	);
+		);
+	}
+
+	function renderForm() {
+		return (
+			<table className="addto-table copyto-scroll-panel" cellPadding={0} cellSpacing={0}>
+				<tbody>
+					<tr>
+						<td className="col-1-size">
+							<span className="addto-label">Selected Collection :</span>
+						</td>
+						<td className="col-2-size">
+							<input
+								className="addto-text disabled"
+								type="text"
+								value={sourceColName}
+								disabled
+							/>
+						</td>
+					</tr>
+
+					<tr>
+						<td className="col-1-size">
+							<span className="addto-label">Copy To :</span>
+						</td>
+						<td className="col-2-size block-display">
+							<select
+								className="addto-select"
+								value={destColId}
+								onChange={onSelect}
+							>
+								{collectionNames.map((item: any, index) => (
+									<option
+										key={index + item.name}
+										value={item.value}
+										disabled={item.disabled}
+										hidden={index === 0}
+									>
+										{item.name}
+									</option>
+								))}
+							</select>
+						</td>
+					</tr>
+
+					{renderNewCollectionSection()}
+				</tbody>
+			</table>
+		);
+	}
+
+	function renderNewCollectionSection() {
+		if (destColId !== "0") {
+			return null;
+		}
+
+		return (
+			<>
+				<tr>
+					<td className="col-1-size">
+						<span className="addto-label">New Collection Name :</span>
+					</td>
+
+					<td className="col-2-size">
+						<input
+							className={
+								errors["colName"]
+									? "addto-text required-value"
+									: "addto-text"
+							}
+							type="text"
+							value={destColName}
+							onChange={onNameChange}
+						/>
+					</td>
+				</tr>
+
+				{errors["colName"] && (
+					<tr>
+						<td />
+						<td className="col-2-size">
+							<div className="error-text">
+								{errors["colName"]}
+							</div>
+						</td>
+					</tr>
+				)}
+			</>
+		);
+	}
+
+	function renderFooter() {
+		return (
+			<>
+				{isDone && (
+					<div className="reorder-status reorder-status--ok">
+						Collection copied successfully.
+					</div>
+				)}
+
+				<div className="reorder-btn-panel">
+					<button
+						type="button"
+						className="submit-button reorder-btn"
+						onClick={onSubmitClick}
+						disabled={isDone}
+					>
+						{isDone ? "✓ Copied" : "Copy Collection"}
+					</button>
+				</div>
+			</>
+		);
+	}
+
+	return sourceColName ? (
+		<PanelLayout
+			title="📑 Copy Collection"
+			loading={!sourceColName}
+			footer={renderFooter()}
+		>
+			{renderHint()}
+			<div className="reorder-tree-panel">
+				{renderForm()}
+			</div>
+		</PanelLayout>
+	) : <></>;
 };
 
 export default CopyTo;

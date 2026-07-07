@@ -5,6 +5,7 @@ import { ICollection, IColRequest, IRequestList } from "../../../fetch-client-co
 import { ReactComponent as BinLogo } from '../../../../icons/bin.svg';
 import { requestTypes, responseTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
 import { v4 as uuidv4 } from 'uuid';
+import PanelLayout from "../Common/Layout/panelLayout";
 import React, { useEffect, useRef, useState } from "react";
 import vscode from "../Common/vscodeAPI";
 
@@ -329,38 +330,30 @@ const AutoRequest = () => {
 	}
 
 	return (
-		<div className="reorder-panel">
-			<div className="reorder-header">🔁 Auto Request</div>
-			<div className="reorder-body">
-				{loading ? (
-					<>
-						<div id="divSpinner" className="spinner loading" />
-						<div className="loading-history-text">Loading....</div>
-					</>
-				) : (
-					<>
-						<div className="autorequest-max-note">
-							Max 5 requests · Requests containing PreFetch steps will skip PreFetch execution
-						</div>
-						<div className="reorder-tree-panel autorequest-scroll-panel">
-							{renderHeader()}
-							{renderRequests()}
-						</div>
-						{renderStatus()}
-						<div className="reorder-btn-panel">
-							<button
-								type="button"
-								className="submit-button reorder-btn"
-								disabled={getButtonDisabledStatus()}
-								onClick={onEnableAutoRequest}
-							>
-								Enable
-							</button>
-						</div>
-					</>
-				)}
+		<PanelLayout
+			title="🔁 Auto Request"
+			loading={loading}
+			footer={
+				<div className="reorder-btn-panel">
+					<button
+						className="submit-button reorder-btn"
+						disabled={getButtonDisabledStatus()}
+						onClick={onEnableAutoRequest}
+					>
+						Enable
+					</button>
+				</div>
+			}
+		>
+			<div className="autorequest-max-note">
+				Max 5 requests · Requests containing PreFetch steps will skip PreFetch execution
 			</div>
-		</div>
+			<div className="reorder-tree-panel autorequest-scroll-panel">
+				{renderHeader()}
+				{renderRequests()}
+			</div>
+			{renderStatus()}
+		</PanelLayout>
 	);
 };
 
