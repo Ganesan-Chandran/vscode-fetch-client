@@ -6,6 +6,7 @@ import { InitialAuth, InitialBody, InitialPreFetch, InitialSetVar, InitialTest }
 import { IRequestModel, IBodyData, MethodType } from "../../../types/request.types";
 import { isJson } from "../../tests.helper";
 import { ITableData } from "../../../types/common.types";
+import { PostmanScriptParser } from "./postmanScript.helper";
 import { v4 as uuidv4 } from "uuid";
 import { writeLog } from "../../logger/logger";
 import { XMLValidator } from "fast-xml-parser";
@@ -24,6 +25,8 @@ function deepClone<T>(value: T): T {
 
 export class PostmanImport {
 	private readonly collection: PostmanSchema_2_1;
+	private readonly scripts = new PostmanScriptParser();
+	private collectionId = "";
 
 	constructor(collection: PostmanSchema_2_1) {
 		this.collection = collection;
@@ -56,10 +59,41 @@ export class PostmanImport {
 		if (!url) {
 			return "";
 		}
-		if (typeof url === "object") {
-			return url.raw ?? "";
+
+		if (typeof url === "string") {
+			return url;
 		}
-		return url;
+
+		let raw = url.raw ?? this.buildRawUrl(url);
+		raw = this.mergePathVariables(raw, url.variable);
+		return raw;
+	}
+
+	private buildRawUrl(url: URLObject): string {
+		const protocol = url.protocol ? `${url.protocol}://` : "";
+		const host = Array.isArray(url.host) ? url.host.join(".") : (url.host ?? "");
+		const path = Array.isArray(url.path) ? "/" + url.path.join("/") : (url.path ? "/" + url.path : "");
+		const query = (url.query ?? []).filter(q => !q.disabled).map(q => `${q.key}=${q.value}`).join("&");
+		return protocol + host + path + (query ? `?${query}` : "");
+	}
+
+	private mergePathVariables(url: string, variables?: Variable[]): string {
+		if (!variables?.length) {
+			return url;
+		}
+
+		let updatedUrl = url;
+
+		for (const variable of variables) {
+			if (!variable.key) {
+				continue;
+			}
+			const placeholder = `:${variable.key}`;
+			const replacement = variable.value !== undefined ? `{{${variable.key}}}` : placeholder;
+			updatedUrl = updatedUrl.replace(placeholder, replacement);
+		}
+
+		return updatedUrl;
 	}
 
 	private getParams(url?: URLObject | string): ITableData[] {
@@ -237,8 +271,8 @@ export class PostmanImport {
 			case "graphql": {
 				fcBody.bodyType = "graphql";
 				if (body.graphql) {
-					fcBody.graphql.query = JSON.stringify(body.graphql.query);
-					fcBody.graphql.variables = JSON.stringify(body.graphql.variables);
+					fcBody.graphql.query = typeof body.graphql.query === "string" ? body.graphql.query : JSON.stringify(body.graphql.query ?? "", null, 2);
+					fcBody.graphql.variables = typeof body.graphql.variables === "string" ? body.graphql.variables : JSON.stringify(body.graphql.variables ?? {}, null, 2);
 				}
 				return fcBody;
 			}
@@ -247,7 +281,12 @@ export class PostmanImport {
 				fcBody.bodyType = "raw";
 				const rawData = body.raw ?? "";
 				fcBody.raw.data = rawData;
-				fcBody.raw.lang = this.getRawBodyType(rawData.replace(/(?:\\[rn]|[\r\n]+)+/g, ""));
+				const postmanLang = this.getPostmanRawLanguage(body);
+				if (postmanLang) {
+					fcBody.raw.lang = postmanLang;
+				} else {
+					fcBody.raw.lang = this.getRawBodyType(rawData.replace(/(?:\\[rn]|[\r\n]+)+/g, ""));
+				}
 				return fcBody;
 			}
 
@@ -266,6 +305,30 @@ export class PostmanImport {
 		}
 	}
 
+	private getPostmanRawLanguage(body: Body): string {
+		const language = body.options?.raw?.language;
+		switch ((language ?? "").toLowerCase()) {
+			case "json":
+				return "json";
+
+			case "xml":
+				return "xml";
+
+			case "html":
+				return "html";
+
+			case "javascript":
+			case "js":
+				return "javascript";
+
+			case "text":
+				return "text";
+
+			default:
+				return "";
+		}
+	}
+
 	private getRawBodyType(data: string): string {
 		if (isJson(data) === "true") {
 			return "json";
@@ -276,6 +339,12 @@ export class PostmanImport {
 		if (this.isHTML(data)) {
 			return "html";
 		}
+		if (
+			/^\s*(const|let|var|function|class|export|import)\b/.test(data)
+		) {
+			return "javascript";
+		}
+
 		return "text";
 	}
 
@@ -310,8 +379,10 @@ export class PostmanImport {
 
 	private buildHistoryItem(item: Items, requests: IRequestModel[]): IHistory {
 		const reqObject = item.request as RequestObject;
+		const idEntry = this.scripts.getId(item);
+
 		const history: IHistory = {
-			id: uuidv4(),
+			id: idEntry.id,
 			name: item.name,
 			method: reqObject?.method ?? "get",
 			url: this.getUrl(reqObject?.url),
@@ -320,6 +391,18 @@ export class PostmanImport {
 		};
 
 		if (reqObject) {
+			const testScript = this.scripts.getEventScript(item.event, "test");
+			const preScript = this.scripts.getEventScript(item.event, "prerequest");
+			const { runRequests, leftover } = this.scripts.parsePreRequestScript(preScript);
+
+			let notes = "";
+			if (leftover.length) {
+				notes = "Imported pre-request script (not auto-convertible):\n" + leftover.join("\n\n");
+			}
+
+			const tests = this.scripts.parsePostmanTests(testScript);
+			const setvar = this.scripts.parsePostmanSetVars(testScript);
+
 			requests.push({
 				id: history.id,
 				url: history.url,
@@ -331,10 +414,10 @@ export class PostmanImport {
 				auth: this.getAuthDetails(reqObject.auth),
 				headers: this.getHeaders(reqObject.header),
 				body: this.getBody(reqObject.body),
-				tests: deepClone(InitialTest),
-				setvar: deepClone(InitialSetVar),
-				notes: "",
-				preFetch: deepClone(InitialPreFetch),
+				tests: tests.length > 0 ? tests : deepClone(InitialTest),
+				setvar: setvar.length > 0 ? setvar : deepClone(InitialSetVar),
+				notes,
+				preFetch: runRequests.length > 0 ? { requests: runRequests } : deepClone(InitialPreFetch),
 			});
 		}
 
@@ -352,7 +435,7 @@ export class PostmanImport {
 
 	private buildFolderItem(item: Items, requests: IRequestModel[]): IFolder {
 		return {
-			id: uuidv4(),
+			id: this.scripts.getId(item).id, // <-- was uuidv4()
 			name: item.name,
 			type: "folder",
 			createdTime: formatDate(),
@@ -374,11 +457,22 @@ export class PostmanImport {
 	}
 
 	importCollection(): PostmanImportResult {
+		this.collectionId = uuidv4();
+
+		// pre-pass: assign ids up front so pm.sendRequest() can resolve any-order references
+		this.scripts.precomputeIds(
+			this.collection.item,
+			"",
+			this.collectionId,
+			item => this.getUrl((item.request as RequestObject)?.url),
+			item => (item.request as RequestObject)?.method ?? "get",
+		);
+
 		const variable = this.importVariable(this.collection.variable ?? [], this.collection.info.name);
 		const requests: IRequestModel[] = [];
 
 		const collection: ICollections = {
-			id: uuidv4(),
+			id: this.collectionId,
 			name: this.collection.info.name,
 			createdTime: formatDate(),
 			modifiedTime: formatDate(),

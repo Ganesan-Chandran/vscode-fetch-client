@@ -16,12 +16,12 @@ export class FCCipher {
 	}
 
 	EncryptData(text: string): string {
-		if (!text) {
+		if (!text.toString().trim()) {
 			return "";
 		}
 		try {
 			const cipher = crypto.createCipheriv(ALGORITHM, this.key, this.iv);
-			const hexEncrypted = cipher.update(text, "utf8", "hex") + cipher.final("hex");
+			const hexEncrypted = cipher.update(text.toString().trim(), "utf8", "hex") + cipher.final("hex");
 			return Buffer.from(hexEncrypted, "utf8").toString("base64");
 		} catch (err) {
 			this.logError("EncryptData", err);
@@ -39,10 +39,10 @@ export class FCCipher {
 	}
 
 	private decryptInternal(encryptedData: string): string {
-		if (!encryptedData) {
+		if (!encryptedData.toString().trim()) {
 			return "";
 		}
-		const hexEncrypted = Buffer.from(encryptedData, "base64").toString("utf8");
+		const hexEncrypted = Buffer.from(encryptedData.toString().trim(), "base64").toString("utf8");
 		const decipher = crypto.createDecipheriv(ALGORITHM, this.key, this.iv);
 		return decipher.update(hexEncrypted, "hex", "utf8") + decipher.final("utf8");
 	}

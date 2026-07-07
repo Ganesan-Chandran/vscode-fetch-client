@@ -1,6 +1,6 @@
 import { buildWebviewHtml } from './webviewUtils';
 import { DeleteAllHistory, DeleteHistory, GetAllHistory, RenameHistory } from '../db/historyDBUtil';
-import { Export, Import, SaveRequest } from '../db/mainDBUtil';
+import { Export, ExportOtherFormats, Import, SaveRequest } from '../db/mainDBUtil';
 import { formatDate } from '../../fetch-client-core/helpers/dateTime.helper';
 import { getConfiguration, getVSCodeTheme } from '../../fetch-client-core/utils/vscodeConfig';
 import { IHistory, IFolder, ICollections } from '../../fetch-client-core/types/sidebar.types';
@@ -8,15 +8,11 @@ import { pubSubTypes, requestTypes, responseTypes } from '../../fetch-client-cor
 import * as vscode from 'vscode';
 import {
 	ChangeVariableStatus, DeleteVariable, DuplicateVariable, ExportVariable,
-	GetAllVariable,
-	ImportVariableFromEnvFile,
-	ImportVariableFromJsonFile,
-	RenameVariable
+	GetAllVariable, ImportVariableFromEnvFile, ImportVariableFromJsonFile, RenameVariable
 } from '../db/varDBUtil';
 import {
-	AddToCollection, AttachVariable, CreateNewCollection,
-	DeleteAllCollectionItems, DeleteCollection, DeleteCollectionItem,
-	DuplicateItem, GetAllCollections, NewFolderToCollection, NewRequestToCollection,
+	AddToCollection, AttachVariable, CreateNewCollection, DeleteAllCollectionItems, DeleteCollection,
+	DeleteCollectionItem, DuplicateItem, GetAllCollections, NewFolderToCollection, NewRequestToCollection,
 	RemoveVariableByVariableId, RenameCollection, RenameCollectionItem
 } from '../db/collectionDBUtil';
 import {
@@ -55,7 +51,7 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 			this._subscriptionId.unsubscribe();
 		});
 
-		webviewView.webview.onDidReceiveMessage(reqData => {
+		webviewView.webview.onDidReceiveMessage(async reqData => {
 			switch (reqData.type) {
 				case requestTypes.readyCheckRequest:
 					webviewView.webview.postMessage({ type: responseTypes.readyCheckResponse });
@@ -131,10 +127,25 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					DuplicateItem(reqData.data.coldId, reqData.data.folderId, reqData.data.historyId, reqData.data.isFolder, webviewView);
 					break;
 				case requestTypes.exportRequest:
+					const choice = await vscode.window.showQuickPick(["Fetch Client", "Postman"], {
+						placeHolder: "Select the format", title: "Export Collection"
+					});
+					if (!choice) {
+						return;
+					}
 					vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file("fetch-client-collection_" + reqData.data.name?.replace(/[/\\?%*:|"<>]/g, '-') + ".json") }).then((uri: vscode.Uri | undefined) => {
 						if (uri) {
 							const value = uri.fsPath;
-							Export(value, reqData.data.colId, reqData.data.hisId, reqData.data.folderId, 2);
+							switch (choice) {
+								case "Postman":
+								case "Thunder Client":
+									ExportOtherFormats(value, reqData.data.colId, reqData.data.hisId, reqData.data.folderId, choice);
+									break;
+
+								case "Fetch Client":
+									Export(value, reqData.data.colId, reqData.data.hisId, reqData.data.folderId, 2);
+									break;
+							}							
 						}
 					});
 					break;
@@ -311,7 +322,7 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 				case requestTypes.openAutoRequest:
 					OpenAutoRequestUI();
 					break;
-				case requestTypes.configRequest: 
+				case requestTypes.configRequest:
 					webviewView.webview.postMessage(getConfiguration());
 			}
 		});

@@ -214,7 +214,7 @@ export async function Col_Repository_CreateCollection(name: string): Promise<ICo
     settings: defaultSettings(),
   };
   colDB.getCollection('userCollections').insert(item);
-  saveCollectionDB(colDB);
+  await saveCollectionDB(colDB);
   return item;
 }
 
@@ -273,7 +273,7 @@ export async function Col_Repository_AddToCollection(
     }
   }
 
-  saveCollectionDB(colDB);
+  await saveCollectionDB(colDB);
   return { reqId, newId, colItem };
 }
 
@@ -346,7 +346,7 @@ export async function Col_Repository_DuplicateItem(
     return 'copy-collection';
   }
 
-  saveCollectionDB(colDB);
+  await saveCollectionDB(colDB);
   await Main_Repository_CopyExistingItems(oldIds, ids);
 
   return { col, oldIds, ids };
@@ -367,7 +367,7 @@ export async function Col_Repository_NewRequestToCollection(
     } else {
       col.data.push(item);
     }
-    saveCollectionDB(colDB);
+    await saveCollectionDB(colDB);
   }
 
   return { variableId: col?.variableId };
@@ -410,7 +410,7 @@ export async function Col_Repository_CopyToCollection(
     resultCol = destCol;
   }
 
-  saveCollectionDB(colDB);
+  await saveCollectionDB(colDB);
   await Main_Repository_CopyExistingItems(oldIds, ids);
 
   return resultCol;
@@ -466,7 +466,7 @@ export async function Col_Repository_RenameCollectionItem(
     item.name = name;
   }
 
-  saveCollectionDB(colDB);
+  await saveCollectionDB(colDB);
 
   if (!folderType) {
     await Main_Repository_RenameRequestItem(historyId, name);
@@ -494,7 +494,7 @@ export async function Col_Repository_DeleteCollectionItem(
   if (pos !== -1) {
     const deletedIds = folderType ? getAllIds(parent.data[pos], []) : [targetId];
     parent.data.splice(pos, 1);
-    saveCollectionDB(colDB);
+    await saveCollectionDB(colDB);
     await Main_Repository_DeleteExistingItems(deletedIds);
   }
 }
@@ -502,7 +502,7 @@ export async function Col_Repository_DeleteCollectionItem(
 export async function Col_Repository_RenameCollection(colId: string, name: string): Promise<void> {
   const colDB = await getCollectionDB();
   colDB.getCollection('userCollections').findAndUpdate({ id: colId }, (item) => { item.name = name; });
-  saveCollectionDB(colDB);
+  await saveCollectionDB(colDB);
 }
 
 export async function Col_Repository_UpdateCollectionItems(
@@ -527,7 +527,7 @@ export async function Col_Repository_UpdateCollectionItems(
   }
 
   target.data = items;
-  saveCollectionDB(colDB);
+  await saveCollectionDB(colDB);
 }
 
 export async function Col_Repository_DeleteCollection(colId: string): Promise<string[]> {
@@ -537,7 +537,7 @@ export async function Col_Repository_DeleteCollection(colId: string): Promise<st
   const ids = col ? getAllIds(col, []) : [];
 
   userCollections.findAndRemove({ id: colId });
-  saveCollectionDB(colDB);
+  await saveCollectionDB(colDB);
   await Main_Repository_DeleteExistingItems(ids);
 
   return ids;
@@ -552,13 +552,13 @@ export async function Col_Repository_DeleteAllCollectionItems(colId: string, fol
     if (folder) {
       const ids = getAllIds(folder, []);
       folder.data.length = 0;
-      saveCollectionDB(colDB);
+      await saveCollectionDB(colDB);
       await Main_Repository_DeleteExistingItems(ids);
     }
   } else {
     const ids = getAllIds(col, []);
     col.data.length = 0;
-    saveCollectionDB(colDB);
+    await saveCollectionDB(colDB);
     await Main_Repository_DeleteExistingItems(ids);
   }
 }
@@ -566,7 +566,7 @@ export async function Col_Repository_DeleteAllCollectionItems(colId: string, fol
 export async function Col_Repository_AttachVariable(colId: string, varId: string): Promise<void> {
   const colDB = await getCollectionDB();
   colDB.getCollection('userCollections').findAndUpdate({ id: colId }, (item) => { item.variableId = varId; });
-  saveCollectionDB(colDB);
+  await saveCollectionDB(colDB);
 
   if (pubSub.size > 0) {
     pubSub.publish({
@@ -581,7 +581,7 @@ export async function Col_Repository_AttachVariable(colId: string, varId: string
 export async function Col_Repository_RemoveVariableByVariableId(varId: string): Promise<any[]> {
   const colDB = await getCollectionDB();
   colDB.getCollection('userCollections').findAndUpdate({ variableId: varId }, (item) => { item.variableId = ""; });
-  saveCollectionDB(colDB);
+  await saveCollectionDB(colDB);
   return colDB.getCollection('userCollections').data;
 }
 
@@ -594,7 +594,7 @@ export async function Col_Repository_GetCollectionsByVariable(varId: string): Pr
 export async function Col_Repository_RemoveVariable(varId: string): Promise<void> {
   const colDB = await getCollectionDB();
   colDB.getCollection('userCollections').findAndUpdate({ variableId: varId }, (item) => { item.variableId = ""; });
-  saveCollectionDB(colDB);
+  await saveCollectionDB(colDB);
 }
 
 export async function Col_Repository_GetCollectionById(colId: string, folderId: string): Promise<any> {
@@ -654,7 +654,7 @@ export async function Col_Repository_NewFolderToCollection(
     colItem.data.push(item);
   }
 
-  saveCollectionDB(colDB);
+  await saveCollectionDB(colDB);
 }
 
 export async function Col_Repository_UpdateCollection(colId: string, item: IHistory): Promise<void> {
@@ -668,7 +668,7 @@ export async function Col_Repository_UpdateCollection(colId: string, item: IHist
     req.url = item.url;
   }
 
-  saveCollectionDB(colDB);
+  await saveCollectionDB(colDB);
 }
 
 export async function Col_Repository_GetCollectionSettings(
@@ -708,11 +708,7 @@ export async function Col_Repository_GetParentSettings(colId: string, folderId: 
   return (colItem.settings ?? defaultSettings()) as ISettings;
 }
 
-export async function Col_Repository_SaveCollectionSettings(
-  colId: string,
-  folderId: string,
-  settings: ISettings
-): Promise<void> {
+export async function Col_Repository_SaveCollectionSettings(colId: string, folderId: string, settings: ISettings): Promise<void> {
   const colDB = await getCollectionDB();
   const colItem = colDB.getCollection('userCollections').by("id", colId);
 
@@ -729,7 +725,7 @@ export async function Col_Repository_SaveCollectionSettings(
     colItem.settings = settings;
   }
 
-  saveCollectionDB(colDB);
+  await saveCollectionDB(colDB);
 }
 
 export async function Col_Repository_ExecuteRequest(reqData: any, fetchConfig: FetchConfig): Promise<any> {

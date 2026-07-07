@@ -25,6 +25,7 @@ import { thunderClientImporter } from "../helpers/importers/thunderClient/thunde
 import { Var_Repository_FindById, Var_Repository_Insert } from "./variableDB.repository";
 import { writeLog } from "../helpers/logger/logger";
 import loki, { Collection } from "lokijs";
+import { ExportBuilderPostman2_1 } from "../helpers/exporters/postman/postmanExporter_2_1";
 
 const { getLoadedDB: getMainDB, saveDB: saveMainDB, flush: flushMainDB, invalidate: invalidateMainDB } = createAutoDBCache(mainDBPath);
 export { getMainDB, saveMainDB, flushMainDB, invalidateMainDB };
@@ -202,7 +203,7 @@ export async function Main_Repository_SaveRequest(reqData: IRequestModel): Promi
   try {
     const db = await getMainDB();
     getRequestCollection(db).insert(reqData);
-    saveMainDB(db);
+    await saveMainDB(db);
   } catch (err) {
     writeLog("error::SaveRequest(): " + err);
   }
@@ -233,7 +234,7 @@ export async function Main_Repository_UpdateRequest(reqData: IRequestModel): Pro
     req.modifiedTime = formatDate();
 
     collection.update(req);
-    saveMainDB(db);
+    await saveMainDB(db);
   } catch (err) {
     writeLog("error::UpdateRequest(): " + err);
     throw err;
@@ -286,7 +287,7 @@ export async function Main_Repository_CopyExistingItems(oldIds: string[], ids: R
     });
 
     collection.insert(clones);
-    saveMainDB(db);
+    await saveMainDB(db);
   } catch (err) {
     writeLog("error::CopyExistingItems(): " + err);
   }
@@ -296,7 +297,7 @@ export async function Main_Repository_DeleteExistingItem(id: string): Promise<vo
   try {
     const db = await getMainDB();
     getRequestCollection(db).findAndRemove({ id });
-    saveMainDB(db);
+    await saveMainDB(db);
   } catch (err) {
     writeLog("error::DeleteExistingItem(): " + err);
   }
@@ -308,7 +309,7 @@ export async function Main_Repository_DeleteExistingItems(ids: string[]): Promis
   try {
     const db = await getMainDB();
     getRequestCollection(db).findAndRemove({ id: { $in: ids } });
-    saveMainDB(db);
+    await saveMainDB(db);
   } catch (err) {
     writeLog("error::DeleteExistingItems(): " + err);
   }
@@ -324,7 +325,7 @@ export async function Main_Repository_RenameRequestItem(id: string, name: string
 
     req.name = name;
     collection.update(req);
-    saveMainDB(db);
+    await saveMainDB(db);
   } catch (err) {
     writeLog("error::RenameRequestItem(): " + err);
   }
@@ -342,6 +343,10 @@ export async function Main_Repository_GetCollectionRequests(ids: string[]): Prom
     return [];
   }
 }
+
+// -----------------------------------------------------------------
+// Export Funcationlity
+// -----------------------------------------------------------------
 
 export async function Main_Repository_BuildExport(colId: string, hisId: string, folderId: string): Promise<ExportPayload> {
   const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
@@ -372,6 +377,7 @@ export async function Main_Repository_BuildBulkExport(selectedCols: string[]): P
 
 export async function Main_Repository_BuildExport_V2(colId: string, hisId: string, folderId: string, key: string): Promise<IFetchClientExportV2> {
   const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
+  const apiRequests = getRequestCollection(db);
 
   const cols = colDB
     .getCollection('userCollections')
@@ -382,7 +388,23 @@ export async function Main_Repository_BuildExport_V2(colId: string, hisId: strin
   const linkedVariables = getExportCollectionConfiguration();
   const variableId = linkedVariables ? cols[0].variableId : "";
   const variables = variableId ? await Var_Repository_FindById(variableId, false, key) : [];
-  return ExportBuilderV2(cols[0], getRequestCollection(db), hisId, folderId, variables.length > 0 ? variables[0] : null);
+  return ExportBuilderV2(cols[0], apiRequests, hisId, folderId, variables.length > 0 ? variables[0] : null);
+}
+
+export async function Main_Repository_BuildExport_Postman(colId: string, hisId: string, folderId: string, key: string): Promise<PostmanSchema_2_1> {
+  const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
+  const apiRequests = getRequestCollection(db);
+
+  const cols = colDB
+    .getCollection('userCollections')
+    .chain()
+    .find({ id: colId })
+    .data({ forceClones: true, removeMeta: true });
+
+  const linkedVariables = getExportCollectionConfiguration();
+  const variableId = linkedVariables ? cols[0].variableId : "";
+  const variables = variableId ? await Var_Repository_FindById(variableId, false, key) : [];
+  return ExportBuilderPostman2_1(cols[0] as ICollections, apiRequests, hisId, folderId, variables.length > 0 ? variables[0] : null);
 }
 
 export async function Main_Repository_BuildBulkExportV2(selectedCols: string[], key: string): Promise<IFetchClientExportV2[]> {
@@ -407,6 +429,10 @@ export async function Main_Repository_BuildBulkExportV2(selectedCols: string[], 
   return result;
 }
 
+// -----------------------------------------------------------------
+// Import Funcationlity
+// -----------------------------------------------------------------
+
 async function importPostman(data: string, key: string): Promise<ImportResult> {
   const convertedData = postmanImporter(data);
   if (!convertedData?.fcCollection || !convertedData?.fcRequests) {
@@ -416,7 +442,7 @@ async function importPostman(data: string, key: string): Promise<ImportResult> {
   const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
 
   getRequestCollection(db).insert(convertedData.fcRequests);
-  saveMainDB(db);
+  await saveMainDB(db);
 
   if (convertedData.fcVariables) {
     await Var_Repository_Insert(convertedData.fcVariables, key);
@@ -441,7 +467,7 @@ async function importThunderClient(data: string): Promise<ImportResult> {
   const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
 
   getRequestCollection(db).insert(convertedData.fcRequests);
-  saveMainDB(db);
+  await saveMainDB(db);
 
   colDB.getCollection('userCollections').insert(convertedData.fcCollection);
   saveCollectionDB(colDB);
@@ -461,7 +487,7 @@ async function importInsomnia(data: string, key: string): Promise<ImportResult> 
   const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
 
   getRequestCollection(db).insert(convertedData.fcRequests);
-  saveMainDB(db);
+  await saveMainDB(db);
 
   if (convertedData.fcVariables) {
     await Var_Repository_Insert(convertedData.fcVariables, key);
@@ -486,7 +512,7 @@ async function importOpenAPI(data: string): Promise<ImportResult> {
   const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
 
   getRequestCollection(db).insert(convertedData.fcRequests);
-  saveMainDB(db);
+  await saveMainDB(db);
 
   colDB.getCollection('userCollections').insert(convertedData.fcCollection);
   saveCollectionDB(colDB);
@@ -507,7 +533,7 @@ async function importFC(data: string, verison: number, key: string): Promise<Imp
   const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
 
   getRequestCollection(db).insert(convertedData.fcRequests);
-  saveMainDB(db);
+  await saveMainDB(db);
 
   colDB.getCollection('userCollections').insert(convertedData.fcCollection);
   saveCollectionDB(colDB);

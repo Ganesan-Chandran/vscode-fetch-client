@@ -17,7 +17,7 @@ export async function Var_Repository_Insert(item: IVariable, key: string): Promi
 			item.data = new FCCipher(key).EncryptBulkData(item.data);
 		}
 		userVariables.insert(item);
-		saveDB(db);
+		await saveDB(db);
 	} catch (err) {
 		writeLog("error::Var_Repository_Insert(): " + err);
 		throw err;
@@ -55,7 +55,7 @@ export async function Var_Repository_Update(item: IVariable, key: string): Promi
 			item.data = new FCCipher(key).EncryptBulkData(item.data);
 		}
 		db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; itm.modifiedTime = formatDate(); });
-		saveDB(db);
+		await saveDB(db);
 	} catch (err) {
 		writeLog("error::Var_Repository_Update(): " + err);
 		throw err;
@@ -69,7 +69,7 @@ export async function Var_Repository_UpdateAndReturn(item: IVariable, key: strin
 			item.data = new FCCipher(key).EncryptBulkData(item.data);
 		}
 		db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; itm.modifiedTime = formatDate(); });
-		saveDB(db);
+		await saveDB(db);
 		let vars = db.getCollection("userVariables").find({ 'id': item.id });
 		return vars && vars.length > 0 ? vars[0] as IVariable : null;
 	} catch (err) {

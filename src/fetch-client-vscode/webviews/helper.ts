@@ -8,11 +8,11 @@ import { IReqSettings, IPreFetch } from "../../fetch-client-core/types/prefetch.
 import { IRequestModel } from "../../fetch-client-core/types/request.types";
 import { ISettings, IVariable, IHistory } from "../../fetch-client-core/types/sidebar.types";
 import { PreFetchRunner } from "../../fetch-client-core/utils/preFetchRunner";
-import { responseTypes } from "../../fetch-client-core/consts/requestTypes.consts";
+import { pubSubTypes, responseTypes } from "../../fetch-client-core/consts/requestTypes.consts";
 import { SaveHistory, UpdateHistory } from "../db/historyDBUtil";
 import { SaveRequest, UpdateRequest } from "../db/mainDBUtil";
 import { SaveResponse } from "../db/responseDBUtil";
-import { sideBarProvider, vsCodeLogger } from "../../extension";
+import { pubSub, sideBarProvider, vsCodeLogger } from "../../extension";
 import { writeLog } from "../../fetch-client-core/helpers/logger/logger";
 import * as vscode from "vscode";
 
@@ -55,11 +55,16 @@ export async function ExecuteAPIRequest(message: any, fetchConfig: FetchConfig, 
 			webview?.postMessage({ type: responseTypes.preFetchResponse, preFetchResponse: parentPreFetchResponse });
 		}
 
-		if (isVariableUpdated && message.data.variableData?.data?.length > 0) {
-			updatedVariable = await GetVariableByIdSync(message.data.variableData?.id);
+		if (isVariableUpdated && updatedVariable?.id) {
+			updatedVariable = await GetVariableByIdSync(updatedVariable?.id);
+		}
+
+		if (pubSub.size > 0) {
+			pubSub.publish({ messageType: pubSubTypes.updateVariables, data:  updatedVariable });
 		}
 
 		_executeAPIRequest(message, updatedVariable, fetchConfig, webview);
+
 	} catch (err) {
 		writeLog("error::helper::ExecuteAPIRequest()" + err);
 		throw err;

@@ -282,7 +282,7 @@ export class WebAppPanel {
 
 	private _pushMessages(message: IPubSubMessage) {
 		if (message.messageType === pubSubTypes.updateVariables) {
-			this._panel.webview.postMessage({ type: message.messageType });
+			this._panel.webview.postMessage({ type: message.messageType, data: message.data });
 		} else if (message.messageType === pubSubTypes.removeCurrentVariable) {
 			this._panel.webview.postMessage({ type: message.messageType });
 		} else if (message.messageType === pubSubTypes.addCurrentVariable) {

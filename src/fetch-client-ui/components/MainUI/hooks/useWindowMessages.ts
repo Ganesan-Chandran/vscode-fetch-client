@@ -130,7 +130,11 @@ export function useWindowMessages(
 				}
 
 				case pubSubTypes.updateVariables: {
-					vscode.postMessage({ type: requestTypes.getAllVariableRequest });
+					if (data.data) {
+						dispatch(VariableActions.SetReqVariableAction(data.data as IVariable));
+					} else {
+						vscode.postMessage({ type: requestTypes.getAllVariableRequest });
+					}
 					break;
 				}
 

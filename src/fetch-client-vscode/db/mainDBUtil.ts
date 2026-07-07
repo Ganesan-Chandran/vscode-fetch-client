@@ -1,7 +1,7 @@
 import { IRequestModel } from '../../fetch-client-core/types/request.types';
 import {
 	ExportPayload,
-	Main_Repository_BuildBulkExport, Main_Repository_BuildBulkExportV2, Main_Repository_BuildExport, Main_Repository_BuildExport_V2, Main_Repository_CopyExistingItems,
+	Main_Repository_BuildBulkExport, Main_Repository_BuildBulkExportV2, Main_Repository_BuildExport, Main_Repository_BuildExport_Postman, Main_Repository_BuildExport_V2, Main_Repository_CopyExistingItems,
 	Main_Repository_DeleteExistingItem, Main_Repository_DeleteExistingItems,
 	Main_Repository_GetCollectionRequests, Main_Repository_GetExistingItem,
 	Main_Repository_GetRequestItem, Main_Repository_Import,
@@ -104,6 +104,29 @@ export async function Export(path: string, colId: string, hisId: string, folderI
 		fs.writeFile(
 			path,
 			version === 1 ? JSON.stringify(exportData) : JSON.stringify(exportData, null, "\t"),
+			(error) => {
+				if (error) {
+					vscode.window.showErrorMessage(`Could not save to '${path}'. Error Message : ${error.message}`, { modal: true });
+					writeLog("error::Export()::FileWrite() " + error.message);
+				}
+				else {
+					vscode.window.showInformationMessage(`Successfully saved to '${path}'.`, { modal: true });
+				}
+			}
+		);
+	} catch (err) {
+		writeLog("error::Export(): " + err);
+		vscode.window.showErrorMessage("Export failed.", { modal: true });
+	}
+}
+
+export async function ExportOtherFormats(path: string, colId: string, hisId: string, folderId: string, _format: string): Promise<void> {
+	try {
+		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
+		const exportData = await Main_Repository_BuildExport_Postman(colId, hisId, folderId, key);
+		fs.writeFile(
+			path,
+			JSON.stringify(exportData, null, "\t"),
 			(error) => {
 				if (error) {
 					vscode.window.showErrorMessage(`Could not save to '${path}'. Error Message : ${error.message}`, { modal: true });
