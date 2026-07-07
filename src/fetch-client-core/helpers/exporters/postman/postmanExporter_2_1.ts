@@ -704,7 +704,7 @@ function getTestTitle(test: ITest): string {
       return `Content-Encoding ${symbol(test.action)} ${test.expectedValue}`;
 
     case "Header":
-      return `Header "${test.customParameter}" ${symbol(test.action)} ${test.expectedValue}`;
+      return `Header '${test.customParameter}' ${symbol(test.action)} ${test.expectedValue}`;
 
     case "Response Body":
       if (test.action === "isJSON") { return "Response body is valid JSON"; }
@@ -712,9 +712,9 @@ function getTestTitle(test: ITest): string {
       return `Response body ${test.action} ${test.expectedValue}`;
 
     case "JSON":
-      if (test.action === "length") { return `JSON "${test.customParameter}" length == ${test.expectedValue}`; }
-      if (test.action === "type") { return `JSON "${test.customParameter}" is ${test.expectedValue}`; }
-      return `JSON "${test.customParameter}" ${symbol(test.action)} ${test.expectedValue}`;
+      if (test.action === "length") { return `JSON '${test.customParameter}' length == ${test.expectedValue}`; }
+      if (test.action === "type") { return `JSON '${test.customParameter}' is ${test.expectedValue}`; }
+      return `JSON '${test.customParameter}' ${symbol(test.action)} ${test.expectedValue}`;
 
     default:
       return "Test";
