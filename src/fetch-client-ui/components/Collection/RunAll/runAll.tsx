@@ -10,6 +10,7 @@ import { requestTypes, responseTypes } from "../../../../fetch-client-core/const
 import { RunAllSettings } from "./runAllSettings";
 import React, { useEffect, useRef, useState } from "react";
 import vscode from "../../Common/vscodeAPI";
+import PanelLayout from "../../Common/Layout/panelLayout";
 
 const RunAll = () => {
 
@@ -467,32 +468,6 @@ const RunAll = () => {
 		setSelectedTab(tab);
 	}
 
-	function renderHeader() {
-		return (
-			<>
-				<div className="runall-col-name">
-					<span className="addto-label">{sourceColName.includes("\\") ? "Collection \\ Folder :" : "Collection :"}</span>
-					<span className="addto-label">{sourceColName}</span>
-					<span className="addto-label">{"Attached Variable :"}</span>
-					<span className="addto-label">{selectedVariable ? selectedVariable.name : "-"}</span>
-				</div>
-				{getTabRender()}
-			</>
-		);
-	}
-
-	function getTabRender() {
-		return (
-			<div>
-				{["Runner", "Settings"].map((tab) => {
-					return (
-						<button key={tab} className={selectedTab === tab ? "tab-menu selected" : "tab-menu"} onClick={() => onSelectedTab(tab)}>{tab}</button>
-					);
-				})}
-			</div>
-		);
-	}
-
 	function renderBody() {
 		return (
 			<div className="runall-tab-items-panel">
@@ -665,64 +640,106 @@ const RunAll = () => {
 				</div>
 			</>
 		);
-	}
+	}	
 
-	function renderButton() {
+	function renderHeader() {
 		return (
 			<>
-				{
-					selectedTab === "Runner" ?
-						<div className="runall-btn-panel">
-							<button
-								type="submit"
-								className="submit-button runall-btn"
-								onClick={onSubmitClick}
-								disabled={start || done || isDisabled()}
-							>
-								Run
-							</button>
-							<button
-								type="submit"
-								className="submit-button runall-btn"
-								onClick={onCancelClick}
-								disabled={done || !start || isDisabled()}
-							>
-								Cancel
-							</button>
-							<div id="runall-dropdown" className="runall-dropdown">
-								<button className="submit-button runall-dropbtn" disabled={!done || isDisabled()} >Export</button>
-								{!isDisabled() && done && <div className={start || isDisabled() ? "runall-dropdown-content a-disabled" : "runall-dropdown-content"}>
-									<a onClick={onClickExportJson}>JSON</a>
-									<a onClick={onClickExportCSV}>CSV</a>
-								</div>}
-							</div>
-						</div>
-						:
-						<></>
-				}
+				<div className="runall-col-name">
+					<span className="addto-label">
+						{sourceColName.includes("\\")
+							? "Collection \\ Folder :"
+							: "Collection :"}
+					</span>
+
+					<span className="addto-label">{sourceColName}</span>
+
+					<span className="addto-label">
+						Attached Variable :
+					</span>
+
+					<span className="addto-label">
+						{selectedVariable?.name ?? "-"}
+					</span>
+				</div>
+
+				{renderTabs()}
 			</>
 		);
 	}
 
-	return (
-		<div className="runall-panel">
-			<div className="runall-header">🔁 Run Collection</div>
-			<div className="runall-body center">
-				{renderHeader()}
-				{
-					loading === true ?
-						<>
-							<div id="divSpinner" className="spinner loading"></div>
-							<div className="loading-history-text">{"Loading...."}</div>
-						</>
-						:
-						<>
-							{renderBody()}
-							{renderButton()}
-						</>
-				}
+	function renderTabs() {
+		return (
+			<div>
+				{["Runner", "Settings"].map(tab => (
+					<button
+						key={tab}
+						className={
+							selectedTab === tab
+								? "tab-menu selected"
+								: "tab-menu"
+						}
+						onClick={() => onSelectedTab(tab)}
+					>
+						{tab}
+					</button>
+				))}
 			</div>
-		</div>
+		);
+	}
+
+	function renderFooter() {
+		if (selectedTab !== "Runner") {
+			return null;
+		}
+
+		return (
+			<div className="runall-btn-panel">
+				<button
+					type="button"
+					className="submit-button reorder-btn run-all-button"
+					onClick={onSubmitClick}
+					disabled={start || done || isDisabled()}
+				>
+					Run
+				</button>
+
+				<button
+					type="button"
+					className="submit-button reorder-btn run-all-button"
+					onClick={onCancelClick}
+					disabled={done || !start || isDisabled()}
+				>
+					Cancel
+				</button>
+
+				<div className="runall-dropdown">
+					<button
+						className="submit-button reorder-btn run-all-button"
+						disabled={!done || isDisabled()}
+					>
+						Export
+					</button>
+					{done && !isDisabled() && (
+						<div className="runall-dropdown-content">
+							<a onClick={onClickExportJson}>JSON</a>
+							<a onClick={onClickExportCSV}>CSV</a>
+						</div>
+					)}
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<PanelLayout
+			title="🔁 Run Collection"
+			loading={loading}
+			header={renderHeader()}
+			footer={renderFooter()}
+		>
+			{renderBody()}
+		</PanelLayout>
 	);
 };
 

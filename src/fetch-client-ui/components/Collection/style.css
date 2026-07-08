@@ -1,17 +1,17 @@
 .tab-menu {
-	padding         : 10px;
+	padding: 10px;
 	background-color: transparent;
-	color           : var(--text-color);
-	border          : 0;
-	cursor          : pointer;
-	margin-left     : 10px;
+	color: var(--text-color);
+	border: 0;
+	cursor: pointer;
+	margin-left: 10px;
 }
 
 .addto-header {
-	font-style : normal;
-	font-size  : x-large;
+	font-style: normal;
+	font-size: x-large;
 	padding-top: 20px;
-	text-align : center;
+	text-align: center;
 }
 
 .addto-body {
@@ -64,7 +64,7 @@
 }
 
 .details-col {
-	display   : grid !important;
+	display: grid !important;
 	text-align: left !important;
 }
 
@@ -77,20 +77,20 @@
 }
 
 .addto-label {
-	font-weight  : 500;
-	color        : var(--text-color);
+	font-weight: 500;
+	color: var(--text-color);
 	padding-right: 20px;
 }
 
 .addto-text {
-	color           : var(--text-color);
-	font-size       : 14px;
-	border          : 1px solid var(--border-color);
+	color: var(--text-color);
+	font-size: 14px;
+	border: 1px solid var(--border-color);
 	background-color: transparent;
-	outline         : 0;
-	height          : 25px;
-	width           : 100%;
-	padding         : 5px 10px;
+	outline: 0;
+	height: 25px;
+	width: 100%;
+	padding: 5px 10px;
 }
 
 .addto-text:focus {
@@ -103,12 +103,12 @@
 
 .addto-select {
 	background-color: var(--background-color);
-	box-sizing      : border-box;
-	color           : var(--text-color);
-	font-size       : small;
-	outline         : none;
-	padding         : 10px;
-	width           : 100%;
+	box-sizing: border-box;
+	color: var(--text-color);
+	font-size: small;
+	outline: none;
+	padding: 10px;
+	width: 100%;
 }
 
 .addto-select:focus {
@@ -124,7 +124,7 @@
 }
 
 .addto-select option {
-	color     : var(--text-color) !important;
+	color: var(--text-color) !important;
 	background: var(--background-color) !important;
 }
 
@@ -137,15 +137,16 @@
 }
 
 .success-message {
-	color    : #2fb12f !important;;
+	color: #2fb12f !important;
+	;
 	font-size: medium;
 }
 
 .message-panel {
-	width      : 50%;
-	margin     : 0 auto;
+	width: 50%;
+	margin: 0 auto;
 	padding-top: 15px;
-	text-align : center;
+	text-align: center;
 }
 
 .addto-text:disabled,
@@ -153,7 +154,7 @@
 .addto-text:disabled:hover,
 .addto-text[disabled]:hover {
 	background-color: var(--list-hover-background-color);
-	cursor          : not-allowed;
+	cursor: not-allowed;
 }
 
 .error-select {
@@ -162,15 +163,15 @@
 
 .runall-panel {
 	overflow: hidden;
-	height  : 100%;
+	height: 100%;
 }
 
 .runall-header {
-	font-style : normal;
-	font-size  : x-large;
+	font-style: normal;
+	font-size: x-large;
 	padding-top: 10px;
 	padding-bottom: 10px;
-	text-align : center;
+	text-align: center;
 }
 
 .runall-body {
@@ -178,49 +179,49 @@
 }
 
 .runall-tbl {
-	width          : 100%;
-	table-layout   : fixed;
+	width: 100%;
+	table-layout: fixed;
 	border-collapse: collapse;
-	text-align     : center;
+	text-align: center;
 }
 
 .runall-tbl-panel {
-	margin-top   : 20px;
-	width        : 100%;
-	padding-left : 10px;
+	margin-top: 20px;
+	width: 100%;
+	padding-left: 10px;
 	padding-right: 10px;
-	box-sizing   : border-box;
-	overflow     : auto;
-	max-height   : calc(100% - 30px);
+	box-sizing: border-box;
+	overflow: auto;
+	max-height: calc(100% - 40px);
 }
 
 .runall-tbl tbody,
 .runall-tbl td {
-	border    : var(--border-size) solid var(--border-color);
+	border: var(--border-size) solid var(--border-color);
 	border-top: none !important;
 }
 
 .runall-tbl th {
-	padding         : 7px;
+	padding: 7px;
 	background-color: var(--list-hover-background-color);
 }
 
 .runall-tbl>tbody>tr:first-child>td {
-	border-top  : none !important;
+	border-top: none !important;
 	border-right: var(--border-size) solid var(--border-color) !important;
-	border-left : var(--border-size) solid var(--border-color) !important;
+	border-left: var(--border-size) solid var(--border-color) !important;
 }
 
 .runall-tbl-panel thead th {
-	position     : sticky;
-	top          : 0;
-	z-index      : 1;
-	border-top   : none !important;
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	border-top: none !important;
 	border-bottom: none !important;
-	border-right : var(--border-size) solid var(--border-color) !important;
-	border-left  : var(--border-size) solid var(--border-color) !important;
-	box-shadow   : inset 0 1px 0 var(--border-color), inset 0 -1px 0 var(--border-color);
-	box-shadow   : inset 0 1px 0 var(--border-color), inset 0 -1px 0 var(--border-color);
+	border-right: var(--border-size) solid var(--border-color) !important;
+	border-left: var(--border-size) solid var(--border-color) !important;
+	box-shadow: inset 0 1px 0 var(--border-color), inset 0 -1px 0 var(--border-color);
+	box-shadow: inset 0 1px 0 var(--border-color), inset 0 -1px 0 var(--border-color);
 }
 
 .runall-tbl td {
@@ -228,8 +229,8 @@
 }
 
 .runall-col-name {
-	margin-left   : 20px;
-	position      : relative;
+	margin-left: 20px;
+	position: relative;
 	padding-bottom: 15px;
 }
 
@@ -239,11 +240,11 @@
 
 .runall-method-label,
 .method-label {
-	width        : 60px;
-	text-align   : center;
-	height       : 25px;
+	width: 60px;
+	text-align: center;
+	height: 25px;
 	border-radius: 5px;
-	font-weight  : bold;
+	font-weight: bold;
 }
 
 .runall-method-label {
@@ -271,13 +272,13 @@
 }
 
 .runall-col-5 {
-	width        : 10%;
-	padding-left : 5px !important;
+	width: 10%;
+	padding-left: 5px !important;
 	padding-right: 5px !important;
 }
 
 .runall-label {
-	color     : inherit;
+	color: inherit;
 	word-break: break-word;
 }
 
@@ -289,8 +290,8 @@
 .runall-btn {
 	width: fit-content;
 	margin-right: 10px;
-	height      : 30px;
-	padding     : 5px !important;
+	height: 30px;
+	padding: 5px !important;
 }
 
 .runall-cancel-btn {
@@ -298,12 +299,12 @@
 }
 
 .runall-status-success {
-	color      : #4bb543;
+	color: #4bb543;
 	font-weight: bolder;
 }
 
 .runall-status-error {
-	color      : #ea5b5b !important;
+	color: #ea5b5b !important;
 	font-weight: bolder;
 }
 
@@ -315,62 +316,62 @@
 /* Style The Dropdown Button */
 .runall-dropbtn {
 	margin-right: 10px;
-	height      : 30px;
-	padding     : 5px !important;
-	width       : max-content;
+	height: 30px;
+	padding: 5px !important;
+	width: max-content;
 }
 
 .runall-dropdown {
 	position: relative;
-	display : inline-block;
+	display: inline-block;
 }
 
 .runall-dropdown-content {
-	display         : none;
-	position        : fixed;
-	width           : 125px;
-	min-width       : 100px;
-	overflow        : auto;
-	box-shadow      : 10px 8px 16px 0 rgba(0, 0, 0, 0.4);
-	color           : var(--text-color);
+	display: none;
+	position: fixed;
+	width: 125px;
+	min-width: 100px;
+	overflow: auto;
+	box-shadow: 10px 8px 16px 0 rgba(0, 0, 0, 0.4);
+	color: var(--text-color);
 	background-color: var(--background-color);
-	border          : 1px solid var(--border-color);
-	z-index         : 1;
-	position        : absolute;
-	bottom          : 100%;
+	border: 1px solid var(--border-color);
+	z-index: 1;
+	position: absolute;
+	bottom: 100%;
 }
 
 .runall-dropdown-content a {
-	padding         : 5px 10px;
-	text-decoration : none;
-	cursor          : pointer;
+	padding: 5px 10px;
+	text-decoration: none;
+	cursor: pointer;
 	background-color: var(--background-color);
-	color           : var(--text-color);
-	outline         : none;
-	border          : 3px solid transparent;
-	border-radius   : 0;
-	text-align      : left;
-	display         : block;
+	color: var(--text-color);
+	outline: none;
+	border: 3px solid transparent;
+	border-radius: 0;
+	text-align: left;
+	display: block;
 }
 
 .runall-dropdown-content a:hover {
 	background-color: var(--button-hover-color);
-	color           : var(--button-text-color);
+	color: var(--button-text-color);
 }
 
 .runall-test-normal,
 .runall-test-pass,
 .runall-test-fail,
 .runall-test-disabled {
-	color        : #fff;
-	display      : inline-block;
-	padding      : 2px 8px;
-	font-weight  : 500;
+	color: #fff;
+	display: inline-block;
+	padding: 2px 8px;
+	font-weight: 500;
 	border-radius: 3px;
-	width        : 100%;
-	word-break   : break-word;
-	box-sizing   : border-box;
-	font-size    : 12px;
+	width: 100%;
+	word-break: break-word;
+	box-sizing: border-box;
+	font-size: 12px;
 }
 
 .runall-test-normal {
@@ -387,7 +388,7 @@
 
 .runall-test-disabled {
 	background-color: transparent;
-	color           : var(--input-unchecked) !important;
+	color: var(--input-unchecked) !important;
 }
 
 .addto-text:disabled,
@@ -395,7 +396,7 @@
 .addto-text:disabled:hover,
 .addto-text[disabled]:hover {
 	background-color: var(--list-hover-background-color);
-	cursor          : not-allowed;
+	cursor: not-allowed;
 }
 
 .runall-dropdown:hover .runall-dropdown-content {
@@ -404,65 +405,65 @@
 
 .a-disabled {
 	pointer-events: none;
-	opacity       : 0.7;
+	opacity: 0.7;
 }
 
 .col-settings-panel-tabs {
-	display        : flex;
+	display: flex;
 	justify-content: start;
-	border-bottom  : 1px solid #555;
+	border-bottom: 1px solid #555;
 }
 
 .col-settings-panel {
-	height : calc(100% - 150px);
-	width  : 98%;
+	height: calc(100% - 150px);
+	width: 98%;
 	display: block;
 	padding: 10px;
 }
 
 .col-settings-header {
-	font-style : normal;
-	font-size  : x-large;
+	font-style: normal;
+	font-size: x-large;
 	padding-top: 10px;
-	text-align : center;
+	text-align: center;
 }
 
 .col-settings-name-panel {
-	padding  : 10px 210px 20px 10px;
+	padding: 10px 210px 20px 10px;
 	font-size: medium;
 }
 
 .col-settings-body {
-	font-size  : var(--font-size);
-	max-height : calc(100% - 60px);
-	overflow   : auto;
+	font-size: var(--font-size);
+	max-height: calc(100% - 60px);
+	overflow: auto;
 	padding-top: 10px;
 	padding-bottom: 10px;
 }
 
 .addto-title-label {
-	color        : var(--text-color);
+	color: var(--text-color);
 	padding-right: 20px;
 }
 
 .submit-button {
 	background-color: var(--button-background-color);
-	border          : 0;
-	border-radius   : 3px;
-	color           : var(--button-text-color);
-	cursor          : pointer;
-	display         : inline-block;
-	font-weight     : bold;
-	outline         : none;
-	width           : 75px;
-	height          : 30px;
+	border: 0;
+	border-radius: 3px;
+	color: var(--button-text-color);
+	cursor: pointer;
+	display: inline-block;
+	font-weight: bold;
+	outline: none;
+	width: 75px;
+	height: 30px;
 }
 
 .submit-button:disabled,
 .submit-button[disabled] {
 	background-color: #ccc;
-	color           : #666;
-	cursor          : not-allowed;
+	color: #666;
+	cursor: not-allowed;
 }
 
 .order-btn-panel {
@@ -471,23 +472,23 @@
 
 .order-btn {
 	background-color: transparent;
-	outline         : none;
-	border          : 0;
-	color           : var(--button-text-color);
-	font-size       : large;
-	cursor          : pointer;
+	outline: none;
+	border: 0;
+	color: var(--button-text-color);
+	font-size: large;
+	cursor: pointer;
 }
 
 .runall-order-select {
 	background-color: transparent;
-	color           : var(--button-text-color);
-	width           : 95%;
-	font-size       : large
+	color: var(--button-text-color);
+	width: 95%;
+	font-size: large
 }
 
 select.runall-order-select option {
 	background-color: var(--background-color);
-	color           : var(--button-text-color);
+	color: var(--button-text-color);
 }
 
 .runall-disabled {
@@ -503,8 +504,8 @@ select.runall-order-select option {
 .runall-dropbtn:disabled,
 .runall-dropbtn[disabled] {
 	background-color: #ccc;
-	color           : #666;
-	cursor          : not-allowed;
+	color: #666;
+	cursor: not-allowed;
 }
 
 .runall-order-select:disabled,
@@ -513,10 +514,10 @@ select.runall-order-select option {
 }
 
 .runall-tab-items-panel {
-	max-height: calc(100% - 95px);
 	overflow-y: auto;
 	overflow-x: hidden;
-	cursor    : pointer;
+	cursor: pointer;
+	height: 100%;
 }
 
 .runall-settings-option {
@@ -536,13 +537,13 @@ select.runall-order-select option {
 }
 
 .runall-settings-label {
-	width  : 165px;
+	width: 165px;
 	display: inline-block;
 }
 
 .runall-settings-info-label {
 	margin-left: 5px;
-	cursor     : pointer;
+	cursor: pointer;
 }
 
 .runall-delay-text:disabled,
@@ -550,34 +551,34 @@ select.runall-order-select option {
 .runall-delay-text:disabled:hover,
 .runall-delay-text[disabled]:hover {
 	background-color: var(--list-hover-background-color);
-	cursor          : not-allowed;
+	cursor: not-allowed;
 }
 
 .runall-iteration-selector-panel {
-	float        : right;
+	float: right;
 	margin-bottom: 10px;
-	margin-right : 12px;
+	margin-right: 12px;
 }
 
 .runall-iteration-prevButton {
 	background-color: var(--button-background-color);
-	border          : 1px;
-	border-radius   : 3px 0 0 3px;
-	color           : var(--button-text-color);
-	cursor          : pointer;
-	display         : inline-block;
-	height          : 20px;
-	margin-left     : 10px;
+	border: 1px;
+	border-radius: 3px 0 0 3px;
+	color: var(--button-text-color);
+	cursor: pointer;
+	display: inline-block;
+	height: 20px;
+	margin-left: 10px;
 }
 
 .runall-iteration-nextButton {
 	background-color: var(--button-background-color);
-	border          : 1px;
-	border-radius   : 0 3px 3px 0;
-	color           : var(--button-text-color);
-	cursor          : pointer;
-	display         : inline-block;
-	height          : 20px;
+	border: 1px;
+	border-radius: 0 3px 3px 0;
+	color: var(--button-text-color);
+	cursor: pointer;
+	display: inline-block;
+	height: 20px;
 }
 
 .runall-iteration-prevButton:disabled,
@@ -585,34 +586,38 @@ select.runall-order-select option {
 .runall-iteration-nextButton:disabled,
 .runall-iteration-nextButton[disabled] {
 	background-color: #ccc;
-	color           : #666;
-	cursor          : not-allowed;
+	color: #666;
+	cursor: not-allowed;
 }
 
 .runall-iteration-text {
-	width     : 30px;
-	height    : 14px;
+	width: 30px;
+	height: 14px;
 	text-align: center;
 }
 
 .runall-iteration-process-text {
-	float       : left;
-	margin      : 10px;
+	float: left;
+	margin: 10px;
 	padding-left: 5px;
 }
 
 .table-padding-left {
-	padding-left : 10px;
+	padding-left: 10px;
 }
 
 .addto-scroll-panel {
-  padding: 15px 10px 15px 10px;
+	padding: 15px 10px 15px 10px;
 }
 
 .copyto-scroll-panel {
-  padding: 15px;
+	padding: 15px;
 }
 
 .attach-variable-scroll-panel {
-  padding: 15px;
+	padding: 15px;
+}
+
+.run-all-button {
+	margin-right: 10px;
 }

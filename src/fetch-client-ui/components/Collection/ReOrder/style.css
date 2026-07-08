@@ -250,7 +250,7 @@
 
 .reorder-btn-panel {
 	display: flex;
-	justify-content: flex-end;
+	justify-content: center;
 	padding-top: 4px;
 }
 

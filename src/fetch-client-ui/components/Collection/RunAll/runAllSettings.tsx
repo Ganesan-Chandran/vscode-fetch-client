@@ -10,12 +10,12 @@ export const RunAllSettings = (props: any) => {
 		<>
 			<div className="runall-settings-option">
 				<input type="radio"
-					checked={selectedOption === 1 ? true : false}
+					checked={selectedOption === 1}
 					onChange={() => setSelectedOption(1)}
 				/> <span>Sequential Run</span>
 				<input type="radio"
 					className="settings-option"
-					checked={selectedOption === 2 ? true : false}
+					checked={selectedOption === 2}
 					onChange={() => setSelectedOption(2)}
 				/> <span>Parallel Run</span>
 			</div>
@@ -28,10 +28,10 @@ export const RunAllSettings = (props: any) => {
 					onChange={setIterationValue}
 					onBlur={setIterationValueBlur}
 				/>
-				<label className="runall-settings-info-label" title="max value is 10">ⓘ</label>
+				<label className="runall-settings-info-label" title="Maximum value: 10">ⓘ</label>
 			</div>
 			<div className="runall-settings-delay-panel">
-				<label className="runall-settings-label">Delay between iteration (ms)</label>
+				<label className="runall-settings-label">Delay between iterations (ms)</label>
 				<input type="text"
 					className="activity-search runall-delay-text"
 					value={iterationDelay}
@@ -39,7 +39,7 @@ export const RunAllSettings = (props: any) => {
 					onChange={setIterationDelayValue}
 					onBlur={setIterationDelayValueBlur}
 					disabled={iteration < 2} />
-				<label className="runall-settings-info-label" title="max value is 300000">ⓘ</label>
+				<label className="runall-settings-info-label" title="Maximum value: 300000">ⓘ</label>
 			</div>
 			{selectedOption !== 2 && <div className="runall-settings-delay-panel">
 				<label className="runall-settings-label">Delay between request (ms)</label>
@@ -50,9 +50,9 @@ export const RunAllSettings = (props: any) => {
 					onChange={setDelayValue}
 					onBlur={setDelayValueBlur}
 				/>
-				<label className="runall-settings-info-label" title="max value is 300000">ⓘ</label>
+				<label className="runall-settings-info-label" title="Maximum value: 300000">ⓘ</label>
 			</div>}
-			{selectedOption === 2 && <div className="runall-settings-delay-panel"><label className="max-req">* Collection/Folder PreRequest will not be run with this option."</label></div>}
+			{selectedOption === 2 && <div className="runall-settings-delay-panel"><label className="max-req">* Collection/Folder PreRequest will not be run with this option.</label></div>}
 		</>
 	);
 };
