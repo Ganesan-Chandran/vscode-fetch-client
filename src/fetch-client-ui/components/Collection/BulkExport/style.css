@@ -11,12 +11,8 @@
 	height: 250px;
 	padding-bottom: 15px;
 	width: 100%;
-	border: 1px solid;
-}
-
-.bulk-panel {
-	padding-left: 10%;
-	padding-top: 20px;
+	border: 1px solid var(--border-color);
+	border-radius: 3px;
 }
 
 .bulk-list {
@@ -44,6 +40,10 @@
 	}
 }
 
+.bulk-footer-grid {
+	align-items: center;
+}
+
 .bulk-path-select-panel {
 	display: flex;
 }
@@ -51,13 +51,16 @@
 .bulk-path-btn {
 	width: 75px;
 	height: 30px;
+	flex-shrink: 0;
 }
 
 .bulk-filename-text {
 	color: var(--text-color);
 	font-size: var(--font-size);
-	margin-left: 10px;
-	width: calc(100% - 85px);
+	flex: 1;
+	white-space: normal;
+	word-break: break-word;
+	overflow-wrap: anywhere;
 }
 
 .bulk-message-panel {
@@ -76,10 +79,36 @@
 
 .bulk-key-text {
 	height: 25px;
-	width: 100%;
+	width: 98%;
 }
 
 .bulk-key-note {
 	text-align: left;
 	margin-top: 10px;
+}
+
+.bulk-btn-panel {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+}
+
+.bulk-success-message {
+	text-align: center;
+}
+
+.first-row {
+	height: max-content !important;
+	padding-bottom: 15px;
+}
+
+.export-type-select {
+	height: 32px;
+	padding-left: 10px;
+}
+
+.file-upload-container {
+	display: flex;
+	gap: 10px;
 }

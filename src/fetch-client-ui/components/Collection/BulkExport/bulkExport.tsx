@@ -2,10 +2,16 @@ import "./style.css";
 import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";
 import { Modal } from "../../Common/Modal";
 import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
+import PanelLayout from "../../Common/Layout/panelLayout";
 import React, { useEffect, useState } from "react";
 import vscode from "../../Common/vscodeAPI";
 
 const BulkExport = () => {
+
+	const formatTypeList = [
+		{ id: "fetchclient", value: "Fetch Client" },
+		{ id: "postman", value: "Postman" },
+	];
 
 	const [collectionNames, setCollectionNames] = useState([]);
 	const [selectedIds, setSelectedIds] = useState([]);
@@ -15,6 +21,7 @@ const BulkExport = () => {
 	const [isDone, setDone] = useState(false);
 	const [type, setType] = useState("col");
 	const [key, setKey] = useState("");
+	const [formatType, setFormatType] = useState("fetchclient");
 
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
@@ -74,7 +81,7 @@ const BulkExport = () => {
 
 	function onSubmitClick() {
 		setShowModal(true);
-		vscode.postMessage({ type: requestTypes.bulkColExportRequest, data: { cols: selectedIds.filter(id => id !== "0"), path: filePath, type: type, exportKey: key } });
+		vscode.postMessage({ type: requestTypes.bulkColExportRequest, data: { cols: selectedIds.filter(id => id !== "0"), path: filePath, type: type, exportKey: key, formatType: formatType } });
 	}
 
 	const onSelectFile = (evt: any) => {
@@ -92,105 +99,170 @@ const BulkExport = () => {
 		setKey(e.target.value);
 	}
 
+	function setSelectedFormat(e: string) {
+		setFormatType(e);
+	}
+
+	function renderList() {
+		if (!(collectionNames?.length > 0)) { return null; }
+
+		return (
+			<tr className="first-row">
+				<td className="col-1-size">
+					<span className="addto-label">{type === "col" ? "Collections :" : "Variables :"}</span>
+				</td>
+				<td className="col-2-size">
+					<div className="bulk-export-list-container">
+						<label key="0" className="bulk-list">
+							<input type="checkbox"
+								value="0"
+								checked={selectedIds.includes("0")}
+								onChange={(event) => { handleCheckboxChange(event); }}
+							/>
+							-- Select All --
+						</label>
+						{
+							collectionNames.map((col) => (
+								<label key={col.value} className="bulk-list">
+									<input type="checkbox"
+										value={col.value}
+										checked={selectedIds.includes(col.value)}
+										onChange={(event) => { handleCheckboxChange(event); }}
+									/>
+									{col.name}
+								</label>
+							))
+						}
+					</div>
+				</td>
+			</tr>
+		);
+	}
+
+	function renderKey() {
+		if (!(collectionNames?.length > 0) || type === "col") { return null; }
+		return (
+			<tr className="details-row">
+				<td className="col-1-size">
+					<span className="addto-label">Encryption Key</span>
+				</td>
+				<td className="col-2-size details-col">
+					<div>
+						<input type="text"
+							className="bulk-key-text"
+							value={key}
+							onChange={setKeyValue}
+						/>
+						<div className="bulk-key-note">
+							Note: Enter an encryption key to encrypt the variables, or leave it blank to store without encryption. Note: Share key with anyone who needs to import these variables.
+						</div>
+					</div>
+				</td>
+			</tr>
+		);
+	}
+
+	function renderPath() {
+		if (!(collectionNames?.length > 0)) { return null; }
+		return (
+			<tr>
+				<td className="col-1-size">
+					<span className="addto-label">Path</span>
+				</td>
+
+				<td className="col-2-size file-upload-container">
+					<button className="file-upload-text bulk-path-btn" onClick={onSelectFile}>Browse</button>
+					<div className="bulk-filename-text">{filePath}</div>
+				</td>
+			</tr>
+		);
+	}
+
+	function renderExportType() {
+		if (!(collectionNames?.length > 0) || type === "var") { return null; }
+		return (
+			<tr className="details-row">
+				<td className="col-1-size">
+					<span className="addto-label">Format</span>
+				</td>
+				<td className="col-2-size details-col">
+					<select className="preReq-col-select export-type-select"
+						required={true}
+						value={formatType}
+						onChange={(e) => setSelectedFormat(e.target.value)}
+					>
+						{formatTypeList.map((item) => (
+							<option key={item.id} value={item.id}>
+								{item.value}
+							</option>
+						))}
+					</select>
+				</td>
+			</tr>
+		);
+	}
+
+	function renderFooter() {
+		if (!(collectionNames?.length > 0)) { return null; }
+
+		return (
+			<>
+				{isDone && (
+					<div className="reorder-status reorder-status--ok">
+						{type === "col" ? "Collections " : "Variables"} are exported successfully
+					</div>
+				)}
+				<div className="reorder-btn-panel">
+					<button
+						type="submit"
+						className="submit-button"
+						onClick={onSubmitClick}
+						disabled={!filePath || selectedIds.length === 0 || isDone}
+					>
+						Export
+					</button>
+				</div>
+			</>
+		);
+	}
+
+	function renderHint() {
+		return (
+			<div className="reorder-hint">
+				Select {type === "col" ? "collection(s) " : "variable(s)"} to export.
+			</div>
+		);
+	}
+
+	function renderForm() {
+		return (
+			<div className="reorder-tree-panel addto-scroll-panel">
+				<table className="addto-table" cellPadding={0} cellSpacing={0}>
+					<tbody>
+						{renderList()}
+						{renderKey()}
+						{renderPath()}
+						{renderExportType()}
+					</tbody>
+				</table>
+			</div>
+		);
+	}
+
 	return (
-		<div>
+		<>
 			<Modal show={showModal}>
 				<p>Exporting the {type === "col" ? "collections..." : "variables..."}</p>
 			</Modal>
-			{
-				loading === true ?
-					<>
-						<div id="divSpinner" className="spinner loading"></div>
-						<div className="loading-history-text">{"Loading...."}</div>
-					</>
-					:
-					<>
-						<div className="addto-header">Bulk Export</div>
-						<div className="addto-body bulk-panel">
-							{
-								collectionNames?.length > 0 ?
-									<>
-										<div className="responsive-three-column-grid">
-											<div className="bulk-text-title">{type === "col" ? "Collections :" : "Variables :"}</div>
-											<div>
-
-												<div className="bulk-export-list-container">
-													<label key="0" className="bulk-list">
-														<input type="checkbox"
-															value="0"
-															checked={selectedIds.includes("0")}
-															onChange={(event) => { handleCheckboxChange(event); }}
-														/>
-														-- Select All --
-													</label>
-													{
-														collectionNames.map((col) => (
-															<label key={col.value} className="bulk-list">
-																<input type="checkbox"
-																	value={col.value}
-																	checked={selectedIds.includes(col.value)}
-																	onChange={(event) => { handleCheckboxChange(event); }}
-																/>
-																{col.name}
-															</label>
-														))
-													}
-												</div>
-											</div>
-											<div></div>
-										</div>
-										{
-											type !== "col" ? <div className="responsive-three-column-grid">
-												<div className="bulk-text-title">Encryption Key :</div>
-												<div className="bulk-key-panel">
-													<input type="text"
-														className="bulk-key-text"
-														value={key}
-														onChange={setKeyValue}
-													/>
-													<div className="bulk-key-note">
-														Note: Enter an encryption key to encrypt the variables, or leave it blank to store without encryption. Note: Share key with anyone who needs to import these variables.
-													</div>
-												</div>
-												<div></div>
-											</div>
-												:
-												<></>
-										}
-										<div className="responsive-three-column-grid">
-											<div className="bulk-text-title">Path :</div>
-											<div className="bulk-path-select-panel">
-												<button className="file-upload-text bulk-path-btn" onClick={onSelectFile}>Browse</button>
-												<div className="bulk-filename-text">{filePath}</div>
-											</div>
-											<div></div>
-										</div>
-										<div className="responsive-three-column-grid">
-											<div></div>
-											<div className="button-panel bulk-button-panel">
-												<button
-													type="submit"
-													className="submit-button"
-													onClick={onSubmitClick}
-													disabled={!filePath || selectedIds.length === 0 || isDone}
-												>
-													Export
-												</button>
-												<div className="bulk-message-panel">
-													{isDone && (<span className="success-message">{type === "col" ? "Collections " : "Variables"} are exported successfully</span>)}
-												</div>
-											</div>
-											<div></div>
-										</div>
-									</>
-									:
-									<>
-									</>
-							}
-						</div>
-					</>
-			}
-		</div>
+			<PanelLayout
+				title={type === "col" ? "📦 Bulk Export Collections" : "📦 Bulk Export Variables"}
+				loading={loading}
+				footer={renderFooter()}
+			>
+				{renderHint()}
+				{renderForm()}
+			</PanelLayout>
+		</>
 	);
 };
 

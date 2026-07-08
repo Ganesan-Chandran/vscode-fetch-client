@@ -360,21 +360,6 @@ export async function Main_Repository_BuildExport(colId: string, hisId: string, 
   return buildExportPayload(cols, getRequestCollection(db), hisId, folderId);
 }
 
-export async function Main_Repository_BuildBulkExport(selectedCols: string[]): Promise<ExportPayload[]> {
-  const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
-  const apiRequests = getRequestCollection(db);
-
-  return selectedCols.map((colId) => {
-    const cols = colDB
-      .getCollection('userCollections')
-      .chain()
-      .find({ id: colId })
-      .data({ forceClones: true, removeMeta: true });
-
-    return buildExportPayload(cols, apiRequests, "", "");
-  });
-}
-
 export async function Main_Repository_BuildExport_V2(colId: string, hisId: string, folderId: string, key: string): Promise<IFetchClientExportV2> {
   const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
   const apiRequests = getRequestCollection(db);
@@ -407,12 +392,33 @@ export async function Main_Repository_BuildExport_Postman(colId: string, hisId: 
   return ExportBuilderPostman2_1(cols[0] as ICollections, apiRequests, hisId, folderId, variables.length > 0 ? variables[0] : null);
 }
 
-export async function Main_Repository_BuildBulkExportV2(selectedCols: string[], key: string): Promise<IFetchClientExportV2[]> {
+
+
+// -----------------------------------------------------------------
+// Bulk Export Funcationlity
+// -----------------------------------------------------------------
+
+export async function Main_Repository_BuildBulkExport(selectedCols: string[]): Promise<ExportPayload[]> {
+  const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
+  const apiRequests = getRequestCollection(db);
+
+  return selectedCols.map((colId) => {
+    const cols = colDB
+      .getCollection('userCollections')
+      .chain()
+      .find({ id: colId })
+      .data({ forceClones: true, removeMeta: true });
+
+    return buildExportPayload(cols, apiRequests, "", "");
+  });
+}
+
+export async function Main_Repository_BuildBulkExportV2(selectedCols: string[], key: string, formatType: string): Promise<(IFetchClientExportV2 | PostmanSchema_2_1)[]> {
   const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
   const apiRequests = getRequestCollection(db);
 
   const linkedVariables = getExportCollectionConfiguration();
-  const result: IFetchClientExportV2[] = [];
+  const result: (IFetchClientExportV2 | PostmanSchema_2_1)[] = [];
 
   for (const colId of selectedCols) {
     const cols = colDB
@@ -423,7 +429,11 @@ export async function Main_Repository_BuildBulkExportV2(selectedCols: string[], 
 
     const variableId = linkedVariables ? cols[0].variableId : "";
     const variables = variableId ? await Var_Repository_FindById(variableId, false, key) : [];
-    result.push(ExportBuilderV2(cols[0], apiRequests, "", "", variables.length > 0 ? variables[0] : null));
+    if (formatType === "fetchclient") {
+      result.push(ExportBuilderV2(cols[0], apiRequests, "", "", variables.length > 0 ? variables[0] : null));
+    } else {
+      result.push(ExportBuilderPostman2_1(cols[0], apiRequests, "", "", variables.length > 0 ? variables[0] : null));
+    }
   }
 
   return result;

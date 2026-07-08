@@ -30,7 +30,7 @@ export const BulkExportProviderUI = (extensionUri: vscode.Uri) => {
 				});
 			} else if (message.type === requestTypes.bulkColExportRequest) {
 				if (message.data.type === "col") {
-					BulkExportV2(message.data.path, message.data?.cols, bulkExportPanel.webview);
+					BulkExportV2(message.data.path, message.data?.cols, message.data.formatType, bulkExportPanel.webview);
 				} else {
 					BulkExportVariables(message.data.path, message.data?.cols, message.data.exportKey, bulkExportPanel.webview);
 				}

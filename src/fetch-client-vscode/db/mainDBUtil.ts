@@ -1,4 +1,3 @@
-import { IRequestModel } from '../../fetch-client-core/types/request.types';
 import {
 	ExportPayload,
 	Main_Repository_BuildBulkExport, Main_Repository_BuildBulkExportV2, Main_Repository_BuildExport, Main_Repository_BuildExport_Postman, Main_Repository_BuildExport_V2, Main_Repository_CopyExistingItems,
@@ -10,6 +9,8 @@ import {
 } from '../../fetch-client-core/db/mainDB.repository';
 import { getVariableEncryptionConfiguration, getVariableEncryptionKey } from '../../fetch-client-core/utils/vscodeConfig';
 import { IFetchClientExportV2 } from '../../fetch-client-core/types/fetchClient_2_0_types';
+import { IRequestModel } from '../../fetch-client-core/types/request.types';
+import { PostmanSchema_2_1 } from '../../fetch-client-core/types/postman_2_1.types';
 import { responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
 import { writeLog } from '../../fetch-client-core/helpers/logger/logger';
 import * as vscode from "vscode";
@@ -143,7 +144,7 @@ export async function ExportOtherFormats(path: string, colId: string, hisId: str
 	}
 }
 
-export async function BulkExportV2(path: string, selectedCols: string[], webview: vscode.Webview): Promise<void> {
+export async function BulkExportV2(path: string, selectedCols: string[], formatType: string, webview: vscode.Webview): Promise<void> {
 	if (!selectedCols?.length) {
 		webview?.postMessage({ type: responseTypes.bulkColExportResponse });
 		return;
@@ -151,7 +152,7 @@ export async function BulkExportV2(path: string, selectedCols: string[], webview
 
 	try {
 		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
-		const exportPayloads = await Main_Repository_BuildBulkExportV2(selectedCols, key);
+		const exportPayloads = await Main_Repository_BuildBulkExportV2(selectedCols, key, formatType);
 		const writePromises = exportPayloads.map((exportData) => {
 			return exportIntoFile(path, exportData, 2);
 		});
@@ -183,8 +184,20 @@ export async function BulkExport(path: string, selectedCols: string[], webview: 
 	}
 }
 
-async function exportIntoFile(path: string, exportData: ExportPayload | IFetchClientExportV2, version: number): Promise<void> {
-	const name = "name" in exportData ? exportData.name : exportData.metadata.name;
+function getExportName(exportData: ExportPayload | IFetchClientExportV2 | PostmanSchema_2_1): string {
+	if ("name" in exportData) {
+		return exportData.name;
+	}
+
+	if ("metadata" in exportData) {
+		return exportData.metadata.name;
+	}
+
+	return exportData.info.name;
+}
+
+async function exportIntoFile(path: string, exportData: ExportPayload | IFetchClientExportV2 | PostmanSchema_2_1, version: number): Promise<void> {
+	const name = getExportName(exportData);
 	const safeName = name.replace(/[/\\?%*:|"<>]/g, "-");
 	const fullPath = `${path}\\fetch-client-collection_${safeName}.json`;
 
