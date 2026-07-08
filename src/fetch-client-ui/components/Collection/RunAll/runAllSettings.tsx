@@ -52,7 +52,7 @@ export const RunAllSettings = (props: any) => {
 				/>
 				<label className="runall-settings-info-label" title="Maximum value: 300000">ⓘ</label>
 			</div>}
-			{selectedOption === 2 && <div className="runall-settings-delay-panel"><label className="max-req">* Collection/Folder PreRequest will not be run with this option.</label></div>}
+			{selectedOption === 2 && <div className="runall-settings-delay-panel"><label className="max-req">* Collection/Folder PreRequest will not be executed with this option.</label></div>}
 		</>
 	);
 };

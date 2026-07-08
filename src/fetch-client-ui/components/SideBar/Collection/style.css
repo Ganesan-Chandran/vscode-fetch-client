@@ -129,13 +129,16 @@ summary:focus-within {
 
 .sub-menu.tools-sub-menu {
 	width: 130px !important;
-	left: -128px;
+	left: -120px;
+}
+
+.sub-menu.new-sub-menu {
+	width: 90px !important;
+	left: -88px;
 }
 
 .parent-menu:hover .sub-menu {
 	display: block;
-	left: -88px;
-	width: 90px !important;
 	top: 0;
 }
 

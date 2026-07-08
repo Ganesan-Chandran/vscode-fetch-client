@@ -40,8 +40,8 @@ export const requestTypes = {
 	getAllHistoryRequest: "getAllHistoryRequest",
 	getAllVariableRequest: "getAllVariableRequest",
 	getAttachedColIdsRequest: "getAttachedColIdsRequest",
-	getCollectionsByIdRequest: "getCollectionsByIdRequest",
 	getCollectionDetailsByIdRequest: "getCollectionDetailsByIdRequest",
+	getCollectionsByIdRequest: "getCollectionsByIdRequest",
 	getCollectionsByIdWithPathRequest: "getCollectionsByIdWithPathRequest",
 	getColSettingsRequest: "getColSettingsRequest",
 	getCookiesByIdRequest: "getCookiesByIdRequest",
@@ -70,17 +70,19 @@ export const requestTypes = {
 	openVariableItemRequest: "openVariableItemRequest",
 	pasteItemRequest: "pasteItemRequest",
 	readFileRequest: "readFileRequest",
-	reorderCollectionRequest: "reorderCollectionRequest",
+	readyCheckRequest: "readyCheckRequest",
 	removeVariableFromColRequest: "removeVariableFromColRequest",
 	removeVariableRequest: "removeVariableRequest",
 	renameCollectionItemRequest: "renameCollectionItemRequest",
 	renameCollectionRequest: "renameCollectionRequest",
 	renameHistoryRequest: "renameHistoryRequest",
-	reOrderItemUIOpenRequest: "reOrderItemUIOpenRequest",
 	renameVariableRequest: "renameVariableRequest",
+	reorderCollectionRequest: "reorderCollectionRequest",
+	reOrderItemUIOpenRequest: "reOrderItemUIOpenRequest",
 	runAllRequest: "runAllRequest",
 	runAllUIOpenRequest: "runAllUIOpenRequest",
 	runCurlRequest: "runCurlRequest",
+	runPerfTestUIOpenRequest: "runPerfTestUIOpenRequest",
 	saveAutoRequestRequest:"saveAutoRequestRequest",
 	saveColSettingsRequest: "saveColSettingsRequest",
 	saveCookieRequest: "saveCookieRequest",
@@ -97,7 +99,6 @@ export const requestTypes = {
 	tokenRequest: "tokenRequest",
 	updateVariableRequest: "updateVariableRequest",
 	viewLogRequest: "viewLogRequest",
-	readyCheckRequest: "readyCheckRequest"
 };
 
 export const responseTypes = {
@@ -135,10 +136,10 @@ export const responseTypes = {
 	getAllCookiesResponse: "getAllCookiesResponse",
 	getAllHistoryResponse: "getAllHistoryResponse",
 	getAllVariableResponse: "getAllVariableResponse",
-	getAutoRequestByIdResponse: "getAutoRequestByIdResponse",
 	getAttachedColIdsResponse: "getAttachedColIdsResponse",
-	getCollectionsByIdResponse: "getCollectionsByIdResponse",
+	getAutoRequestByIdResponse: "getAutoRequestByIdResponse",
 	getCollectionDetailsByIdResponse: "getCollectionDetailsByIdResponse",
+	getCollectionsByIdResponse: "getCollectionsByIdResponse",
 	getCollectionsByIdWithPathResponse: "getCollectionsByIdWithPathResponse",
 	getCollectionsWithPathResponse: "getCollectionsWithPathResponse",
 	getColSettingsResponse: "getColSettingsResponse",
@@ -160,6 +161,7 @@ export const responseTypes = {
 	pasteItemResponse: "pasteItemResponse",
 	preFetchResponse: "preFetchResponse",
 	readFileResponse: "readFileResponse",
+	readyCheckResponse: "readyCheckResponse",
 	removeVariableFromColResponse: "removeVariableFromColResponse",
 	removeVariableResponse: "removeVariableResponse",
 	renameCollectionItemResponse: "renameCollectionItemResponse",
@@ -180,7 +182,6 @@ export const responseTypes = {
 	tokenResponse: "tokenResponse",
 	updateCollectionHistoryItem:"updateCollectionHistoryItem",
 	updateVariableResponse: "updateVariableResponse",
-	readyCheckResponse: "readyCheckResponse"
 };
 
 export const pubSubTypes = {

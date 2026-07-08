@@ -261,14 +261,17 @@
 
 .runall-col-0 {
 	width: 5%;
+	border: var(--border-size) solid var(--border-color) !important;
 }
 
 .runall-col-1 {
 	width: 10%;
+	border: var(--border-size) solid var(--border-color) !important;
 }
 
 .runall-col-2 {
 	width: 30%;
+	border: var(--border-size) solid var(--border-color) !important;
 }
 
 .runall-col-5 {

@@ -82,6 +82,10 @@ export function OpenReOrderUI(colId: string, folderId: string): void {
 	vscode.commands.executeCommand("fetch-client.addToCol", colId, folderId, "", "reorder");
 }
 
+export function OpenPerfTestUI(colId: string, folderId: string, name: string, varId: string): void {
+	vscode.commands.executeCommand("fetch-client.addToCol", colId, folderId, name, "perftest", varId);
+}
+
 export function OpenCookieUI(id?: string): void {
 	vscode.commands.executeCommand("fetch-client.manageCookies", id);
 }

@@ -362,6 +362,13 @@ export const CollectionBar = (props: ICollectionProps) => {
 		setCurrentHeadIndex("");
 	}
 
+	function onPerfTest(evt: React.MouseEvent<HTMLElement>, colId: string, folderId: string, name: string, varId: string) {
+		evt.preventDefault();
+		evt.stopPropagation();
+		vscode.postMessage({ type: requestTypes.runPerfTestUIOpenRequest, data: { colId: colId, folderId: folderId, name: name, varId: varId } });
+		setCurrentHeadIndex("");
+	}
+
 	function onReOrderItems(evt: React.MouseEvent<HTMLElement>, colId: string, folderId?: string) {
 		evt.preventDefault();
 		evt.stopPropagation();
@@ -548,7 +555,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 						<input type="checkbox" className="dd-input" checked={item.id === currentHeadIndex} readOnly />
 						<DropdownPortal id={item.id} open={item.id === currentHeadIndex}>
 							<div className="parent-menu" onClick={(e) => { e.stopPropagation(); e.preventDefault(); }} onContextMenu={(e) => { e.stopPropagation(); e.preventDefault(); }}> New
-								<div className="dropdown-more sub-menu">
+								<div className="dropdown-more sub-menu new-sub-menu">
 									<button onClick={(e) => addNewRequest(e, cols.id, item.id)}>Request</button>
 									<button onClick={(e) => addNewFolder(e, cols.id, item.id)}>Folder</button>
 								</div>
@@ -559,6 +566,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 								Tools <span className="col-menu-submenu-arrow">›</span>
 								<div className="dropdown-more sub-menu tools-sub-menu">
 									<button onClick={(e) => onRunAll(e, cols.id, item.id, cols.name + " \\ " + item.name, cols.variableId)}>Run All</button>
+									<button onClick={(e) => onPerfTest(e, cols.id, item.id, cols.name + " \\ " + item.name, cols.variableId)}>Performance Test</button>
 								</div>
 							</div>
 							<button onClick={(e) => onReOrderItems(e, cols.id, item.id)}>Arrange Items</button>
@@ -637,7 +645,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 							<div className="parent-menu"
 								onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
 								onContextMenu={(e) => { e.stopPropagation(); e.preventDefault(); }}> New <span className="col-menu-submenu-arrow">›</span>
-								<div className="dropdown-more sub-menu">
+								<div className="dropdown-more sub-menu new-sub-menu">
 									<button onClick={(e) => addNewRequest(e, item.id, "")}>Request</button>
 									<button onClick={(e) => addNewFolder(e, item.id, "")}>Folder</button>
 								</div>
@@ -648,6 +656,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 								Tools <span className="col-menu-submenu-arrow">›</span>
 								<div className="dropdown-more sub-menu tools-sub-menu">
 									<button onClick={(e) => onRunAll(e, item.id, "", item.name, item.variableId)}>Run All</button>
+									<button onClick={(e) => onPerfTest(e, item.id, "", item.name, item.variableId)}>Performance Test</button>
 								</div>
 							</div>
 							<button onClick={(e) => onReOrderItems(e, item.id)}>Arrange Items</button>

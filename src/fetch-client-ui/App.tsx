@@ -16,6 +16,7 @@ const CurlUI = React.lazy(() => import('./components/Curl'));
 const BulkExportUI = React.lazy(() => import('./components/Collection/BulkExport/bulkExport'));
 const AutoRequestUI = React.lazy(() => import('./components/AutoRequest'));
 const ReOrder = React.lazy(() => import('./components/Collection/ReOrder/reorder'));
+const PerformanceTest = React.lazy(() => import('./components/Collection/Testing/PerformanceTest'));
 
 function ErrorFallback({ error }) {
 	const errorData = " Name : " + error.name + "\n\n" + " Message : " + error.message + "\n\n" + " Stack : " + error.stack;
@@ -77,6 +78,8 @@ function renderUI() {
 		return <BulkExportUI />;
 	} else if (document.title.includes('autorequest')) {
 		return <AutoRequestUI />;
+	} else if (document.title.includes('perftest')) {
+		return <PerformanceTest />;
 	} else {
 		return <MainUI />;
 	}

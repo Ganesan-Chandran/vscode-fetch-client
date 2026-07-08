@@ -17,7 +17,7 @@ import {
 } from '../db/collectionDBUtil';
 import {
 	getStorageManager, OpenAddToColUI, OpenAttachVariableUI, OpenAutoRequestUI, OpenBulkExportUI, OpenColSettings, OpenCopyToColUI,
-	OpenCurlUI, OpenExistingItem, OpenReOrderUI, OpenRunAllUI, OpenVariableUI, pubSub, vsCodeLogger
+	OpenCurlUI, OpenExistingItem, OpenPerfTestUI, OpenReOrderUI, OpenRunAllUI, OpenVariableUI, pubSub, vsCodeLogger
 } from '../../extension';
 import { IPubSubMessage, Subscription } from '../../fetch-client-core/utils/pubSub';
 
@@ -145,7 +145,7 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 								case "Fetch Client":
 									Export(value, reqData.data.colId, reqData.data.hisId, reqData.data.folderId, 2);
 									break;
-							}							
+							}
 						}
 					});
 					break;
@@ -324,6 +324,10 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					break;
 				case requestTypes.configRequest:
 					webviewView.webview.postMessage(getConfiguration());
+					break;
+				case requestTypes.runPerfTestUIOpenRequest:
+					OpenPerfTestUI(reqData.data.colId, reqData.data.folderId, reqData.data.name, reqData.data.varId);
+					break;
 			}
 		});
 	}
