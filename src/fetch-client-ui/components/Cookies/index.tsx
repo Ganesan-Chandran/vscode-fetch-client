@@ -3,6 +3,7 @@ import { ICookie } from "../../../fetch-client-core/types/cookie.types";
 import { InitialCookie } from "../../../fetch-client-core/consts/initialValues.consts";
 import { requestTypes, responseTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
 import { ResponseTable } from "../Common/Table/ResponseTable";
+import PanelLayout from "../Common/Layout/panelLayout";
 import React, { useEffect, useRef, useState } from "react";
 import vscode from "../Common/vscodeAPI";
 
@@ -78,65 +79,97 @@ const ManageCookies = () => {
 		setCurrentCookie(cookies.find(item => item.id === event.target.value));
 	};
 
+	function renderHeader() {
+		if (!cookies || cookies.length === 0) {
+			return null;
+		}
+
+		return (
+			<div className="variable-panel-name cookie-align-parent">
+				<span className="addto-label cookie-align-child">
+					Cookie :
+				</span>
+
+				<select
+					className="addto-select cookie-select"
+					value={cookieId}
+					onChange={onSelect}
+				>
+					{cookies.map((cookie: ICookie, index: number) => (
+						<option
+							key={index + cookie.name}
+							value={cookie.id}
+						>
+							{cookie.name}
+						</option>
+					))}
+				</select>
+			</div>
+		);
+	}
+
+	function renderCookieTable() {
+		if (!cookies || cookies.length === 0) {
+			return (
+				<div className="no-cookie-text">
+					No Cookies Available
+				</div>
+			);
+		}
+
+		return (
+			<div className="var-tbl-panel cookie-tbl">
+				{currentCookie?.data?.length > 0 && (
+					<ResponseTable
+						data={currentCookie.data}
+						readOnly
+						type="resCookies"
+						headers={{
+							key: "Name",
+							value: "Value",
+							value1: "Details",
+						}}
+					/>
+				)}
+			</div>
+		);
+	}
+
+	function renderFooter() {
+		if (!cookies || cookies.length === 0) {
+			return null;
+		}
+
+		return (
+			<div className="reorder-btn-panel">
+				<button
+					type="button"
+					className="submit-button reorder-btn cookie-btn"
+					onClick={onSubmitClick}
+					disabled={isDisabled()}
+				>
+					Delete Cookie
+				</button>
+
+				<button
+					type="button"
+					className="submit-button reorder-btn cookie-btn"
+					onClick={onDeleteAllClick}
+					disabled={isDisabled()}
+				>
+					Delete All Cookies
+				</button>
+			</div>
+		);
+	}
 	return (
-		<div className="cookie-panel">
-			<div className="var-header">🌐 Manage Cookies</div>
-			{
-				cookies && cookies.length > 0 ?
-					<>
-						<div className="variable-panel-name cookie-align-parent">
-							<span className="addto-label cookie-align-child">Cookie :</span>
-							<select
-								className="addto-select cookie-select"
-								required={true}
-								value={cookieId}
-								onChange={(e) => onSelect(e)}
-							>
-								{
-									cookies.map((param: ICookie, index: number) => {
-										return (
-											<option
-												key={index + param.name}
-												value={param.id}
-											>
-												{param.name}
-											</option>
-										);
-									})
-								}
-							</select>
-							<div className="cookie-button-panel">
-								<button
-									type="submit"
-									className="submit-button delete-all-button"
-									onClick={onSubmitClick}
-									disabled={isDisabled()}
-								>
-									Delete Cookie
-								</button>
-								<button
-									type="submit"
-									className="submit-button delete-all-button"
-									onClick={onDeleteAllClick}
-									disabled={isDisabled()}
-								>
-									Delete All Cookies
-								</button>
-							</div>
-						</div>
-						<div className="var-tbl-panel">
-							{currentCookie && currentCookie.data && currentCookie.data.length && <ResponseTable
-								data={currentCookie.data}
-								readOnly={true}
-								type="resCookies"
-								headers={{ key: "Name", value: "Value", value1: "Details" }}
-							/>}
-						</div>
-					</>
-					:
-					<div className="no-cookie-text">{"No Cookies Available"}</div>
-			}
-		</div>
+		<PanelLayout
+			title="🌐 Manage Cookies"
+			header={renderHeader()}
+			footer={renderFooter()}
+		>
+			{renderCookieTable()}
+		</PanelLayout>
 	);
 };
 

@@ -5,6 +5,7 @@ import { IVariable } from "../../../fetch-client-core/types/sidebar.types";
 import { requestTypes, responseTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
 import { Table } from "../Common/Table/Table";
 import { v4 as uuidv4 } from 'uuid';
+import PanelLayout from "../Common/Layout/panelLayout";
 import React, { useEffect, useState } from "react";
 import vscode from "../Common/vscodeAPI";
 
@@ -142,65 +143,137 @@ const Variables = (_props: IVariableProps) => {
 		setViewVariables(evt.currentTarget.checked);
 	}
 
-	return (
-		<div className="variable-panel">
-			<div className="var-header">Variables</div>
-			{
-				variableItem ?
-					<>
-						<div className="variable-panel-name">
-							<label className="variable-text-label">Name : </label><input className={errors["varName"] ? "variable-text required-value" : "variable-text"} type="text" value={variableItem.name} title="Variable Name" onChange={onNameChange} disabled={!enabled}></input>
-							{
-								errors["varName"] && <div className="var-name-valid error-text">{errors["varName"]}</div>
-							}
-						</div>
-						<div className="view-variable-panel-name">
-							<label className="request-header-panel-text view-variable">
-								<input type="checkbox"
-									className="request-header-panel-option"
-									checked={viewVariables}
-									onChange={(e) => onSelectChange(e)}
-								/> View Variables</label>
-						</div>
-						<div className="var-tbl-panel">
-							<Table
-								data={variableItem?.data ? variableItem.data : [{ isChecked: false, key: "", value: "" }]}
-								onRowAdd={onRowAdd}
-								onRowUpdate={onRowUpdate}
-								deleteData={deleteParam}
-								readOnly={false}
-								placeholder={{ key: "variable name", value: "value" }}
-								valueType={viewVariables ? "text" : "password"}
-							/>
-						</div>
-						{
-							collectionNames.length > 0 ?
-								<div className="variable-col-panel">
-									<label className="variable-col-label">Attached Collections : </label>
-									<label className="variable-col-list-label">{collectionNames.toString()}</label>
-								</div>
-								:
-								<></>
+	function renderHeader() {
+		return (
+			<>
+				<div className="variable-panel-name">
+					<label className="variable-text-label">
+						Name :
+					</label>
+
+					<input
+						className={
+							errors["varName"]
+								? "variable-text required-value"
+								: "variable-text"
 						}
-						<div className="button-panel var-btn-panel">
-							<button
-								type="submit"
-								className="submit-button"
-								onClick={onSubmitClick}
-								disabled={isDisabled()}
-							>
-								Submit
-							</button>
+						type="text"
+						value={variableItem.name}
+						onChange={onNameChange}
+						disabled={!enabled}
+					/>
+
+					{errors["varName"] && (
+						<div className="var-name-valid error-text">
+							{errors["varName"]}
 						</div>
-						<div className="message-panel">
-							{isDone && (<span className="success-message var-error">{`Variables ${isNew ? `added` : `updated`} successfully`}</span>)}
-							{duplicates.length > 0 && (<span className="success-message error-text var-error">{`Duplicate Variables : ${duplicates.join(", ")}`}</span>)}
-						</div>
-					</>
-					:
-					<></>
-			}
-		</div>
+					)}
+				</div>
+
+				<div className="view-variable-panel-name">
+					<label className="request-header-panel-text view-variable">
+						<input
+							type="checkbox"
+							className="request-header-panel-option"
+							checked={viewVariables}
+							onChange={onSelectChange}
+						/>
+
+						View Variables
+					</label>
+				</div>
+			</>
+		);
+	}
+
+	function renderVariableTable() {
+		return (
+			<div className="var-tbl-panel var-tbl">
+				<Table
+					data={
+						variableItem?.data ?? [
+							{
+								isChecked: false,
+								key: "",
+								value: "",
+							},
+						]
+					}
+					onRowAdd={onRowAdd}
+					onRowUpdate={onRowUpdate}
+					deleteData={deleteParam}
+					readOnly={false}
+					placeholder={{
+						key: "variable name",
+						value: "value",
+					}}
+					valueType={viewVariables ? "text" : "password"}
+				/>
+			</div>
+		);
+	}
+
+	function renderAttachedCollections() {
+		if (collectionNames.length === 0) {
+			return null;
+		}
+
+		return (
+			<div className="variable-col-panel">
+				<label className="variable-col-label">
+					Attached Collections :
+				</label>
+
+				<label className="variable-col-list-label">
+					{' ' + collectionNames.join(", ")}
+				</label>
+			</div>
+		);
+	}
+
+	function renderFooter() {
+		return (
+			<>
+				{isDone && (
+					<div className="reorder-status reorder-status--ok">
+						Variables {isNew ? "added" : "updated"} successfully.
+					</div>
+				)}
+
+				{duplicates.length > 0 && (
+					<div className="reorder-status reorder-status--error">
+						Duplicate Variables: {duplicates.join(", ")}
+					</div>
+				)}
+
+				<div className="reorder-btn-panel">
+					<button
+						type="button"
+						className="submit-button reorder-btn"
+						onClick={onSubmitClick}
+						disabled={isDisabled()}
+					>
+						{isNew ? "Add Variable" : "Save Variable"}
+					</button>
+				</div>
+			</>
+		);
+	}
+
+	return (
+		<PanelLayout
+			title="🗂️ Variables"
+			loading={!variableItem}
+			header={variableItem ? renderHeader() : undefined}
+			footer={variableItem ? renderFooter() : undefined}
+		>
+			{variableItem && (
+				<>
+					{renderVariableTable()}
+					{renderAttachedCollections()}
+				</>
+			)}
+		</PanelLayout>
 	);
 };
 
