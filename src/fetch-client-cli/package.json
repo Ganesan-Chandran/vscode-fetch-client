@@ -8,7 +8,7 @@
     "node": ">=18.0.0"
   },
   "bin": {
-    "fc": "./cli.js"
+    "fc-cli": "./cli.js"
   },
   "repository": {
     "type": "git",
