@@ -25,7 +25,7 @@ const VERSION: string = require('./package.json').version;
 const HELP = `
 Fetch Client CLI v${VERSION}
 
-Usage:  fc <command> [options]
+Usage:  fc-cli <command> [options]
 
 Commands:
   list      List collections, folders, or variables
@@ -34,49 +34,49 @@ Commands:
 
 ── LIST ──────────────────────────────────────────────────────
 
-fc list --col --id <uuid>                  Filter collections by id
+fc-cli list --col --id <uuid>                  Filter collections by id
 
-fc list --fol --name <name>                Find folder by name
-fc list --fol --id <uuid>                  Find folder by id
+fc-cli list --fol --name <name>                Find folder by name
+fc-cli list --fol --id <uuid>                  Find folder by id
 
-fc list --var                              List all variable sets
-fc list --var --name <name>                Filter variable sets by name
-fc list --var --id <uuid>                  Filter variable sets by id
+fc-cli list --var                              List all variable sets
+fc-cli list --var --name <name>                Filter variable sets by name
+fc-cli list --var --id <uuid>                  Filter variable sets by id
 
 ── RUN ─────────────────────────────────────────────────────────────
 
-fc run --req --name <name>                      Run a request by name
-fc run --req --id <uuid>                        Run a request by id
-fc run --req --name <name> --var-id <uuid>      Override variable set (by id)
-fc run --req --name <name> --var-name <name>    Override variable set (by name)
+fc-cli run --req --name <name>                      Run a request by name
+fc-cli run --req --id <uuid>                        Run a request by id
+fc-cli run --req --name <name> --var-id <uuid>      Override variable set (by id)
+fc-cli run --req --name <name> --var-name <name>    Override variable set (by name)
 
-fc run --col --all                              Run every request in every collection
-fc run --col --name <name>                      Run all requests in a collection by name
-fc run --col --id <uuid>                        Run all requests in a collection by id
-fc run --col --name <name> --var-id <uuid>      Run collection with a specific variable set (by id)
-fc run --col --name <name> --var-name <name>    Run collection with a specific variable set (by name)
-fc run --col --name <name> --var-id <uuid>      Override variable set (by id)
-fc run --col --name <name> --var-name <name>    Override variable set (by name)
+fc-cli run --col --all                              Run every request in every collection
+fc-cli run --col --name <name>                      Run all requests in a collection by name
+fc-cli run --col --id <uuid>                        Run all requests in a collection by id
+fc-cli run --col --name <name> --var-id <uuid>      Run collection with a specific variable set (by id)
+fc-cli run --col --name <name> --var-name <name>    Run collection with a specific variable set (by name)
+fc-cli run --col --name <name> --var-id <uuid>      Override variable set (by id)
+fc-cli run --col --name <name> --var-name <name>    Override variable set (by name)
                                                 Note: if the collection is already linked to a variable set,
                                                 the linked variable takes priority and --var-id/--var-name
                                                 is ignored (an info message is printed).
 
-fc run --fol --name <name>                      Run all requests in a folder by name
-fc run --fol --id <uuid>                        Run all requests in a folder by id
-fc run --fol --name <name> --var-id <uuid>      Override variable set (by id)
-fc run --fol --name <name> --var-name <name>    Override variable set (by name)
+fc-cli run --fol --name <name>                      Run all requests in a folder by name
+fc-cli run --fol --id <uuid>                        Run all requests in a folder by id
+fc-cli run --fol --name <name> --var-id <uuid>      Override variable set (by id)
+fc-cli run --fol --name <name> --var-name <name>    Override variable set (by name)
                                                 Note: same priority rule applies - linked variable wins.
 
-fc run --curl '<curl ...>'                      Execute a raw curl command
+fc-cli run --curl '<curl ...>'                      Execute a raw curl command
 
 ── EXPORT ────────────────────────────────────────────────────────
 
-fc run --req --name <name> --export <format> --var-id <uuid>        Export a detailed report after running
-fc run --col --id <uuid> --export <format> --var-name <name>        Supported formats: csv, html, json, xml, nunit
-fc run --col --name <name> --export <format>
-fc run --fol --id <uuid> --export <format>            
-fc run --fol --name <name> --export <format>
-fc run --col --all --export json --export-path <dir>                Export to a custom directory
+fc-cli run --req --name <name> --export <format> --var-id <uuid>        Export a detailed report after running
+fc-cli run --col --id <uuid> --export <format> --var-name <name>        Supported formats: csv, html, json, xml, nunit
+fc-cli run --col --name <name> --export <format>
+fc-cli run --fol --id <uuid> --export <format>            
+fc-cli run --fol --name <name> --export <format>
+fc-cli run --col --all --export json --export-path <dir>                Export to a custom directory
                                                                     Notes:
                                                                     --export is only supported with --req, --col, and --fol.
                                                                     --export-path must be a directory. If omitted, reports are
@@ -85,7 +85,7 @@ fc run --col --all --export json --export-path <dir>                Export to a 
 
 ── CHECK ───────────────────────────────────────────────────────────
 
-fc check                                   Check if all DB files exist
+fc-cli check                                   Check if all DB files exist
 
 ── OPTIONS ─────────────────────────────────────────────────────────
 
@@ -213,7 +213,7 @@ async function main(): Promise<void> {
   const argv = parseArgs(process.argv.slice(2));
 
   if (argv.version) {
-    writeConsoleLog(`fc v${VERSION}`);
+    writeConsoleLog(`fc-cli v${VERSION}`);
     return;
   }
 
@@ -238,7 +238,7 @@ async function main(): Promise<void> {
       break;
 
     default:
-      wrtieConsleError(`Unknown command: '${command}'. Run 'fc --help' for usage.`);
+      wrtieConsleError(`Unknown command: '${command}'. Run 'fc-cli --help' for usage.`);
       process.exit(1);
   }
 }
@@ -255,7 +255,7 @@ async function handleList(argv: ParsedArgs): Promise<void> {
 
   if (argv.fol) {
     if (!name && !id) {
-      wrtieConsleError("'fc list --fol' requires --name or --id.");
+      wrtieConsleError("'fc-cli list --fol' requires --name or --id.");
       process.exit(1);
     }
 
@@ -268,7 +268,7 @@ async function handleList(argv: ParsedArgs): Promise<void> {
     return;
   }
 
-  wrtieConsleError("Specify --col, --fol, or --var after 'list'. Run 'fc --help' for usage.");
+  wrtieConsleError("Specify --col, --fol, or --var after 'list'. Run 'fc-cli --help' for usage.");
   process.exit(1);
 }
 
@@ -296,7 +296,7 @@ async function handleRun(argv: ParsedArgs): Promise<void> {
 
   if (argv.req) {
     if (!name && !id) {
-      wrtieConsleError("'fc run --req' requires --name or --id.");
+      wrtieConsleError("'fc-cli run --req' requires --name or --id.");
       process.exit(1);
     }
 
@@ -319,7 +319,7 @@ async function handleRun(argv: ParsedArgs): Promise<void> {
 
   if (argv.fol) {
     if (!name && !id) {
-      wrtieConsleError("'fc run --fol' requires --name or --id.");
+      wrtieConsleError("'fc-cli run --fol' requires --name or --id.");
       process.exit(1);
     }
 
@@ -328,7 +328,7 @@ async function handleRun(argv: ParsedArgs): Promise<void> {
   }
 
   wrtieConsleError(
-    "Specify --req, --col, --fol, or --curl after 'run'. Run 'fc --help' for usage."
+    "Specify --req, --col, --fol, or --curl after 'run'. Run 'fc-cli --help' for usage."
   );
 
   process.exit(1);
