@@ -1,5 +1,5 @@
 {
-  "name": "fetch-client-cli",
+  "name": "@fetch-client/cli",
   "version": "1.0.0",
   "description": "CLI tool to run and manage Fetch Client API collections from the terminal",
   "license": "MIT",
@@ -10,10 +10,25 @@
   "bin": {
     "fc": "./cli.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ganesan-Chandran/vscode-fetch-client.git"
+  },
+  "keywords": [
+    "fetch",
+    "fetch client",
+    "fetch-client",
+    "fetch client cli",
+    "api",
+    "rest",
+    "cli",
+    "postman",
+    "thunder-client"
+  ],
   "scripts": {
-    "build": "cd .. && cd .. && npx webpack --mode production --config webpack.cli.config.js",
-    "build:dev": "cd .. && cd .. && npx webpack --mode development --config webpack.cli.config.js",
-    "watch": "cd .. && cd .. && npx webpack --mode development --watch --config webpack.cli.config.js"
+    "build": "npx webpack --mode production --config ../../webpack.cli.config.js",
+    "build:dev": "npx webpack --mode development --config ../../webpack.cli.config.js",
+    "watch": "npx webpack --mode development --watch --config ../../webpack.cli.config.js"
   },
   "dependencies": {
     "axios": "1.17.0",

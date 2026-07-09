@@ -5,19 +5,39 @@ const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 
-class CopyCliPackageJsonPlugin {
+class PrepareCliPackagePlugin {
     /** @param {any} compiler */
     apply(compiler) {
         compiler.hooks.afterEmit.tap('CopyCliPackageJsonPlugin', () => {
-            const src = path.resolve(__dirname, 'src/fetch-client-cli/package.json');
-            const dest = path.resolve(__dirname, 'cli/package.json');
-            fs.copyFileSync(src, dest);
+            const outDir = path.resolve(__dirname, "cli");
+
+            const filesToCopy = [
+                {
+                    from: "src/fetch-client-cli/package.json",
+                    to: "package.json"
+                },
+                {
+                    from: "src/fetch-client-cli/LICENSE",
+                    to: "LICENSE"
+                }
+            ];
+
+            for (const file of filesToCopy) {
+                const src = path.resolve(__dirname, file.from);
+                const dest = path.join(outDir, file.to);
+
+                if (fs.existsSync(src)) {
+                    fs.copyFileSync(src, dest);
+                }
+            }
+            fs.chmodSync(path.join(outDir, "cli.js"), 0o755);
         });
     }
 }
 
 /** @param {'development' | 'production' | 'none'} webpackEnv */
 module.exports = (webpackEnv = 'production') => ({
+    context: __dirname,
     mode: webpackEnv,
     bail: webpackEnv === 'production',
     devtool: webpackEnv === 'production'
@@ -25,7 +45,7 @@ module.exports = (webpackEnv = 'production') => ({
         : 'eval-cheap-module-source-map',
 
     target: 'node',
-    entry: './src/fetch-client-cli/index.ts',
+    entry: path.resolve(__dirname, "src/fetch-client-cli/index.ts"),
     output: {
         path: path.resolve(__dirname, 'cli'),
         filename: 'cli.js',
@@ -63,7 +83,7 @@ module.exports = (webpackEnv = 'production') => ({
             banner: '#!/usr/bin/env node',
             raw: true,
         }),
-        new CopyCliPackageJsonPlugin(),
+        new PrepareCliPackagePlugin(),
     ],
     externals: {},
 });
