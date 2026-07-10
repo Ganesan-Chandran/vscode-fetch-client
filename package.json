@@ -60,7 +60,9 @@
     "environment variables",
     "json viewer",
     "xml viewer",
-    "code snippets"
+    "code snippets",
+    "cli",
+    "fetch client cli"
   ],
   "activationEvents": [
     "onStartupFinished"

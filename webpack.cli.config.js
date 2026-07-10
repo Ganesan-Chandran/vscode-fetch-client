@@ -19,6 +19,10 @@ class PrepareCliPackagePlugin {
                 {
                     from: "src/fetch-client-cli/LICENSE",
                     to: "LICENSE"
+                },
+                {
+                    from: "src/fetch-client-cli/README.md",
+                    to: "README.md"
                 }
             ];
 
