@@ -5,7 +5,6 @@
 const path = require("path");
 const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
 
 /**
  * @param {'development' | 'production' | 'none'} webpackEnv
@@ -80,19 +79,6 @@ const commonConfig = (webpackEnv) => {
 				},
 			],
 		},
-		// optimization: {
-		// 	minimize: true,
-		// 	minimizer: [
-		// 		new TerserPlugin({
-		// 			terserOptions: {
-		// 				format: {
-		// 					comments: false,
-		// 				},
-		// 			},
-		// 			extractComments: false,
-		// 		}),
-		// 	],
-		// },
 		plugins: [
 			new MiniCssExtractPlugin({
 				filename: "ignore.css",
@@ -138,12 +124,8 @@ function fetchClientUIConfig(webpackEnv) {
 		},
 		resolve: {
 			...base.resolve,
-			// conditionNames: ['import', 'module', 'browser', 'default'],
-			// mainFields: ['module', 'main'],
 			alias: {
-				// crypto: require.resolve("crypto-browserify"),
 				"isomorphic-fetch": require.resolve("./empty-module.js"),
-				// inherits: require.resolve('inherits/inherits_browser.js'),
 			},
 			fallback: {
 				...base.resolve.fallback,
