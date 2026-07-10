@@ -1,38 +1,44 @@
 import "./style.css";
 import { Actions } from "../../../redux";
-import { apiKeyAddTo, authCollection } from '../../../../../../fetch-client-core/consts/auth.consts';
-import { AppDispatch } from '../../../../../store/appStore';
-import { AwsAuth } from './aws';
+import {
+	apiKeyAddTo,
+	authCollection,
+} from "../../../../../../fetch-client-core/consts/auth.consts";
+import { AppDispatch } from "../../../../../store/appStore";
+import { AwsAuth } from "./aws";
 import { InitialAuth } from "../../../../../../fetch-client-core/consts/initialValues.consts";
 import { IRootState } from "../../../../../reducer/combineReducer";
-import { isAvailable } from '../helper';
+import { isAvailable } from "../helper";
 import { IVariable } from "../../../../../../fetch-client-core/types/sidebar.types";
-import { OAuth } from './OAuth';
-import { requestTypes } from '../../../../../../fetch-client-core/consts/requestTypes.consts';
-import { TextEditor } from '../../../../Common/TextEditor/TextEditor';
+import { OAuth } from "./OAuth";
+import { requestTypes } from "../../../../../../fetch-client-core/consts/requestTypes.consts";
+import { TextEditor } from "../../../../Common/TextEditor/TextEditor";
 import { useDispatch, useSelector } from "react-redux";
-import React, { useEffect, useState } from 'react';
-import vscode from '../../../../Common/vscodeAPI';
+import React, { useEffect, useState } from "react";
+import vscode from "../../../../Common/vscodeAPI";
 
 export interface IAuthProps {
 	settingsMode?: boolean;
-	authTypes: { name: string, value: string }[];
+	authTypes: { name: string; value: string }[];
 	selectedVariable: IVariable;
 }
 
 export const AuthPanel = (props: IAuthProps) => {
-
 	const dispatch = useDispatch<AppDispatch>();
 
-	const { auth, params, headers } = useSelector((state: IRootState) => state.requestData);
-	const { colId, folderId, parentSettings } = useSelector((state: IRootState) => state.reqColData);
+	const { auth, params, headers } = useSelector(
+		(state: IRootState) => state.requestData,
+	);
+	const { colId, folderId, parentSettings } = useSelector(
+		(state: IRootState) => state.reqColData,
+	);
 
 	const [varColor, setColor] = useState("");
 	const [envVar, setEnvVar] = useState(null);
 
 	useEffect(() => {
 		if (props.selectedVariable.id) {
-			setEnvVar(props.selectedVariable.data.map(item => item.key));
+			setEnvVar(props.selectedVariable.data.map((item) => item.key));
 		} else {
 			setEnvVar([]);
 		}
@@ -40,16 +46,25 @@ export const AuthPanel = (props: IAuthProps) => {
 
 	useEffect(() => {
 		if (props.selectedVariable.id) {
-			setEnvVar(props.selectedVariable.data.map(item => item.key));
+			setEnvVar(props.selectedVariable.data.map((item) => item.key));
 		} else {
 			setEnvVar([]);
 		}
 
 		if (auth.authType === "bearertoken") {
-			if (auth.password.length > 4 && auth.password.includes("{{") && auth.password.includes("}}")) {
-				var word = auth.password.substring(auth.password.indexOf("{{") + 2, auth.password.lastIndexOf("}}"));
+			if (
+				auth.password.length > 4 &&
+				auth.password.includes("{{") &&
+				auth.password.includes("}}")
+			) {
+				var word = auth.password.substring(
+					auth.password.indexOf("{{") + 2,
+					auth.password.lastIndexOf("}}"),
+				);
 				if (props.selectedVariable.id) {
-					props.selectedVariable.data.map(item => item.key).includes(word) ? setColor("var-available") : setColor("var-notavailable");
+					props.selectedVariable.data.map((item) => item.key).includes(word)
+						? setColor("var-available")
+						: setColor("var-notavailable");
 				} else {
 					setColor("var-notavailable");
 				}
@@ -80,7 +95,7 @@ export const AuthPanel = (props: IAuthProps) => {
 		dispatch(Actions.SetRequestAuthAction(localAuth));
 
 		if (evt.target.value !== "inherit" && auth.authType === "inherit") {
-			if (auth.addTo = "queryparams") {
+			if ((auth.addTo = "queryparams")) {
 				removeParams();
 			} else {
 				removeHeaders();
@@ -88,12 +103,23 @@ export const AuthPanel = (props: IAuthProps) => {
 		}
 
 		if (evt.target.value === "inherit" && !parentSettings) {
-			vscode.postMessage({ type: requestTypes.getParentSettingsRequest, data: { colId: colId, folderId: folderId } });
+			vscode.postMessage({
+				type: requestTypes.getParentSettingsRequest,
+				data: { colId: colId, folderId: folderId },
+			});
 			return;
 		}
 
-		if (evt.target.value === "inherit" && parentSettings && parentSettings.auth.authType === "apikey") {
-			modifyQueryParam(parentSettings.auth.addTo, parentSettings.auth.userName, parentSettings.auth.password);
+		if (
+			evt.target.value === "inherit" &&
+			parentSettings &&
+			parentSettings.auth.authType === "apikey"
+		) {
+			modifyQueryParam(
+				parentSettings.auth.addTo,
+				parentSettings.auth.userName,
+				parentSettings.auth.password,
+			);
 		}
 	};
 
@@ -108,7 +134,9 @@ export const AuthPanel = (props: IAuthProps) => {
 
 		if (str.length > 4 && str.includes("{{") && str.includes("}}")) {
 			var word = str.substring(str.indexOf("{{") + 2, str.lastIndexOf("}}"));
-			envVar.includes(word) ? setColor("var-available") : setColor("var-notavailable");
+			envVar.includes(word)
+				? setColor("var-available")
+				: setColor("var-notavailable");
 		} else {
 			setColor("");
 		}
@@ -128,8 +156,7 @@ export const AuthPanel = (props: IAuthProps) => {
 		if (auth.authType === "apikey") {
 			if (localAuth.addTo === "queryparams") {
 				setQueryParam(value);
-			}
-			else {
+			} else {
 				setHeaderParam(value);
 			}
 		}
@@ -167,7 +194,7 @@ export const AuthPanel = (props: IAuthProps) => {
 					isChecked: true,
 					key: !isPwd ? value : "",
 					value: isPwd ? value : "",
-					isFixed: true
+					isFixed: true,
 				});
 			}
 		}
@@ -194,7 +221,7 @@ export const AuthPanel = (props: IAuthProps) => {
 					isChecked: true,
 					key: !isPwd ? value : "",
 					value: isPwd ? value : "",
-					isFixed: true
+					isFixed: true,
 				});
 			}
 		}
@@ -209,7 +236,11 @@ export const AuthPanel = (props: IAuthProps) => {
 		modifyQueryParam(evt.target.value, auth.userName, auth.password);
 	};
 
-	const modifyQueryParam = (section: string, userName: string, password: string) => {
+	const modifyQueryParam = (
+		section: string,
+		userName: string,
+		password: string,
+	) => {
 		if (section === "queryparams") {
 			let localParams = [...params];
 			let localHeaders = [...headers];
@@ -220,7 +251,7 @@ export const AuthPanel = (props: IAuthProps) => {
 					isChecked: true,
 					key: userName,
 					value: password,
-					isFixed: true
+					isFixed: true,
 				});
 			}
 
@@ -228,7 +259,6 @@ export const AuthPanel = (props: IAuthProps) => {
 			if (basicAuthData) {
 				removeHeaders();
 			}
-
 		} else {
 			let localHeaders = [...headers];
 			let localParams = [...params];
@@ -239,7 +269,7 @@ export const AuthPanel = (props: IAuthProps) => {
 					isChecked: true,
 					key: userName,
 					value: password,
-					isFixed: true
+					isFixed: true,
 				});
 			}
 
@@ -280,19 +310,28 @@ export const AuthPanel = (props: IAuthProps) => {
 				<textarea
 					className={`auth-token-text auth-text ${varColor}`}
 					id={"bearer_token"}
-					value={auth.authType === "inherit" ? parentSettings.auth.password : auth.password}
+					value={
+						auth.authType === "inherit"
+							? parentSettings.auth.password
+							: auth.password
+					}
 					onChange={setBearerToken}
-				>
-				</textarea>
+				></textarea>
 				<label className="auth-token-label">Prefix</label>
-				{
-					envVar && props.selectedVariable.id && <TextEditor
+				{envVar && props.selectedVariable.id && (
+					<TextEditor
 						varWords={envVar}
 						onChange={setTokenPrefix}
-						value={auth.authType === "inherit" ? parentSettings.auth.tokenPrefix : (auth.tokenPrefix ? auth.tokenPrefix : "Bearer")}
+						value={
+							auth.authType === "inherit"
+								? parentSettings.auth.tokenPrefix
+								: auth.tokenPrefix
+									? auth.tokenPrefix
+									: "Bearer"
+						}
 						focus={false}
 					/>
-				}
+				)}
 			</div>
 		);
 	};
@@ -302,43 +341,60 @@ export const AuthPanel = (props: IAuthProps) => {
 			<div>
 				<div className="basic-auth-text-panel">
 					<label className="basic-auth-label">User Name</label>
-					{
-						envVar && props.selectedVariable.id && <TextEditor
+					{envVar && props.selectedVariable.id && (
+						<TextEditor
 							varWords={envVar}
 							onChange={setBasicAuthUserName}
-							value={auth.authType === "inherit" ? parentSettings.auth.userName : auth.userName}
+							value={
+								auth.authType === "inherit"
+									? parentSettings.auth.userName
+									: auth.userName
+							}
 							focus={false}
 						/>
-					}
+					)}
 				</div>
 				<div className="basic-auth-text-panel">
 					<label className="basic-auth-label">Password</label>
-					{
-						auth.showPwd ?
-							envVar && props.selectedVariable.id && <TextEditor
+					{auth.showPwd ? (
+						envVar &&
+						props.selectedVariable.id && (
+							<TextEditor
 								varWords={envVar}
 								onChange={setBasicAuthPassword}
-								value={auth.authType === "inherit" ? parentSettings.auth.password : auth.password}
+								value={
+									auth.authType === "inherit"
+										? parentSettings.auth.password
+										: auth.password
+								}
 								focus={false}
 							/>
-							:
-							<input
-								className="basic-auth-password auth-text"
-								id={"basic_password"}
-								value={auth.authType === "inherit" ? parentSettings.auth.password : auth.password}
-								type="password"
-								onChange={(e) => setBasicAuthPassword(e.target.value)}
-							/>
-					}
+						)
+					) : (
+						<input
+							className="basic-auth-password auth-text"
+							id={"basic_password"}
+							value={
+								auth.authType === "inherit"
+									? parentSettings.auth.password
+									: auth.password
+							}
+							type="password"
+							onChange={(e) => setBasicAuthPassword(e.target.value)}
+						/>
+					)}
 				</div>
-				{auth.authType !== "inherit" && <div className="basic-auth-check">
-					<input type="checkbox"
-						className="basic-auth-check-box"
-						checked={auth.showPwd}
-						onChange={onSelectChange}
-					/>
-					Show Password
-				</div>}
+				{auth.authType !== "inherit" && (
+					<div className="basic-auth-check">
+						<input
+							type="checkbox"
+							className="basic-auth-check-box"
+							checked={auth.showPwd}
+							onChange={onSelectChange}
+						/>
+						Show Password
+					</div>
+				)}
 			</div>
 		);
 	};
@@ -348,31 +404,43 @@ export const AuthPanel = (props: IAuthProps) => {
 			<div>
 				<div className="basic-auth-text-panel">
 					<label className="basic-auth-label">Key</label>
-					{
-						envVar && props.selectedVariable.id && <TextEditor
+					{envVar && props.selectedVariable.id && (
+						<TextEditor
 							varWords={envVar}
 							onChange={setBasicAuthUserName}
-							value={auth.authType === "inherit" ? parentSettings.auth.userName : auth.userName}
+							value={
+								auth.authType === "inherit"
+									? parentSettings.auth.userName
+									: auth.userName
+							}
 							focus={false}
 						/>
-					}
+					)}
 				</div>
 				<div className="basic-auth-text-panel">
 					<label className="basic-auth-label">Value</label>
-					{
-						envVar && props.selectedVariable.id && <TextEditor
+					{envVar && props.selectedVariable.id && (
+						<TextEditor
 							varWords={envVar}
 							onChange={setBasicAuthPassword}
-							value={auth.authType === "inherit" ? parentSettings.auth.password : auth.password}
+							value={
+								auth.authType === "inherit"
+									? parentSettings.auth.password
+									: auth.password
+							}
 							focus={false}
 						/>
-					}
+					)}
 				</div>
 				<div className="basic-auth-text-panel">
 					<label className="basic-auth-label">Add to</label>
 					<select
 						className="apikey-add-select"
-						value={auth.authType === "inherit" ? parentSettings.auth.addTo : auth.addTo}
+						value={
+							auth.authType === "inherit"
+								? parentSettings.auth.addTo
+								: auth.addTo
+						}
 						onChange={setAPIKeyAddTo}
 					>
 						{apiKeyAddTo.map(({ value, name }) => (
@@ -388,13 +456,21 @@ export const AuthPanel = (props: IAuthProps) => {
 
 	const inheritAuth = () => {
 		if (!parentSettings) {
-			return (<></>);
+			return <></>;
 		}
 
 		return (
 			<>
-				<label className="auth-label">{`This request is inherit `}<b>{authCollection[parentSettings.auth.authType]}</b>{` values from Parent.`}</label>
-				<details className="inherit-auth-details" open={false} key={"inherit-auth-details"}>
+				<label className="auth-label">
+					{`This request is inherit `}
+					<b>{authCollection[parentSettings.auth.authType]}</b>
+					{` values from Parent.`}
+				</label>
+				<details
+					className="inherit-auth-details"
+					open={false}
+					key={"inherit-auth-details"}
+				>
 					<summary className="inherit-auth-summary">
 						{authCollection[parentSettings.auth.authType]}
 					</summary>
@@ -415,13 +491,32 @@ export const AuthPanel = (props: IAuthProps) => {
 			case "apikey":
 				return apiKeyAuth();
 			case "aws":
-				return <AwsAuth envVar={envVar} selectedVariable={props.selectedVariable} settingAuth={parentSettings?.auth} />;
+				return (
+					<AwsAuth
+						envVar={envVar}
+						selectedVariable={props.selectedVariable}
+						settingAuth={parentSettings?.auth}
+					/>
+				);
 			case "oauth2":
-					return <OAuth envVar={envVar} selectedVariable={props.selectedVariable} settingAuth={parentSettings?.auth} inherit={isInherit} />;
+				return (
+					<OAuth
+						envVar={envVar}
+						selectedVariable={props.selectedVariable}
+						settingAuth={parentSettings?.auth}
+						inherit={isInherit}
+					/>
+				);
 			case "inherit":
 				return props.settingsMode ? <></> : inheritAuth();
 			default:
-				return (<div className={props.settingsMode ? "auth-no-label" : ""}><label className="auth-label">{"This request does not use any authorization."}</label></div>);
+				return (
+					<div className={props.settingsMode ? "auth-no-label" : ""}>
+						<label className="auth-label">
+							{"This request does not use any authorization."}
+						</label>
+					</div>
+				);
 		}
 	};
 
@@ -434,19 +529,15 @@ export const AuthPanel = (props: IAuthProps) => {
 					value={auth.authType}
 					onChange={setAuthValue}
 				>
-					{
-						props.authTypes.map(({ value, name }) => (
-							<option value={value} key={value}>
-								{name}
-							</option>
-						))
-					}
+					{props.authTypes.map(({ value, name }) => (
+						<option value={value} key={value}>
+							{name}
+						</option>
+					))}
 				</select>
 			</div>
 			{!props.settingsMode && <hr />}
-			<div>
-				{authValuePanel(auth.authType)}
-			</div>
+			<div>{authValuePanel(auth.authType)}</div>
 		</div>
 	);
 };

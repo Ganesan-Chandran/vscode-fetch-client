@@ -5,7 +5,7 @@ export function computeVUsForWave(
 	targetVUs: number,
 	elapsedMs: number,
 	rampUpDurationMs: number,
-	rampSteps: number
+	rampSteps: number,
 ): number {
 	if (loadModel === "fixed" || loadModel === "duration") {
 		return targetVUs;
@@ -21,7 +21,10 @@ export function computeVUsForWave(
 	}
 
 	const stepDurationMs = rampUpDurationMs / rampSteps;
-	const currentStep = Math.min(rampSteps, Math.floor(elapsedMs / stepDurationMs) + 1);
+	const currentStep = Math.min(
+		rampSteps,
+		Math.floor(elapsedMs / stepDurationMs) + 1,
+	);
 	const vus = Math.round((targetVUs * currentStep) / rampSteps);
 
 	return Math.max(1, vus);
@@ -33,7 +36,7 @@ export function shouldStopTest(
 	elapsedMs: number,
 	iterations: number,
 	testDurationMs: number,
-	rampUpDurationMs: number
+	rampUpDurationMs: number,
 ): boolean {
 	switch (loadModel) {
 		case "fixed":
@@ -43,7 +46,7 @@ export function shouldStopTest(
 		case "rampup":
 			return elapsedMs >= rampUpDurationMs;
 		case "combined":
-			return elapsedMs >= (rampUpDurationMs + testDurationMs);
+			return elapsedMs >= rampUpDurationMs + testDurationMs;
 		default:
 			return true;
 	}

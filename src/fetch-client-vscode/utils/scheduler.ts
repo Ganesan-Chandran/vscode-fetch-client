@@ -1,7 +1,14 @@
 import { apiFetch, FetchConfig } from "../../fetch-client-core/utils/fetchUtil";
 import { CronJob } from "cron";
-import { getHeadersConfiguration, getRunMainRequestOption, getTimeOutConfiguration } from "../../fetch-client-core/utils/vscodeConfig";
-import { GetParentSettingsSync, GetVariableByColId } from "../db/collectionDBUtil";
+import {
+	getHeadersConfiguration,
+	getRunMainRequestOption,
+	getTimeOutConfiguration,
+} from "../../fetch-client-core/utils/vscodeConfig";
+import {
+	GetParentSettingsSync,
+	GetVariableByColId,
+} from "../db/collectionDBUtil";
 import { GetRequestItem } from "../db/mainDBUtil";
 import { GetVariableByIdSync, UpdateVariableSync } from "../db/varDBUtil";
 import { IAutoRequest } from "../../fetch-client-core/types/autorequest.types";
@@ -38,7 +45,6 @@ function getFreshFetchConfig(): FetchConfig {
 }
 
 export class FCScheduler {
-
 	private static instance: FCScheduler;
 
 	private readonly scheduledJobs: IScheduledJob[] = [];
@@ -55,13 +61,15 @@ export class FCScheduler {
 			try {
 				const cronTime = buildCronExpression(request);
 				const job = new CronJob(
-					cronTime,                                              // cron expression
-					async () => { await this.executeAPI(request); },       // onTick
-					null,                                                  // onComplete
-					autoStart,                                             // start
-					null,                                                  // timezone
-					null,                                                  // context
-					false                                                  // runOnInit
+					cronTime, // cron expression
+					async () => {
+						await this.executeAPI(request);
+					}, // onTick
+					null, // onComplete
+					autoStart, // start
+					null, // timezone
+					null, // context
+					false, // runOnInit
 				);
 
 				const timeNow = new Date();
@@ -70,7 +78,9 @@ export class FCScheduler {
 					startTime: timeNow,
 					interval: request.interval,
 					duration: request.duration,
-					endTime: new Date(timeNow.getTime() + request.duration * MS_PER_MINUTE),
+					endTime: new Date(
+						timeNow.getTime() + request.duration * MS_PER_MINUTE,
+					),
 					job,
 				};
 
@@ -86,7 +96,7 @@ export class FCScheduler {
 			return;
 		}
 		try {
-			const index = this.scheduledJobs.findIndex(j => j.id === id);
+			const index = this.scheduledJobs.findIndex((j) => j.id === id);
 			if (index !== -1) {
 				this.scheduledJobs[index].job.start();
 			}
@@ -100,7 +110,7 @@ export class FCScheduler {
 			return;
 		}
 		try {
-			const index = this.scheduledJobs.findIndex(j => j.id === request.id);
+			const index = this.scheduledJobs.findIndex((j) => j.id === request.id);
 			if (index !== -1) {
 				this.scheduledJobs[index].job.stop();
 				this.scheduledJobs.splice(index, 1);
@@ -123,7 +133,7 @@ export class FCScheduler {
 
 	private async executeAPI(autoReq: IAutoRequest): Promise<void> {
 		try {
-			const scheduledJob = this.scheduledJobs.find(j => j.id === autoReq.id);
+			const scheduledJob = this.scheduledJobs.find((j) => j.id === autoReq.id);
 			if (!scheduledJob) {
 				return;
 			}
@@ -136,10 +146,20 @@ export class FCScheduler {
 			const varId = await GetVariableByColId(autoReq.colId);
 			const variable = varId ? await GetVariableByIdSync(varId) : null;
 
-			const folderId = autoReq.parentId === autoReq.colId ? "" : autoReq.parentId;
-			const parentSettings = await GetParentSettingsSync(autoReq.colId, folderId);
+			const folderId =
+				autoReq.parentId === autoReq.colId ? "" : autoReq.parentId;
+			const parentSettings = await GetParentSettingsSync(
+				autoReq.colId,
+				folderId,
+			);
 
-			const res = await apiFetch(request, variable?.data, parentSettings, null, getFreshFetchConfig());
+			const res = await apiFetch(
+				request,
+				variable?.data,
+				parentSettings,
+				null,
+				getFreshFetchConfig(),
+			);
 			const resData: IReponseModel = {
 				id: request.id,
 				response: {
@@ -161,9 +181,16 @@ export class FCScheduler {
 				await UpdateVariableSync(updatedVariable);
 			}
 
-			const nextTime = new Date(Date.now() + scheduledJob.interval * MS_PER_MINUTE);
-			const elapsedMinutes = Math.round((nextTime.getTime() - scheduledJob.startTime.getTime()) / MS_PER_MINUTE);
-			if (nextTime > scheduledJob.endTime || elapsedMinutes > MAX_JOB_DURATION_MINUTES) {
+			const nextTime = new Date(
+				Date.now() + scheduledJob.interval * MS_PER_MINUTE,
+			);
+			const elapsedMinutes = Math.round(
+				(nextTime.getTime() - scheduledJob.startTime.getTime()) / MS_PER_MINUTE,
+			);
+			if (
+				nextTime > scheduledJob.endTime ||
+				elapsedMinutes > MAX_JOB_DURATION_MINUTES
+			) {
 				scheduledJob.job.stop();
 			}
 		} catch (err) {

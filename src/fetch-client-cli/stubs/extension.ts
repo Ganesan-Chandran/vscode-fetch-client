@@ -4,8 +4,8 @@
  * (primarily pubSub) without pulling in any VS Code UI code.
  */
 
-import { PubSub } from '../../fetch-client-core/utils/pubSub';
-import { IPubSubMessage } from '../../fetch-client-core/utils/pubSub';
+import { PubSub } from "../../fetch-client-core/utils/pubSub";
+import { IPubSubMessage } from "../../fetch-client-core/utils/pubSub";
 
 export const pubSub = new PubSub<IPubSubMessage>();
 
@@ -14,11 +14,11 @@ export const vsCodeLogger: any = null;
 export const sideBarProvider: any = null;
 
 export function OpenExistingItem(
-  _id?: string,
-  _name?: string,
-  _collId?: string,
-  _folderId?: string,
-  _varId?: string,
-  _type?: string,
-  _newTab?: boolean
-): void { }
+	_id?: string,
+	_name?: string,
+	_collId?: string,
+	_folderId?: string,
+	_varId?: string,
+	_type?: string,
+	_newTab?: boolean,
+): void {}

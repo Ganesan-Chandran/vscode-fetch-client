@@ -1,14 +1,15 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
-export type LogLevel = 'info' | 'warn' | 'error';
+export type LogLevel = "info" | "warn" | "error";
 
 export class VSCodeLogger implements vscode.Disposable {
-
 	private readonly _logChannel: vscode.OutputChannel;
 	private _isOpen = false;
 
 	constructor() {
-		this._logChannel = vscode.window.createOutputChannel("Fetch Client", { log: true });
+		this._logChannel = vscode.window.createOutputChannel("Fetch Client", {
+			log: true,
+		});
 	}
 
 	public showLog(): void {
@@ -18,15 +19,15 @@ export class VSCodeLogger implements vscode.Disposable {
 
 	public log(category: LogLevel | string, ...args: unknown[]): void {
 		switch (category.toLowerCase()) {
-			case 'info':
-			case 'warn':
+			case "info":
+			case "warn":
 				for (const arg of args) {
 					this._logChannel.appendLine(this.mapObject(arg));
 				}
 				return;
 
-			case 'error': {
-				const message = args.map(a => this.mapObject(a)).join('');
+			case "error": {
+				const message = args.map((a) => this.mapObject(a)).join("");
 				this._logChannel.appendLine(message);
 				vscode.window.showErrorMessage(message, { modal: true });
 				return;
@@ -47,19 +48,19 @@ export class VSCodeLogger implements vscode.Disposable {
 
 	private mapObject(obj: unknown): string {
 		if (obj === undefined) {
-			return 'undefined';
+			return "undefined";
 		}
 		if (obj === null) {
-			return 'null';
+			return "null";
 		}
-		if (typeof obj === 'string') {
+		if (typeof obj === "string") {
 			return obj;
 		}
-		if (typeof obj === 'number' || typeof obj === 'boolean') {
+		if (typeof obj === "number" || typeof obj === "boolean") {
 			return obj.toString();
 		}
-		if (typeof obj === 'object') {
-			let ret = '';
+		if (typeof obj === "object") {
+			let ret = "";
 			for (const [key, value] of Object.entries(obj)) {
 				ret += `${key}: ${value}\n`;
 			}

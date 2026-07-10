@@ -1,4 +1,5 @@
 .env
+APIs
 auth
 Auth
 authorization
@@ -7,14 +8,18 @@ Authorization
 bool
 Chandran
 Changelog
+CLI
+CSV
 Customization
 customize
 Customize
 dateISO
+DevOps
 dropdown
 formdata
 formurlencoded
 Ganesan
+GitLab
 GraphQL
 guid
 Http
@@ -23,8 +28,11 @@ JS
 json
 Json
 JSON
+MarketplaceInstalls
 notContains
+npm
 num
+NUnit
 OAuth
 OAuth2
 Organize
@@ -32,6 +40,7 @@ Param
 PostFetch
 pre-requests
 Pre-requests
+PreFetch
 rdate
 repo
 SSL

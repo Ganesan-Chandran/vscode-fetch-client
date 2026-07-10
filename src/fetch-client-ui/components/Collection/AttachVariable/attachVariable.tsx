@@ -1,6 +1,9 @@
 import "../style.css";
 import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";
-import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
+import {
+	requestTypes,
+	responseTypes,
+} from "../../../../fetch-client-core/consts/requestTypes.consts";
 import { useState } from "react";
 import React, { useEffect } from "react";
 import vscode from "../../Common/vscodeAPI";
@@ -22,7 +25,10 @@ const AttachVariable = () => {
 		setColName(name);
 
 		const handleMessage = (event: MessageEvent) => {
-			if (event.data && event.data.type === responseTypes.getAllVariableResponse) {
+			if (
+				event.data &&
+				event.data.type === responseTypes.getAllVariableResponse
+			) {
 				let vars = event.data.variable as IVariable[];
 				let varNames = [{ name: "Select", value: "", disabled: true }];
 
@@ -35,7 +41,10 @@ const AttachVariable = () => {
 
 				varNames = [...varNames, ...ids];
 				setNames(varNames);
-			} else if (event.data && event.data.type === responseTypes.attachVariableResponse) {
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.attachVariableResponse
+			) {
 				setDone(true);
 			}
 		};
@@ -46,13 +55,13 @@ const AttachVariable = () => {
 	}, []);
 
 	const onSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
-		setErrors({ ...errors, "varId": "" });
+		setErrors({ ...errors, varId: "" });
 		setVarId(event.target.value);
 	};
 
 	function handleValidation() {
 		if (selectedVarId === "") {
-			setErrors({ ...errors, "varId": "Please select the variable" });
+			setErrors({ ...errors, varId: "Please select the variable" });
 			return false;
 		}
 
@@ -61,7 +70,10 @@ const AttachVariable = () => {
 
 	function onSubmitClick() {
 		if (handleValidation()) {
-			vscode.postMessage({ type: requestTypes.attachVariableRequest, data: { colId: colId, varId: selectedVarId } });
+			vscode.postMessage({
+				type: requestTypes.attachVariableRequest,
+				data: { colId: colId, varId: selectedVarId },
+			});
 		}
 	}
 
@@ -76,7 +88,11 @@ const AttachVariable = () => {
 	function renderForm() {
 		return (
 			<div className="reorder-tree-panel">
-				<table className="addto-table attach-variable-scroll-panel" cellPadding={0} cellSpacing={0}>
+				<table
+					className="addto-table attach-variable-scroll-panel"
+					cellPadding={0}
+					cellSpacing={0}
+				>
 					<tbody>
 						<tr>
 							<td className="col-1-size">
@@ -120,9 +136,7 @@ const AttachVariable = () => {
 								</select>
 
 								{errors["varId"] && (
-									<div className="error-text">
-										{errors["varId"]}
-									</div>
+									<div className="error-text">{errors["varId"]}</div>
 								)}
 							</td>
 						</tr>
@@ -155,18 +169,17 @@ const AttachVariable = () => {
 		);
 	}
 
-	return (
-		colId ?
-			<PanelLayout
-				title="🔗 Attach Variable"
-				loading={!colId}
-				footer={renderFooter()}
-			>
-				{renderHint()}
-				{renderForm()}
-			</PanelLayout>
-			:
-			<></>
+	return colId ? (
+		<PanelLayout
+			title="🔗 Attach Variable"
+			loading={!colId}
+			footer={renderFooter()}
+		>
+			{renderHint()}
+			{renderForm()}
+		</PanelLayout>
+	) : (
+		<></>
 	);
 };
 

@@ -235,13 +235,19 @@
 }
 
 .reorder-status--ok {
-	background: var(--vscode-diffEditor-insertedTextBackground, rgba(99, 153, 34, 0.15));
+	background: var(
+		--vscode-diffEditor-insertedTextBackground,
+		rgba(99, 153, 34, 0.15)
+	);
 	color: var(--vscode-gitDecoration-addedResourceForeground, #89d185);
 	border-left: 3px solid #89d185;
 }
 
 .reorder-status--error {
-	background: var(--vscode-diffEditor-removedTextBackground, rgba(255, 60, 60, 0.1));
+	background: var(
+		--vscode-diffEditor-removedTextBackground,
+		rgba(255, 60, 60, 0.1)
+	);
 	color: var(--vscode-errorForeground, #f48771);
 	border-left: 3px solid #f48771;
 }

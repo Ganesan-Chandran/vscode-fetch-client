@@ -1,13 +1,28 @@
-import { InitialAuth, InitialBody, InitialTest, InitialSetVar, InitialPreFetch, InitialBinaryData } from "../consts/initialValues.consts";
+import {
+	InitialAuth,
+	InitialBody,
+	InitialTest,
+	InitialSetVar,
+	InitialPreFetch,
+	InitialBinaryData,
+} from "../consts/initialValues.consts";
 import { ITableData } from "../types/common.types";
 import { MethodType, IRequestModel } from "../types/request.types";
 import { MIMETypes } from "../consts/mimetype.consts";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import { writeLog } from "../helpers/logger/logger";
 import { XMLValidator } from "fast-xml-parser";
 import parser from "yargs-parser";
 
-const VALID_METHODS = new Set<MethodType>(["get", "post", "put", "patch", "delete", "options", "head"]);
+const VALID_METHODS = new Set<MethodType>([
+	"get",
+	"post",
+	"put",
+	"patch",
+	"delete",
+	"options",
+	"head",
+]);
 
 const isJson = (str: string): boolean => {
 	try {
@@ -19,10 +34,17 @@ const isJson = (str: string): boolean => {
 };
 
 const removeQuotes = (str: string): string =>
-	str.trim().replace(/^["\u201C\u201D'\u2018\u2019]+|["\u201C\u201D'\u2018\u2019]+$/g, "");
+	str
+		.trim()
+		.replace(
+			/^["\u201C\u201D'\u2018\u2019]+|["\u201C\u201D'\u2018\u2019]+$/g,
+			"",
+		);
 
 const stringIsUrl = (url: string): boolean =>
-	/(?:^|[ \t])((https?:\/\/)?(?:localhost|\d{1,3}(?:\.\d{1,3}){3}|\[[\da-fA-F:]+\]|[\w-]+(?:\.[\w-]+)+)(:\d+)?(\/\S*)?)/.test(url);
+	/(?:^|[ \t])((https?:\/\/)?(?:localhost|\d{1,3}(?:\.\d{1,3}){3}|\[[\da-fA-F:]+\]|[\w-]+(?:\.[\w-]+)+)(:\d+)?(\/\S*)?)/.test(
+		url,
+	);
 
 const parseField = (str: string): string[] => str.split(/: (.+)/);
 
@@ -56,7 +78,8 @@ const createInitialRequest = (): IRequestModel => ({
 });
 
 const getContentTypeHeader = (request: IRequestModel): string | undefined =>
-	request.headers.find(item => item.key.toLowerCase() === "content-type")?.value;
+	request.headers.find((item) => item.key.toLowerCase() === "content-type")
+		?.value;
 
 const checkAuthHeader = (request: IRequestModel, field: string[]): boolean => {
 	if (field[0]?.toLowerCase() !== "authorization" || !field[1]) {
@@ -101,15 +124,21 @@ const addHeader = (request: IRequestModel, item: string): void => {
 	}
 };
 
-const parseHeader = (request: IRequestModel, header: string | string[]): void => {
+const parseHeader = (
+	request: IRequestModel,
+	header: string | string[],
+): void => {
 	if (Array.isArray(header)) {
-		header.forEach(item => addHeader(request, item));
+		header.forEach((item) => addHeader(request, item));
 	} else {
 		addHeader(request, header);
 	}
 };
 
-const parseDataUrlEncode = (request: IRequestModel, data: string | string[]): ITableData[] => {
+const parseDataUrlEncode = (
+	request: IRequestModel,
+	data: string | string[],
+): ITableData[] => {
 	const contentTypeHeader = getContentTypeHeader(request);
 	if (!contentTypeHeader) {
 		request.headers.push({
@@ -120,7 +149,7 @@ const parseDataUrlEncode = (request: IRequestModel, data: string | string[]): IT
 	}
 
 	if (Array.isArray(data)) {
-		const encoded = data.map(item => encodeURI(item)).join("&");
+		const encoded = data.map((item) => encodeURI(item)).join("&");
 		return generateFormUrlEncode(encoded);
 	}
 
@@ -132,10 +161,14 @@ const parseFormData = (data: string | string[]): ITableData[] => {
 	const formdata: ITableData[] = [];
 	for (const item of items) {
 		const eqIndex = item.indexOf("=");
-		if (eqIndex === -1) { continue; }
+		if (eqIndex === -1) {
+			continue;
+		}
 		const key = item.substring(0, eqIndex).trim();
 		const val = item.substring(eqIndex + 1).trim();
-		if (!key) { continue; }
+		if (!key) {
+			continue;
+		}
 		const isFile = val.startsWith("@");
 		formdata.push({
 			isChecked: true,
@@ -179,14 +212,25 @@ const parseData = (request: IRequestModel, data: string): void => {
 		request.body.raw.lang = "text";
 		request.body.bodyType = "raw";
 	} else if (contentTypeHeader && MIMETypes[contentTypeHeader]) {
-		request.body.binary = { ...JSON.parse(JSON.stringify(InitialBinaryData)), data };
+		request.body.binary = {
+			...JSON.parse(JSON.stringify(InitialBinaryData)),
+			data,
+		};
 		request.body.bodyType = "binary";
 	} else if (isJson(data)) {
-		request.headers.push({ isChecked: true, key: "Content-Type", value: "application/json" });
+		request.headers.push({
+			isChecked: true,
+			key: "Content-Type",
+			value: "application/json",
+		});
 		request.body.raw.data = JSON.parse(data);
 		request.body.raw.lang = "json";
 	} else if (XMLValidator.validate(data) === true) {
-		request.headers.push({ isChecked: true, key: "Content-Type", value: "text/xml" });
+		request.headers.push({
+			isChecked: true,
+			key: "Content-Type",
+			value: "text/xml",
+		});
 		request.body.raw.data = data;
 		request.body.raw.lang = "xml";
 	} else {
@@ -206,7 +250,9 @@ const ensurePostMethod = (request: IRequestModel): void => {
 	}
 };
 
-export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null => {
+export const ConvertCurlToRequest = (
+	curlRequest: string,
+): IRequestModel | null => {
 	try {
 		if (!curlRequest?.trim()) {
 			return null;
@@ -218,7 +264,9 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
 			return null;
 		}
 
-		normalized = normalized.replace(/^\s+|\s+$/gm, "").replace(/(\r\n|\n|\r)/gm, " ");
+		normalized = normalized
+			.replace(/^\s+|\s+$/gm, "")
+			.replace(/(\r\n|\n|\r)/gm, " ");
 
 		const argvs = parser(normalized);
 		const request = createInitialRequest();
@@ -261,7 +309,11 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
 
 				case "A":
 				case "user-agent":
-					request.headers.push({ isChecked: true, key: "user-agent", value: String(value) });
+					request.headers.push({
+						isChecked: true,
+						key: "user-agent",
+						value: String(value),
+					});
 					break;
 
 				case "I":
@@ -274,7 +326,11 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
 					const cookieValue = Array.isArray(value)
 						? (value as string[]).join("; ")
 						: String(value);
-					request.headers.push({ isChecked: true, key: "Cookie", value: cookieValue });
+					request.headers.push({
+						isChecked: true,
+						key: "Cookie",
+						value: cookieValue,
+					});
 					break;
 				}
 
@@ -291,7 +347,10 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
 				}
 
 				case "data-urlencode":
-					request.body.urlencoded = parseDataUrlEncode(request, value as string | string[]);
+					request.body.urlencoded = parseDataUrlEncode(
+						request,
+						value as string | string[],
+					);
 					request.body.bodyType = "formurlencoded";
 					ensurePostMethod(request);
 					break;
@@ -300,7 +359,9 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
 					const rawBinary = String(value);
 					request.body.binary = {
 						...JSON.parse(JSON.stringify(InitialBinaryData)),
-						data: rawBinary.startsWith("@") ? rawBinary.substring(1) : rawBinary,
+						data: rawBinary.startsWith("@")
+							? rawBinary.substring(1)
+							: rawBinary,
 					};
 					request.body.bodyType = "binary";
 					ensurePostMethod(request);
@@ -309,13 +370,14 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
 
 				case "compressed": {
 					const hasAcceptEncoding = request.headers.some(
-						item => item.key.toLowerCase() === "accept-encoding"
+						(item) => item.key.toLowerCase() === "accept-encoding",
 					);
 					if (!hasAcceptEncoding) {
 						request.headers.push({
 							isChecked: true,
 							key: "Accept-Encoding",
-							value: typeof value === "boolean" ? "gzip, deflate" : String(value),
+							value:
+								typeof value === "boolean" ? "gzip, deflate" : String(value),
 						});
 					}
 					break;
@@ -345,7 +407,11 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
 				case "e":
 				case "referer":
 				case "referrer":
-					request.headers.push({ isChecked: true, key: "Referer", value: String(value) });
+					request.headers.push({
+						isChecked: true,
+						key: "Referer",
+						value: String(value),
+					});
 					break;
 
 				case "oauth2Bearer":
@@ -362,12 +428,15 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
 
 		if (isGetFlag) {
 			const queryParts: string[] = [];
-			if (request.body.urlencoded?.some(p => p.key.trim())) {
+			if (request.body.urlencoded?.some((p) => p.key.trim())) {
 				request.body.urlencoded
-					.filter(p => p.key.trim())
-					.forEach(p => queryParts.push(`${p.key}=${p.value}`));
+					.filter((p) => p.key.trim())
+					.forEach((p) => queryParts.push(`${p.key}=${p.value}`));
 				request.body.urlencoded = [];
-			} else if (request.body.raw?.data && typeof request.body.raw.data === "string") {
+			} else if (
+				request.body.raw?.data &&
+				typeof request.body.raw.data === "string"
+			) {
 				queryParts.push(request.body.raw.data);
 				request.body.raw.data = "";
 			}
@@ -375,7 +444,11 @@ export const ConvertCurlToRequest = (curlRequest: string): IRequestModel | null 
 				const queryParams = new URLSearchParams(queryParts.join("&"));
 				for (const [key, val] of queryParams) {
 					if (key?.trim()) {
-						request.params.push({ isChecked: true, key: key.trim(), value: val.trim() });
+						request.params.push({
+							isChecked: true,
+							key: key.trim(),
+							value: val.trim(),
+						});
 					}
 				}
 			}

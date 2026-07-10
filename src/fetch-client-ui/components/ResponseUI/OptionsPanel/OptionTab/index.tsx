@@ -1,21 +1,24 @@
 import "./style.css";
-import { curlResponseOptions, responseOptions } from "../../../../../fetch-client-core/consts/response.consts";
+import {
+	curlResponseOptions,
+	responseOptions,
+} from "../../../../../fetch-client-core/consts/response.consts";
 import { FormatBytes } from "../../../../../fetch-client-core/helpers/common.helper";
-import { getColFolDotMenu } from '../../../Common/icons';
+import { getColFolDotMenu } from "../../../Common/icons";
 import { GetResponseTime } from "../../../../../fetch-client-core/helpers/dateTime.helper";
 import { IRootState } from "../../../../reducer/combineReducer";
-import { ReactComponent as CodeLogo } from '../../../../../../icons/code.svg';
-import { requestTypes } from '../../../../../fetch-client-core/consts/requestTypes.consts';
+import { ReactComponent as CodeLogo } from "../../../../../../icons/code.svg";
+import { requestTypes } from "../../../../../fetch-client-core/consts/requestTypes.consts";
 import { useSelector } from "react-redux";
-import React, { useEffect, useRef, useState } from 'react';
-import vscode from '../../../Common/vscodeAPI';
+import React, { useEffect, useRef, useState } from "react";
+import vscode from "../../../Common/vscodeAPI";
 
 export const ResponseOptionsTab = (props: any) => {
-
 	const { selectedTab, setSelectedTab, isVerticalLayout } = props;
 
-	const { headers, response, testResults, cookies, preFetchResponse } = useSelector((state: IRootState) => state.responseData);
-	const preFetchCount = preFetchResponse?.filter(i => i.reqId)?.length ?? 0;
+	const { headers, response, testResults, cookies, preFetchResponse } =
+		useSelector((state: IRootState) => state.responseData);
+	const preFetchCount = preFetchResponse?.filter((i) => i.reqId)?.length ?? 0;
 	const testCount = testResults?.length ?? 0;
 	const { url } = useSelector((state: IRootState) => state.requestData);
 
@@ -35,15 +38,51 @@ export const ResponseOptionsTab = (props: any) => {
 		}
 
 		return "response-params error-text";
-
 	}
 
 	function responseParamsRender() {
 		return (
-			<div className={isVerticalLayout ? "response-params-panel-vertical" : "response-params-panel"}>
-				<label>Status:<label className={getClassName(response.status)}>{response.isError ? "ERROR" : (response.status === 0 ? "" : (response.status + " " + response.statusText))}</label></label>
-				<label>Time:<label className={response.isError ? "response-params error-text" : "response-params"}>{response.isError ? "0 ms" : GetResponseTime(response.duration)}</label></label>
-				<label>Size:<label className={response.isError ? "response-params error-text" : "response-params"}>{response.size ? FormatBytes(parseInt(response.size)) : ""}</label></label>
+			<div
+				className={
+					isVerticalLayout
+						? "response-params-panel-vertical"
+						: "response-params-panel"
+				}
+			>
+				<label>
+					Status:
+					<label className={getClassName(response.status)}>
+						{response.isError
+							? "ERROR"
+							: response.status === 0
+								? ""
+								: response.status + " " + response.statusText}
+					</label>
+				</label>
+				<label>
+					Time:
+					<label
+						className={
+							response.isError
+								? "response-params error-text"
+								: "response-params"
+						}
+					>
+						{response.isError ? "0 ms" : GetResponseTime(response.duration)}
+					</label>
+				</label>
+				<label>
+					Size:
+					<label
+						className={
+							response.isError
+								? "response-params error-text"
+								: "response-params"
+						}
+					>
+						{response.size ? FormatBytes(parseInt(response.size)) : ""}
+					</label>
+				</label>
 			</div>
 		);
 	}
@@ -61,7 +100,10 @@ export const ResponseOptionsTab = (props: any) => {
 			setMenuShow(false);
 		}
 
-		if (codeWrapperRef.current && !codeWrapperRef.current.contains(evt.target)) {
+		if (
+			codeWrapperRef.current &&
+			!codeWrapperRef.current.contains(evt.target)
+		) {
 			setCodeMenuShow(false);
 		}
 	}
@@ -78,16 +120,22 @@ export const ResponseOptionsTab = (props: any) => {
 		setCodeMenuShow(!codeMenuShow);
 	}
 
-
 	function onSaveResponse(evt: any) {
 		evt.preventDefault();
-		vscode.postMessage({ type: requestTypes.saveResponseRequest, data: response.responseData, fileType: response.responseType?.format });
+		vscode.postMessage({
+			type: requestTypes.saveResponseRequest,
+			data: response.responseData,
+			fileType: response.responseType?.format,
+		});
 		setMenuShow(false);
 	}
 
 	function onSaveTestResponse(evt: any) {
 		evt.preventDefault();
-		vscode.postMessage({ type: requestTypes.saveTestResponseRequest, data: JSON.stringify(testResults) });
+		vscode.postMessage({
+			type: requestTypes.saveTestResponseRequest,
+			data: JSON.stringify(testResults),
+		});
 		setMenuShow(false);
 	}
 
@@ -101,14 +149,15 @@ export const ResponseOptionsTab = (props: any) => {
 			return false;
 		}
 
-		if (opt === "codetype" && url) { //&& !response.isError && isJson(response.responseData)) {
+		if (opt === "codetype" && url) {
+			//&& !response.isError && isJson(response.responseData)) {
 			return false;
 		}
 
 		return true;
 	}
 
-	function getResponseOptions(): { name: string; value: string; }[] {
+	function getResponseOptions(): { name: string; value: string }[] {
 		let options = props.isCurl ? curlResponseOptions : responseOptions;
 
 		return options.filter((option) => {
@@ -126,84 +175,103 @@ export const ResponseOptionsTab = (props: any) => {
 
 	return (
 		<>
-			{
-				isVerticalLayout ?
-					responseParamsRender()
-					:
-					<></>
-			}
+			{isVerticalLayout ? responseParamsRender() : <></>}
 			<div className="tab-options">
-				{
-					getResponseOptions().map((option) => (
-						<button
-							key={option.value}
-							onClick={() => setSelectedTab(option.value)}
-							className={
-								selectedTab === option.value
-									? "option option-selected"
-									: "option"
-							}
-						>
-							<div className="option-names">
-								{option.name}
-								{option.value === "cookies" && response.responseData ? (
-									<div className="header-count">
-										(
-										{
-											cookies?.length
-										}
-										)
-									</div>
-								) : null}
-								{option.value === "headers" && response.responseData ? (
-									<div className="header-count">
-										(
-										{
-											headers?.length
-										}
-										)
-									</div>
-								) : null}
-								{option.value === "testresults" && (
-									<div className="header-count">
-										({
-											testCount}
-										)
-									</div>
-								)}
-								{option.value === "prefetchresults" && (
-									<div className="header-count">
-										(
-										{preFetchCount}
-										)
-									</div>
-								)}
-							</div>
-						</button>
-					))}
-				{
-					!isVerticalLayout
-						?
-						responseParamsRender()
-						:
-						<></>
-				}
+				{getResponseOptions().map((option) => (
+					<button
+						key={option.value}
+						onClick={() => setSelectedTab(option.value)}
+						className={
+							selectedTab === option.value ? "option option-selected" : "option"
+						}
+					>
+						<div className="option-names">
+							{option.name}
+							{option.value === "cookies" && response.responseData ? (
+								<div className="header-count">({cookies?.length})</div>
+							) : null}
+							{option.value === "headers" && response.responseData ? (
+								<div className="header-count">({headers?.length})</div>
+							) : null}
+							{option.value === "testresults" && (
+								<div className="header-count">({testCount})</div>
+							)}
+							{option.value === "prefetchresults" && (
+								<div className="header-count">({preFetchCount})</div>
+							)}
+						</div>
+					</button>
+				))}
+				{!isVerticalLayout ? responseParamsRender() : <></>}
 				<div className="menu-panel">
 					<div>
 						<div className="dropdown" ref={codeWrapperRef}>
-							<CodeLogo title="Code Snippet" className="code-snippet-icon" onClick={setCodeShowMenu} />
-							{codeMenuShow && (<div id="res-menu" className={"dropdown-content res-code-drop-down-menu show"}>
-								<button className="save-to-file-button" disabled={isDisabled("codesnippet")} onClick={() => onSelectTab("codesnippet")}>Code Snippet</button>
-								<button className="save-to-file-button" disabled={isDisabled("codetype")} onClick={() => onSelectTab("codetype")}>Code Types</button>
-							</div>
+							<CodeLogo
+								title="Code Snippet"
+								className="code-snippet-icon"
+								onClick={setCodeShowMenu}
+							/>
+							{codeMenuShow && (
+								<div
+									id="res-menu"
+									className={"dropdown-content res-code-drop-down-menu show"}
+								>
+									<button
+										className="save-to-file-button"
+										disabled={isDisabled("codesnippet")}
+										onClick={() => onSelectTab("codesnippet")}
+									>
+										Code Snippet
+									</button>
+									<button
+										className="save-to-file-button"
+										disabled={isDisabled("codetype")}
+										onClick={() => onSelectTab("codetype")}
+									>
+										Code Types
+									</button>
+								</div>
 							)}
 						</div>
 						<div className="dropdown" ref={wrapperRef}>
-							{getColFolDotMenu("res-menu", "Menu", "hamburger-menu", (e) => { e.stopPropagation(); e.preventDefault(); }, (e) => setShowMenu(e))}
-							{menuShow && (<div id="res-menu" className={"dropdown-content res-drop-down-menu show"}>
-								<button className="save-to-file-button" onClick={(e) => onSaveResponse(e)} disabled={response.responseData && !response.responseType.isBinaryFile && !response.isError ? false : true}>Save Response to File</button>
-								{!props.isCurl && <button className="save-to-file-button" onClick={(e) => onSaveTestResponse(e)} disabled={testResults.length > 0 ? false : true}>Save Tests to File</button>}
-							</div>
+							{getColFolDotMenu(
+								"res-menu",
+								"Menu",
+								"hamburger-menu",
+								(e) => {
+									e.stopPropagation();
+									e.preventDefault();
+								},
+								(e) => setShowMenu(e),
+							)}
+							{menuShow && (
+								<div
+									id="res-menu"
+									className={"dropdown-content res-drop-down-menu show"}
+								>
+									<button
+										className="save-to-file-button"
+										onClick={(e) => onSaveResponse(e)}
+										disabled={
+											response.responseData &&
+											!response.responseType.isBinaryFile &&
+											!response.isError
+												? false
+												: true
+										}
+									>
+										Save Response to File
+									</button>
+									{!props.isCurl && (
+										<button
+											className="save-to-file-button"
+											onClick={(e) => onSaveTestResponse(e)}
+											disabled={testResults.length > 0 ? false : true}
+										>
+											Save Tests to File
+										</button>
+									)}
+								</div>
 							)}
 						</div>
 					</div>

@@ -10,10 +10,11 @@ import React, { useEffect, useState } from "react";
 import vscode from "../../../../Common/vscodeAPI";
 
 export const Settings = () => {
-
 	const dispatch = useDispatch<AppDispatch>();
 
-	const { selectedVariable, variables, isLocalChange } = useSelector((state: IRootState) => state.variableData);
+	const { selectedVariable, variables, isLocalChange } = useSelector(
+		(state: IRootState) => state.variableData,
+	);
 	const { url } = useSelector((state: IRootState) => state.requestData);
 	const { cookies } = useSelector((state: IRootState) => state.cookieData);
 	const responseData = useSelector((state: IRootState) => state.responseData);
@@ -22,7 +23,7 @@ export const Settings = () => {
 	const [globalActive, setGlobalActive] = useState(false);
 
 	function onSelectVariable(evt: any) {
-		let vars = variables.filter(item => item.id === evt.target.value);
+		let vars = variables.filter((item) => item.id === evt.target.value);
 		setGlobalActive(false);
 		dispatch(VariableActions.SetReqVariableAction(vars[0] as IVariable));
 		dispatch(VariableActions.SetReqLocalChangeAction(true));
@@ -31,11 +32,16 @@ export const Settings = () => {
 	useEffect(() => {
 		if (isLocalChange) {
 			setEnabled(true);
-		}
-		else if (selectedVariable.id && selectedVariable.name.toUpperCase().trim() !== "GLOBAL") {
+		} else if (
+			selectedVariable.id &&
+			selectedVariable.name.toUpperCase().trim() !== "GLOBAL"
+		) {
 			setEnabled(false);
 		} else {
-			let globalVar = variables.filter(item => item.name.toUpperCase().trim() === "GLOBAL" && item.isActive === true);
+			let globalVar = variables.filter(
+				(item) =>
+					item.name.toUpperCase().trim() === "GLOBAL" && item.isActive === true,
+			);
 			if (globalVar && globalVar.length > 0) {
 				setGlobalActive(true);
 			}
@@ -44,7 +50,7 @@ export const Settings = () => {
 
 	function getVariableData() {
 		let colNames = [{ name: "Select", value: "", disabled: true }];
-		variables.forEach(item => {
+		variables.forEach((item) => {
 			if (item.isActive) {
 				colNames.push({ name: item.name, value: item.id, disabled: false });
 			}
@@ -65,7 +71,10 @@ export const Settings = () => {
 	}
 
 	function onOpenVariable() {
-		vscode.postMessage({ type: requestTypes.openVariableItemRequest, data: selectedVariable.id });
+		vscode.postMessage({
+			type: requestTypes.openVariableItemRequest,
+			data: selectedVariable.id,
+		});
 	}
 
 	function onRefreshVariable() {
@@ -82,18 +91,20 @@ export const Settings = () => {
 				return;
 			}
 
-			let cookie = cookies.filter(item => item.name === domainName);
+			let cookie = cookies.filter((item) => item.name === domainName);
 			if (cookie.length > 0) {
 				id = cookie[0].id;
 			}
 		}
 
 		if (id) {
-			vscode.postMessage({ type: requestTypes.openManageCookiesRequest, data: id });
+			vscode.postMessage({
+				type: requestTypes.openManageCookiesRequest,
+				data: id,
+			});
 		} else {
 			vscode.postMessage({ type: requestTypes.openManageCookiesRequest });
 		}
-
 	}
 
 	function onRefreshCookies() {
@@ -111,22 +122,60 @@ export const Settings = () => {
 					onChange={(e) => onSelectVariable(e)}
 					disabled={!enabled}
 				>
-					{
-						getVariableData()
-					}
+					{getVariableData()}
 				</select>
-				<button onClick={onOpenVariable} className="format-button open-var-button">Open Variable</button>
-				<button onClick={onRefreshVariable} className="format-button open-var-button">Refresh</button>
-				<br /><br />
-				{globalActive && <span className="global-var-text"><b>Note : </b><span>Currently, global variable is active. If you select the other variable, then it will be replace the global variable for this request.</span></span>}
+				<button
+					onClick={onOpenVariable}
+					className="format-button open-var-button"
+				>
+					Open Variable
+				</button>
+				<button
+					onClick={onRefreshVariable}
+					className="format-button open-var-button"
+				>
+					Refresh
+				</button>
+				<br />
+				<br />
+				{globalActive && (
+					<span className="global-var-text">
+						<b>Note : </b>
+						<span>
+							Currently, global variable is active. If you select the other
+							variable, then it will be replace the global variable for this
+							request.
+						</span>
+					</span>
+				)}
 			</div>
 			<div className="settings-item-left">Cookies :</div>
 			<div className="settings-item-right">
-				<button onClick={onOpenCookies} className="format-button open-var-button manage-cookie-button">Manage Cookies</button>
-				<button onClick={onRefreshCookies} className="format-button open-var-button">Refresh</button>
-				<br /><br />
+				<button
+					onClick={onOpenCookies}
+					className="format-button open-var-button manage-cookie-button"
+				>
+					Manage Cookies
+				</button>
+				<button
+					onClick={onRefreshCookies}
+					className="format-button open-var-button"
+				>
+					Refresh
+				</button>
+				<br />
+				<br />
 			</div>
-			<span><u><b>Note :</b></u><span> These settings will not be saved to history. It is only used for performing this request.</span></span>
+			<span>
+				<u>
+					<b>Note :</b>
+				</u>
+				<span>
+					{" "}
+					These settings will not be saved to history. It is only used for
+					performing this request.
+				</span>
+			</span>
 		</div>
 	);
 };

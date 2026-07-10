@@ -2,12 +2,16 @@ import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 interface IDropdownPortalProps {
-  id: string;
-  open: boolean;
-  children: React.ReactNode;
+	id: string;
+	open: boolean;
+	children: React.ReactNode;
 }
 
-export const DropdownPortal = ({ id, open, children }: IDropdownPortalProps) => {
+export const DropdownPortal = ({
+	id,
+	open,
+	children,
+}: IDropdownPortalProps) => {
 	const [style, setStyle] = useState<React.CSSProperties>({
 		position: "fixed",
 		top: -9999,
@@ -18,13 +22,20 @@ export const DropdownPortal = ({ id, open, children }: IDropdownPortalProps) => 
 
 	useEffect(() => {
 		if (!open) {
-			setStyle({ position: "fixed", top: -9999, left: -9999, visibility: "hidden" });
+			setStyle({
+				position: "fixed",
+				top: -9999,
+				left: -9999,
+				visibility: "hidden",
+			});
 			return;
 		}
 
 		const trigger = document.getElementById("three-dots-" + id);
 		const menu = menuRef.current;
-		if (!trigger || !menu) {return;}
+		if (!trigger || !menu) {
+			return;
+		}
 
 		requestAnimationFrame(() => {
 			const rect = trigger.getBoundingClientRect();
@@ -44,12 +55,19 @@ export const DropdownPortal = ({ id, open, children }: IDropdownPortalProps) => 
 		});
 	}, [open, id]);
 
-	if (!open) {return null;}
+	if (!open) {
+		return null;
+	}
 
 	return createPortal(
-		<div id={"drop-down-menu-" + id} className="dropdown-more" ref={menuRef} style={style}>
+		<div
+			id={"drop-down-menu-" + id}
+			className="dropdown-more"
+			ref={menuRef}
+			style={style}
+		>
 			{children}
 		</div>,
-		document.body
+		document.body,
 	);
 };

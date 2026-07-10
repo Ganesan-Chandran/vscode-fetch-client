@@ -1,15 +1,23 @@
 import { createAutoDBCache } from "./dbManager";
 import { FCCipher } from "../../fetch-client-packages/crypto/index";
-import { formatDate } from '../helpers/dateTime.helper';
+import { formatDate } from "../helpers/dateTime.helper";
 import { IVariable } from "../types/sidebar.types";
-import { v4 as uuidv4 } from 'uuid';
-import { variableDBPath } from './dbHelper';
+import { v4 as uuidv4 } from "uuid";
+import { variableDBPath } from "./dbHelper";
 import { writeLog } from "../helpers/logger/logger";
 
-const { getLoadedDB: getVariableDB, saveDB, flush: flushVariableDB, invalidate: invalidateVariableDB } = createAutoDBCache(variableDBPath);
+const {
+	getLoadedDB: getVariableDB,
+	saveDB,
+	flush: flushVariableDB,
+	invalidate: invalidateVariableDB,
+} = createAutoDBCache(variableDBPath);
 export { getVariableDB, flushVariableDB, invalidateVariableDB };
 
-export async function Var_Repository_Insert(item: IVariable, key: string): Promise<void> {
+export async function Var_Repository_Insert(
+	item: IVariable,
+	key: string,
+): Promise<void> {
 	try {
 		const db = await getVariableDB();
 		const userVariables = db.getCollection("userVariables");
@@ -24,18 +32,27 @@ export async function Var_Repository_Insert(item: IVariable, key: string): Promi
 	}
 }
 
-export async function Var_Repository_InsertDuplicate(id: string): Promise<IVariable | null> {
+export async function Var_Repository_InsertDuplicate(
+	id: string,
+): Promise<IVariable | null> {
 	try {
 		const db = await getVariableDB();
-		const sourceData = db.getCollection("userVariables").chain().find({ 'id': id }).data({ forceClones: true, removeMeta: true });
+		const sourceData = db
+			.getCollection("userVariables")
+			.chain()
+			.find({ id: id })
+			.data({ forceClones: true, removeMeta: true });
 		if (sourceData && sourceData.length > 0) {
 			let distData: IVariable = {
 				id: uuidv4(),
-				name: sourceData[0].name.toUpperCase().trim() === "GLOBAL" ? "Global - Copy" : sourceData[0].name + " - Copy",
+				name:
+					sourceData[0].name.toUpperCase().trim() === "GLOBAL"
+						? "Global - Copy"
+						: sourceData[0].name + " - Copy",
 				createdTime: formatDate(),
 				modifiedTime: formatDate(),
 				isActive: true,
-				data: sourceData[0].data
+				data: sourceData[0].data,
 			};
 			db.getCollection("userVariables").insert(distData);
 			await saveDB(db);
@@ -48,13 +65,19 @@ export async function Var_Repository_InsertDuplicate(id: string): Promise<IVaria
 	}
 }
 
-export async function Var_Repository_Update(item: IVariable, key: string): Promise<void> {
+export async function Var_Repository_Update(
+	item: IVariable,
+	key: string,
+): Promise<void> {
 	try {
 		const db = await getVariableDB();
 		if (key) {
 			item.data = new FCCipher(key).EncryptBulkData(item.data);
 		}
-		db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; itm.modifiedTime = formatDate(); });
+		db.getCollection("userVariables").findAndUpdate({ id: item.id }, (itm) => {
+			itm.data = item.data;
+			itm.modifiedTime = formatDate();
+		});
 		await saveDB(db);
 	} catch (err) {
 		writeLog("error::Var_Repository_Update(): " + err);
@@ -62,23 +85,32 @@ export async function Var_Repository_Update(item: IVariable, key: string): Promi
 	}
 }
 
-export async function Var_Repository_UpdateAndReturn(item: IVariable, key: string): Promise<IVariable | null> {
+export async function Var_Repository_UpdateAndReturn(
+	item: IVariable,
+	key: string,
+): Promise<IVariable | null> {
 	try {
 		const db = await getVariableDB();
 		if (key) {
 			item.data = new FCCipher(key).EncryptBulkData(item.data);
 		}
-		db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; itm.modifiedTime = formatDate(); });
+		db.getCollection("userVariables").findAndUpdate({ id: item.id }, (itm) => {
+			itm.data = item.data;
+			itm.modifiedTime = formatDate();
+		});
 		await saveDB(db);
-		let vars = db.getCollection("userVariables").find({ 'id': item.id });
-		return vars && vars.length > 0 ? vars[0] as IVariable : null;
+		let vars = db.getCollection("userVariables").find({ id: item.id });
+		return vars && vars.length > 0 ? (vars[0] as IVariable) : null;
 	} catch (err) {
 		writeLog("error::Var_Repository_UpdateAndReturn(): " + err);
 		throw err;
 	}
 }
 
-export function Var_Repository_UpdateVariableSync(item: IVariable, key: string) {
+export function Var_Repository_UpdateVariableSync(
+	item: IVariable,
+	key: string,
+) {
 	try {
 		return new Promise<IVariable>(async (resolve, _reject) => {
 			const result = await Var_Repository_UpdateAndReturn(item, key);
@@ -90,10 +122,15 @@ export function Var_Repository_UpdateVariableSync(item: IVariable, key: string) 
 	}
 }
 
-export async function Var_Repository_FindAll(key: string): Promise<IVariable[]> {
+export async function Var_Repository_FindAll(
+	key: string,
+): Promise<IVariable[]> {
 	try {
 		const db = await getVariableDB();
-		const userVariables = db.getCollection("userVariables").chain().data({ forceClones: true, removeMeta: true }) as IVariable[];
+		const userVariables = db
+			.getCollection("userVariables")
+			.chain()
+			.data({ forceClones: true, removeMeta: true }) as IVariable[];
 		if (key) {
 			userVariables.forEach((item: IVariable) => {
 				item.data = new FCCipher(key).DecryptBulkData(item.data);
@@ -106,10 +143,18 @@ export async function Var_Repository_FindAll(key: string): Promise<IVariable[]> 
 	}
 }
 
-export async function Var_Repository_FindById(id: string, isGlobal: boolean, key: string): Promise<IVariable[]> {
+export async function Var_Repository_FindById(
+	id: string,
+	isGlobal: boolean,
+	key: string,
+): Promise<IVariable[]> {
 	try {
 		const db = await getVariableDB();
-		let userVariables = db.getCollection("userVariables").chain().find(isGlobal ? { 'name': 'Global' } : { 'id': id }).data({ forceClones: true, removeMeta: true }) as IVariable[];
+		let userVariables = db
+			.getCollection("userVariables")
+			.chain()
+			.find(isGlobal ? { name: "Global" } : { id: id })
+			.data({ forceClones: true, removeMeta: true }) as IVariable[];
 		if (key) {
 			userVariables?.forEach((item: IVariable) => {
 				item.data = new FCCipher(key).DecryptBulkData(item.data);
@@ -122,16 +167,25 @@ export async function Var_Repository_FindById(id: string, isGlobal: boolean, key
 	}
 }
 
-export async function Var_Repository_FindByIdSync(id: string, key: string): Promise<IVariable | null> {
+export async function Var_Repository_FindByIdSync(
+	id: string,
+	key: string,
+): Promise<IVariable | null> {
 	try {
 		const db = await getVariableDB();
-		let userVariables = db.getCollection("userVariables").chain().find({ 'id': id }).data({ forceClones: true, removeMeta: true }) as IVariable[];
+		let userVariables = db
+			.getCollection("userVariables")
+			.chain()
+			.find({ id: id })
+			.data({ forceClones: true, removeMeta: true }) as IVariable[];
 		if (key) {
 			userVariables?.forEach((item: IVariable) => {
 				item.data = new FCCipher(key).DecryptBulkData(item.data);
 			});
 		}
-		return userVariables && userVariables.length > 0 ? userVariables[0] as IVariable : null;
+		return userVariables && userVariables.length > 0
+			? (userVariables[0] as IVariable)
+			: null;
 	} catch (err) {
 		writeLog("error::Var_Repository_FindByIdSync(): " + err);
 		throw err;
@@ -153,7 +207,7 @@ export function Var_Repository_GetVariableByIdSync(id: string, key: string) {
 export async function Var_Repository_Delete(id: string): Promise<void> {
 	try {
 		const db = await getVariableDB();
-		db.getCollection("userVariables").findAndRemove({ 'id': id });
+		db.getCollection("userVariables").findAndRemove({ id: id });
 		await saveDB(db);
 	} catch (err) {
 		writeLog("error::Var_Repository_Delete(): " + err);
@@ -161,10 +215,15 @@ export async function Var_Repository_Delete(id: string): Promise<void> {
 	}
 }
 
-export async function Var_Repository_Rename(id: string, name: string): Promise<void> {
+export async function Var_Repository_Rename(
+	id: string,
+	name: string,
+): Promise<void> {
 	try {
 		const db = await getVariableDB();
-		db.getCollection("userVariables").findAndUpdate({ 'id': id }, item => { item.name = name; });
+		db.getCollection("userVariables").findAndUpdate({ id: id }, (item) => {
+			item.name = name;
+		});
 		await saveDB(db);
 	} catch (err) {
 		writeLog("error::Var_Repository_Rename(): " + err);
@@ -172,10 +231,15 @@ export async function Var_Repository_Rename(id: string, name: string): Promise<v
 	}
 }
 
-export async function Var_Repository_UpdateStatus(id: string, status: boolean): Promise<void> {
+export async function Var_Repository_UpdateStatus(
+	id: string,
+	status: boolean,
+): Promise<void> {
 	try {
 		const db = await getVariableDB();
-		db.getCollection("userVariables").findAndUpdate({ 'id': id }, item => { item.isActive = status; });
+		db.getCollection("userVariables").findAndUpdate({ id: id }, (item) => {
+			item.isActive = status;
+		});
 		await saveDB(db);
 	} catch (err) {
 		writeLog("error::Var_Repository_UpdateStatus(): " + err);
@@ -186,21 +250,36 @@ export async function Var_Repository_UpdateStatus(id: string, status: boolean): 
 export async function Var_Repository_FindByIdRaw(id: string): Promise<any[]> {
 	try {
 		const db = await getVariableDB();
-		return db.getCollection("userVariables").chain().find({ 'id': id }).data({ forceClones: true, removeMeta: true });
+		return db
+			.getCollection("userVariables")
+			.chain()
+			.find({ id: id })
+			.data({ forceClones: true, removeMeta: true });
 	} catch (err) {
 		writeLog("error::Var_Repository_FindByIdRaw(): " + err);
 		throw err;
 	}
 }
 
-export async function Var_Repository_UpdateAllWithReEncryption(oldKey: string, newKey: string): Promise<void> {
+export async function Var_Repository_UpdateAllWithReEncryption(
+	oldKey: string,
+	newKey: string,
+): Promise<void> {
 	try {
 		const db = await getVariableDB();
-		const userVariables = db.getCollection("userVariables").chain().data({ forceClones: true, removeMeta: true }) as IVariable[];
+		const userVariables = db
+			.getCollection("userVariables")
+			.chain()
+			.data({ forceClones: true, removeMeta: true }) as IVariable[];
 		userVariables.forEach((item: IVariable) => {
 			item.data = new FCCipher(oldKey).DecryptBulkData(item.data);
 			item.data = new FCCipher(newKey).EncryptBulkData(item.data);
-			db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; });
+			db.getCollection("userVariables").findAndUpdate(
+				{ id: item.id },
+				(itm) => {
+					itm.data = item.data;
+				},
+			);
 		});
 		await saveDB(db);
 	} catch (err) {
@@ -212,10 +291,18 @@ export async function Var_Repository_UpdateAllWithReEncryption(oldKey: string, n
 export async function Var_Repository_EncryptAll(key: string): Promise<void> {
 	try {
 		const db = await getVariableDB();
-		const userVariables = db.getCollection("userVariables").chain().data({ forceClones: true, removeMeta: true }) as IVariable[];
+		const userVariables = db
+			.getCollection("userVariables")
+			.chain()
+			.data({ forceClones: true, removeMeta: true }) as IVariable[];
 		userVariables.forEach((item: IVariable) => {
 			item.data = new FCCipher(key).EncryptBulkData(item.data);
-			db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; });
+			db.getCollection("userVariables").findAndUpdate(
+				{ id: item.id },
+				(itm) => {
+					itm.data = item.data;
+				},
+			);
 		});
 		await saveDB(db);
 	} catch (err) {
@@ -227,10 +314,18 @@ export async function Var_Repository_EncryptAll(key: string): Promise<void> {
 export async function Var_Repository_DecryptAll(key: string): Promise<void> {
 	try {
 		const db = await getVariableDB();
-		const userVariables = db.getCollection("userVariables").chain().data({ forceClones: true, removeMeta: true }) as IVariable[];
+		const userVariables = db
+			.getCollection("userVariables")
+			.chain()
+			.data({ forceClones: true, removeMeta: true }) as IVariable[];
 		userVariables?.forEach((item: IVariable) => {
 			item.data = new FCCipher(key).DecryptBulkData(item.data);
-			db.getCollection("userVariables").findAndUpdate({ 'id': item.id }, itm => { itm.data = item.data; });
+			db.getCollection("userVariables").findAndUpdate(
+				{ id: item.id },
+				(itm) => {
+					itm.data = item.data;
+				},
+			);
 		});
 		await saveDB(db);
 	} catch (err) {
@@ -239,7 +334,9 @@ export async function Var_Repository_DecryptAll(key: string): Promise<void> {
 	}
 }
 
-export async function Var_Repository_InsertRaw(reqData: IVariable): Promise<void> {
+export async function Var_Repository_InsertRaw(
+	reqData: IVariable,
+): Promise<void> {
 	try {
 		const db = await getVariableDB();
 		const userVariables = db.getCollection("userVariables");

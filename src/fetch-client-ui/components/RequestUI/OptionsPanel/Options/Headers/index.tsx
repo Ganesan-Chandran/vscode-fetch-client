@@ -1,18 +1,17 @@
 import { Actions } from "../../../redux";
-import { AppDispatch } from '../../../../../store/appStore';
+import { AppDispatch } from "../../../../../store/appStore";
 import { IRootState } from "../../../../../reducer/combineReducer";
-import { ITableData } from '../../../../../../fetch-client-core/types/common.types';
+import { ITableData } from "../../../../../../fetch-client-core/types/common.types";
 import { IVariable } from "../../../../../../fetch-client-core/types/sidebar.types";
 import { Table } from "../../../../Common/Table/Table";
 import { useDispatch, useSelector } from "react-redux";
-import React from 'react';
+import React from "react";
 
 export interface IHeadersPanelProps {
 	selectedVariable: IVariable;
 }
 
 export const HeadersPanel = (props: IHeadersPanelProps) => {
-
 	const dispatch = useDispatch<AppDispatch>();
 
 	const { headers } = useSelector((state: IRootState) => state.requestData);
@@ -23,24 +22,27 @@ export const HeadersPanel = (props: IHeadersPanelProps) => {
 		localTable[index] = {
 			isChecked: !rowData.isChecked,
 			key: rowData.key,
-			value: rowData.value
+			value: rowData.value,
 		};
 		dispatch(Actions.SetRequestHeadersAction(localTable));
 	};
 
-	const onRowAdd = (event: React.ChangeEvent<HTMLInputElement> | string, index: number, isKey: boolean = true) => {
+	const onRowAdd = (
+		event: React.ChangeEvent<HTMLInputElement> | string,
+		index: number,
+		isKey: boolean = true,
+	) => {
 		let newRow: ITableData = {
 			isChecked: false,
 			key: "",
-			value: ""
+			value: "",
 		};
 
 		let value: any;
 
-		if (typeof event === 'string' || event instanceof String) {
+		if (typeof event === "string" || event instanceof String) {
 			value = event;
-		}
-		else {
+		} else {
 			value = event.target.value;
 		}
 
@@ -53,13 +55,16 @@ export const HeadersPanel = (props: IHeadersPanelProps) => {
 		dispatch(Actions.SetRequestHeadersAction(localTable));
 	};
 
-	const onRowUpdate = (event: React.ChangeEvent<HTMLInputElement> | string, index: number, isKey: boolean = true) => {
+	const onRowUpdate = (
+		event: React.ChangeEvent<HTMLInputElement> | string,
+		index: number,
+		isKey: boolean = true,
+	) => {
 		let value: any;
 
-		if (typeof event === 'string' || event instanceof String) {
+		if (typeof event === "string" || event instanceof String) {
 			value = event;
-		}
-		else {
+		} else {
 			value = event.target.value;
 		}
 
@@ -67,13 +72,17 @@ export const HeadersPanel = (props: IHeadersPanelProps) => {
 		dispatch(Actions.SetRequestHeadersAction(localTable));
 	};
 
-	const addValue = (value: string, index: number, isKey: boolean): ITableData[] => {
+	const addValue = (
+		value: string,
+		index: number,
+		isKey: boolean,
+	): ITableData[] => {
 		let localTable = [...headers];
 		let rowData = localTable[index];
 		localTable[index] = {
 			isChecked: true,
 			key: isKey ? value : rowData.key,
-			value: !isKey ? value : rowData.value
+			value: !isKey ? value : rowData.value,
 		};
 
 		return localTable;
@@ -86,7 +95,7 @@ export const HeadersPanel = (props: IHeadersPanelProps) => {
 			let newRow: ITableData = {
 				isChecked: false,
 				key: "",
-				value: ""
+				value: "",
 			};
 			localTable.push(newRow);
 		}

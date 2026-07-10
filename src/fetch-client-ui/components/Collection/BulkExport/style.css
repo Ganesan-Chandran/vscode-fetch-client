@@ -27,12 +27,12 @@
 }
 
 /* columns */
-.responsive-three-column-grid>* {
+.responsive-three-column-grid > * {
 	padding: 1rem;
 }
 
 /* tablet breakpoint */
-@media (min-width:768px) {
+@media (min-width: 768px) {
 	.responsive-three-column-grid {
 		display: grid;
 		grid-auto-rows: 1fr;

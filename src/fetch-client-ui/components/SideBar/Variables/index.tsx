@@ -2,7 +2,7 @@ import "./style.css";
 import { DropdownPortal } from "../dropdownMenu";
 import { IRootState } from "../../../reducer/combineReducer";
 import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";
-import { ReactComponent as DotsLogo } from '../../../../../icons/dots.svg';
+import { ReactComponent as DotsLogo } from "../../../../../icons/dots.svg";
 import { requestTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
 import { useSelector } from "react-redux";
 import React, { useEffect, useRef, useState } from "react";
@@ -15,7 +15,6 @@ export interface IVariableProps {
 }
 
 export const VariableSection = (props: IVariableProps) => {
-
 	const { variable } = useSelector((state: IRootState) => state.sideBarData);
 
 	const [selectedItem, setSelectedItem] = useState("");
@@ -55,14 +54,21 @@ export const VariableSection = (props: IVariableProps) => {
 		performOperation(evt, requestTypes.renameVariableRequest, id);
 	}
 
-	function onDelete(evt: React.MouseEvent<HTMLElement>, id: string, name: string) {
+	function onDelete(
+		evt: React.MouseEvent<HTMLElement>,
+		id: string,
+		name: string,
+	) {
 		performOperation(evt, requestTypes.deleteVariableRequest, id, name);
 	}
 
 	function onExport(evt: React.MouseEvent<HTMLElement>, vars: IVariable) {
 		evt.preventDefault();
 		evt.stopPropagation();
-		vscode.postMessage({ type: requestTypes.exportVariableRequest, vars: vars });
+		vscode.postMessage({
+			type: requestTypes.exportVariableRequest,
+			vars: vars,
+		});
 		setCurrentIndex(-1);
 	}
 
@@ -71,17 +77,29 @@ export const VariableSection = (props: IVariableProps) => {
 		performOperation(evt, requestTypes.openVariableItemRequest, id);
 	}
 
-	function performOperation(evt: React.MouseEvent<HTMLElement>, types: string, id: string, name?: string) {
+	function performOperation(
+		evt: React.MouseEvent<HTMLElement>,
+		types: string,
+		id: string,
+		name?: string,
+	) {
 		evt.preventDefault();
 		evt.stopPropagation();
 		vscode.postMessage({ type: types, data: id, name: name });
 		setCurrentIndex(-1);
 	}
 
-	function onActive(evt: React.MouseEvent<HTMLElement>, id: string, status: boolean) {
+	function onActive(
+		evt: React.MouseEvent<HTMLElement>,
+		id: string,
+		status: boolean,
+	) {
 		evt.preventDefault();
 		evt.stopPropagation();
-		vscode.postMessage({ type: requestTypes.activeVariableRequest, data: { id: id, status: status } });
+		vscode.postMessage({
+			type: requestTypes.activeVariableRequest,
+			data: { id: id, status: status },
+		});
 		setCurrentIndex(-1);
 	}
 
@@ -94,8 +112,14 @@ export const VariableSection = (props: IVariableProps) => {
 
 	function handleClickOutside(evt: any) {
 		const triggerEl = moreMenuWrapperRef.current[refIndex.current];
-		const menuEl = document.getElementById("drop-down-menu-" + (variableState[refIndex.current]?.id ?? ""));
-		if (triggerEl && !triggerEl.contains(evt.target) && !(menuEl && menuEl.contains(evt.target))) {
+		const menuEl = document.getElementById(
+			"drop-down-menu-" + (variableState[refIndex.current]?.id ?? ""),
+		);
+		if (
+			triggerEl &&
+			!triggerEl.contains(evt.target) &&
+			!(menuEl && menuEl.contains(evt.target))
+		) {
 			setCurrentIndex(-1);
 		}
 	}
@@ -119,11 +143,19 @@ export const VariableSection = (props: IVariableProps) => {
 			setVariableState(variable);
 		} else if (props.sort === 1) {
 			if (variableState?.length > 0) {
-				setVariableState([...variable].sort((a, b) => b.name !== "Global" && a.name.localeCompare(b.name)));
+				setVariableState(
+					[...variable].sort(
+						(a, b) => b.name !== "Global" && a.name.localeCompare(b.name),
+					),
+				);
 			}
 		} else {
 			if (variableState?.length > 0) {
-				setVariableState([...variable].sort((a, b) => b.name !== "Global" && b.name.localeCompare(a.name)));
+				setVariableState(
+					[...variable].sort(
+						(a, b) => b.name !== "Global" && b.name.localeCompare(a.name),
+					),
+				);
 			}
 		}
 	}, [props.sort, variable, variable.length]);
@@ -136,19 +168,57 @@ export const VariableSection = (props: IVariableProps) => {
 
 	function getVariableItems(item: IVariable, index: number) {
 		return (
-			<div key={"variable_" + item.id} className={selectedItem === item.id ? "activity-items selected-item" : "activity-items"} onContextMenu={(e) => onItemRightClick(e, index)} onClick={(e) => onClickItem(e, item.id)}>
+			<div
+				key={"variable_" + item.id}
+				className={
+					selectedItem === item.id
+						? "activity-items selected-item"
+						: "activity-items"
+				}
+				onContextMenu={(e) => onItemRightClick(e, index)}
+				onClick={(e) => onClickItem(e, item.id)}
+			>
 				<div className="activity-item-row-1 variable-row">
 					<label className="var-item-name">{item.name}</label>
-					{index === 0 && <label className="var-item-name">{item.isActive ? "  ✔️" : "  ❌"}</label>}
-					<div className={index === currentIndex ? "more-icon display-block" : "more-icon"} ref={el => moreMenuWrapperRef.current[index] = el}>
-						<DotsLogo id={"three-dots-" + item.id} onClick={(e) => openMoreMenu(e, index)} />
-						<input type="checkbox" className="dd-input" checked={index === currentIndex} readOnly={true} />
+					{index === 0 && (
+						<label className="var-item-name">
+							{item.isActive ? "  ✔️" : "  ❌"}
+						</label>
+					)}
+					<div
+						className={
+							index === currentIndex ? "more-icon display-block" : "more-icon"
+						}
+						ref={(el) => (moreMenuWrapperRef.current[index] = el)}
+					>
+						<DotsLogo
+							id={"three-dots-" + item.id}
+							onClick={(e) => openMoreMenu(e, index)}
+						/>
+						<input
+							type="checkbox"
+							className="dd-input"
+							checked={index === currentIndex}
+							readOnly={true}
+						/>
 						<DropdownPortal id={item.id} open={index === currentIndex}>
-							{index !== 0 && <><button onClick={(e) => onRename(e, item.id)}>Rename</button>
-								<button onClick={(e) => onDelete(e, item.id, item.name)}>Delete</button></>}
-							<button onClick={(e) => onDuplicate(e, item.id)}>Duplicate</button>
+							{index !== 0 && (
+								<>
+									<button onClick={(e) => onRename(e, item.id)}>Rename</button>
+									<button onClick={(e) => onDelete(e, item.id, item.name)}>
+										Delete
+									</button>
+								</>
+							)}
+							<button onClick={(e) => onDuplicate(e, item.id)}>
+								Duplicate
+							</button>
 							<div className="divider"></div>
-							{index === 0 && !item.isActive && <button onClick={(e) => onActive(e, item.id, !item.isActive)}>{item.isActive ? "Set Inactive" : "Set Active"}</button>}
+							{index === 0 && !item.isActive && (
+								<button onClick={(e) => onActive(e, item.id, !item.isActive)}>
+									{item.isActive ? "Set Inactive" : "Set Active"}
+								</button>
+							)}
 							<button onClick={(e) => onExport(e, item)}>Export</button>
 						</DropdownPortal>
 					</div>
@@ -159,36 +229,30 @@ export const VariableSection = (props: IVariableProps) => {
 
 	function getVariableBody() {
 		if (props.filterCondition) {
-			return (
-				variableState
-					.filter(el => el.name?.toLowerCase().includes(props.filterCondition))
-					.map((item, index) => {
-						return getVariableItems(item, index);
-					})
-			);
-		} else {
-			return (
-				variableState.map((item, index) => {
+			return variableState
+				.filter((el) => el.name?.toLowerCase().includes(props.filterCondition))
+				.map((item, index) => {
 					return getVariableItems(item, index);
-				})
-			);
+				});
+		} else {
+			return variableState.map((item, index) => {
+				return getVariableItems(item, index);
+			});
 		}
 	}
 
 	return (
 		<>
-			{
-				props.isLoading ?
-					<>
-						<div id="divSpinner" className="spinner loading"></div>
-						<div className="loading-history-text">{"Loading...."}</div>
-					</>
-					:
-					history.length > 0 ?
-						getVariableBody()
-						:
-						<div className="no-history-text">{"No Variable Available"}</div>
-			}
+			{props.isLoading ? (
+				<>
+					<div id="divSpinner" className="spinner loading"></div>
+					<div className="loading-history-text">{"Loading...."}</div>
+				</>
+			) : history.length > 0 ? (
+				getVariableBody()
+			) : (
+				<div className="no-history-text">{"No Variable Available"}</div>
+			)}
 		</>
 	);
 };

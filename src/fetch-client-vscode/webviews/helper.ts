@@ -4,11 +4,21 @@ import { getErrorResponse } from "../../fetch-client-core/helpers/common.helper"
 import { getResponseSaveConfiguration } from "../../fetch-client-core/utils/vscodeConfig";
 import { GetVariableByIdSync } from "../db/varDBUtil";
 import { IPreFetchResponse } from "../../fetch-client-core/types/response.types";
-import { IReqSettings, IPreFetch } from "../../fetch-client-core/types/prefetch.types";
+import {
+	IReqSettings,
+	IPreFetch,
+} from "../../fetch-client-core/types/prefetch.types";
 import { IRequestModel } from "../../fetch-client-core/types/request.types";
-import { ISettings, IVariable, IHistory } from "../../fetch-client-core/types/sidebar.types";
+import {
+	ISettings,
+	IVariable,
+	IHistory,
+} from "../../fetch-client-core/types/sidebar.types";
 import { PreFetchRunner } from "../../fetch-client-core/utils/preFetchRunner";
-import { pubSubTypes, responseTypes } from "../../fetch-client-core/consts/requestTypes.consts";
+import {
+	pubSubTypes,
+	responseTypes,
+} from "../../fetch-client-core/consts/requestTypes.consts";
 import { SaveHistory, UpdateHistory } from "../db/historyDBUtil";
 import { SaveRequest, UpdateRequest } from "../db/mainDBUtil";
 import { SaveResponse } from "../db/responseDBUtil";
@@ -16,7 +26,11 @@ import { pubSub, sideBarProvider, vsCodeLogger } from "../../extension";
 import { writeLog } from "../../fetch-client-core/helpers/logger/logger";
 import * as vscode from "vscode";
 
-export async function ExecuteAPIRequest(message: any, fetchConfig: FetchConfig, webview: vscode.Webview) {
+export async function ExecuteAPIRequest(
+	message: any,
+	fetchConfig: FetchConfig,
+	webview: vscode.Webview,
+) {
 	try {
 		let request = message.data.reqData as IRequestModel;
 		let settings = message.data.settings as ISettings;
@@ -29,10 +43,23 @@ export async function ExecuteAPIRequest(message: any, fetchConfig: FetchConfig, 
 		let preFetchResponse: IPreFetchResponse[] = [];
 
 		// Run PreRequests in the parent
-		if ((!reqSettings || reqSettings?.skipParentPreFetch === false) && settings?.preFetch?.requests?.length > 0) {
-			[runMainRequest, continueRequest, parentPreFetchResponse] = await runPreRequest(message, settings.preFetch, true, fetchConfig, webview);
+		if (
+			(!reqSettings || reqSettings?.skipParentPreFetch === false) &&
+			settings?.preFetch?.requests?.length > 0
+		) {
+			[runMainRequest, continueRequest, parentPreFetchResponse] =
+				await runPreRequest(
+					message,
+					settings.preFetch,
+					true,
+					fetchConfig,
+					webview,
+				);
 			if (!runMainRequest || !continueRequest) {
-				webview?.postMessage({ type: responseTypes.preFetchResponse, preFetchResponse: parentPreFetchResponse });
+				webview?.postMessage({
+					type: responseTypes.preFetchResponse,
+					preFetchResponse: parentPreFetchResponse,
+				});
 			}
 
 			if (!runMainRequest) {
@@ -43,16 +70,32 @@ export async function ExecuteAPIRequest(message: any, fetchConfig: FetchConfig, 
 		}
 
 		// Run PreRequests in the request item
-		if (continueRequest && request.preFetch?.requests?.length > 0 && request.preFetch?.requests[0].reqId) {
-			[runMainRequest, continueRequest, preFetchResponse] = await runPreRequest(message, request.preFetch, false, fetchConfig, webview);
+		if (
+			continueRequest &&
+			request.preFetch?.requests?.length > 0 &&
+			request.preFetch?.requests[0].reqId
+		) {
+			[runMainRequest, continueRequest, preFetchResponse] = await runPreRequest(
+				message,
+				request.preFetch,
+				false,
+				fetchConfig,
+				webview,
+			);
 			preFetchResponse = [...parentPreFetchResponse, ...preFetchResponse];
-			webview?.postMessage({ type: responseTypes.preFetchResponse, preFetchResponse: preFetchResponse });
+			webview?.postMessage({
+				type: responseTypes.preFetchResponse,
+				preFetchResponse: preFetchResponse,
+			});
 			if (!runMainRequest) {
 				return;
 			}
 			isVariableUpdated = true;
 		} else if (continueRequest && parentPreFetchResponse?.length > 0) {
-			webview?.postMessage({ type: responseTypes.preFetchResponse, preFetchResponse: parentPreFetchResponse });
+			webview?.postMessage({
+				type: responseTypes.preFetchResponse,
+				preFetchResponse: parentPreFetchResponse,
+			});
 		}
 
 		if (isVariableUpdated && updatedVariable?.id) {
@@ -60,51 +103,98 @@ export async function ExecuteAPIRequest(message: any, fetchConfig: FetchConfig, 
 		}
 
 		if (pubSub.size > 0) {
-			pubSub.publish({ messageType: pubSubTypes.updateVariables, data:  updatedVariable });
+			pubSub.publish({
+				messageType: pubSubTypes.updateVariables,
+				data: updatedVariable,
+			});
 		}
 
 		_executeAPIRequest(message, updatedVariable, fetchConfig, webview);
-
 	} catch (err) {
 		writeLog("error::helper::ExecuteAPIRequest()" + err);
 		throw err;
 	}
 }
 
-async function runPreRequest(message: any, preFetch: IPreFetch, isParentPreRequest: boolean, fetchConfig: FetchConfig, webview: vscode.Webview): Promise<[runMainRequest: boolean, continueRequest: boolean, preFetchResponse: IPreFetchResponse[]]> {
+async function runPreRequest(
+	message: any,
+	preFetch: IPreFetch,
+	isParentPreRequest: boolean,
+	fetchConfig: FetchConfig,
+	webview: vscode.Webview,
+): Promise<
+	[
+		runMainRequest: boolean,
+		continueRequest: boolean,
+		preFetchResponse: IPreFetchResponse[],
+	]
+> {
 	let request = message.data.reqData as IRequestModel;
 	let preFetchCollectionRunner = new PreFetchRunner(fetchConfig, request.id);
-	await preFetchCollectionRunner.RunPreRequests(preFetch, 0, request.name, isParentPreRequest);
+	await preFetchCollectionRunner.RunPreRequests(
+		preFetch,
+		0,
+		request.name,
+		isParentPreRequest,
+	);
 	if (preFetchCollectionRunner.message) {
 		if (fetchConfig.runMainRequest === true) {
 			setTimeout(() => {
-				vsCodeLogger.log("INFO", "\n\n" + preFetchCollectionRunner.message + "\n");
+				vsCodeLogger.log(
+					"INFO",
+					"\n\n" + preFetchCollectionRunner.message + "\n",
+				);
 			}, 500);
-			return [true, preFetchCollectionRunner.allow, preFetchCollectionRunner.preFetchResponses];
+			return [
+				true,
+				preFetchCollectionRunner.allow,
+				preFetchCollectionRunner.preFetchResponses,
+			];
 		} else {
 			fetchConfig.source = null;
 			let errorResponse = getErrorResponse();
 			errorResponse.response.responseData = preFetchCollectionRunner.message;
 			webview.postMessage(errorResponse);
-			return [false, preFetchCollectionRunner.allow, preFetchCollectionRunner.preFetchResponses];
+			return [
+				false,
+				preFetchCollectionRunner.allow,
+				preFetchCollectionRunner.preFetchResponses,
+			];
 		}
 	}
 
 	return [true, true, preFetchCollectionRunner.preFetchResponses];
 }
 
-function _executeAPIRequest(message: any, variable: IVariable, fetchConfig: FetchConfig, webview: vscode.Webview) {
-	apiFetch(message.data.reqData, variable?.data, message.data.settings, message.data.reqSettings, fetchConfig).then((data) => {
+function _executeAPIRequest(
+	message: any,
+	variable: IVariable,
+	fetchConfig: FetchConfig,
+	webview: vscode.Webview,
+) {
+	apiFetch(
+		message.data.reqData,
+		variable?.data,
+		message.data.settings,
+		message.data.reqSettings,
+		fetchConfig,
+	).then((data) => {
 		fetchConfig.source = null;
 		webview.postMessage(data);
 
 		let item: IHistory = {
 			id: message.data.reqData.id,
 			method: message.data.reqData.method,
-			name: message.data.reqData.name ? message.data.reqData.name : message.data.reqData.url,
+			name: message.data.reqData.name
+				? message.data.reqData.name
+				: message.data.reqData.url,
 			url: message.data.reqData.url,
-			createdTime: message.data.reqData.createdTime ? message.data.reqData.createdTime : formatDate(),
-			modifiedTime: message.data.reqData.modifiedTime ? message.data.reqData.modifiedTime : formatDate(),
+			createdTime: message.data.reqData.createdTime
+				? message.data.reqData.createdTime
+				: formatDate(),
+			modifiedTime: message.data.reqData.modifiedTime
+				? message.data.reqData.modifiedTime
+				: formatDate(),
 		};
 
 		let reqData = message.data.reqData as IRequestModel;
@@ -120,7 +210,10 @@ function _executeAPIRequest(message: any, variable: IVariable, fetchConfig: Fetc
 			UpdateHistory(item);
 		}
 
-		if (getResponseSaveConfiguration() && !data.response.responseType.isBinaryFile) {
+		if (
+			getResponseSaveConfiguration() &&
+			!data.response.responseType.isBinaryFile
+		) {
 			SaveResponse({
 				id: reqData.id,
 				response: {
@@ -130,10 +223,10 @@ function _executeAPIRequest(message: any, variable: IVariable, fetchConfig: Fetc
 					isError: data.response.isError,
 					status: data.response.status,
 					statusText: data.response.statusText,
-					duration: data.response.duration
+					duration: data.response.duration,
 				},
 				headers: data.headers,
-				cookies: data.cookies
+				cookies: data.cookies,
 			});
 		}
 	});

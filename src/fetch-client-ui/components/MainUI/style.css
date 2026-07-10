@@ -1,4 +1,4 @@
-.accordion>input[name="collapse"] {
+.accordion > input[name="collapse"] {
 	display: none;
 }
 
@@ -8,14 +8,14 @@
 }
 
 .accordion .content {
-	border    : 1px solid;
-	height    : 0;
-	overflow  : hidden;
+	border: 1px solid;
+	height: 0;
+	overflow: hidden;
 	transition: 0.5s;
 }
 
-.accordion>input[name="collapse"]:checked~.content {
-	height    : calc(100% - 30px);
+.accordion > input[name="collapse"]:checked ~ .content {
+	height: calc(100% - 30px);
 	transition: height 0.5s;
 }
 
@@ -25,7 +25,7 @@
 
 /* For Desktop */
 @media only screen and (min-width: 620px) {
-	.accordion>input[name="collapse"]:checked~.content {
+	.accordion > input[name="collapse"]:checked ~ .content {
 		/* height: 93%; */
 		height: calc(100% - 30px);
 	}
@@ -35,23 +35,23 @@
 	margin-bottom: 2px;
 } */
 
-.accordion>input[name="collapse"]:checked~.content {
+.accordion > input[name="collapse"]:checked ~ .content {
 	border-top: 0;
 	transition: 0.3s;
 }
 
 .accordion .handle {
-	margin   : 0;
+	margin: 0;
 	font-size: 16px;
-	border   : 1px solid;
+	border: 1px solid;
 }
 
 .accordion .accordion-title {
-	background : #0a95ff;
-	color      : #fff;
-	cursor     : pointer;
+	background: #0a95ff;
+	color: #fff;
+	cursor: pointer;
 	font-weight: normal;
-	padding    : 3px 3px 3px 10px;
+	padding: 3px 3px 3px 10px;
 	user-select: none;
 }
 
@@ -62,22 +62,22 @@
 }
 
 .accordion .handle .accordion-title:before {
-	content     : "+";
-	display     : inline-block;
-	font-size   : 1em;
-	line-height : 1.556em;
+	content: "+";
+	display: inline-block;
+	font-size: 1em;
+	line-height: 1.556em;
 	margin-right: 10px;
-	transition  : 0.4s;
+	transition: 0.4s;
 }
 
-.accordion>input[name="collapse"]:checked~.handle .accordion-title:before {
-	content         : "-";
-	transform       : rotate(180deg);
+.accordion > input[name="collapse"]:checked ~ .handle .accordion-title:before {
+	content: "-";
+	transform: rotate(180deg);
 	transform-origin: center;
-	transition      : 0.4s;
+	transition: 0.4s;
 }
 
-.accordion>input[name="collapse"]:checked~.handle .accordion-title {
+.accordion > input[name="collapse"]:checked ~ .handle .accordion-title {
 	background: #194880;
 }
 
@@ -100,21 +100,21 @@
 }
 
 .split-vertical {
-	display          : flex;
-	flex-direction   : row;
+	display: flex;
+	flex-direction: row;
 	/* height        : 99.2%; */
-	height           : 100%;
+	height: 100%;
 }
 
 .split-horizontal {
-	display       : flex;
+	display: flex;
 	flex-direction: column;
-	height        : calc(100% - 10px);
+	height: calc(100% - 10px);
 }
 
 .gutter {
-	background-color   : var(--border-color);
-	background-repeat  : no-repeat;
+	background-color: var(--border-color);
+	background-repeat: no-repeat;
 	background-position: 50%;
 }
 
@@ -128,7 +128,7 @@
 
 .gutter.gutter-horizontal:hover {
 	background-color: var(--button-background-color);
-	width           : 3px !important;
+	width: 3px !important;
 }
 
 .gutter.gutter-vertical:hover {
@@ -136,19 +136,19 @@
 }
 
 .save-text {
-	position     : absolute;
-	top          : 190px;
-	left         : 25%;
-	transform    : translateX(-50%);
-	font-size    : 15px;
-	color        : #2fb12f;
-	padding      : 7px;
+	position: absolute;
+	top: 190px;
+	left: 25%;
+	transform: translateX(-50%);
+	font-size: 15px;
+	color: #2fb12f;
+	padding: 7px;
 	border-radius: 6px;
-	background   : var(--list-hover-background-color);
-	opacity      : .97;
-	z-index      : 100;
-	font-weight  : bold;
-	border       : var(--border-size) solid var(--border-color) !important;
+	background: var(--list-hover-background-color);
+	opacity: 0.97;
+	z-index: 100;
+	font-weight: bold;
+	border: var(--border-size) solid var(--border-color) !important;
 }
 
 .save-visible {
@@ -161,5 +161,5 @@
 
 .save-text-horizontal {
 	left: 50% !important;
-	top : 50% !important;
+	top: 50% !important;
 }

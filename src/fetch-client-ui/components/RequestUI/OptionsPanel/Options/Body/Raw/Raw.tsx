@@ -8,7 +8,6 @@ import { useDispatch, useSelector } from "react-redux";
 import React from "react";
 
 export const Raw = (props: any) => {
-
 	const dispatch = useDispatch<AppDispatch>();
 
 	const requestData = useSelector((state: IRootState) => state.requestData);

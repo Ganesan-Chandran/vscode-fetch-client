@@ -11,5 +11,5 @@ export const SysVariables = [
 	"{{#date, 'format'}}",
 	"{{#email}}",
 	"{{#guid}}",
-	"{{#bool}}"
+	"{{#bool}}",
 ];

@@ -1,7 +1,7 @@
 export function writeConsoleLog(data: string) {
-  console.log(data);
+	console.log(data);
 }
 
-export function wrtieConsleError(data: string){
-  console.error(data);
+export function wrtieConsleError(data: string) {
+	console.error(data);
 }

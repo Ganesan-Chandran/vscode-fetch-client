@@ -1,1 +1,1 @@
-export const logPath = 'fetch-client.log';
+export const logPath = "fetch-client.log";

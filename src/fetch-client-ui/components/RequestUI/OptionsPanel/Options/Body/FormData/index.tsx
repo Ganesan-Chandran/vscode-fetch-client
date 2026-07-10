@@ -2,23 +2,32 @@ import { Actions } from "../../../../redux";
 import { AppDispatch } from "../../../../../../store/appStore";
 import { IRootState } from "../../../../../../reducer/combineReducer";
 import { ITableData } from "../../../../../../../fetch-client-core/types/common.types";
-import { requestTypes, responseTypes } from "../../../../../../../fetch-client-core/consts/requestTypes.consts";
+import {
+	requestTypes,
+	responseTypes,
+} from "../../../../../../../fetch-client-core/consts/requestTypes.consts";
 import { Table } from "../../../../../Common/Table/Table";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useEffect } from "react";
 import vscode from "../../../../../Common/vscodeAPI";
 
 export const FormDataBody = () => {
-
 	const dispatch = useDispatch<AppDispatch>();
 
 	const { body } = useSelector((state: IRootState) => state.requestData);
-	const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
+	const { selectedVariable } = useSelector(
+		(state: IRootState) => state.variableData,
+	);
 
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
-			if (event.data && event.data.type === responseTypes.formDataFileResponse) {
-				dispatch(Actions.SetRequestFormDataAction(event.data.path, event.data.index));
+			if (
+				event.data &&
+				event.data.type === responseTypes.formDataFileResponse
+			) {
+				dispatch(
+					Actions.SetRequestFormDataAction(event.data.path, event.data.index),
+				);
 			}
 		};
 		window.addEventListener("message", handleMessage);
@@ -35,7 +44,7 @@ export const FormDataBody = () => {
 				isChecked: !rowData.isChecked,
 				key: rowData.key,
 				value: rowData.value,
-				type: rowData.type
+				type: rowData.type,
 			};
 			localbody.formdata = localFormData;
 			dispatch(Actions.SetRequestBodyAction(localbody));
@@ -51,7 +60,7 @@ export const FormDataBody = () => {
 				isChecked: rowData.isChecked,
 				key: rowData.key,
 				value: "",
-				type: type
+				type: type,
 			};
 			localbody.formdata = localFormData;
 			dispatch(Actions.SetRequestBodyAction(localbody));
@@ -59,7 +68,10 @@ export const FormDataBody = () => {
 	};
 
 	const onFileSelect = (index: number) => {
-		vscode.postMessage({ type: requestTypes.formDataFileRequest, index: index });
+		vscode.postMessage({
+			type: requestTypes.formDataFileRequest,
+			index: index,
+		});
 	};
 
 	const onRowAdd = (value: string, index: number, isKey: boolean = true) => {
@@ -67,7 +79,7 @@ export const FormDataBody = () => {
 			isChecked: false,
 			key: "",
 			value: "",
-			type: "Text"
+			type: "Text",
 		};
 
 		let localTable = addValue(value, index, isKey);
@@ -84,7 +96,11 @@ export const FormDataBody = () => {
 		dispatch(Actions.SetRequestBodyAction({ ...body, formdata: localTable }));
 	};
 
-	const addValue = (value: string, index: number, isKey: boolean): ITableData[] => {
+	const addValue = (
+		value: string,
+		index: number,
+		isKey: boolean,
+	): ITableData[] => {
 		let localbody = { ...body };
 		if (localbody.formdata) {
 			let localFormData = [...localbody.formdata];
@@ -93,7 +109,7 @@ export const FormDataBody = () => {
 				isChecked: true,
 				key: isKey ? value : rowData.key,
 				value: !isKey ? value : rowData.value,
-				type: rowData.type
+				type: rowData.type,
 			};
 			return localFormData;
 		}

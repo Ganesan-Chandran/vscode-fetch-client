@@ -5,8 +5,9 @@ import { useSelector } from "react-redux";
 import React from "react";
 
 export const TestResult = () => {
-
-	const { response, testResults } = useSelector((state: IRootState) => state.responseData);
+	const { response, testResults } = useSelector(
+		(state: IRootState) => state.responseData,
+	);
 
 	const tableRow = (row: ITestResult, index: number) => {
 		if (row.test === "") {
@@ -21,11 +22,19 @@ export const TestResult = () => {
 				</td>
 				<td className="test-result-actual-val-col">
 					<div id={"test_res_" + index.toString()} className="res-table-input">
-						{row.actualValue?.length > 50 ? showMoreContent(row.actualValue) : row.actualValue}
+						{row.actualValue?.length > 50
+							? showMoreContent(row.actualValue)
+							: row.actualValue}
 					</div>
 				</td>
 				<td align="center" className="top-align">
-					<label className={row.result ? "test-result-label pass" : "test-result-label fail"}>{row.result ? "Pass" : "Fail"}</label>
+					<label
+						className={
+							row.result ? "test-result-label pass" : "test-result-label fail"
+						}
+					>
+						{row.result ? "Pass" : "Fail"}
+					</label>
 				</td>
 			</tr>
 		);
@@ -34,9 +43,7 @@ export const TestResult = () => {
 	function showMoreContent(value: string) {
 		return (
 			<>
-				<div className="short-content">
-					{value}
-				</div>
+				<div className="short-content">{value}</div>
 				<button className="show-more-btn" onClick={(e) => onShowMoreClick(e)}>
 					Show More
 				</button>
@@ -58,45 +65,47 @@ export const TestResult = () => {
 	}
 
 	const makeTable = (data: ITestResult[]) => {
-		return (
-			data.map((item: ITestResult, index: number) => {
-				return tableRow(item, index);
-			})
-		);
+		return data.map((item: ITestResult, index: number) => {
+			return tableRow(item, index);
+		});
 	};
 
 	return (
 		<>
-			{
-				testResults.length > 0 && response.status !== 0
-					?
-					<>
-						<span className="test-result-title-panel">
-							<span className="test-result-title">Total : {testResults.length}</span>
-							<span className="test-result-title">Passed : {testResults.filter(i => i.result === true).length}</span>
-							<span className="test-result-title">Failed : {testResults.filter(i => i.result === false).length}</span>
+			{testResults.length > 0 && response.status !== 0 ? (
+				<>
+					<span className="test-result-title-panel">
+						<span className="test-result-title">
+							Total : {testResults.length}
 						</span>
-						<div className="test-result-panel">
-							<table className="test-result-table">
-								<thead>
-									<tr>
-										<th className="test-result-col">Test</th>
-										<th className="test-result-col">Actual Value</th>
-										<th>Result</th>
-									</tr>
-								</thead>
-								<tbody>
-									{makeTable(testResults)}
-								</tbody>
-							</table>
-						</div>
-					</>
-					:
-					<>
-						<hr />
-						<div className="auth-header-label"><label>{"No Test Results Available."}</label></div>
-					</>
-			}
+						<span className="test-result-title">
+							Passed : {testResults.filter((i) => i.result === true).length}
+						</span>
+						<span className="test-result-title">
+							Failed : {testResults.filter((i) => i.result === false).length}
+						</span>
+					</span>
+					<div className="test-result-panel">
+						<table className="test-result-table">
+							<thead>
+								<tr>
+									<th className="test-result-col">Test</th>
+									<th className="test-result-col">Actual Value</th>
+									<th>Result</th>
+								</tr>
+							</thead>
+							<tbody>{makeTable(testResults)}</tbody>
+						</table>
+					</div>
+				</>
+			) : (
+				<>
+					<hr />
+					<div className="auth-header-label">
+						<label>{"No Test Results Available."}</label>
+					</div>
+				</>
+			)}
 		</>
 	);
 };

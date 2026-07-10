@@ -2,15 +2,24 @@ import "../style.css";
 import { Actions } from "../../RequestUI/redux";
 import { AppDispatch } from "../../../store/appStore";
 import { AuthPanel } from "../../RequestUI/OptionsPanel/Options/Auth";
-import { basicAuthTypes, allAuthTypes } from "../../../../fetch-client-core/consts/auth.consts";
+import {
+	basicAuthTypes,
+	allAuthTypes,
+} from "../../../../fetch-client-core/consts/auth.consts";
 import { ICollection } from "../../../../fetch-client-core/types/prefetch.types";
 import { InitialSettings } from "../../../../fetch-client-core/consts/initialValues.consts";
 import { IResponse } from "../../../../fetch-client-core/types/response.types";
 import { IRootState } from "../../../reducer/combineReducer";
-import { IVariable, ISettings } from "../../../../fetch-client-core/types/sidebar.types";
+import {
+	IVariable,
+	ISettings,
+} from "../../../../fetch-client-core/types/sidebar.types";
 import { ParentHeadersPanel } from "../../RequestUI/OptionsPanel/Options/Headers/parentHeaders";
 import { PreFetch } from "../../RequestUI/OptionsPanel/Options/PreFetch";
-import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
+import {
+	requestTypes,
+	responseTypes,
+} from "../../../../fetch-client-core/consts/requestTypes.consts";
 import { SettingsType } from "../../../../fetch-client-core/consts/common.consts";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
@@ -18,10 +27,11 @@ import vscode from "../../Common/vscodeAPI";
 import PanelLayout from "../../Common/Layout/panelLayout";
 
 const CollectionSettings = () => {
-
 	const dispatch = useDispatch<AppDispatch>();
 
-	const { auth, preFetch, headers } = useSelector((state: IRootState) => state.requestData);
+	const { auth, preFetch, headers } = useSelector(
+		(state: IRootState) => state.requestData,
+	);
 
 	const [tabOptions] = useState(["Headers", "Authorization", "PreRequest"]);
 	const [selectedTab, setSelectedTab] = useState("Headers");
@@ -35,38 +45,60 @@ const CollectionSettings = () => {
 
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
-			if (event.data && event.data.type === responseTypes.getColSettingsResponse) {
+			if (
+				event.data &&
+				event.data.type === responseTypes.getColSettingsResponse
+			) {
 				let settings: ISettings;
 				if (event.data && event.data.data.settings) {
 					settings = event.data.data.settings;
-				}
-				else {
+				} else {
 					settings = InitialSettings;
 					if (type === SettingsType.Folder) {
 						settings.auth.authType = "inherit";
 					}
 				}
 				dispatch(Actions.SetRequestAuthAction(settings.auth));
-				settings.preFetch && dispatch(Actions.SetPreFetchAction(settings.preFetch));
-				settings.headers && dispatch(Actions.SetRequestHeadersAction(settings.headers));
-			} else if (event.data && event.data.type === responseTypes.saveColSettingsResponse) {
+				settings.preFetch &&
+					dispatch(Actions.SetPreFetchAction(settings.preFetch));
+				settings.headers &&
+					dispatch(Actions.SetRequestHeadersAction(settings.headers));
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.saveColSettingsResponse
+			) {
 				setDone(true);
-			} else if (event.data && event.data.type === responseTypes.getVariableItemResponse) {
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.getVariableItemResponse
+			) {
 				setVariableItem(event.data.data[0] as IVariable);
-			} if (event.data && event.data.type === responseTypes.tokenResponse) {
+			}
+			if (event.data && event.data.type === responseTypes.tokenResponse) {
 				let tokenResponse: IResponse = event.data.response as IResponse;
 				if (!tokenResponse.isError && tokenResponse.status === 200) {
 					const responseData = JSON.parse(tokenResponse.responseData);
-					let tokenName = auth.oauth.tokenName ? auth.oauth.tokenName : "access_token";
-					dispatch(Actions.SetOAuthTokenAction(responseData[tokenName] ? responseData[tokenName] : ""));
+					let tokenName = auth.oauth.tokenName
+						? auth.oauth.tokenName
+						: "access_token";
+					dispatch(
+						Actions.SetOAuthTokenAction(
+							responseData[tokenName] ? responseData[tokenName] : "",
+						),
+					);
 				}
-			} else if (event.data && event.data.type === responseTypes.getAllCollectionNameResponse) {
-				let col: ICollection[] = event.data.collectionNames?.map((item: { value: any; name: any; }) => {
-					return {
-						id: item.value,
-						name: item.name
-					};
-				});
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.getAllCollectionNameResponse
+			) {
+				let col: ICollection[] = event.data.collectionNames?.map(
+					(item: { value: any; name: any }) => {
+						return {
+							id: item.value,
+							name: item.name,
+						};
+					},
+				);
 				col.unshift({ id: "", name: "select" });
 				dispatch(Actions.SetCollectionListAction(col));
 			}
@@ -84,9 +116,24 @@ const CollectionSettings = () => {
 		setFolderId(folderId);
 		setName(name);
 
-		vscode.postMessage({ type: requestTypes.getVariableItemRequest, data: { id: varId, isGlobal: (varId !== "undefined" && varId !== undefined && varId !== "") ? false : true } });
-		vscode.postMessage({ type: requestTypes.getColSettingsRequest, data: { colId: colId, folderId: folderId } });
-		vscode.postMessage({ type: requestTypes.getAllCollectionNameRequest, data: "addtocol" });
+		vscode.postMessage({
+			type: requestTypes.getVariableItemRequest,
+			data: {
+				id: varId,
+				isGlobal:
+					varId !== "undefined" && varId !== undefined && varId !== ""
+						? false
+						: true,
+			},
+		});
+		vscode.postMessage({
+			type: requestTypes.getColSettingsRequest,
+			data: { colId: colId, folderId: folderId },
+		});
+		vscode.postMessage({
+			type: requestTypes.getAllCollectionNameRequest,
+			data: "addtocol",
+		});
 
 		return () => window.removeEventListener("message", handleMessage);
 	}, []);
@@ -125,10 +172,13 @@ const CollectionSettings = () => {
 		let settings: ISettings = {
 			auth: { ...auth },
 			preFetch: { ...preFetch },
-			headers: [...headers]
+			headers: [...headers],
 		};
 
-		vscode.postMessage({ type: requestTypes.saveColSettingsRequest, data: { colId: colId, folderId: folderId, settings: settings } });
+		vscode.postMessage({
+			type: requestTypes.saveColSettingsRequest,
+			data: { colId: colId, folderId: folderId, settings: settings },
+		});
 	}
 
 	function renderHeader() {
@@ -170,22 +220,16 @@ const CollectionSettings = () => {
 						<AuthPanel
 							settingsMode={true}
 							authTypes={
-								type === SettingsType.Collection
-									? basicAuthTypes
-									: allAuthTypes
+								type === SettingsType.Collection ? basicAuthTypes : allAuthTypes
 							}
 							selectedVariable={variableItem}
 						/>
 					)}
 
-					{selectedTab === "PreRequest" && (
-						<PreFetch settingsMode={true} />
-					)}
+					{selectedTab === "PreRequest" && <PreFetch settingsMode={true} />}
 
 					{selectedTab === "Headers" && variableItem && (
-						<ParentHeadersPanel
-							selectedVariable={variableItem}
-						/>
+						<ParentHeadersPanel selectedVariable={variableItem} />
 					)}
 				</div>
 			</div>

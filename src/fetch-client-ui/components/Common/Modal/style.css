@@ -51,7 +51,7 @@
 	border-style: solid;
 	border-color: #2180c0 #ccc #ccc;
 	border-radius: 100%;
-	animation: rotation .7s infinite linear;
+	animation: rotation 0.7s infinite linear;
 }
 
 @keyframes rotation {

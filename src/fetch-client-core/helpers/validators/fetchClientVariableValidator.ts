@@ -12,14 +12,17 @@ export class FetchClientVariableProxy {
 	public static Parse(d: string): FetchClientVariableProxy {
 		return FetchClientVariableProxy.Create(JSON.parse(d));
 	}
-	public static Create(d: any, field: string = 'root'): FetchClientVariableProxy {
+	public static Create(
+		d: any,
+		field: string = "root",
+	): FetchClientVariableProxy {
 		if (!field) {
 			obj = d;
 			field = "root";
 		}
 		if (d === null || d === undefined) {
 			throwNull2NonNull(field, d);
-		} else if (typeof(d) !== 'object') {
+		} else if (typeof d !== "object") {
 			throwNotObject(field, d, false);
 		} else if (Array.isArray(d)) {
 			throwIsArray(field, d, false);
@@ -37,7 +40,10 @@ export class FetchClientVariableProxy {
 		checkArray(d.data, field + ".data");
 		if (d.data) {
 			for (let i = 0; i < d.data.length; i++) {
-				d.data[i] = DataEntityProxy.Create(d.data[i], field + ".data" + "[" + i + "]");
+				d.data[i] = DataEntityProxy.Create(
+					d.data[i],
+					field + ".data" + "[" + i + "]",
+				);
 			}
 		}
 		if (d.data === undefined) {
@@ -65,14 +71,14 @@ export class DataEntityProxy {
 	public static Parse(d: string): DataEntityProxy {
 		return DataEntityProxy.Create(JSON.parse(d));
 	}
-	public static Create(d: any, field: string = 'root'): DataEntityProxy {
+	public static Create(d: any, field: string = "root"): DataEntityProxy {
 		if (!field) {
 			obj = d;
 			field = "root";
 		}
 		if (d === null || d === undefined) {
 			throwNull2NonNull(field, d);
-		} else if (typeof(d) !== 'object') {
+		} else if (typeof d !== "object") {
 			throwNotObject(field, d, false);
 		} else if (Array.isArray(d)) {
 			throwIsArray(field, d, false);
@@ -104,25 +110,49 @@ function checkArray(d: any, field: string): void {
 	}
 }
 function checkBoolean(d: any, nullable: boolean, field: string): void {
-	if (typeof(d) !== 'boolean' && (!nullable || (nullable && d !== null && d !== undefined))) {
+	if (
+		typeof d !== "boolean" &&
+		(!nullable || (nullable && d !== null && d !== undefined))
+	) {
 		errorHelper(field, d, "boolean", nullable);
 	}
 }
 function checkString(d: any, nullable: boolean, field: string): void {
-	if (typeof(d) !== 'string' && (!nullable || (nullable && d !== null && d !== undefined))) {
+	if (
+		typeof d !== "string" &&
+		(!nullable || (nullable && d !== null && d !== undefined))
+	) {
 		errorHelper(field, d, "string", nullable);
 	}
 }
 function checkStringOrNumber(d: any, nullable: boolean, field: string): void {
-	if ((typeof(d) !== 'string' && typeof(d) !== 'number') && (!nullable || (nullable && d !== null && d !== undefined))) {
+	if (
+		typeof d !== "string" &&
+		typeof d !== "number" &&
+		(!nullable || (nullable && d !== null && d !== undefined))
+	) {
 		errorHelper(field, d, "stringORnumber", nullable);
 	}
 }
-function errorHelper(field: string, d: any, type: string, nullable: boolean): never {
+function errorHelper(
+	field: string,
+	d: any,
+	type: string,
+	nullable: boolean,
+): never {
 	if (nullable) {
 		type += ", null, or undefined";
 	}
-	throw new TypeError("Expected '" + type + "' at '" + field + "' but found:\n" + JSON.stringify(d) + "\n\nFull object:\n" + JSON.stringify(obj));
+	throw new TypeError(
+		"Expected '" +
+			type +
+			"' at '" +
+			field +
+			"' but found:\n" +
+			JSON.stringify(d) +
+			"\n\nFull object:\n" +
+			JSON.stringify(obj),
+	);
 }
 function checkStringValue(d: any, field: string, value: string): void {
 	if (d !== value) {

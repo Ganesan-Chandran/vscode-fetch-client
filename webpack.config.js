@@ -1,12 +1,11 @@
 //@ts-check
 
-'use strict';
+"use strict";
 
-const path = require('path');
+const path = require("path");
 const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
-
 
 /**
  * @param {'development' | 'production' | 'none'} webpackEnv
@@ -65,18 +64,18 @@ const commonConfig = (webpackEnv) => {
 						},
 						{
 							test: /\.(woff|woff2|eot|ttf|otf)$/i,
-							type: 'asset/resource'
+							type: "asset/resource",
 						},
 						{
 							test: /\.m?js/,
 							resolve: {
-								fullySpecified: false
-							}
+								fullySpecified: false,
+							},
 						},
 						{
 							loader: require.resolve("file-loader"),
 							exclude: [/\.(js|mjs|jsx|ts|tsx|cjs)$/, /\.html$/, /\.json$/],
-						}
+						},
 					],
 				},
 			],
@@ -101,7 +100,6 @@ const commonConfig = (webpackEnv) => {
 		],
 	};
 };
-
 
 /**
  * @param {'development' | 'production' | 'none'} webpackEnv
@@ -144,7 +142,7 @@ function fetchClientUIConfig(webpackEnv) {
 			// mainFields: ['module', 'main'],
 			alias: {
 				// crypto: require.resolve("crypto-browserify"),
-				'isomorphic-fetch': require.resolve('./empty-module.js'),
+				"isomorphic-fetch": require.resolve("./empty-module.js"),
 				// inherits: require.resolve('inherits/inherits_browser.js'),
 			},
 			fallback: {
@@ -164,7 +162,7 @@ function fetchClientUIConfig(webpackEnv) {
 				zlib: false,
 				crypto: false,
 				assert: require.resolve("assert"),
-			}
+			},
 		},
 		plugins: [
 			...base.plugins,

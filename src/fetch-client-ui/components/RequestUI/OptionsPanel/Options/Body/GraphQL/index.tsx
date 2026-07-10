@@ -7,7 +7,6 @@ import { useDispatch, useSelector } from "react-redux";
 import React from "react";
 
 export const GraphQL = (props: { format: boolean }) => {
-
 	const dispatch = useDispatch<AppDispatch>();
 	const { body } = useSelector((state: IRootState) => state.requestData);
 	const { horizontalLayout } = useSelector((state: IRootState) => state.uiData);
@@ -29,8 +28,20 @@ export const GraphQL = (props: { format: boolean }) => {
 	}
 
 	return (
-		<div className={horizontalLayout ? "graphql-panel graphql-horizontal-panel" : "graphql-panel"}>
-			<div className={horizontalLayout ? "graphql-horizontal-query-panel graphql-query-panel" : "graphql-vertical-query-panel graphql-query-panel"}>
+		<div
+			className={
+				horizontalLayout
+					? "graphql-panel graphql-horizontal-panel"
+					: "graphql-panel"
+			}
+		>
+			<div
+				className={
+					horizontalLayout
+						? "graphql-horizontal-query-panel graphql-query-panel"
+						: "graphql-vertical-query-panel graphql-query-panel"
+				}
+			>
 				<span className="graphql-query-head">Query</span>
 				<AceEditor
 					value={body.graphql.query ?? ""}
@@ -42,7 +53,13 @@ export const GraphQL = (props: { format: boolean }) => {
 					className="graphql-editor"
 				/>
 			</div>
-			<div className={horizontalLayout ? "graphql-horizontal-variable-panel graphql-variable-panel" : "graphql-vertical-variable-panel graphql-variable-panel"}>
+			<div
+				className={
+					horizontalLayout
+						? "graphql-horizontal-variable-panel graphql-variable-panel"
+						: "graphql-vertical-variable-panel graphql-variable-panel"
+				}
+			>
 				<span className="graphql-variable-head">Variables</span>
 				<AceEditor
 					value={body.graphql.variables ?? ""}

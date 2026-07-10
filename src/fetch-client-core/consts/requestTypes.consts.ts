@@ -83,7 +83,7 @@ export const requestTypes = {
 	runAllUIOpenRequest: "runAllUIOpenRequest",
 	runCurlRequest: "runCurlRequest",
 	runPerfTestUIOpenRequest: "runPerfTestUIOpenRequest",
-	saveAutoRequestRequest:"saveAutoRequestRequest",
+	saveAutoRequestRequest: "saveAutoRequestRequest",
 	saveColSettingsRequest: "saveColSettingsRequest",
 	saveCookieRequest: "saveCookieRequest",
 	saveRequest: "saveRequest",
@@ -92,9 +92,9 @@ export const requestTypes = {
 	saveVariableRequest: "saveVariableRequest",
 	selectFileRequest: "selectFileRequest",
 	selectItemRequest: "selectItemRequest",
-	selectPathRequest:"selectPathRequest",
+	selectPathRequest: "selectPathRequest",
 	setToVariableRequest: "setToVariableRequest",
-	showMessageRequest:"showMessageRequest",
+	showMessageRequest: "showMessageRequest",
 	themeRequest: "themeRequest",
 	tokenRequest: "tokenRequest",
 	updateVariableRequest: "updateVariableRequest",
@@ -180,7 +180,7 @@ export const responseTypes = {
 	setToVariableResponse: "setToVariableResponse",
 	themeResponse: "themeResponse",
 	tokenResponse: "tokenResponse",
-	updateCollectionHistoryItem:"updateCollectionHistoryItem",
+	updateCollectionHistoryItem: "updateCollectionHistoryItem",
 	updateVariableResponse: "updateVariableResponse",
 };
 
@@ -188,9 +188,9 @@ export const pubSubTypes = {
 	addCurrentVariable: "addCurrentVariable",
 	updateVariables: "updateVariables",
 	removeCurrentVariable: "removeCurrentVariable",
-	themeChanged: "themeChanged"
+	themeChanged: "themeChanged",
 };
 
 export function getNonce(): string {
-	return randomBytes(16).toString('hex');
+	return randomBytes(16).toString("hex");
 }

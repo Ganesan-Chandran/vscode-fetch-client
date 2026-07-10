@@ -1,4 +1,4 @@
-import createRootReducer, { } from "../reducer/combineReducer";
+import createRootReducer from "../reducer/combineReducer";
 import { configureStore } from "@reduxjs/toolkit";
 
 export const store = configureStore({
@@ -6,8 +6,8 @@ export const store = configureStore({
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware({
 			immutableCheck: false,
-			serializableCheck: false
-		})
+			serializableCheck: false,
+		}),
 });
 
 export type AppDispatch = typeof store.dispatch;

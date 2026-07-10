@@ -66,9 +66,7 @@ fc-cli run --col --all
 
 ## Documentation
 
-Complete documentation is available at:
-
-https://fetchclient.github.io/docs/cli/introduction
+Complete documentation is available at [Fetch Client CLI](https://fetchclient.github.io/docs/cli/introduction)
 
 Topics include:
 

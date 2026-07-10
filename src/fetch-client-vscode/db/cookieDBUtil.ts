@@ -1,9 +1,15 @@
-import { Cookie_Repository_SaveCookie, Cookie_Repository_GetAllCookies, Cookie_Repository_GetCookieById, Cookie_Repository_DeleteCookieById, Cookie_Repository_DeleteAllCookies } from '../../fetch-client-core/db/cookie.repository';
-import { ICookie } from '../../fetch-client-core/types/cookie.types';
-import { responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
-import { ShowInformationDialog } from '../webviews/helper';
-import { writeLog } from '../../fetch-client-core/helpers/logger/logger';
-import * as vscode from 'vscode';
+import {
+	Cookie_Repository_SaveCookie,
+	Cookie_Repository_GetAllCookies,
+	Cookie_Repository_GetCookieById,
+	Cookie_Repository_DeleteCookieById,
+	Cookie_Repository_DeleteAllCookies,
+} from "../../fetch-client-core/db/cookie.repository";
+import { ICookie } from "../../fetch-client-core/types/cookie.types";
+import { responseTypes } from "../../fetch-client-core/consts/requestTypes.consts";
+import { ShowInformationDialog } from "../webviews/helper";
+import { writeLog } from "../../fetch-client-core/helpers/logger/logger";
+import * as vscode from "vscode";
 
 export async function SaveCookie(item: ICookie, webview: vscode.Webview) {
 	try {
@@ -11,11 +17,11 @@ export async function SaveCookie(item: ICookie, webview: vscode.Webview) {
 
 		if (webview) {
 			webview.postMessage({
-				type: responseTypes.saveCookieResponse
+				type: responseTypes.saveCookieResponse,
 			});
 		}
 	} catch (err) {
-		writeLog('error::SaveCookie(): ' + err);
+		writeLog("error::SaveCookie(): " + err);
 	}
 }
 
@@ -25,10 +31,10 @@ export async function GetAllCookies(webview: vscode.Webview) {
 
 		webview.postMessage({
 			type: responseTypes.getAllCookiesResponse,
-			cookies
+			cookies,
 		});
 	} catch (err) {
-		writeLog('error::GetAllCookies(): ' + err);
+		writeLog("error::GetAllCookies(): " + err);
 	}
 }
 
@@ -39,11 +45,11 @@ export async function GetCookieById(id: string, webview: vscode.Webview) {
 		if (webview) {
 			webview.postMessage({
 				type: responseTypes.getCookiesByIdResponse,
-				data
+				data,
 			});
 		}
 	} catch (err) {
-		writeLog('error::GetCookieById(): ' + err);
+		writeLog("error::GetCookieById(): " + err);
 	}
 }
 
@@ -54,13 +60,13 @@ export async function DeleteCookieById(id: string, webview: vscode.Webview) {
 		if (webview) {
 			webview.postMessage({
 				type: responseTypes.deleteCookieByIdResponse,
-				id
+				id,
 			});
 
-			ShowInformationDialog('Deleted successfully');
+			ShowInformationDialog("Deleted successfully");
 		}
 	} catch (err) {
-		writeLog('error::DeleteCookieById(): ' + err);
+		writeLog("error::DeleteCookieById(): " + err);
 	}
 }
 
@@ -70,12 +76,12 @@ export async function DeleteAllCookies(webview: vscode.Webview) {
 
 		if (webview) {
 			webview.postMessage({
-				type: responseTypes.deleteAllCookieResponse
+				type: responseTypes.deleteAllCookieResponse,
 			});
 
-			ShowInformationDialog('Deleted successfully');
+			ShowInformationDialog("Deleted successfully");
 		}
 	} catch (err) {
-		writeLog('error::DeleteAllCookies(): ' + err);
+		writeLog("error::DeleteAllCookies(): " + err);
 	}
 }

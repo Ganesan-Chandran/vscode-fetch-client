@@ -3,7 +3,7 @@ import * as crypto from "crypto";
 
 const ALGORITHM = "aes-256-cbc";
 const KEY_LENGTH = 32; // AES-256 key length in bytes
-const IV_LENGTH = 16;  // CBC IV length in bytes
+const IV_LENGTH = 16; // CBC IV length in bytes
 
 export class FCCipher {
 	private readonly key: Buffer;
@@ -21,7 +21,9 @@ export class FCCipher {
 		}
 		try {
 			const cipher = crypto.createCipheriv(ALGORITHM, this.key, this.iv);
-			const hexEncrypted = cipher.update(text.toString().trim(), "utf8", "hex") + cipher.final("hex");
+			const hexEncrypted =
+				cipher.update(text.toString().trim(), "utf8", "hex") +
+				cipher.final("hex");
 			return Buffer.from(hexEncrypted, "utf8").toString("base64");
 		} catch (err) {
 			this.logError("EncryptData", err);
@@ -42,9 +44,14 @@ export class FCCipher {
 		if (!encryptedData.toString().trim()) {
 			return "";
 		}
-		const hexEncrypted = Buffer.from(encryptedData.toString().trim(), "base64").toString("utf8");
+		const hexEncrypted = Buffer.from(
+			encryptedData.toString().trim(),
+			"base64",
+		).toString("utf8");
 		const decipher = crypto.createDecipheriv(ALGORITHM, this.key, this.iv);
-		return decipher.update(hexEncrypted, "hex", "utf8") + decipher.final("utf8");
+		return (
+			decipher.update(hexEncrypted, "hex", "utf8") + decipher.final("utf8")
+		);
 	}
 
 	EncryptBulkData(records: ITableData[]): ITableData[] {
@@ -66,6 +73,8 @@ export class FCCipher {
 	}
 
 	private logError(method: string, err: unknown): void {
-		console.log(`error::${method}(): - Error Message: ${err instanceof Error ? err.message : String(err)}`);
+		console.log(
+			`error::${method}(): - Error Message: ${err instanceof Error ? err.message : String(err)}`,
+		);
 	}
 }

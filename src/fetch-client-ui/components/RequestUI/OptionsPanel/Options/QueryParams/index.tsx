@@ -1,18 +1,19 @@
 import "./style.css";
 import { Actions } from "../../../redux";
-import { AppDispatch } from '../../../../../store/appStore';
+import { AppDispatch } from "../../../../../store/appStore";
 import { IRootState } from "../../../../../reducer/combineReducer";
-import { ITableData } from '../../../../../../fetch-client-core/types/common.types';
+import { ITableData } from "../../../../../../fetch-client-core/types/common.types";
 import { Table } from "../../../../Common/Table/Table";
 import { useDispatch, useSelector } from "react-redux";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
 export const QueryParams = () => {
-
 	const dispatch = useDispatch<AppDispatch>();
 
 	const { params } = useSelector((state: IRootState) => state.requestData);
-	const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
+	const { selectedVariable } = useSelector(
+		(state: IRootState) => state.variableData,
+	);
 	const [isBulkEdit, setIsBulkEdit] = useState(false);
 	const [bulkText, setBulkText] = useState("");
 
@@ -22,7 +23,7 @@ export const QueryParams = () => {
 		localTable[index] = {
 			isChecked: !rowData.isChecked,
 			key: rowData.key,
-			value: rowData.value
+			value: rowData.value,
 		};
 		dispatch(Actions.SetRequestParamsAction(localTable));
 	};
@@ -31,7 +32,7 @@ export const QueryParams = () => {
 		let newRow: ITableData = {
 			isChecked: false,
 			key: "",
-			value: ""
+			value: "",
 		};
 
 		let localTable = addValue(event, index, isKey);
@@ -48,13 +49,17 @@ export const QueryParams = () => {
 		dispatch(Actions.SetRequestParamsAction(localTable));
 	};
 
-	const addValue = (value: string, index: number, isKey: boolean): ITableData[] => {
+	const addValue = (
+		value: string,
+		index: number,
+		isKey: boolean,
+	): ITableData[] => {
 		let localTable = [...params];
 		let rowData = localTable[index];
 		localTable[index] = {
 			isChecked: true,
 			key: isKey ? value : rowData.key,
-			value: !isKey ? value : rowData.value
+			value: !isKey ? value : rowData.value,
 		};
 
 		return localTable;
@@ -68,11 +73,9 @@ export const QueryParams = () => {
 
 	const tableToText = (data: ITableData[]): string => {
 		const result = data
-			.filter(row => row.key)
-			.map(row =>
-				row.isChecked
-					? `${row.key}=${row.value}`
-					: `#${row.key}=${row.value}`
+			.filter((row) => row.key)
+			.map((row) =>
+				row.isChecked ? `${row.key}=${row.value}` : `#${row.key}=${row.value}`,
 			)
 			.join("\n");
 
@@ -85,12 +88,9 @@ export const QueryParams = () => {
 		if (checked) {
 			const text = tableToText(params);
 			setBulkText(text);
-		}
-		else {
+		} else {
 			const parsed = textToTable(bulkText);
-			dispatch(
-				Actions.SetRequestParamsAction(parsed)
-			);
+			dispatch(Actions.SetRequestParamsAction(parsed));
 		}
 
 		setIsBulkEdit(checked);
@@ -100,17 +100,18 @@ export const QueryParams = () => {
 		const rows: ITableData[] = [];
 
 		if (!text?.trim()) {
-			return [{
-				isChecked: false,
-				key: "",
-				value: ""
-			}];
+			return [
+				{
+					isChecked: false,
+					key: "",
+					value: "",
+				},
+			];
 		}
 
 		const lines = text.split(/\r\n|\n|\r/);
 
 		for (const rawLine of lines) {
-
 			let line = rawLine.trim();
 
 			if (!line) {
@@ -135,8 +136,7 @@ export const QueryParams = () => {
 
 			if (separatorIndex === -1) {
 				key = line.trim();
-			}
-			else {
+			} else {
 				key = line.substring(0, separatorIndex).trim();
 				value = line.substring(separatorIndex + 1);
 			}
@@ -148,14 +148,14 @@ export const QueryParams = () => {
 			rows.push({
 				isChecked,
 				key,
-				value
+				value,
 			});
 		}
 
 		rows.push({
 			isChecked: false,
 			key: "",
-			value: ""
+			value: "",
 		});
 
 		return rows;
@@ -167,15 +167,10 @@ export const QueryParams = () => {
 		}
 
 		const timer = setTimeout(() => {
-			dispatch(
-				Actions.SetRequestParamsAction(
-					textToTable(bulkText)
-				)
-			);
+			dispatch(Actions.SetRequestParamsAction(textToTable(bulkText)));
 		}, 300);
 
 		return () => clearTimeout(timer);
-
 	}, [bulkText, isBulkEdit]);
 
 	const onBulkTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -190,13 +185,15 @@ export const QueryParams = () => {
 						<input
 							type="checkbox"
 							checked={isBulkEdit}
-							onChange={(e) => { onBulkEditToggle(e); }}
+							onChange={(e) => {
+								onBulkEditToggle(e);
+							}}
 						/>
 						<span>Bulk Edit</span>
 					</label>
 				</div>
 			</div>
-			{isBulkEdit ?
+			{isBulkEdit ? (
 				<textarea
 					className="bulk-edit-textarea"
 					value={bulkText}
@@ -204,7 +201,8 @@ export const QueryParams = () => {
 					placeholder={`page=1\nlimit=10\nsort=name`}
 					spellCheck={false}
 				/>
-				: <Table
+			) : (
+				<Table
 					data={params}
 					onSelectChange={onSelectChange}
 					onRowAdd={onRowAdd}
@@ -213,7 +211,8 @@ export const QueryParams = () => {
 					readOnly={false}
 					selectedVariable={selectedVariable}
 					highlightNeeded={true}
-				/>}
+				/>
+			)}
 		</>
 	);
 };

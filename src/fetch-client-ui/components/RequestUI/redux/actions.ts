@@ -1,22 +1,49 @@
-
 import { IAuth } from "../../../../fetch-client-core/types/auth.types";
-import { IBodyData, IRequestModel, MethodType } from "../../../../fetch-client-core/types/request.types";
+import {
+	IBodyData,
+	IRequestModel,
+	MethodType,
+} from "../../../../fetch-client-core/types/request.types";
 import { ITableData } from "../../../../fetch-client-core/types/common.types";
-import { ITest, ISetVar, IRunRequest, ICollection, IColRequest, IPreFetch } from "../../../../fetch-client-core/types/prefetch.types";
+import {
+	ITest,
+	ISetVar,
+	IRunRequest,
+	ICollection,
+	IColRequest,
+	IPreFetch,
+} from "../../../../fetch-client-core/types/prefetch.types";
 import {
 	FETCH_CLIENT_SET_ADD_PREREQUEST,
-	FETCH_CLIENT_SET_COL_ID, FETCH_CLIENT_SET_COL_REQUEST_LIST,
+	FETCH_CLIENT_SET_COL_ID,
+	FETCH_CLIENT_SET_COL_REQUEST_LIST,
 	FETCH_CLIENT_SET_COLLECTION_LIST,
-	FETCH_CLIENT_SET_DELETE_PRECONDITION, FETCH_CLIENT_SET_DELETE_PREREQUEST,
-	FETCH_CLIENT_SET_NOTES, FETCH_CLIENT_SET_OAUTH_TOKEN, FETCH_CLIENT_SET_PRECONDITION,
+	FETCH_CLIENT_SET_DELETE_PRECONDITION,
+	FETCH_CLIENT_SET_DELETE_PREREQUEST,
+	FETCH_CLIENT_SET_NOTES,
+	FETCH_CLIENT_SET_OAUTH_TOKEN,
+	FETCH_CLIENT_SET_PRECONDITION,
 	FETCH_CLIENT_SET_PREFETCH,
-	FETCH_CLIENT_SET_REQ, FETCH_CLIENT_SET_REQ_AUTH,
-	FETCH_CLIENT_SET_REQ_BINARY_DATA, FETCH_CLIENT_SET_REQ_BODY, FETCH_CLIENT_SET_REQ_COL_DETAILS, FETCH_CLIENT_SET_REQ_FORM_DATA_BODY,
-	FETCH_CLIENT_SET_REQ_HEADERS, FETCH_CLIENT_SET_REQ_ID, FETCH_CLIENT_SET_REQ_METHOD, FETCH_CLIENT_SET_REQ_PARAMS, FETCH_CLIENT_SET_REQ_PARENT_SETTINGS,
-	FETCH_CLIENT_SET_REQ_RAW, FETCH_CLIENT_SET_REQ_RAW_LANG, FETCH_CLIENT_SET_REQ_RESET_BODY, FETCH_CLIENT_SET_REQ_URL, FETCH_CLIENT_SET_SET_VAR,
+	FETCH_CLIENT_SET_REQ,
+	FETCH_CLIENT_SET_REQ_AUTH,
+	FETCH_CLIENT_SET_REQ_BINARY_DATA,
+	FETCH_CLIENT_SET_REQ_BODY,
+	FETCH_CLIENT_SET_REQ_COL_DETAILS,
+	FETCH_CLIENT_SET_REQ_FORM_DATA_BODY,
+	FETCH_CLIENT_SET_REQ_HEADERS,
+	FETCH_CLIENT_SET_REQ_ID,
+	FETCH_CLIENT_SET_REQ_METHOD,
+	FETCH_CLIENT_SET_REQ_PARAMS,
+	FETCH_CLIENT_SET_REQ_PARENT_SETTINGS,
+	FETCH_CLIENT_SET_REQ_RAW,
+	FETCH_CLIENT_SET_REQ_RAW_LANG,
+	FETCH_CLIENT_SET_REQ_RESET_BODY,
+	FETCH_CLIENT_SET_REQ_URL,
+	FETCH_CLIENT_SET_SET_VAR,
 	FETCH_CLIENT_SET_SKIP_PARENT_HEADERS,
 	FETCH_CLIENT_SET_SKIP_PARENT_PREFETCH,
-	FETCH_CLIENT_SET_TEST, RequestActionTypes
+	FETCH_CLIENT_SET_TEST,
+	RequestActionTypes,
 } from "./types";
 import { ISettings } from "../../../../fetch-client-core/types/sidebar.types";
 
@@ -24,36 +51,39 @@ export const SetRequestAction = (value: IRequestModel): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_REQ,
 		payload: {
-			req: value
-		}
+			req: value,
+		},
 	};
 };
-
 
 export const SetRequestURLAction = (value: string): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_REQ_URL,
 		payload: {
-			url: value
-		}
+			url: value,
+		},
 	};
 };
 
-export const SetRequestMethodAction = (value: MethodType): RequestActionTypes => {
+export const SetRequestMethodAction = (
+	value: MethodType,
+): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_REQ_METHOD,
 		payload: {
-			method: value
-		}
+			method: value,
+		},
 	};
 };
 
-export const SetRequestParamsAction = (value: ITableData[]): RequestActionTypes => {
+export const SetRequestParamsAction = (
+	value: ITableData[],
+): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_REQ_PARAMS,
 		payload: {
-			params: value
-		}
+			params: value,
+		},
 	};
 };
 
@@ -61,17 +91,19 @@ export const SetRequestAuthAction = (value: IAuth): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_REQ_AUTH,
 		payload: {
-			auth: value
-		}
+			auth: value,
+		},
 	};
 };
 
-export const SetRequestHeadersAction = (value: ITableData[]): RequestActionTypes => {
+export const SetRequestHeadersAction = (
+	value: ITableData[],
+): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_REQ_HEADERS,
 		payload: {
-			headers: value
-		}
+			headers: value,
+		},
 	};
 };
 
@@ -79,18 +111,21 @@ export const SetRequestBodyAction = (value: IBodyData): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_REQ_BODY,
 		payload: {
-			body: value
-		}
+			body: value,
+		},
 	};
 };
 
-export const SetRequestFormDataAction = (value: string, value1: number): RequestActionTypes => {
+export const SetRequestFormDataAction = (
+	value: string,
+	value1: number,
+): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_REQ_FORM_DATA_BODY,
 		payload: {
 			value: value,
-			index: value1
-		}
+			index: value1,
+		},
 	};
 };
 
@@ -98,8 +133,8 @@ export const SetTestAction = (value: ITest[]): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_TEST,
 		payload: {
-			tests: value
-		}
+			tests: value,
+		},
 	};
 };
 
@@ -107,8 +142,8 @@ export const SetRequestRawLangAction = (value: string): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_REQ_RAW_LANG,
 		payload: {
-			rawLang: value
-		}
+			rawLang: value,
+		},
 	};
 };
 
@@ -116,26 +151,30 @@ export const SetRequestRawAction = (value: string): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_REQ_RAW,
 		payload: {
-			raw: value
-		}
+			raw: value,
+		},
 	};
 };
 
-export const SetRequestBinaryDataAction = (value: string): RequestActionTypes => {
+export const SetRequestBinaryDataAction = (
+	value: string,
+): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_REQ_BINARY_DATA,
 		payload: {
-			data: value
-		}
+			data: value,
+		},
 	};
 };
 
-export const SetRequestResetBodyAction = (value: string): RequestActionTypes => {
+export const SetRequestResetBodyAction = (
+	value: string,
+): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_REQ_RESET_BODY,
 		payload: {
-			bodyType: value
-		}
+			bodyType: value,
+		},
 	};
 };
 
@@ -143,8 +182,8 @@ export const SetNotesAction = (value: string): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_NOTES,
 		payload: {
-			notes: value
-		}
+			notes: value,
+		},
 	};
 };
 
@@ -152,27 +191,32 @@ export const SetVarAction = (value: ISetVar[]): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_SET_VAR,
 		payload: {
-			data: value
-		}
+			data: value,
+		},
 	};
 };
 
-export const SetReqColDetailsAction = (value: string, value1: string): RequestActionTypes => {
+export const SetReqColDetailsAction = (
+	value: string,
+	value1: string,
+): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_REQ_COL_DETAILS,
 		payload: {
 			colId: value,
-			folderId: value1
-		}
+			folderId: value1,
+		},
 	};
 };
 
-export const SetReqParentSettingsAction = (value: ISettings): RequestActionTypes => {
+export const SetReqParentSettingsAction = (
+	value: ISettings,
+): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_REQ_PARENT_SETTINGS,
 		payload: {
-			parentSettings: value
-		}
+			parentSettings: value,
+		},
 	};
 };
 
@@ -180,88 +224,108 @@ export const SetOAuthTokenAction = (value: string): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_OAUTH_TOKEN,
 		payload: {
-			token: value
-		}
+			token: value,
+		},
 	};
 };
 
-export const SetPreConditionAction = (value: ITest, reqIndex: number, condIndex: number): RequestActionTypes => {
+export const SetPreConditionAction = (
+	value: ITest,
+	reqIndex: number,
+	condIndex: number,
+): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_PRECONDITION,
 		payload: {
 			condition: value,
 			reqIndex: reqIndex,
-			condIndex: condIndex
-		}
+			condIndex: condIndex,
+		},
 	};
 };
 
-export const SetAddPreRequestAction = (value: IRunRequest): RequestActionTypes => {
+export const SetAddPreRequestAction = (
+	value: IRunRequest,
+): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_ADD_PREREQUEST,
 		payload: {
-			request: value
-		}
+			request: value,
+		},
 	};
 };
 
-
-export const SetDeletePreRequestAction = (index: number): RequestActionTypes => {
+export const SetDeletePreRequestAction = (
+	index: number,
+): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_DELETE_PREREQUEST,
 		payload: {
-			index: index
-		}
+			index: index,
+		},
 	};
 };
 
-export const SetDeletePreConditionAction = (index: number, index1: number): RequestActionTypes => {
+export const SetDeletePreConditionAction = (
+	index: number,
+	index1: number,
+): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_DELETE_PRECONDITION,
 		payload: {
 			reqIndex: index,
-			condIndex: index1
-		}
+			condIndex: index1,
+		},
 	};
 };
 
-export const SetCollectionListAction = (value: ICollection[]): RequestActionTypes => {
+export const SetCollectionListAction = (
+	value: ICollection[],
+): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_COLLECTION_LIST,
 		payload: {
-			colList: value
-		}
+			colList: value,
+		},
 	};
 };
 
-export const SetColRequestListAction = (value: IColRequest): RequestActionTypes => {
+export const SetColRequestListAction = (
+	value: IColRequest,
+): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_COL_REQUEST_LIST,
 		payload: {
-			colReqList: value
-		}
+			colReqList: value,
+		},
 	};
 };
 
-
-export const SetSelectedColAction = (value: string, value2: number): RequestActionTypes => {
+export const SetSelectedColAction = (
+	value: string,
+	value2: number,
+): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_COL_ID,
 		payload: {
 			colId: value,
-			index: value2
-		}
+			index: value2,
+		},
 	};
 };
 
-export const SetSelectedReqAction = (reqId: string, reqIndex: number, parentId: string): RequestActionTypes => {
+export const SetSelectedReqAction = (
+	reqId: string,
+	reqIndex: number,
+	parentId: string,
+): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_REQ_ID,
 		payload: {
 			reqId: reqId,
 			index: reqIndex,
-			parentId: parentId
-		}
+			parentId: parentId,
+		},
 	};
 };
 
@@ -269,18 +333,17 @@ export const SetPreFetchAction = (value: IPreFetch): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_PREFETCH,
 		payload: {
-			preFetch: value
-		}
+			preFetch: value,
+		},
 	};
 };
-
 
 export const SetSkipPreFetchAction = (value: boolean): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_SKIP_PARENT_PREFETCH,
 		payload: {
-			skip: value
-		}
+			skip: value,
+		},
 	};
 };
 
@@ -288,7 +351,7 @@ export const SetSkipHeadersAction = (value: boolean): RequestActionTypes => {
 	return {
 		type: FETCH_CLIENT_SET_SKIP_PARENT_HEADERS,
 		payload: {
-			skip: value
-		}
+			skip: value,
+		},
 	};
 };

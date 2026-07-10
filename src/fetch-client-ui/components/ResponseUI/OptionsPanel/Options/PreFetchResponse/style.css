@@ -36,12 +36,12 @@
 	display: grid;
 }
 
-details[open].prefetch-result-details-items>summary>label.pass {
+details[open].prefetch-result-details-items > summary > label.pass {
 	background-color: transparent;
 	color: rgb(2, 151, 2);
 }
 
-details[open].prefetch-result-details-items>summary>label.fail {
+details[open].prefetch-result-details-items > summary > label.fail {
 	background-color: transparent;
 	color: rgb(240, 22, 22);
 }

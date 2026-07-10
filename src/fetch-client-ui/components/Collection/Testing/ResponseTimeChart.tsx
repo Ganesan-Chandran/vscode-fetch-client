@@ -6,7 +6,11 @@ interface IProps {
 	height?: number;
 }
 
-export const ResponseTimeChart = ({ points, width = 640, height = 140 }: IProps) => {
+export const ResponseTimeChart = ({
+	points,
+	width = 640,
+	height = 140,
+}: IProps) => {
 	if (!points || points.length === 0) {
 		return <div className="perf-chart-empty">No data yet</div>;
 	}
@@ -32,7 +36,11 @@ export const ResponseTimeChart = ({ points, width = 640, height = 140 }: IProps)
 	const areaPath = `${linePath} L ${padding + (sampled.length - 1) * stepX},${height - padding} L ${padding},${height - padding} Z`;
 
 	return (
-		<svg className="perf-chart-svg" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
+		<svg
+			className="perf-chart-svg"
+			viewBox={`0 0 ${width} ${height}`}
+			preserveAspectRatio="none"
+		>
 			<path d={areaPath} className="perf-chart-area" />
 			<path d={linePath} className="perf-chart-line" fill="none" />
 		</svg>

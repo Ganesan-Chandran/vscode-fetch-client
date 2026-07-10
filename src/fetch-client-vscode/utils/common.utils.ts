@@ -14,7 +14,7 @@ export function backupFile(filePath: string, backupDir: string): string {
 
 	const ext = path.extname(filePath);
 	const baseName = path.basename(filePath, ext);
-	const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+	const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
 	const backupPath = path.join(backupDir, `${baseName}_${timestamp}${ext}`);
 
 	fs.copyFileSync(filePath, backupPath);

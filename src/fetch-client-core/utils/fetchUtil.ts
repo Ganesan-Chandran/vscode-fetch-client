@@ -1,19 +1,28 @@
 import { access } from "fs/promises";
 import { createReadStream } from "fs";
 import { getSSLConfiguration, getProtocolConfiguration } from "./vscodeConfig";
-import { IReqSettings } from '../types/prefetch.types';
-import { IRequestModel } from '../types/request.types';
-import { ISettings } from '../types/sidebar.types';
-import { isFileType, getFileType, getErrorResponse, getRandomNumber } from "../helpers/common.helper";
-import { ITableData } from '../types/common.types';
+import { IReqSettings } from "../types/prefetch.types";
+import { IRequestModel } from "../types/request.types";
+import { ISettings } from "../types/sidebar.types";
+import {
+	isFileType,
+	getFileType,
+	getErrorResponse,
+	getRandomNumber,
+} from "../helpers/common.helper";
+import { ITableData } from "../types/common.types";
 import { logDetails } from "../helpers/logger/requestLog";
-import { replaceAuthSettingsInRequest, replaceHeaderSettingsInRequest, replaceValueWithVariable } from "../helpers/variable.helper";
-import { Request as awsRequest, sign } from 'aws4';
+import {
+	replaceAuthSettingsInRequest,
+	replaceHeaderSettingsInRequest,
+	replaceValueWithVariable,
+} from "../helpers/variable.helper";
+import { Request as awsRequest, sign } from "aws4";
 import { responseTypes } from "../consts/requestTypes.consts";
 import { writeLog } from "../helpers/logger/logger";
 import * as https from "https";
 import axios, { AxiosRequestConfig, CancelTokenSource } from "axios";
-import FormData from 'form-data';
+import FormData from "form-data";
 
 export interface FetchConfig {
 	timeOut: number;
@@ -28,7 +37,10 @@ type RequestBody = string | FormData | URLSearchParams | Buffer;
 // Request pre-processing helpers
 // ---------------------------------------------------------------------------
 
-export const updateAuthSettings = (requestData: IRequestModel, settings?: ISettings): IRequestModel => {
+export const updateAuthSettings = (
+	requestData: IRequestModel,
+	settings?: ISettings,
+): IRequestModel => {
 	if (settings && requestData.auth.authType === "inherit") {
 		const copy: IRequestModel = JSON.parse(JSON.stringify(requestData));
 		return replaceAuthSettingsInRequest(copy, settings);
@@ -36,7 +48,10 @@ export const updateAuthSettings = (requestData: IRequestModel, settings?: ISetti
 	return requestData;
 };
 
-export const updateHeaderSettings = (requestData: IRequestModel, settings?: ISettings): IRequestModel => {
+export const updateHeaderSettings = (
+	requestData: IRequestModel,
+	settings?: ISettings,
+): IRequestModel => {
 	if (settings?.headers && settings.headers.length > 0) {
 		const copy: IRequestModel = JSON.parse(JSON.stringify(requestData));
 		return replaceHeaderSettingsInRequest(copy, settings);
@@ -44,7 +59,10 @@ export const updateHeaderSettings = (requestData: IRequestModel, settings?: ISet
 	return requestData;
 };
 
-export const updateVariables = (requestData: IRequestModel, variableData?: ITableData[]): IRequestModel => {
+export const updateVariables = (
+	requestData: IRequestModel,
+	variableData?: ITableData[],
+): IRequestModel => {
 	const varData: Record<string, string> = {};
 	if (variableData && variableData.length > 0) {
 		for (const item of variableData) {
@@ -65,7 +83,7 @@ export const apiFetch = async (
 	settings: ISettings,
 	reqSettings: IReqSettings,
 	fetchConfig: FetchConfig,
-	resType: string = responseTypes.apiResponse
+	resType: string = responseTypes.apiResponse,
 ) => {
 	const reqHeaders: Record<string, string> = {};
 	let fetchDuration = 0;
@@ -80,14 +98,21 @@ export const apiFetch = async (
 
 	try {
 		// --- Auth headers ---
-		if (request.auth.authType === "bearertoken" || request.auth.authType === "oauth2") {
-			const headerKey = fetchConfig.headersCase ? "Authorization" : "authorization";
-			reqHeaders[headerKey] = `${request.auth.tokenPrefix} ${request.auth.password}`;
+		if (
+			request.auth.authType === "bearertoken" ||
+			request.auth.authType === "oauth2"
+		) {
+			const headerKey = fetchConfig.headersCase
+				? "Authorization"
+				: "authorization";
+			reqHeaders[headerKey] =
+				`${request.auth.tokenPrefix} ${request.auth.password}`;
 		}
 
 		for (const { isChecked, key, value } of request.headers) {
 			if (isChecked && key) {
-				reqHeaders[fetchConfig.headersCase ? key : key.toLocaleLowerCase()] = value;
+				reqHeaders[fetchConfig.headersCase ? key : key.toLocaleLowerCase()] =
+					value;
 			}
 		}
 
@@ -100,7 +125,9 @@ export const apiFetch = async (
 						try {
 							await access(value);
 						} catch {
-							throw new Error(`Error : ENOENT: No such file or directory - ${value}`);
+							throw new Error(
+								`Error : ENOENT: No such file or directory - ${value}`,
+							);
 						}
 						bodyFormData.append(key, createReadStream(value));
 					} else {
@@ -121,7 +148,9 @@ export const apiFetch = async (
 			reqData = request.body.raw.data;
 		} else if (request.body.bodyType === "binary") {
 			if (!request.body.binary.data) {
-				throw new Error(`Error : ENOENT: No such file or directory - ${request.body.binary.fileName}`);
+				throw new Error(
+					`Error : ENOENT: No such file or directory - ${request.body.binary.fileName}`,
+				);
 			}
 			reqData = request.body.binary.data as Buffer;
 		} else if (request.body.bodyType === "graphql") {
@@ -136,19 +165,34 @@ export const apiFetch = async (
 			const formHeaders = (reqData as FormData).getHeaders();
 			reqHeaders[fetchConfig.headersCase ? "Content-Type" : "content-type"] =
 				formHeaders["content-type"] ?? getContentType("formdata", "");
-		} else if (request.body.bodyType !== "none" && !reqHeaders["Content-Type"] && !reqHeaders["content-type"]) {
+		} else if (
+			request.body.bodyType !== "none" &&
+			!reqHeaders["Content-Type"] &&
+			!reqHeaders["content-type"]
+		) {
 			reqHeaders[fetchConfig.headersCase ? "Content-Type" : "content-type"] =
-				getContentType(request.body.bodyType, request.body.bodyType === "raw" ? request.body.raw.lang : "");
+				getContentType(
+					request.body.bodyType,
+					request.body.bodyType === "raw" ? request.body.raw.lang : "",
+				);
 		}
 
 		// --- SSL ---
-		(https.globalAgent as { options: { rejectUnauthorized?: boolean } }).options.rejectUnauthorized = getSSLConfiguration();
+		(
+			https.globalAgent as { options: { rejectUnauthorized?: boolean } }
+		).options.rejectUnauthorized = getSSLConfiguration();
 
 		// Use a per-request instance to prevent interceptors from stacking on the global instance
 		const instance = axios.create({ withCredentials: true });
 		let startTime = 0;
-		instance.interceptors.request.use((config) => { startTime = Date.now(); return config; });
-		instance.interceptors.response.use((config) => { fetchDuration = Date.now() - startTime; return config; });
+		instance.interceptors.request.use((config) => {
+			startTime = Date.now();
+			return config;
+		});
+		instance.interceptors.response.use((config) => {
+			fetchDuration = Date.now() - startTime;
+			return config;
+		});
 
 		const url = validateURL(request.url)
 			? request.url
@@ -171,7 +215,9 @@ export const apiFetch = async (
 				if (request.body.bodyType === "formdata") {
 					baseRequest.body = (reqData as FormData).getBuffer();
 				} else if (request.body.bodyType === "formurlencoded") {
-					baseRequest.body = JSON.stringify((reqData as URLSearchParams).toString());
+					baseRequest.body = JSON.stringify(
+						(reqData as URLSearchParams).toString(),
+					);
 				} else {
 					baseRequest.body = JSON.stringify(reqData);
 				}
@@ -185,18 +231,18 @@ export const apiFetch = async (
 
 			if (signedRequest.headers) {
 				delete signedRequest.headers.Host;
-				delete signedRequest.headers['Content-Length'];
+				delete signedRequest.headers["Content-Length"];
 			}
 
 			requestConfig = {
 				url,
-				method: signedRequest.method as AxiosRequestConfig['method'],
-				headers: signedRequest.headers as AxiosRequestConfig['headers'],
+				method: signedRequest.method as AxiosRequestConfig["method"],
+				headers: signedRequest.headers as AxiosRequestConfig["headers"],
 				data: reqData,
 				validateStatus: () => true,
 				transformResponse: [(data: unknown) => data],
 				timeout: fetchConfig.timeOut,
-				responseType: 'arraybuffer',
+				responseType: "arraybuffer",
 				maxContentLength: Infinity,
 				maxBodyLength: Infinity,
 			};
@@ -205,14 +251,18 @@ export const apiFetch = async (
 				url,
 				method: request.method,
 				headers: reqHeaders,
-				auth: request.auth.authType === "basic"
-					? { username: request.auth.userName, password: request.auth.password }
-					: undefined,
+				auth:
+					request.auth.authType === "basic"
+						? {
+								username: request.auth.userName,
+								password: request.auth.password,
+							}
+						: undefined,
 				data: reqData,
 				validateStatus: () => true,
 				transformResponse: [(data: unknown) => data],
 				timeout: fetchConfig.timeOut,
-				responseType: 'arraybuffer',
+				responseType: "arraybuffer",
 				maxContentLength: Infinity,
 				maxBodyLength: Infinity,
 			};
@@ -240,12 +290,13 @@ export const apiFetch = async (
 		if (!isFile) {
 			responseData = new Uint8Array(resp.data as ArrayBuffer).reduce(
 				(data, byte) => data + String.fromCharCode(byte),
-				''
+				"",
 			);
 		}
 
 		if (cookieData) {
-			const cookieEntries = typeof cookieData === 'string' ? cookieData.split(";") : cookieData;
+			const cookieEntries =
+				typeof cookieData === "string" ? cookieData.split(";") : cookieData;
 			for (const raw of cookieEntries) {
 				const entry = raw.trim();
 				const eqIdx = entry.indexOf("=");
@@ -261,9 +312,17 @@ export const apiFetch = async (
 		}
 
 		setTimeout(() => {
-			logDetails(request, reqHeaders, reqData, resp.status, respHeaders,
-				isFile ? "View Response is not supported for 'file' type in the log window." : responseData,
-				fetchDuration);
+			logDetails(
+				request,
+				reqHeaders,
+				reqData,
+				resp.status,
+				respHeaders,
+				isFile
+					? "View Response is not supported for 'file' type in the log window."
+					: responseData,
+				fetchDuration,
+			);
 		}, 500);
 
 		return {
@@ -293,8 +352,15 @@ export const apiFetch = async (
 			: error.message;
 
 		setTimeout(() => {
-			logDetails(request, reqHeaders, reqData, apiResponse.response.status,
-				apiResponse.headers as ITableData[], error.message, fetchDuration);
+			logDetails(
+				request,
+				reqHeaders,
+				reqData,
+				apiResponse.response.status,
+				apiResponse.headers as ITableData[],
+				error.message,
+				fetchDuration,
+			);
 		}, 500);
 
 		return apiResponse;

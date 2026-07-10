@@ -41,7 +41,9 @@ function saveDB(db: loki): Promise<void> {
 	});
 }
 
-export async function Response_Repository_SaveResponse(resData: IReponseModel): Promise<void> {
+export async function Response_Repository_SaveResponse(
+	resData: IReponseModel,
+): Promise<void> {
 	const db = await loadDB();
 	const apiResponses = db.getCollection("apiResponses");
 	const res = apiResponses.findOne({ id: resData.id });
@@ -60,7 +62,7 @@ export async function Response_Repository_SaveResponse(resData: IReponseModel): 
 }
 
 export async function Response_Repository_GetExitingItemResponse(
-	id: string
+	id: string,
 ): Promise<IReponseModel[]> {
 	const db = await loadDB();
 	const apiResponses = db.getCollection("apiResponses");

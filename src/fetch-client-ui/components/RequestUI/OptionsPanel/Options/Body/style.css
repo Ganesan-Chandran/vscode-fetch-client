@@ -84,6 +84,6 @@
 
 .format-button:disabled,
 .format-button[disabled] {
-	color           : #666;
-	cursor          : not-allowed;
+	color: #666;
+	cursor: not-allowed;
 }

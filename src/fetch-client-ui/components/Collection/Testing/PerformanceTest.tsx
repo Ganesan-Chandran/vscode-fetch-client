@@ -1,13 +1,21 @@
 import "../style.css";
 import "./style.css";
-import { computeEndpointBreakdown, computeMetrics, exportPerfCSV, exportPerfJson } from "./perfHelper";
+import {
+	computeEndpointBreakdown,
+	computeMetrics,
+	exportPerfCSV,
+	exportPerfJson,
+} from "./perfHelper";
 import { computeVUsForWave, shouldStopTest } from "./perfEngine";
 import { getMethodClassName } from "../../SideBar/util";
 import { IPerfConfig, IPerfResultPoint } from "./perfTypes";
 import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
 import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";
 import { PerformanceTestSettings } from "./PerformanceTestSettings";
-import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
+import {
+	requestTypes,
+	responseTypes,
+} from "../../../../fetch-client-core/consts/requestTypes.consts";
 import { ResponseTimeChart } from "./ResponseTimeChart";
 import PanelLayout from "../../Common/Layout/panelLayout";
 import React, { useEffect, useRef, useState } from "react";
@@ -21,11 +29,10 @@ const DEFAULT_CONFIG: IPerfConfig = {
 	testDurationSec: 30,
 	rampUpDurationSec: 20,
 	rampSteps: 5,
-	thinkTimeMs: 0
+	thinkTimeMs: 0,
 };
 
 const PerformanceTest = () => {
-
 	const [sourceColName, setSourceColName] = useState("");
 	const refColIdState = useRef("");
 	const refItemPaths = useRef<any>(null);
@@ -33,19 +40,27 @@ const PerformanceTest = () => {
 
 	const [req, setReq] = useState<IRequestModel[]>([]);
 	const refReq = useRef(req);
-	useEffect(() => { refReq.current = req; }, [req]);
+	useEffect(() => {
+		refReq.current = req;
+	}, [req]);
 
 	const [selectedVariable, setSelectedVariable] = useState<IVariable>();
 	const refSelectedVariable = useRef(selectedVariable);
-	useEffect(() => { refSelectedVariable.current = selectedVariable; }, [selectedVariable]);
+	useEffect(() => {
+		refSelectedVariable.current = selectedVariable;
+	}, [selectedVariable]);
 
 	const [selectedReq, setSelectedReq] = useState<boolean[]>([]);
 	const refSelectedReq = useRef(selectedReq);
-	useEffect(() => { refSelectedReq.current = selectedReq; }, [selectedReq]);
+	useEffect(() => {
+		refSelectedReq.current = selectedReq;
+	}, [selectedReq]);
 
 	const [singleReqId, setSingleReqId] = useState<string>("");
 	const refSingleReqId = useRef(singleReqId);
-	useEffect(() => { refSingleReqId.current = singleReqId; }, [singleReqId]);
+	useEffect(() => {
+		refSingleReqId.current = singleReqId;
+	}, [singleReqId]);
 
 	const [config, _setConfig] = useState<IPerfConfig>(DEFAULT_CONFIG);
 	const refConfig = useRef(config);
@@ -72,7 +87,9 @@ const PerformanceTest = () => {
 	const refRunning = useRef(false);
 	const refWaveIndex = useRef(0);
 	const refTestStartTime = useRef(0);
-	const refPendingWave = useRef<{ wave: number; reqData: IRequestModel[] }>(null);
+	const refPendingWave = useRef<{ wave: number; reqData: IRequestModel[] }>(
+		null,
+	);
 	const refTicker = useRef<any>(null);
 
 	useEffect(() => {
@@ -92,20 +109,39 @@ const PerformanceTest = () => {
 		}
 
 		const handleMessage = (event: MessageEvent) => {
-			if (event.data && event.data.type === responseTypes.getCollectionsByIdResponse) {
+			if (
+				event.data &&
+				event.data.type === responseTypes.getCollectionsByIdResponse
+			) {
 				setReq(event.data.collections as IRequestModel[]);
 				refItemPaths.current = event.data.paths;
 				setLoading(false);
-			} else if (event.data && event.data.type === responseTypes.getVariableItemResponse) {
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.getVariableItemResponse
+			) {
 				setSelectedVariable(event.data.data[0] as IVariable);
-			} else if (event.data && event.data.type === responseTypes.multipleApiResponse) {
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.multipleApiResponse
+			) {
 				onWaveResponse(event.data);
 			}
 		};
 
 		window.addEventListener("message", handleMessage);
-		vscode.postMessage({ type: requestTypes.getVariableItemRequest, data: { id: varIdVal, isGlobal: varIdVal ? false : true } });
-		vscode.postMessage({ type: requestTypes.getCollectionsByIdRequest, data: { colId: colIdVal, folderId: folderIdVal, type: name.includes("\\") ? "fol" : "col" } });
+		vscode.postMessage({
+			type: requestTypes.getVariableItemRequest,
+			data: { id: varIdVal, isGlobal: varIdVal ? false : true },
+		});
+		vscode.postMessage({
+			type: requestTypes.getCollectionsByIdRequest,
+			data: {
+				colId: colIdVal,
+				folderId: folderIdVal,
+				type: name.includes("\\") ? "fol" : "col",
+			},
+		});
 		setLoading(true);
 
 		return () => window.removeEventListener("message", handleMessage);
@@ -125,16 +161,22 @@ const PerformanceTest = () => {
 	// Reads from refs (not state) because this runs from fireNextWave/onWaveResponse, which are
 	// ultimately triggered by the single stable `message` listener registered on mount. Reading
 	// state directly here would close over whatever values existed at mount time.
-	function getSelectedForWave(): { baseList: IRequestModel[]; basePaths: any[] } {
+	function getSelectedForWave(): {
+		baseList: IRequestModel[];
+		basePaths: any[];
+	} {
 		const currentReq = refReq.current;
 		const currentPaths = refItemPaths.current;
 
 		if (refConfig.current.scope === "single") {
-			const idx = currentReq.findIndex(r => r.id === refSingleReqId.current);
+			const idx = currentReq.findIndex((r) => r.id === refSingleReqId.current);
 			if (idx === -1) {
 				return { baseList: [], basePaths: [] };
 			}
-			return { baseList: [currentReq[idx]], basePaths: [currentPaths ? currentPaths[idx] : null] };
+			return {
+				baseList: [currentReq[idx]],
+				basePaths: [currentPaths ? currentPaths[idx] : null],
+			};
 		}
 
 		const baseList: IRequestModel[] = [];
@@ -165,7 +207,7 @@ const PerformanceTest = () => {
 		if (config.scope === "single") {
 			return !singleReqId;
 		}
-		return !selectedReq || selectedReq.filter(v => v === true).length === 0;
+		return !selectedReq || selectedReq.filter((v) => v === true).length === 0;
 	}
 
 	// ---------- run engine ----------
@@ -216,12 +258,27 @@ const PerformanceTest = () => {
 		const rampUpMs = cfg.rampUpDurationSec * 1000;
 		const testDurationMs = cfg.testDurationSec * 1000;
 
-		if (shouldStopTest(cfg.loadModel, refWaveIndex.current, elapsedMs, cfg.iterations, testDurationMs, rampUpMs)) {
+		if (
+			shouldStopTest(
+				cfg.loadModel,
+				refWaveIndex.current,
+				elapsedMs,
+				cfg.iterations,
+				testDurationMs,
+				rampUpMs,
+			)
+		) {
 			finishTest();
 			return;
 		}
 
-		const vus = computeVUsForWave(cfg.loadModel, cfg.targetVUs, elapsedMs, rampUpMs, cfg.rampSteps);
+		const vus = computeVUsForWave(
+			cfg.loadModel,
+			cfg.targetVUs,
+			elapsedMs,
+			rampUpMs,
+			cfg.rampSteps,
+		);
 		setCurrentVUs(vus);
 
 		const { reqData, paths } = buildWavePayload(vus);
@@ -235,10 +292,12 @@ const PerformanceTest = () => {
 			type: requestTypes.multipleApiRequest,
 			data: {
 				reqData,
-				variableData: refSelectedVariable.current ? refSelectedVariable.current.data : null,
+				variableData: refSelectedVariable.current
+					? refSelectedVariable.current.data
+					: null,
 				colId: refColIdState.current,
-				itemPaths: paths
-			}
+				itemPaths: paths,
+			},
 		});
 	}
 
@@ -250,23 +309,25 @@ const PerformanceTest = () => {
 		const meta = refPendingWave.current;
 		const timestampBase = Date.now() - refTestStartTime.current;
 
-		const waveResults: IPerfResultPoint[] = data.output.map((item: any, i: number) => {
-			const reqItem = meta.reqData[i];
-			const resp = item?.value?.response;
-			return {
-				wave: meta.wave,
-				vuIndex: i,
-				requestId: reqItem?.id ?? "unknown",
-				requestName: reqItem?.name ?? "unknown",
-				url: reqItem?.url ?? "unknown",
-				method: reqItem?.method ?? "unknown",
-				status: resp?.status ?? 0,
-				statusText: resp?.statusText ?? "",
-				duration: resp?.isError ? 0 : (resp?.duration ?? 0),
-				isError: !!resp?.isError,
-				timestamp: timestampBase
-			};
-		});
+		const waveResults: IPerfResultPoint[] = data.output.map(
+			(item: any, i: number) => {
+				const reqItem = meta.reqData[i];
+				const resp = item?.value?.response;
+				return {
+					wave: meta.wave,
+					vuIndex: i,
+					requestId: reqItem?.id ?? "unknown",
+					requestName: reqItem?.name ?? "unknown",
+					url: reqItem?.url ?? "unknown",
+					method: reqItem?.method ?? "unknown",
+					status: resp?.status ?? 0,
+					statusText: resp?.statusText ?? "",
+					duration: resp?.isError ? 0 : (resp?.duration ?? 0),
+					isError: !!resp?.isError,
+					timestamp: timestampBase,
+				};
+			},
+		);
 
 		setResults([...refResults.current, ...waveResults]);
 		refWaveIndex.current += 1;
@@ -285,8 +346,18 @@ const PerformanceTest = () => {
 		const elapsedSec = elapsedDisplay / 1000;
 		const metrics = computeMetrics(results, elapsedSec);
 		const breakdown = computeEndpointBreakdown(results, elapsedSec);
-		const data = exportPerfJson(config, results, metrics, breakdown, sourceColName);
-		vscode.postMessage({ type: requestTypes.exportRunTestJsonRequest, data, name: `${sourceColName}-perf` });
+		const data = exportPerfJson(
+			config,
+			results,
+			metrics,
+			breakdown,
+			sourceColName,
+		);
+		vscode.postMessage({
+			type: requestTypes.exportRunTestJsonRequest,
+			data,
+			name: `${sourceColName}-perf`,
+		});
 	}
 
 	function onExportCSV(e: any) {
@@ -295,7 +366,11 @@ const PerformanceTest = () => {
 		const metrics = computeMetrics(results, elapsedSec);
 		const breakdown = computeEndpointBreakdown(results, elapsedSec);
 		const data = exportPerfCSV(metrics, breakdown, sourceColName);
-		vscode.postMessage({ type: requestTypes.exportRunTestCSVRequest, data, name: `${sourceColName}-perf` });
+		vscode.postMessage({
+			type: requestTypes.exportRunTestCSVRequest,
+			data,
+			name: `${sourceColName}-perf`,
+		});
 	}
 
 	// ---------- selection UI handlers ----------
@@ -312,16 +387,22 @@ const PerformanceTest = () => {
 		return (
 			<>
 				<div className="runall-col-name">
-					<span className="addto-label">{sourceColName.includes("\\") ? "Collection \\ Folder :" : "Collection :"}</span>
+					<span className="addto-label">
+						{sourceColName.includes("\\")
+							? "Collection \\ Folder :"
+							: "Collection :"}
+					</span>
 					<span className="addto-label">{sourceColName}</span>
 					<span className="addto-label">Attached Variable :</span>
 					<span className="addto-label">{selectedVariable?.name ?? "-"}</span>
 				</div>
 				<div>
-					{["Setup", "Results"].map(tab => (
-						<button key={tab}
+					{["Setup", "Results"].map((tab) => (
+						<button
+							key={tab}
 							className={selectedTab === tab ? "tab-menu selected" : "tab-menu"}
-							onClick={() => setSelectedTab(tab)}>
+							onClick={() => setSelectedTab(tab)}
+						>
 							{tab}
 						</button>
 					))}
@@ -335,10 +416,17 @@ const PerformanceTest = () => {
 			return (
 				<div className="perf-settings-delay-panel">
 					<label className="perf-settings-label">Request</label>
-					<select className="runall-order-select perf-single-select" disabled={running}
+					<select
+						className="runall-order-select perf-single-select"
+						disabled={running}
 						value={singleReqId}
-						onChange={(e) => setSingleReqId(e.target.value)}>
-						{req.map(r => <option key={r.id} value={r.id}>{r.method.toUpperCase()} - {r.name}</option>)}
+						onChange={(e) => setSingleReqId(e.target.value)}
+					>
+						{req.map((r) => (
+							<option key={r.id} value={r.id}>
+								{r.method.toUpperCase()} - {r.name}
+							</option>
+						))}
 					</select>
 				</div>
 			);
@@ -356,16 +444,40 @@ const PerformanceTest = () => {
 					</thead>
 					<tbody>
 						{req.map((item, index) => (
-							<tr key={item.id} className={selectedReq[index] ? "runall-enabled" : "runall-disabled"}>
+							<tr
+								key={item.id}
+								className={
+									selectedReq[index] ? "runall-enabled" : "runall-disabled"
+								}
+							>
 								<td className="runall-col-1">
-									<input type="checkbox" disabled={running}
-										checked={selectedReq[index] !== undefined ? selectedReq[index] : true}
-										onChange={() => onSelectChange(index)} />
+									<input
+										type="checkbox"
+										disabled={running}
+										checked={
+											selectedReq[index] !== undefined
+												? selectedReq[index]
+												: true
+										}
+										onChange={() => onSelectChange(index)}
+									/>
 								</td>
 								<td className="runall-col-1">
-									<span className={"runall-method-label " + getMethodClassName(item.method.toUpperCase(), selectedReq[index])}>{item.method.toUpperCase()}</span>
+									<span
+										className={
+											"runall-method-label " +
+											getMethodClassName(
+												item.method.toUpperCase(),
+												selectedReq[index],
+											)
+										}
+									>
+										{item.method.toUpperCase()}
+									</span>
 								</td>
-								<td className="runall-col-2"><span className="runall-label">{item.name}</span></td>
+								<td className="runall-col-2">
+									<span className="runall-label">{item.name}</span>
+								</td>
 							</tr>
 						))}
 					</tbody>
@@ -377,8 +489,15 @@ const PerformanceTest = () => {
 	function renderSetup() {
 		return (
 			<div className="perf-setup-panel">
-				<PerformanceTestSettings config={config} disabled={running} onChange={setConfig} />
-				<label className="max-req">* Collection and folder pre-requests are not executed during performance tests</label>
+				<PerformanceTestSettings
+					config={config}
+					disabled={running}
+					onChange={setConfig}
+				/>
+				<label className="max-req">
+					* Collection and folder pre-requests are not executed during
+					performance tests
+				</label>
 				{renderScopeSelector()}
 			</div>
 		);
@@ -394,32 +513,68 @@ const PerformanceTest = () => {
 			<div className="perf-results-panel">
 				<div className="perf-status-row">
 					<span className="perf-status-label">
-						{running ? "Running" : done ? (cancelled ? "Cancelled" : "Completed") : "Not started"}
+						{running
+							? "Running"
+							: done
+								? cancelled
+									? "Cancelled"
+									: "Completed"
+								: "Not started"}
 					</span>
 					<span className="perf-status-label">Virtual Users: {currentVUs}</span>
-					<span className="perf-status-label">Elapsed: {elapsedSec.toFixed(1)}s</span>
+					<span className="perf-status-label">
+						Elapsed: {elapsedSec.toFixed(1)}s
+					</span>
 				</div>
 
 				<div className="perf-cards-grid">
-					<div className="perf-card"><label>Total Requests</label><span>{metrics.total}</span></div>
-					<div className="perf-card perf-card-success"><label>Success</label><span>{metrics.success}</span></div>
-					<div className="perf-card perf-card-error"><label>Failed</label><span>{metrics.failed}</span></div>
-					<div className="perf-card"><label>Error Rate</label><span>{metrics.errorRate.toFixed(1)}%</span></div>
-					<div className="perf-card"><label>Avg</label><span>{metrics.avg.toFixed(0)} ms</span></div>
-					<div className="perf-card"><label>P95</label><span>{metrics.p95.toFixed(0)} ms</span></div>
-					<div className="perf-card"><label>P99</label><span>{metrics.p99.toFixed(0)} ms</span></div>
-					<div className="perf-card"><label>Throughput</label><span>{metrics.rps.toFixed(1)} req/s</span></div>
+					<div className="perf-card">
+						<label>Total Requests</label>
+						<span>{metrics.total}</span>
+					</div>
+					<div className="perf-card perf-card-success">
+						<label>Success</label>
+						<span>{metrics.success}</span>
+					</div>
+					<div className="perf-card perf-card-error">
+						<label>Failed</label>
+						<span>{metrics.failed}</span>
+					</div>
+					<div className="perf-card">
+						<label>Error Rate</label>
+						<span>{metrics.errorRate.toFixed(1)}%</span>
+					</div>
+					<div className="perf-card">
+						<label>Avg</label>
+						<span>{metrics.avg.toFixed(0)} ms</span>
+					</div>
+					<div className="perf-card">
+						<label>P95</label>
+						<span>{metrics.p95.toFixed(0)} ms</span>
+					</div>
+					<div className="perf-card">
+						<label>P99</label>
+						<span>{metrics.p99.toFixed(0)} ms</span>
+					</div>
+					<div className="perf-card">
+						<label>Throughput</label>
+						<span>{metrics.rps.toFixed(1)} req/s</span>
+					</div>
 				</div>
 
 				<div className="perf-chart-container">
 					<label className="perf-settings-title">Response Time Trend</label>
-					<ResponseTimeChart points={results.map(r => r.duration)} />
+					<ResponseTimeChart points={results.map((r) => r.duration)} />
 				</div>
 
 				{showBreakdown && (
 					<div className="perf-tbl-panel">
 						<label className="perf-settings-title">Breakdown by Request</label>
-						<table className="runall-tbl center" cellPadding={0} cellSpacing={0}>
+						<table
+							className="runall-tbl center"
+							cellPadding={0}
+							cellSpacing={0}
+						>
 							<thead>
 								<tr>
 									<th className="runall-col-2">Request</th>
@@ -431,9 +586,11 @@ const PerformanceTest = () => {
 								</tr>
 							</thead>
 							<tbody>
-								{breakdown.map(b => (
+								{breakdown.map((b) => (
 									<tr key={b.requestId}>
-										<td className="runall-col-2"><span className="runall-label">{b.requestName}</span></td>
+										<td className="runall-col-2">
+											<span className="runall-label">{b.requestName}</span>
+										</td>
 										<td className="runall-col-1">{b.total}</td>
 										<td className="runall-col-1">{b.failed}</td>
 										<td className="runall-col-1">{b.avg.toFixed(0)} ms</td>
@@ -460,16 +617,27 @@ const PerformanceTest = () => {
 	function renderFooter() {
 		return (
 			<div className="runall-btn-panel">
-				<button type="button" className="submit-button reorder-btn run-all-button"
-					onClick={onStartClick} disabled={running || isDisabled()}>
+				<button
+					type="button"
+					className="submit-button reorder-btn run-all-button"
+					onClick={onStartClick}
+					disabled={running || isDisabled()}
+				>
 					Start Test
 				</button>
-				<button type="button" className="submit-button reorder-btn run-all-button"
-					onClick={onCancelClick} disabled={!running}>
+				<button
+					type="button"
+					className="submit-button reorder-btn run-all-button"
+					onClick={onCancelClick}
+					disabled={!running}
+				>
 					Stop
 				</button>
 				<div className="runall-dropdown">
-					<button className="submit-button reorder-btn run-all-button" disabled={!done || results.length === 0}>
+					<button
+						className="submit-button reorder-btn run-all-button"
+						disabled={!done || results.length === 0}
+					>
 						Export
 					</button>
 					{done && results.length > 0 && (
@@ -484,7 +652,12 @@ const PerformanceTest = () => {
 	}
 
 	return (
-		<PanelLayout title="⚡ Performance Test" loading={loading} header={renderHeader()} footer={renderFooter()}>
+		<PanelLayout
+			title="⚡ Performance Test"
+			loading={loading}
+			header={renderHeader()}
+			footer={renderFooter()}
+		>
 			{renderBody()}
 		</PanelLayout>
 	);

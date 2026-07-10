@@ -13,10 +13,11 @@ export interface IPreFecthProps {
 }
 
 export const PreFetch = (props: IPreFecthProps) => {
-
 	const dispatch = useDispatch<AppDispatch>();
 	const { preFetch } = useSelector((state: IRootState) => state.requestData);
-	const { skipParentPreFetch } = useSelector((state: IRootState) => state.reqSettings);
+	const { skipParentPreFetch } = useSelector(
+		(state: IRootState) => state.reqSettings,
+	);
 
 	function onAddReqClick() {
 		let newPreReq: IRunRequest = {
@@ -24,10 +25,10 @@ export const PreFetch = (props: IPreFecthProps) => {
 			parentId: "",
 			colId: "",
 			order: preFetch && preFetch?.requests ? preFetch.requests.length + 1 : 1,
-			condition: JSON.parse(JSON.stringify(InitialTest))
+			condition: JSON.parse(JSON.stringify(InitialTest)),
 		};
 		dispatch(Actions.SetAddPreRequestAction(newPreReq));
-	};
+	}
 
 	useEffect(() => {
 		if (preFetch?.requests?.length <= 0) {
@@ -35,27 +36,36 @@ export const PreFetch = (props: IPreFecthProps) => {
 				reqId: "",
 				parentId: "",
 				colId: "",
-				order: preFetch && preFetch?.requests ? preFetch.requests.length + 1 : 1,
-				condition: JSON.parse(JSON.stringify(InitialTest))
+				order:
+					preFetch && preFetch?.requests ? preFetch.requests.length + 1 : 1,
+				condition: JSON.parse(JSON.stringify(InitialTest)),
 			};
 			dispatch(Actions.SetAddPreRequestAction(newPreReq));
 		}
 	}, []);
 
 	const makeRequests = (reqs: IRunRequest[]) => {
-		return (
-			reqs?.map((item: IRunRequest, index: number) => {
-				return (
-					<div key={"preReq_req_panel_" + index} id={"preReq_req_panel_" + index} style={{ paddingBottom: "20px" }}>
-						<PreRequest request={item} reqIndex={index} totalCount={reqs.length} />
-					</div>
-				);
-			})
-		);
+		return reqs?.map((item: IRunRequest, index: number) => {
+			return (
+				<div
+					key={"preReq_req_panel_" + index}
+					id={"preReq_req_panel_" + index}
+					style={{ paddingBottom: "20px" }}
+				>
+					<PreRequest
+						request={item}
+						reqIndex={index}
+						totalCount={reqs.length}
+					/>
+				</div>
+			);
+		});
 	};
 
 	const isDisabled = () => {
-		return props.settingsMode ? preFetch?.requests?.length > 1 : preFetch?.requests?.length > 4;
+		return props.settingsMode
+			? preFetch?.requests?.length > 1
+			: preFetch?.requests?.length > 4;
 	};
 
 	function onSelectChange(evt: React.ChangeEvent<HTMLInputElement>) {
@@ -73,26 +83,30 @@ export const PreFetch = (props: IPreFecthProps) => {
 						? `Pre-requests (${currentCount}/${maxLimit}) - it is recommended that each request does not contain any PreFetch requests. If there are any, they won't be executed.`
 						: `Pre-requests (${currentCount}/${maxLimit})`}
 				</div>
-				<button onClick={onAddReqClick} disabled={isDisabled()} className="format-button">
+				<button
+					onClick={onAddReqClick}
+					disabled={isDisabled()}
+					className="format-button"
+				>
 					+ Add Pre-request
 				</button>
 			</div>
-			{!props?.settingsMode ?
+			{!props?.settingsMode ? (
 				<div className="request-prefetch-panel">
 					<label className="request-header-panel-text">
-						<input type="checkbox"
+						<input
+							type="checkbox"
 							className="request-header-panel-option"
 							checked={skipParentPreFetch}
 							onChange={(e) => onSelectChange(e)}
-						/> Skip parent pre-requests</label>
+						/>{" "}
+						Skip parent pre-requests
+					</label>
 				</div>
-				:
-				<>
-				</>
-			}
-			<div className="preReq-stepper">
-				{makeRequests(preFetch?.requests)}
-			</div>
+			) : (
+				<></>
+			)}
+			<div className="preReq-stepper">{makeRequests(preFetch?.requests)}</div>
 		</div>
 	);
 };

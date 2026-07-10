@@ -8,9 +8,5 @@ interface IProps extends IChildrenProp {
 }
 
 export const StateAndRouterProvider: React.FC<IProps> = (props: IProps) => {
-	return (
-		<Provider store={props.store}>
-			{props.children}
-		</Provider>
-	);
+	return <Provider store={props.store}>{props.children}</Provider>;
 };

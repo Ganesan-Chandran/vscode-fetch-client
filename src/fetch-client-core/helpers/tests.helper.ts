@@ -6,47 +6,51 @@ import { IVariable } from "../types/sidebar.types";
 import { ParametersModelMapping } from "../consts/test.consts";
 import { replaceDataWithVariable } from "./variable.helper";
 
-export function setVariable(variable: IVariable, setVar: ISetVar[], responseValue: IReponseModel): IVariable {
+export function setVariable(
+	variable: IVariable,
+	setVar: ISetVar[],
+	responseValue: IReponseModel,
+): IVariable {
 	let actualValue: any;
 	let index = -1;
 
 	if (setVar.length > 0) {
-		setVar.forEach(item => {
+		setVar.forEach((item) => {
 			index = -1;
 			actualValue = null;
 			if (item.parameter === "Header") {
 				actualValue = findHeader(responseValue.headers, item.key);
 				if (actualValue) {
-					index = variable.data.findIndex(d => d.key === item.variableName);
+					index = variable.data.findIndex((d) => d.key === item.variableName);
 					if (index === -1) {
 						variable.data.push({
 							isChecked: true,
 							key: item.variableName,
-							value: actualValue
+							value: actualValue,
 						});
 					} else {
 						variable.data[index] = {
 							isChecked: true,
 							key: item.variableName,
-							value: actualValue
+							value: actualValue,
 						};
 					}
 				}
 			} else if (item.parameter === "Cookie") {
 				actualValue = findCookie(responseValue.cookies, item.key);
 				if (actualValue) {
-					index = variable.data.findIndex(d => d.key === item.variableName);
+					index = variable.data.findIndex((d) => d.key === item.variableName);
 					if (index === -1) {
 						variable.data.push({
 							isChecked: true,
 							key: item.variableName,
-							value: actualValue
+							value: actualValue,
 						});
 					} else {
 						variable.data[index] = {
 							isChecked: true,
 							key: item.variableName,
-							value: actualValue
+							value: actualValue,
 						};
 					}
 				}
@@ -60,21 +64,24 @@ export function setVariable(variable: IVariable, setVar: ISetVar[], responseValu
 					} catch {
 						responseData = "";
 					}
-					actualValue = findValueInResponse(responseData, mapping.replace("responseData.", ""));
+					actualValue = findValueInResponse(
+						responseData,
+						mapping.replace("responseData.", ""),
+					);
 				}
 				if (actualValue) {
-					index = variable.data.findIndex(d => d.key === item.variableName);
+					index = variable.data.findIndex((d) => d.key === item.variableName);
 					if (index === -1) {
 						variable.data.push({
 							isChecked: true,
 							key: item.variableName,
-							value: actualValue
+							value: actualValue,
 						});
 					} else {
 						variable.data[index] = {
 							isChecked: true,
 							key: item.variableName,
-							value: actualValue
+							value: actualValue,
 						};
 					}
 				}
@@ -85,14 +92,18 @@ export function setVariable(variable: IVariable, setVar: ISetVar[], responseValu
 	return variable;
 }
 
-export function executeTests(testData: ITest[], responseValue: IReponseModel, variableData: ITableData[]): ITestResult[] {
+export function executeTests(
+	testData: ITest[],
+	responseValue: IReponseModel,
+	variableData: ITableData[],
+): ITestResult[] {
 	let actualValue: any;
 	let testResults: ITestResult[] = [];
 	let varData = {};
 	let tests: ITest[];
 
 	if (variableData?.length > 0) {
-		variableData.forEach(item => {
+		variableData.forEach((item) => {
 			varData[item.key] = item.value;
 		});
 		let copy = JSON.parse(JSON.stringify(testData));
@@ -102,7 +113,6 @@ export function executeTests(testData: ITest[], responseValue: IReponseModel, va
 	}
 
 	for (let i = 0; i < tests.length; i++) {
-
 		if (tests[i].parameter === "") {
 			continue;
 		}
@@ -111,7 +121,7 @@ export function executeTests(testData: ITest[], responseValue: IReponseModel, va
 			let testResult: ITestResult = {
 				test: tests[i].parameter,
 				actualValue: "",
-				result: true
+				result: true,
 			};
 
 			testResults.push(testResult);
@@ -137,12 +147,22 @@ export function executeTests(testData: ITest[], responseValue: IReponseModel, va
 			} catch {
 				responseData = "";
 			}
-			actualValue = findValueInResponse(responseData, mapping.replace("responseData.", ""));
+			actualValue = findValueInResponse(
+				responseData,
+				mapping.replace("responseData.", ""),
+			);
 		} else if (mapping.includes("variable")) {
-			let item = variableData?.find(t => t.key === tests[i].expectedValue.replace("{{", "").replace("}}", "").trim());
+			let item = variableData?.find(
+				(t) =>
+					t.key ===
+					tests[i].expectedValue.replace("{{", "").replace("}}", "").trim(),
+			);
 			actualValue = item?.value;
 		} else {
-			actualValue = findHeader(responseValue.headers, mapping.replace("headers.", ""));
+			actualValue = findHeader(
+				responseValue.headers,
+				mapping.replace("headers.", ""),
+			);
 		}
 
 		if (tests[i].action === "length") {
@@ -150,17 +170,36 @@ export function executeTests(testData: ITest[], responseValue: IReponseModel, va
 		}
 
 		if (tests[i].action === "type") {
-			if (Array.isArray(actualValue) || Object.prototype.toString.call(actualValue) === '[object Array]') {
+			if (
+				Array.isArray(actualValue) ||
+				Object.prototype.toString.call(actualValue) === "[object Array]"
+			) {
 				actualValue = "array";
 			} else {
-				actualValue = actualValue ? typeof (actualValue) : undefined;
+				actualValue = actualValue ? typeof actualValue : undefined;
 			}
 		}
 
 		let testResult: ITestResult = {
-			test: tests[i].parameter + (tests[i].customParameter ? " (" + tests[i].customParameter + ")" : "") + " " + getLinkedWord(tests[i].action) + tests[i].expectedValue,
-			actualValue: actualValue === undefined ? "undefined" : (actualValue === null ? "null" : actualValue),
-			result: executeTestCase(tests[i].action, actualValue, tests[i].expectedValue === "null" ? null : tests[i].expectedValue)
+			test:
+				tests[i].parameter +
+				(tests[i].customParameter
+					? " (" + tests[i].customParameter + ")"
+					: "") +
+				" " +
+				getLinkedWord(tests[i].action) +
+				tests[i].expectedValue,
+			actualValue:
+				actualValue === undefined
+					? "undefined"
+					: actualValue === null
+						? "null"
+						: actualValue,
+			result: executeTestCase(
+				tests[i].action,
+				actualValue,
+				tests[i].expectedValue === "null" ? null : tests[i].expectedValue,
+			),
 		};
 
 		testResults.push(testResult);
@@ -185,16 +224,20 @@ function getLinkedWord(action: string) {
 	return action + " to ";
 }
 
-function executeTestCase(action: string, actualValue: string | number | undefined | null, expectedValue: string | number | undefined | null): boolean {
+function executeTestCase(
+	action: string,
+	actualValue: string | number | undefined | null,
+	expectedValue: string | number | undefined | null,
+): boolean {
 	switch (action) {
 		case "equal":
 			return actualValue == expectedValue;
 		case "notEqual":
 			return actualValue != expectedValue;
 		case "contains":
-			return (actualValue?.toString()).includes(expectedValue?.toString());
+			return actualValue?.toString().includes(expectedValue?.toString());
 		case "notContains":
-			return !((actualValue?.toString()).includes(expectedValue?.toString()));
+			return !actualValue?.toString().includes(expectedValue?.toString());
 		case "<":
 			return actualValue < expectedValue;
 		case "<=":
@@ -206,21 +249,33 @@ function executeTestCase(action: string, actualValue: string | number | undefine
 		case "length":
 			return actualValue == expectedValue;
 		case "type":
-			return actualValue == (expectedValue?.toString().trim().toLocaleLowerCase() === "undefined" ? undefined : expectedValue);
+			return (
+				actualValue ==
+				(expectedValue?.toString().trim().toLocaleLowerCase() === "undefined"
+					? undefined
+					: expectedValue)
+			);
 		case "isJSON":
 			return isJson(actualValue) === (expectedValue ? expectedValue : "true");
 		case "regex":
 			return checkRegexMatch(expectedValue?.toString(), actualValue);
 		case "empty":
-			return actualValue === "" || actualValue === null || actualValue === undefined;
+			return (
+				actualValue === "" || actualValue === null || actualValue === undefined
+			);
 		case "notEmpty":
-			return actualValue !== "" && actualValue !== null && actualValue !== undefined;
+			return (
+				actualValue !== "" && actualValue !== null && actualValue !== undefined
+			);
 	}
 
 	return false;
 }
 
-function checkRegexMatch(regex: string, value: string | number | undefined | null): boolean {
+function checkRegexMatch(
+	regex: string,
+	value: string | number | undefined | null,
+): boolean {
 	if (!regex) {
 		return false;
 	}
@@ -232,37 +287,46 @@ function checkRegexMatch(regex: string, value: string | number | undefined | nul
 	} catch {
 		return false;
 	}
-
 }
 
 function findHeader(headers: ITableData[], headerValue: string): string {
 	try {
-		let selectedHeader = headers.find(header => header.key.trim().toUpperCase() === headerValue.trim().toUpperCase());
+		let selectedHeader = headers.find(
+			(header) =>
+				header.key.trim().toUpperCase() === headerValue.trim().toUpperCase(),
+		);
 		return selectedHeader ? selectedHeader.value : "";
-	}
-	catch {
+	} catch {
 		return "";
 	}
 }
 
 function findCookie(cookies: ITableData[], cookieValue: string): string {
 	try {
-		let selectedCookie = cookies.find(header => header.key.trim().toUpperCase() === cookieValue.trim().toUpperCase());
+		let selectedCookie = cookies.find(
+			(header) =>
+				header.key.trim().toUpperCase() === cookieValue.trim().toUpperCase(),
+		);
 		return selectedCookie ? selectedCookie.value : "";
-	}
-	catch {
+	} catch {
 		return "";
 	}
 }
 
 function findValueInResponse(responseValue: any, path: string) {
 	try {
-		path = path.replace(/\[(\w+)\]/g, '.$1');
-		path = path.replace(/^\./, '');
-		var a = path.split('.');
+		path = path.replace(/\[(\w+)\]/g, ".$1");
+		path = path.replace(/^\./, "");
+		var a = path.split(".");
 		for (var i = 0, n = a.length; i < n; ++i) {
 			var k = a[i];
-			responseValue = responseValue[k] ? responseValue[k] : (responseValue[k.toLowerCase()] ? responseValue[k.toLowerCase()] : (responseValue[k.toUpperCase()] ? responseValue[k.toUpperCase()] : ""));
+			responseValue = responseValue[k]
+				? responseValue[k]
+				: responseValue[k.toLowerCase()]
+					? responseValue[k.toLowerCase()]
+					: responseValue[k.toUpperCase()]
+						? responseValue[k.toUpperCase()]
+						: "";
 			if (!responseValue) {
 				return "";
 			}
@@ -274,9 +338,12 @@ function findValueInResponse(responseValue: any, path: string) {
 }
 
 export function replaceTestWithVariable(tests: ITest[], varData: any): ITest[] {
-	tests.forEach(test => {
+	tests.forEach((test) => {
 		if (test.parameter !== "Variable") {
-			test.customParameter = replaceDataWithVariable(test.customParameter, varData);
+			test.customParameter = replaceDataWithVariable(
+				test.customParameter,
+				varData,
+			);
 			test.expectedValue = replaceDataWithVariable(test.expectedValue, varData);
 		}
 	});

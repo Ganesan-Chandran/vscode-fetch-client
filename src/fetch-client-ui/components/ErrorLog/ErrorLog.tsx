@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { requestTypes, responseTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
+import {
+	requestTypes,
+	responseTypes,
+} from "../../../fetch-client-core/consts/requestTypes.consts";
 import vscode from "../Common/vscodeAPI";
 import "./style.css";
 
@@ -18,8 +21,11 @@ const ErrorLog = () => {
 
 	return (
 		<div className="error-log-panel">
-			<textarea className="error-log-text-box" value={errorLogData} readOnly={true}>
-			</textarea>
+			<textarea
+				className="error-log-text-box"
+				value={errorLogData}
+				readOnly={true}
+			></textarea>
 		</div>
 	);
 };

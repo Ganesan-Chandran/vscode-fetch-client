@@ -4,7 +4,7 @@ export interface ThunderClientVariableSchema_1_2 {
 	environmentId: string;
 	dateExported: string;
 	version: string;
-	variables?: (VariablesEntity)[];
+	variables?: VariablesEntity[];
 	ref: string;
 }
 export interface VariablesEntity {
