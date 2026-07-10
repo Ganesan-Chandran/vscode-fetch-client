@@ -11,7 +11,7 @@
 [![Visual Studio MarketplaceInstalls](https://vsmarketplacebadges.dev/installs-short/GanesanChandran.fetch-client.svg)](https://marketplace.visualstudio.com/items?itemName=GanesanChandran.fetch-client)
 [![Visual Studio Version](https://vsmarketplacebadges.dev/version-short/GanesanChandran.fetch-client.svg)](https://marketplace.visualstudio.com/items?itemName=GanesanChandran.fetch-client)
 
-## VS Code Extension
+## 🚀 VS Code Extension
 
 The Fetch Client extension lets you build, test, organize, and debug REST APIs without leaving VS Code. It stores all data locally and provides a fast, native experience for API development.
 
@@ -32,7 +32,11 @@ The Fetch Client extension lets you build, test, organize, and debug REST APIs w
 - ⚡ Run cURL commands
 - 🔒 All data is stored locally
 
-## CLI
+## Download
+
+https://marketplace.visualstudio.com/items?itemName=GanesanChandran.fetch-client
+
+## 🖥️ CLI
 
 The Fetch Client CLI brings your API collections to the command line. It uses the same data as the VS Code extension, making it easy to automate API testing, execute collections, and integrate with CI/CD pipelines.
 
@@ -46,6 +50,10 @@ The Fetch Client CLI brings your API collections to the command line. It uses th
 - 🔄 Import and execute cURL commands
 - 🤖 CI/CD friendly with appropriate exit codes
 - 🚀 Lightweight with no additional server required
+
+## Download
+
+https://www.npmjs.com/package/@fetch-client/cli
 
 ## Documentation
 
