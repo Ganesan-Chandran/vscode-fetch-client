@@ -1,9 +1,13 @@
 import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";
 
-export const FETCH_CLIENT_SET_REQ_VARIABLE: "FETCH_CLIENT_SET_REQ_VARIABLE" = "FETCH_CLIENT_SET_REQ_VARIABLE";
-export const FETCH_CLIENT_SET_REQ_ALL_VARIABLES: "FETCH_CLIENT_SET_REQ_ALL_VARIABLES" = "FETCH_CLIENT_SET_REQ_ALL_VARIABLES";
-export const FETCH_CLIENT_SET_LOCAL_CHANGE: "FETCH_CLIENT_SET_LOCAL_CHANGE" = "FETCH_CLIENT_SET_LOCAL_CHANGE";
-export const FETCH_CLIENT_SET_SETVAR_CHANGE: "FETCH_CLIENT_SET_SETVAR_CHANGE" = "FETCH_CLIENT_SET_SETVAR_CHANGE";
+export const FETCH_CLIENT_SET_REQ_VARIABLE: "FETCH_CLIENT_SET_REQ_VARIABLE" =
+	"FETCH_CLIENT_SET_REQ_VARIABLE";
+export const FETCH_CLIENT_SET_REQ_ALL_VARIABLES: "FETCH_CLIENT_SET_REQ_ALL_VARIABLES" =
+	"FETCH_CLIENT_SET_REQ_ALL_VARIABLES";
+export const FETCH_CLIENT_SET_LOCAL_CHANGE: "FETCH_CLIENT_SET_LOCAL_CHANGE" =
+	"FETCH_CLIENT_SET_LOCAL_CHANGE";
+export const FETCH_CLIENT_SET_SETVAR_CHANGE: "FETCH_CLIENT_SET_SETVAR_CHANGE" =
+	"FETCH_CLIENT_SET_SETVAR_CHANGE";
 
 export interface IVariableModel {
 	variables: IVariable[];
@@ -40,4 +44,8 @@ export interface ISetVarChange {
 	};
 }
 
-export type VariableActionTypes = | ISetReqVariable | ISetReqAllVariable | ISetLocalChange | ISetVarChange;
+export type VariableActionTypes =
+	| ISetReqVariable
+	| ISetReqAllVariable
+	| ISetLocalChange
+	| ISetVarChange;

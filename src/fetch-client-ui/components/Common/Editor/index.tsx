@@ -12,13 +12,12 @@ export interface EditorProps {
 	onContentChange?: any;
 	className?: string;
 	theme?: number;
-	wordWrap?:boolean;
+	wordWrap?: boolean;
 }
 
-const EditorProvider = React.lazy(() => import('./EditorProvider'));
+const EditorProvider = React.lazy(() => import("./EditorProvider"));
 
 export const AceEditor = (props: EditorProps) => {
-
 	const { theme } = useSelector((state: IRootState) => state.uiData);
 
 	return (

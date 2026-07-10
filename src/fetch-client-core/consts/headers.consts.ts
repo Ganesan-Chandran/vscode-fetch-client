@@ -63,5 +63,5 @@ export const HeadersKeys = [
 	"Strict-Transport-Security",
 	"Upgrade-Insecure-Requests",
 	"User-Agent",
-	"X-Authorization"
+	"X-Authorization",
 ];

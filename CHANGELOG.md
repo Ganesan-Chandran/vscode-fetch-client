@@ -3,17 +3,22 @@
 All notable changes to the "Fetch Client" extension will be documented in this file.
 
 ## v1.8.0 - September, 2024
+
 ### 🎉 New Features
+
 - `Auto Request`(Scheduling the request) feature is implemented.
 - Introduced new tab in the response section for PreFetch request result.
 - Set variable and tests are included in the Thunder Client collection import.
 
 ### Requirements
+
 - Minimum required version of **VSCode** is `v1.75.0`
 - Minimum **Node** version is `18.20.3`
 
 ## v1.7.0 - September, 2024
+
 ### 🎉 New Features
+
 - `Encrypted` environment variables. Variables are stored in the encrypted format.
 - New settings are added for the encrypted environment and encryption in exporting the variables.
 - Bulk export option added in the collections and variables.
@@ -21,19 +26,24 @@ All notable changes to the "Fetch Client" extension will be documented in this f
 - Variables are hided in the variable screen.
 
 ### 🐛 Bug Fixes
+
 - Cookie name is not parsed correctly.
 - "Manage Cookie" button is added in the cookie section in Response panel.
 
 ### 🔗 Miscellaneous
+
 - Added menu options for raise the requests/issues and write a review about `Fetch Client`
 - GitHub action added for build vsix package and publish the extension.
 
 ### Requirements
+
 - Minimum required version of **VSCode** is `v1.75.0`
 - Minimum **Node** version is `18.20.3`
 
 ## v1.6.0 - August, 2024
+
 ### 🎉 New Features
+
 - Added menu for directly run the requests
 - Added headers and pre-requests in the collection settings.
 - Added headers in the folder settings.
@@ -45,49 +55,64 @@ All notable changes to the "Fetch Client" extension will be documented in this f
 - New menu added for navigate to `Fetch Client` documentation.
 
 ### 🐛 Bug Fixes
+
 - URL issue fixed when url has query parameter.
 
 ### 🔗 Miscellaneous
+
 - Documentation updated about the `Fetch Client`.
 
 ### Requirements
+
 - Minimum required version of **VSCode** is `v1.75.0`
 - Minimum **Node** version is `18.20.3`
 
 ## v1.5.2 - July, 2024
+
 ### 🐛 Bug Fixes
+
 - New request loading fix
 
 ### Requirements
+
 - Minimum required version of VSCode is v1.75.0
 - Minimum Node version is 18.20.3
 
 ## v1.5.1 - July, 2024
+
 ### 🐛 Bug Fixes
+
 - Fix the db file name
 
 ### Requirements
+
 - Minimum required version of VSCode is v1.75.0
 - Minimum Node version is 18.20.3
 
 ## v1.5.0 - July, 2024
+
 ### 🎉 New Features
+
 - Import Postman environment ([#7](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/7))
 - Save all requests data into custom workspace([#10](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/10))
 - Set the response limit as configurable([#11](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/11))
 
 ### 🐛 Bug Fixes
+
 - import from Curl ([#5](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/5)).
 - POST method not properly set just after creating new Http Request in a collection ([#8](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/8))
 - Bug fix in "Run All" section
 - Bug fix in filter search in collection section in the sidebar
 
 ### Requirements
+
 - Minimum required version of VSCode is v1.75.0
 - Minimum Node version is 18.20.3
 
 ## v1.4.0 - July, 2024
+
 ### 🎉 New Features
+
 - Import Postman collection (Postman Collection v2.1).
 - OAuth2 added for request authorization.
 - Pre-requests(Pre-Fetch) and conditions are added for Request execution.
@@ -107,16 +132,19 @@ All notable changes to the "Fetch Client" extension will be documented in this f
 - Word wrap option added for response section.
 
 ### 🐛 Bug Fixes
+
 - import from Curl ([#5](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/5)).
 - Clicking on collection item opens a new window every time instead of switching to existing window ([#6](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/6))
 - import/export postman collections and environment ([#7](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/7))
 
-
 ### Requirements
+
 - Minimum required version of VSCode is v1.75.0
 
 ## v1.3.0 - September, 2022
+
 ### 🎉 New Features
+
 - Added the settings in the "Run All" Collection.
 - Support for multiple iterations in "Run All" Collection.
 - Can add delay between requests and iterations.
@@ -128,7 +156,9 @@ All notable changes to the "Fetch Client" extension will be documented in this f
 - Not able to Duplicate the item in the folder.
 
 ## v1.2.0 - July, 2022
+
 ### 🎉 New Features
+
 - Support nested folder to the Collection.
 - Run curl request (Under collection in the side bar).
 - Import curl request (Under collection in the side bar) ([#5](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/5)).
@@ -143,7 +173,9 @@ All notable changes to the "Fetch Client" extension will be documented in this f
 - Bearer Token as a variable does not work due to max length restriction ([#4](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/4)).
 
 ## v1.1.0 - June, 2022
+
 ### 🎉 New Features
+
 - Folder added to the Collection.
 - Set environment variable from json response, headers and cookies.
 - Support AWS Signature auth type.
@@ -161,10 +193,13 @@ All notable changes to the "Fetch Client" extension will be documented in this f
 \-
 
 ### Requirements
+
 - Minimum required version of VSCode is v1.65.0
 
 ## v1.0.0 - May, 2022
+
 ### 🎉 New Features
+
 - UI Customization and support VSCode Themes.
 - Test Rest API request with GET, POST, PUT, PATCH, DELETE, HEAD and OPTIONS methods.
 - Various authentications which are Basic Auth, Bearer Token and API Key.

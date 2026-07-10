@@ -1,7 +1,13 @@
 import "./style.css";
-import { IHistory, IFolder } from "../../../../fetch-client-core/types/sidebar.types";
+import {
+	IHistory,
+	IFolder,
+} from "../../../../fetch-client-core/types/sidebar.types";
 import { isFolder } from "../../../../fetch-client-core/helpers/common.helper";
-import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
+import {
+	requestTypes,
+	responseTypes,
+} from "../../../../fetch-client-core/consts/requestTypes.consts";
 import React, { useEffect, useRef, useState } from "react";
 import vscode from "../../Common/vscodeAPI";
 import PanelLayout from "../../Common/Layout/panelLayout";
@@ -17,13 +23,17 @@ interface DragOverState {
 
 function findItem(
 	arr: TreeItem[],
-	id: string
+	id: string,
 ): { item: TreeItem; parent: TreeItem[]; idx: number } | null {
 	for (let i = 0; i < arr.length; i++) {
-		if (arr[i].id === id) { return { item: arr[i], parent: arr, idx: i }; }
+		if (arr[i].id === id) {
+			return { item: arr[i], parent: arr, idx: i };
+		}
 		if (isFolder(arr[i]) && (arr[i] as IFolder).data) {
 			const found = findItem((arr[i] as IFolder).data!, id);
-			if (found) { return found; }
+			if (found) {
+				return found;
+			}
 		}
 	}
 	return null;
@@ -36,17 +46,25 @@ function removeItem(arr: TreeItem[], id: string): boolean {
 			return true;
 		}
 		if (isFolder(arr[i]) && (arr[i] as IFolder).data) {
-			if (removeItem((arr[i] as IFolder).data!, id)) { return true; }
+			if (removeItem((arr[i] as IFolder).data!, id)) {
+				return true;
+			}
 		}
 	}
 	return false;
 }
 
 function isAncestor(item: TreeItem, targetId: string): boolean {
-	if (!isFolder(item)) { return false; }
+	if (!isFolder(item)) {
+		return false;
+	}
 	for (const child of (item as IFolder).data) {
-		if (child.id === targetId) { return true; }
-		if (isAncestor(child, targetId)) { return true; }
+		if (child.id === targetId) {
+			return true;
+		}
+		if (isAncestor(child, targetId)) {
+			return true;
+		}
 	}
 	return false;
 }
@@ -83,11 +101,21 @@ interface TreeRowProps {
 }
 
 const TreeRow: React.FC<TreeRowProps> = ({
-	item, depth, collapsed, dragOverState, dragSrcId,
-	onToggleFolder, onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd,
+	item,
+	depth,
+	collapsed,
+	dragOverState,
+	dragSrcId,
+	onToggleFolder,
+	onDragStart,
+	onDragOver,
+	onDragLeave,
+	onDrop,
+	onDragEnd,
 }) => {
 	const isDragging = dragSrcId === item.id;
-	const overMode = dragOverState?.targetId === item.id ? dragOverState.mode : null;
+	const overMode =
+		dragOverState?.targetId === item.id ? dragOverState.mode : null;
 
 	const rowClass = [
 		"reorder-row",
@@ -95,9 +123,13 @@ const TreeRow: React.FC<TreeRowProps> = ({
 		overMode === "inside" ? "reorder-row--over-inside" : "",
 		overMode === "before" ? "reorder-row--over-before" : "",
 		overMode === "after" ? "reorder-row--over-after" : "",
-	].filter(Boolean).join(" ");
+	]
+		.filter(Boolean)
+		.join(" ");
 
-	const method = !isFolder(item) ? (item as IHistory).method.toUpperCase() : null;
+	const method = !isFolder(item)
+		? (item as IHistory).method.toUpperCase()
+		: null;
 
 	return (
 		<>
@@ -106,12 +138,16 @@ const TreeRow: React.FC<TreeRowProps> = ({
 				style={{ paddingLeft: `${8 + depth * 20}px` }}
 				draggable
 				onDragStart={(e) => onDragStart(e, item.id)}
-				onDragOver={(e) => onDragOver(e, item.id, isFolder(item) ? "folder" : "request")}
+				onDragOver={(e) =>
+					onDragOver(e, item.id, isFolder(item) ? "folder" : "request")
+				}
 				onDragLeave={onDragLeave}
 				onDrop={(e) => onDrop(e, item.id)}
 				onDragEnd={onDragEnd}
 			>
-				<span className="reorder-handle" title="Drag to move">⠿</span>
+				<span className="reorder-handle" title="Drag to move">
+					⠿
+				</span>
 
 				{isFolder(item) && (
 					<span
@@ -122,7 +158,9 @@ const TreeRow: React.FC<TreeRowProps> = ({
 					</span>
 				)}
 
-				<span className={`reorder-icon ${isFolder(item) ? "reorder-icon--folder" : "reorder-icon--request"}`}>
+				<span
+					className={`reorder-icon ${isFolder(item) ? "reorder-icon--folder" : "reorder-icon--request"}`}
+				>
 					{isFolder(item) ? "📁" : "📄"}
 				</span>
 
@@ -139,26 +177,29 @@ const TreeRow: React.FC<TreeRowProps> = ({
 				)}
 			</div>
 
-			{isFolder(item) && !collapsed.has(item.id) && (item as IFolder).data && (item as IFolder).data.length > 0 && (
-				<div className="reorder-children">
-					{(item as IFolder).data.map((child) => (
-						<TreeRow
-							key={child.id}
-							item={child}
-							depth={depth + 1}
-							collapsed={collapsed}
-							dragOverState={dragOverState}
-							dragSrcId={dragSrcId}
-							onToggleFolder={onToggleFolder}
-							onDragStart={onDragStart}
-							onDragOver={onDragOver}
-							onDragLeave={onDragLeave}
-							onDrop={onDrop}
-							onDragEnd={onDragEnd}
-						/>
-					))}
-				</div>
-			)}
+			{isFolder(item) &&
+				!collapsed.has(item.id) &&
+				(item as IFolder).data &&
+				(item as IFolder).data.length > 0 && (
+					<div className="reorder-children">
+						{(item as IFolder).data.map((child) => (
+							<TreeRow
+								key={child.id}
+								item={child}
+								depth={depth + 1}
+								collapsed={collapsed}
+								dragOverState={dragOverState}
+								dragSrcId={dragSrcId}
+								onToggleFolder={onToggleFolder}
+								onDragStart={onDragStart}
+								onDragOver={onDragOver}
+								onDragLeave={onDragLeave}
+								onDrop={onDrop}
+								onDragEnd={onDragEnd}
+							/>
+						))}
+					</div>
+				)}
 		</>
 	);
 };
@@ -183,8 +224,13 @@ const ReOrder: React.FC = () => {
 	const [folderId, setFolderId] = useState("");
 	const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
 	const [dragSrcId, setDragSrcId] = useState<string | null>(null);
-	const [dragOverState, setDragOverState] = useState<DragOverState | null>(null);
-	const [statusMsg, setStatusMsg] = useState<{ text: string; isError?: boolean } | null>(null);
+	const [dragOverState, setDragOverState] = useState<DragOverState | null>(
+		null,
+	);
+	const [statusMsg, setStatusMsg] = useState<{
+		text: string;
+		isError?: boolean;
+	} | null>(null);
 	const [saved, setSaved] = useState(false);
 
 	useEffect(() => {
@@ -202,7 +248,10 @@ const ReOrder: React.FC = () => {
 		folderId = folderId === "undefined" ? null : folderId;
 		setColId(colId);
 		setFolderId(folderId);
-		vscode.postMessage({ type: requestTypes.getCollectionDetailsByIdRequest, data: { colId, folderId } });
+		vscode.postMessage({
+			type: requestTypes.getCollectionDetailsByIdRequest,
+			data: { colId, folderId },
+		});
 		setLoading(true);
 		return () => window.removeEventListener("message", handleMessage);
 	}, []);
@@ -223,7 +272,9 @@ const ReOrder: React.FC = () => {
 	function onDragOver(e: React.DragEvent, targetId: string, itemType: string) {
 		e.preventDefault();
 		e.stopPropagation();
-		if (!dragSrcId || dragSrcId === targetId) { return; }
+		if (!dragSrcId || dragSrcId === targetId) {
+			return;
+		}
 
 		const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
 		const y = e.clientY - rect.top;
@@ -257,18 +308,27 @@ const ReOrder: React.FC = () => {
 		const tree = deepClone(refItems.current);
 
 		const srcFound = findItem(tree, dragSrcId);
-		if (!srcFound) { return; }
+		if (!srcFound) {
+			return;
+		}
 		const srcItem = srcFound.item;
 		const srcName = srcItem.name;
 
 		const targetFound = findItem(tree, targetId);
-		if (!targetFound) { return; }
+		if (!targetFound) {
+			return;
+		}
 		const targetName = targetFound.item.name;
 
-		if (dragOverState.mode === "inside" && !isFolder(targetFound.item)) { return; }
+		if (dragOverState.mode === "inside" && !isFolder(targetFound.item)) {
+			return;
+		}
 
 		if (isAncestor(srcItem, targetId)) {
-			setStatusMsg({ text: `Cannot move "${srcName}" into its own child folder.`, isError: true });
+			setStatusMsg({
+				text: `Cannot move "${srcName}" into its own child folder.`,
+				isError: true,
+			});
 			setDragSrcId(null);
 			setDragOverState(null);
 			return;
@@ -280,13 +340,19 @@ const ReOrder: React.FC = () => {
 			const folder = findItem(tree, targetId)!;
 			(folder.item as IFolder).data = (folder.item as IFolder).data ?? [];
 			(folder.item as IFolder).data!.push(srcItem);
-			setCollapsed((prev) => { const n = new Set(prev); n.delete(targetId); return n; });
+			setCollapsed((prev) => {
+				const n = new Set(prev);
+				n.delete(targetId);
+				return n;
+			});
 			setStatusMsg({ text: `Moved "${srcName}" into folder "${targetName}".` });
 		} else {
 			const tf = findItem(tree, targetId)!;
 			const insertAt = dragOverState.mode === "before" ? tf.idx : tf.idx + 1;
 			tf.parent.splice(insertAt, 0, srcItem);
-			setStatusMsg({ text: `Reordered "${srcName}" ${dragOverState.mode} "${targetName}".` });
+			setStatusMsg({
+				text: `Reordered "${srcName}" ${dragOverState.mode} "${targetName}".`,
+			});
 		}
 
 		setSaved(false);
@@ -303,7 +369,10 @@ const ReOrder: React.FC = () => {
 	}
 
 	function onSubmitClick() {
-		vscode.postMessage({ type: requestTypes.reorderCollectionRequest, data: { colId, folderId, items: refItems.current } });
+		vscode.postMessage({
+			type: requestTypes.reorderCollectionRequest,
+			data: { colId, folderId, items: refItems.current },
+		});
 		setSaved(true);
 		setStatusMsg({ text: "Order saved successfully." });
 	}
@@ -343,9 +412,13 @@ const ReOrder: React.FC = () => {
 	}
 
 	function renderStatus() {
-		if (!statusMsg) { return null; }
+		if (!statusMsg) {
+			return null;
+		}
 		return (
-			<div className={`reorder-status ${statusMsg.isError ? "reorder-status--error" : "reorder-status--ok"}`}>
+			<div
+				className={`reorder-status ${statusMsg.isError ? "reorder-status--error" : "reorder-status--ok"}`}
+			>
 				{statusMsg.text}
 			</div>
 		);
@@ -373,7 +446,8 @@ const ReOrder: React.FC = () => {
 			footer={renderButton()}
 		>
 			<div className="reorder-hint">
-				Drag <span>⠿</span> to reorder · Drop onto a folder's middle to move inside it
+				Drag <span>⠿</span> to reorder · Drop onto a folder's middle to move
+				inside it
 			</div>
 			{renderTree()}
 			{renderStatus()}

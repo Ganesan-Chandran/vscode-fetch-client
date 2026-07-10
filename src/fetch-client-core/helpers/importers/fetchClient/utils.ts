@@ -7,7 +7,10 @@ export type IRawImportRequest = Omit<IRequestModel, "id" | "createdTime"> & {
 	createdTime?: string;
 };
 
-export function buildHistoryEntry(id: string, req: IRawImportRequest): IHistory {
+export function buildHistoryEntry(
+	id: string,
+	req: IRawImportRequest,
+): IHistory {
 	return {
 		id,
 		method: req.method,

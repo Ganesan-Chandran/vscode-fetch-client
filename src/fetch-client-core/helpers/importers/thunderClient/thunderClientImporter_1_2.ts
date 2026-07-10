@@ -1,10 +1,35 @@
 import { ActionsParametersMapping } from "../../../consts/test.consts";
-import { Auth, BodyEntity, FoldersEntity, HeadersEntityOrFormEntity, ParamsEntity, RequestsEntity, Settings, TestsEntity, ThunderClient_Schema_1_2 } from "../../../types/thunderClient_1_2_types";
+import {
+	Auth,
+	BodyEntity,
+	FoldersEntity,
+	HeadersEntityOrFormEntity,
+	ParamsEntity,
+	RequestsEntity,
+	Settings,
+	TestsEntity,
+	ThunderClient_Schema_1_2,
+} from "../../../types/thunderClient_1_2_types";
 import { formatDate } from "../../dateTime.helper";
 import { IAuth, ClientAuth, GrantType } from "../../../types/auth.types";
-import { IBodyData, IRequestModel, MethodType } from "../../../types/request.types";
-import { IFolder, ISettings, ICollections, IHistory } from "../../../types/sidebar.types";
-import { InitialRequestHeaders, InitialAuth, InitialBody, InitialPreFetch, InitialSettings } from "../../../consts/initialValues.consts";
+import {
+	IBodyData,
+	IRequestModel,
+	MethodType,
+} from "../../../types/request.types";
+import {
+	IFolder,
+	ISettings,
+	ICollections,
+	IHistory,
+} from "../../../types/sidebar.types";
+import {
+	InitialRequestHeaders,
+	InitialAuth,
+	InitialBody,
+	InitialPreFetch,
+	InitialSettings,
+} from "../../../consts/initialValues.consts";
 import { deepClone, isFolder } from "../../common.helper";
 import { isJson } from "../../tests.helper";
 import { ITableData } from "../../../types/common.types";
@@ -53,7 +78,7 @@ export class ThunderClientImport {
 	}
 
 	getParams(params: ParamsEntity[]): ITableData[] {
-		const fcParams: ITableData[] = (params ?? []).map(item => ({
+		const fcParams: ITableData[] = (params ?? []).map((item) => ({
 			key: item.name ?? "",
 			value: item.value ?? "",
 			isChecked: !item.isDisabled,
@@ -68,8 +93,8 @@ export class ThunderClientImport {
 		}
 
 		const fcHeaders: ITableData[] = headers
-			.filter(h => !!h.name)
-			.map(h => ({
+			.filter((h) => !!h.name)
+			.map((h) => ({
 				isChecked: !h.isDisabled,
 				key: h.name,
 				value: h.value,
@@ -129,10 +154,16 @@ export class ThunderClientImport {
 				if (grantType !== "client_credentials" && grantType !== "password") {
 					return fcAuth;
 				}
-				fcAuth.oauth.clientAuth = auth.oauth2.clientAuth === "in-header" ? ClientAuth.Header : ClientAuth.Body;
+				fcAuth.oauth.clientAuth =
+					auth.oauth2.clientAuth === "in-header"
+						? ClientAuth.Header
+						: ClientAuth.Body;
 				fcAuth.oauth.clientId = auth.oauth2.clientId ?? "";
 				fcAuth.oauth.clientSecret = auth.oauth2.clientSecret ?? "";
-				fcAuth.oauth.grantType = grantType === "client_credentials" ? GrantType.Client_Crd : GrantType.PWD_Crd;
+				fcAuth.oauth.grantType =
+					grantType === "client_credentials"
+						? GrantType.Client_Crd
+						: GrantType.PWD_Crd;
 				fcAuth.oauth.password = auth.oauth2.password ?? "";
 				fcAuth.oauth.username = auth.oauth2.username ?? "";
 				fcAuth.oauth.scope = auth.oauth2.scope ?? "";
@@ -160,7 +191,7 @@ export class ThunderClientImport {
 				fcBody.bodyType = "formdata";
 				fcBody.formdata = [];
 
-				body.form?.forEach(item => {
+				body.form?.forEach((item) => {
 					fcBody.formdata.push({
 						isChecked: !item.isDisabled,
 						key: item.name ?? "",
@@ -169,7 +200,7 @@ export class ThunderClientImport {
 					});
 				});
 
-				body.files?.forEach(item => {
+				body.files?.forEach((item) => {
 					fcBody.formdata.push({
 						isChecked: !item.isDisabled,
 						key: item.name ?? "",
@@ -178,7 +209,12 @@ export class ThunderClientImport {
 					});
 				});
 
-				fcBody.formdata.push({ isChecked: false, key: "", value: "", type: "Text" });
+				fcBody.formdata.push({
+					isChecked: false,
+					key: "",
+					value: "",
+					type: "Text",
+				});
 				return fcBody;
 			}
 
@@ -186,7 +222,7 @@ export class ThunderClientImport {
 				fcBody.bodyType = "formurlencoded";
 				fcBody.urlencoded = [];
 
-				body.form?.forEach(item => {
+				body.form?.forEach((item) => {
 					fcBody.urlencoded.push({
 						isChecked: !item.isDisabled,
 						key: item.name ?? "",
@@ -214,7 +250,9 @@ export class ThunderClientImport {
 				const rawData = body.raw ?? "";
 				fcBody.bodyType = "raw";
 				fcBody.raw.data = rawData;
-				fcBody.raw.lang = this.getRawBodyType(rawData.replace(NEWLINE_REGEX, ""));
+				fcBody.raw.lang = this.getRawBodyType(
+					rawData.replace(NEWLINE_REGEX, ""),
+				);
 				return fcBody;
 			}
 
@@ -246,8 +284,8 @@ export class ThunderClientImport {
 	/** Returns true when the string contains HTML markup. */
 	private isHTMLString(str: string): boolean {
 		const stripped = (str || "")
-			.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, "")
-			.replace(/(<([^>]+)>)/ig, "")
+			.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/gi, "")
+			.replace(/(<([^>]+)>)/gi, "")
 			.trim();
 		return stripped !== (str || "").trim();
 	}
@@ -266,7 +304,9 @@ export class ThunderClientImport {
 					action,
 					expectedValue: item.value ?? "",
 					customParameter: item.custom
-						? (item.type === "json-query" ? item.custom.replace("json.", "") : item.custom)
+						? item.type === "json-query"
+							? item.custom.replace("json.", "")
+							: item.custom
 						: "",
 				});
 			}
@@ -282,8 +322,8 @@ export class ThunderClientImport {
 		}
 
 		const fcVar: ISetVar[] = tests
-			.filter(i => i.type === "set-env-var" && i.custom?.startsWith("json."))
-			.map(item => ({
+			.filter((i) => i.type === "set-env-var" && i.custom?.startsWith("json."))
+			.map((item) => ({
 				parameter: "JSON",
 				key: item.custom.replace("json.", ""),
 				variableName: item.value?.replace("{{", "").replace("}}", "") ?? "",
@@ -305,7 +345,8 @@ export class ThunderClientImport {
 		const normalisedAction = ACTION_ALIAS_MAP[action] ?? action;
 		return (
 			parameterDef["action"]?.find(
-				(o: { name: string }) => o.name.toLowerCase() === normalisedAction.toLowerCase()
+				(o: { name: string }) =>
+					o.name.toLowerCase() === normalisedAction.toLowerCase(),
 			)?.["value"] ?? ""
 		);
 	}
@@ -341,7 +382,9 @@ export class ThunderClientImport {
 			createdTime: formatDate(),
 			modifiedTime: formatDate(),
 			data: [],
-			settings: item.settings ? this.importSettings(item.settings) : deepClone(InitialSettings),
+			settings: item.settings
+				? this.importSettings(item.settings)
+				: deepClone(InitialSettings),
 		};
 	}
 
@@ -353,8 +396,11 @@ export class ThunderClientImport {
 		};
 	}
 
-	private getParentItem(source: ICollections | IFolder, searchId: string): IFolder | null {
-		const pos = source.data.findIndex(el => el.id === searchId);
+	private getParentItem(
+		source: ICollections | IFolder,
+		searchId: string,
+	): IFolder | null {
+		const pos = source.data.findIndex((el) => el.id === searchId);
 		if (pos !== -1) {
 			return source.data[pos] as IFolder;
 		}
@@ -371,7 +417,10 @@ export class ThunderClientImport {
 		return null;
 	}
 
-	importCollection(): { fcCollection: ICollections; fcRequests: IRequestModel[] } {
+	importCollection(): {
+		fcCollection: ICollections;
+		fcRequests: IRequestModel[];
+	} {
 		const requests: IRequestModel[] = [];
 		const ids: Record<string, string> = {};
 
@@ -392,7 +441,10 @@ export class ThunderClientImport {
 			ids[folderItem._id] = fcFolder.id;
 
 			if (folderItem.containerId) {
-				const parentFolder = this.getParentItem(collection, ids[folderItem.containerId]);
+				const parentFolder = this.getParentItem(
+					collection,
+					ids[folderItem.containerId],
+				);
 				parentFolder?.data.push(fcFolder);
 			} else {
 				collection.data.push(fcFolder);
@@ -425,7 +477,9 @@ export class ThunderClientImport {
 	}
 }
 
-export const thunderClientImporter = (rawData: string): { fcCollection: ICollections; fcRequests: IRequestModel[] } | null => {
+export const thunderClientImporter = (
+	rawData: string,
+): { fcCollection: ICollections; fcRequests: IRequestModel[] } | null => {
 	try {
 		const collection = JSON.parse(rawData) as ThunderClient_Schema_1_2;
 		if (collection.clientName === "Thunder Client") {

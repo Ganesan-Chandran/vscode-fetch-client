@@ -5,11 +5,11 @@ export interface IPerfConfig {
 	scope: TestScope;
 	loadModel: LoadModel;
 	targetVUs: number;
-	iterations: number;        // used by: fixed
-	testDurationSec: number;   // used by: duration, combined
+	iterations: number; // used by: fixed
+	testDurationSec: number; // used by: duration, combined
 	rampUpDurationSec: number; // used by: rampup, combined
-	rampSteps: number;         // used by: rampup, combined
-	thinkTimeMs: number;       // delay between waves (closed-loop pacing), all models
+	rampSteps: number; // used by: rampup, combined
+	thinkTimeMs: number; // delay between waves (closed-loop pacing), all models
 }
 
 export interface IPerfResultPoint {

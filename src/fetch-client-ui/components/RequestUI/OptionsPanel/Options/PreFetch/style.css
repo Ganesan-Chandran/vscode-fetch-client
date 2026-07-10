@@ -24,7 +24,7 @@
 
 /* ===== Stepper track ===== */
 /* Wraps the list of pre-request cards and draws the connecting line
-   that visually threads steps 1 -> 2 -> 3 together. */
+	that visually threads steps 1 -> 2 -> 3 together. */
 
 .preReq-stepper {
 	position: relative;
@@ -68,7 +68,7 @@
 }
 
 /* Gate label shown on the connector between a condition and the
-   pre-request it controls. */
+	pre-request it controls. */
 
 .preReq-gate-label {
 	display: flex;
@@ -219,7 +219,7 @@ legend {
 .preReq-select {
 	padding: 2px 4px 4px 4px !important;
 	border: 1px solid var(--border-color) !important;
-	border: 1px solid color-mix(in srgb, var(--border-color) 60%, transparent) !important;	
+	border: 1px solid color-mix(in srgb, var(--border-color) 60%, transparent) !important;
 }
 
 .preReq-condition-param-panel {

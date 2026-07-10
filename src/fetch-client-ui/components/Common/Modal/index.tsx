@@ -1,5 +1,5 @@
-import React from 'react';
-import './style.css';
+import React from "react";
+import "./style.css";
 
 export const Modal = ({ show, children }) => {
 	const showHideClassName = show ? "modal display-block" : "modal display-none";

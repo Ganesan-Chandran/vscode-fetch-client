@@ -1,19 +1,19 @@
-import { getNonce } from '../../fetch-client-core/consts/requestTypes.consts';
-import { writeLog } from '../../fetch-client-core/helpers/logger/logger';
-import * as vscode from 'vscode';
-import fs from 'fs';
+import { getNonce } from "../../fetch-client-core/consts/requestTypes.consts";
+import { writeLog } from "../../fetch-client-core/helpers/logger/logger";
+import * as vscode from "vscode";
+import fs from "fs";
 
 export function buildWebviewHtml(
 	webview: vscode.Webview,
 	extensionUri: vscode.Uri,
-	title: string
+	title: string,
 ): string {
 	const nonce = getNonce();
 	const scriptUri = webview.asWebviewUri(
-		vscode.Uri.joinPath(extensionUri, 'dist/fetch-client-ui.js')
+		vscode.Uri.joinPath(extensionUri, "dist/fetch-client-ui.js"),
 	);
 	const styleUri = webview.asWebviewUri(
-		vscode.Uri.joinPath(extensionUri, 'dist/main.css')
+		vscode.Uri.joinPath(extensionUri, "dist/main.css"),
 	);
 
 	const csp = [
@@ -25,7 +25,7 @@ export function buildWebviewHtml(
 		`connect-src ${webview.cspSource}`,
 		`img-src ${webview.cspSource} https: data:`,
 		`font-src ${webview.cspSource} data:`,
-	].join('; ');
+	].join("; ");
 
 	return `<!DOCTYPE html>
 <html lang="en">
@@ -44,14 +44,16 @@ export function buildWebviewHtml(
 </html>`;
 }
 
-
 export async function saveToFile(
 	defaultUri: vscode.Uri,
 	data: string | Uint8Array,
 	logContext: string,
-	saveDialogOptions?: Omit<vscode.SaveDialogOptions, 'defaultUri'>
+	saveDialogOptions?: Omit<vscode.SaveDialogOptions, "defaultUri">,
 ): Promise<void> {
-	const uri = await vscode.window.showSaveDialog({ defaultUri, ...saveDialogOptions });
+	const uri = await vscode.window.showSaveDialog({
+		defaultUri,
+		...saveDialogOptions,
+	});
 	if (!uri) {
 		return;
 	}
@@ -59,13 +61,13 @@ export async function saveToFile(
 		await fs.promises.writeFile(uri.fsPath, data);
 		vscode.window.showInformationMessage(
 			`Successfully saved to '${uri.fsPath}'.`,
-			{ modal: true }
+			{ modal: true },
 		);
 	} catch (err) {
 		const msg = err instanceof Error ? err.message : String(err);
 		vscode.window.showErrorMessage(
 			`Could not save to '${uri.fsPath}'. Error: ${msg}`,
-			{ modal: true }
+			{ modal: true },
 		);
 		writeLog(`error::${logContext}::writeFile() ${msg}`);
 	}

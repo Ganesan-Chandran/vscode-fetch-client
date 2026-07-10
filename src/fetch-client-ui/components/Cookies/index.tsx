@@ -1,14 +1,16 @@
 import "./style.css";
 import { ICookie } from "../../../fetch-client-core/types/cookie.types";
 import { InitialCookie } from "../../../fetch-client-core/consts/initialValues.consts";
-import { requestTypes, responseTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
+import {
+	requestTypes,
+	responseTypes,
+} from "../../../fetch-client-core/consts/requestTypes.consts";
 import { ResponseTable } from "../Common/Table/ResponseTable";
 import PanelLayout from "../Common/Layout/panelLayout";
 import React, { useEffect, useRef, useState } from "react";
 import vscode from "../Common/vscodeAPI";
 
 const ManageCookies = () => {
-
 	const [cookies, _setCookies] = useState<ICookie[]>(null);
 	const cookiesRef = useRef(cookies);
 	const setCookies = (data: ICookie[]) => {
@@ -19,20 +21,28 @@ const ManageCookies = () => {
 	const [currentCookie, setCurrentCookie] = useState<ICookie>(InitialCookie);
 	const [cookieId, setSelecetdCookieId] = useState("");
 
-
 	useEffect(() => {
 		window.addEventListener("message", (event) => {
-			if (event.data && event.data.type === responseTypes.getAllCookiesResponse) {
+			if (
+				event.data &&
+				event.data.type === responseTypes.getAllCookiesResponse
+			) {
 				let cookies = event.data.cookies as ICookie[];
 				setCookies(cookies);
-			} else if (event.data && event.data.type === responseTypes.deleteCookieByIdResponse) {
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.deleteCookieByIdResponse
+			) {
 				let localData = [...cookiesRef.current];
-				let index = localData.findIndex(item => item.id === event.data.id);
+				let index = localData.findIndex((item) => item.id === event.data.id);
 				if (index !== -1) {
 					localData.splice(index, 1);
 				}
 				setCookies(localData);
-			} else if (event.data && event.data.type === responseTypes.deleteAllCookieResponse) {
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.deleteAllCookieResponse
+			) {
 				let localData = [...cookiesRef.current];
 				localData.length = 0;
 				setCookies(localData);
@@ -45,9 +55,9 @@ const ManageCookies = () => {
 	useEffect(() => {
 		if (cookies && cookies.length > 0) {
 			let id = document.title.split("@:@")[1];
-			if (id !== "undefined" && id !== '[object Object]') {
+			if (id !== "undefined" && id !== "[object Object]") {
 				setSelecetdCookieId(id);
-				setCurrentCookie(cookies.find(item => item.id === id));
+				setCurrentCookie(cookies.find((item) => item.id === id));
 			} else {
 				setSelecetdCookieId(cookies[0].id);
 				setCurrentCookie(cookies[0]);
@@ -59,7 +69,10 @@ const ManageCookies = () => {
 	}, [cookies]);
 
 	function onSubmitClick() {
-		vscode.postMessage({ type: requestTypes.deleteCookieByIdRequest, data: currentCookie.id });
+		vscode.postMessage({
+			type: requestTypes.deleteCookieByIdRequest,
+			data: currentCookie.id,
+		});
 	}
 
 	function onDeleteAllClick() {
@@ -76,7 +89,7 @@ const ManageCookies = () => {
 
 	const onSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
 		setSelecetdCookieId(event.target.value);
-		setCurrentCookie(cookies.find(item => item.id === event.target.value));
+		setCurrentCookie(cookies.find((item) => item.id === event.target.value));
 	};
 
 	function renderHeader() {
@@ -86,9 +99,7 @@ const ManageCookies = () => {
 
 		return (
 			<div className="variable-panel-name cookie-align-parent">
-				<span className="addto-label cookie-align-child">
-					Cookie :
-				</span>
+				<span className="addto-label cookie-align-child">Cookie :</span>
 
 				<select
 					className="addto-select cookie-select"
@@ -96,10 +107,7 @@ const ManageCookies = () => {
 					onChange={onSelect}
 				>
 					{cookies.map((cookie: ICookie, index: number) => (
-						<option
-							key={index + cookie.name}
-							value={cookie.id}
-						>
+						<option key={index + cookie.name} value={cookie.id}>
 							{cookie.name}
 						</option>
 					))}
@@ -110,11 +118,7 @@ const ManageCookies = () => {
 
 	function renderCookieTable() {
 		if (!cookies || cookies.length === 0) {
-			return (
-				<div className="no-cookie-text">
-					No Cookies Available
-				</div>
-			);
+			return <div className="no-cookie-text">No Cookies Available</div>;
 		}
 
 		return (

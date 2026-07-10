@@ -1,42 +1,96 @@
-import { buildWebviewHtml } from './webviewUtils';
-import { DeleteAllHistory, DeleteHistory, GetAllHistory, RenameHistory } from '../db/historyDBUtil';
-import { Export, ExportOtherFormats, Import, SaveRequest } from '../db/mainDBUtil';
-import { formatDate } from '../../fetch-client-core/helpers/dateTime.helper';
-import { getConfiguration, getVSCodeTheme } from '../../fetch-client-core/utils/vscodeConfig';
-import { IHistory, IFolder, ICollections } from '../../fetch-client-core/types/sidebar.types';
-import { pubSubTypes, requestTypes, responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
-import * as vscode from 'vscode';
+import { buildWebviewHtml } from "./webviewUtils";
 import {
-	ChangeVariableStatus, DeleteVariable, DuplicateVariable, ExportVariable,
-	GetAllVariable, ImportVariableFromEnvFile, ImportVariableFromJsonFile, RenameVariable
-} from '../db/varDBUtil';
+	DeleteAllHistory,
+	DeleteHistory,
+	GetAllHistory,
+	RenameHistory,
+} from "../db/historyDBUtil";
 import {
-	AddToCollection, AttachVariable, CreateNewCollection, DeleteAllCollectionItems, DeleteCollection,
-	DeleteCollectionItem, DuplicateItem, GetAllCollections, NewFolderToCollection, NewRequestToCollection,
-	RemoveVariableByVariableId, RenameCollection, RenameCollectionItem
-} from '../db/collectionDBUtil';
+	Export,
+	ExportOtherFormats,
+	Import,
+	SaveRequest,
+} from "../db/mainDBUtil";
+import { formatDate } from "../../fetch-client-core/helpers/dateTime.helper";
 import {
-	getStorageManager, OpenAddToColUI, OpenAttachVariableUI, OpenAutoRequestUI, OpenBulkExportUI, OpenColSettings, OpenCopyToColUI,
-	OpenCurlUI, OpenExistingItem, OpenPerfTestUI, OpenReOrderUI, OpenRunAllUI, OpenVariableUI, pubSub, vsCodeLogger
-} from '../../extension';
-import { IPubSubMessage, Subscription } from '../../fetch-client-core/utils/pubSub';
+	getConfiguration,
+	getVSCodeTheme,
+} from "../../fetch-client-core/utils/vscodeConfig";
+import {
+	IHistory,
+	IFolder,
+	ICollections,
+} from "../../fetch-client-core/types/sidebar.types";
+import {
+	pubSubTypes,
+	requestTypes,
+	responseTypes,
+} from "../../fetch-client-core/consts/requestTypes.consts";
+import * as vscode from "vscode";
+import {
+	ChangeVariableStatus,
+	DeleteVariable,
+	DuplicateVariable,
+	ExportVariable,
+	GetAllVariable,
+	ImportVariableFromEnvFile,
+	ImportVariableFromJsonFile,
+	RenameVariable,
+} from "../db/varDBUtil";
+import {
+	AddToCollection,
+	AttachVariable,
+	CreateNewCollection,
+	DeleteAllCollectionItems,
+	DeleteCollection,
+	DeleteCollectionItem,
+	DuplicateItem,
+	GetAllCollections,
+	NewFolderToCollection,
+	NewRequestToCollection,
+	RemoveVariableByVariableId,
+	RenameCollection,
+	RenameCollectionItem,
+} from "../db/collectionDBUtil";
+import {
+	getStorageManager,
+	OpenAddToColUI,
+	OpenAttachVariableUI,
+	OpenAutoRequestUI,
+	OpenBulkExportUI,
+	OpenColSettings,
+	OpenCopyToColUI,
+	OpenCurlUI,
+	OpenExistingItem,
+	OpenPerfTestUI,
+	OpenReOrderUI,
+	OpenRunAllUI,
+	OpenVariableUI,
+	pubSub,
+	vsCodeLogger,
+} from "../../extension";
+import {
+	IPubSubMessage,
+	Subscription,
+} from "../../fetch-client-core/utils/pubSub";
 
 export class SideBarProvider implements vscode.WebviewViewProvider {
-
-	public static readonly viewType = 'fetch-client.sideBar';
+	public static readonly viewType = "fetch-client.sideBar";
 
 	public view?: vscode.WebviewView;
 
 	private _subscriptionId: Subscription;
 
-	constructor(
-		private readonly _extensionUri: vscode.Uri,
-	) {
+	constructor(private readonly _extensionUri: vscode.Uri) {
 		this._pushMessages = this._pushMessages.bind(this);
 		this._subscriptionId = pubSub.subscribe(this._pushMessages);
 	}
 
-	public resolveWebviewView(webviewView: vscode.WebviewView, _context: vscode.WebviewViewResolveContext, _token: vscode.CancellationToken,) {
+	public resolveWebviewView(
+		webviewView: vscode.WebviewView,
+		_context: vscode.WebviewViewResolveContext,
+		_token: vscode.CancellationToken,
+	) {
 		this.view = webviewView;
 
 		webviewView.webview.options = {
@@ -51,23 +105,29 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 			this._subscriptionId.unsubscribe();
 		});
 
-		webviewView.webview.onDidReceiveMessage(async reqData => {
+		webviewView.webview.onDidReceiveMessage(async (reqData) => {
 			switch (reqData.type) {
 				case requestTypes.readyCheckRequest:
-					webviewView.webview.postMessage({ type: responseTypes.readyCheckResponse });
+					webviewView.webview.postMessage({
+						type: responseTypes.readyCheckResponse,
+					});
 					break;
 				case requestTypes.getAllHistoryRequest:
 					GetAllHistory(webviewView);
 					break;
 				case requestTypes.deleteAllHistoryRequest:
-					this.showConfirmationBox("Do you want to clear all history?").then((data: any) => {
-						if (data === "Yes") {
-							DeleteAllHistory(webviewView);
-						}
-					});
+					this.showConfirmationBox("Do you want to clear all history?").then(
+						(data: any) => {
+							if (data === "Yes") {
+								DeleteAllHistory(webviewView);
+							}
+						},
+					);
 					break;
 				case requestTypes.deleteHistoryRequest:
-					this.showConfirmationBox(`Do you want to delete the '${reqData.name}' history item?`).then((data: any) => {
+					this.showConfirmationBox(
+						`Do you want to delete the '${reqData.name}' history item?`,
+					).then((data: any) => {
 						if (data === "Yes") {
 							DeleteHistory(webviewView, reqData.data);
 						}
@@ -81,10 +141,26 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					});
 					break;
 				case requestTypes.openHistoryItemRequest:
-					OpenExistingItem(reqData.data.id, reqData.data.name, reqData.data.colId, reqData.data.folderId, reqData.data.varId, undefined, reqData.data.isNewTab);
+					OpenExistingItem(
+						reqData.data.id,
+						reqData.data.name,
+						reqData.data.colId,
+						reqData.data.folderId,
+						reqData.data.varId,
+						undefined,
+						reqData.data.isNewTab,
+					);
 					break;
 				case requestTypes.openAndRunItemRequest:
-					OpenExistingItem(reqData.data.id, reqData.data.name, reqData.data.colId, reqData.data.folderId, reqData.data.varId, "OpenAndRun", reqData.data.isNewTab);
+					OpenExistingItem(
+						reqData.data.id,
+						reqData.data.name,
+						reqData.data.colId,
+						reqData.data.folderId,
+						reqData.data.varId,
+						"OpenAndRun",
+						reqData.data.isNewTab,
+					);
 					break;
 				case requestTypes.addToCollectionsRequest:
 					OpenAddToColUI(reqData.data);
@@ -95,14 +171,29 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 				case requestTypes.renameCollectionItemRequest:
 					this.showInputBox().then((name: any) => {
 						if (name) {
-							RenameCollectionItem(webviewView, reqData.data.colId, reqData.data.historyId, reqData.data.folderId, reqData.data.isFolder, name);
+							RenameCollectionItem(
+								webviewView,
+								reqData.data.colId,
+								reqData.data.historyId,
+								reqData.data.folderId,
+								reqData.data.isFolder,
+								name,
+							);
 						}
 					});
 					break;
 				case requestTypes.deleteCollectionItemRequest:
-					this.showConfirmationBox(`Do you want to delete the '${reqData.data.name}' ${reqData.data.isFolder ? "folder?" : "item?"}`).then((data: any) => {
+					this.showConfirmationBox(
+						`Do you want to delete the '${reqData.data.name}' ${reqData.data.isFolder ? "folder?" : "item?"}`,
+					).then((data: any) => {
 						if (data === "Yes") {
-							DeleteCollectionItem(webviewView, reqData.data.colId, reqData.data.folderId, reqData.data.historyId, reqData.data.isFolder);
+							DeleteCollectionItem(
+								webviewView,
+								reqData.data.colId,
+								reqData.data.folderId,
+								reqData.data.historyId,
+								reqData.data.isFolder,
+							);
 						}
 					});
 					break;
@@ -114,7 +205,9 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					});
 					break;
 				case requestTypes.deleteCollectionRequest:
-					this.showConfirmationBox(`Do you want to delete the '${reqData.name}' collection?`).then((data: any) => {
+					this.showConfirmationBox(
+						`Do you want to delete the '${reqData.name}' collection?`,
+					).then((data: any) => {
 						if (data === "Yes") {
 							DeleteCollection(webviewView, reqData.data);
 						}
@@ -124,47 +217,90 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					OpenExistingItem();
 					break;
 				case requestTypes.duplicateCollectionsRequest:
-					DuplicateItem(reqData.data.coldId, reqData.data.folderId, reqData.data.historyId, reqData.data.isFolder, webviewView);
+					DuplicateItem(
+						reqData.data.coldId,
+						reqData.data.folderId,
+						reqData.data.historyId,
+						reqData.data.isFolder,
+						webviewView,
+					);
 					break;
 				case requestTypes.exportRequest:
-					const choice = await vscode.window.showQuickPick(["Fetch Client", "Postman"], {
-						placeHolder: "Select the format", title: "Export Collection"
-					});
+					const choice = await vscode.window.showQuickPick(
+						["Fetch Client", "Postman"],
+						{
+							placeHolder: "Select the format",
+							title: "Export Collection",
+						},
+					);
 					if (!choice) {
 						return;
 					}
-					vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file("fetch-client-collection_" + reqData.data.name?.replace(/[/\\?%*:|"<>]/g, '-') + ".json") }).then((uri: vscode.Uri | undefined) => {
-						if (uri) {
-							const value = uri.fsPath;
-							switch (choice) {
-								case "Postman":
-								case "Thunder Client":
-									ExportOtherFormats(value, reqData.data.colId, reqData.data.hisId, reqData.data.folderId, choice);
-									break;
+					vscode.window
+						.showSaveDialog({
+							defaultUri: vscode.Uri.file(
+								"fetch-client-collection_" +
+									reqData.data.name?.replace(/[/\\?%*:|"<>]/g, "-") +
+									".json",
+							),
+						})
+						.then((uri: vscode.Uri | undefined) => {
+							if (uri) {
+								const value = uri.fsPath;
+								switch (choice) {
+									case "Postman":
+									case "Thunder Client":
+										ExportOtherFormats(
+											value,
+											reqData.data.colId,
+											reqData.data.hisId,
+											reqData.data.folderId,
+											choice,
+										);
+										break;
 
-								case "Fetch Client":
-									Export(value, reqData.data.colId, reqData.data.hisId, reqData.data.folderId, 2);
-									break;
+									case "Fetch Client":
+										Export(
+											value,
+											reqData.data.colId,
+											reqData.data.hisId,
+											reqData.data.folderId,
+											2,
+										);
+										break;
+								}
 							}
-						}
-					});
+						});
 					break;
 				case requestTypes.clearRequest:
-					this.showConfirmationBox(`Do you want to clear all items in '${reqData.data.name}' ?`).then((data: any) => {
+					this.showConfirmationBox(
+						`Do you want to clear all items in '${reqData.data.name}' ?`,
+					).then((data: any) => {
 						if (data === "Yes") {
-							DeleteAllCollectionItems(webviewView, reqData.data.colId, reqData.data.folderId);
+							DeleteAllCollectionItems(
+								webviewView,
+								reqData.data.colId,
+								reqData.data.folderId,
+							);
 						}
 					});
 					break;
 				case requestTypes.importRequest:
-					vscode.window.showOpenDialog({ filters: { 'Json Files': ['json'] }, canSelectMany: true }).then((uri: vscode.Uri[] | undefined) => {
-						if (uri && uri.length > 0) {
-							uri.forEach((item, index) => {
-								const value = item.fsPath;
-								setTimeout(function () { Import(webviewView, value); }, 250 * index);
-							});
-						}
-					});
+					vscode.window
+						.showOpenDialog({
+							filters: { "Json Files": ["json"] },
+							canSelectMany: true,
+						})
+						.then((uri: vscode.Uri[] | undefined) => {
+							if (uri && uri.length > 0) {
+								uri.forEach((item, index) => {
+									const value = item.fsPath;
+									setTimeout(function () {
+										Import(webviewView, value);
+									}, 250 * index);
+								});
+							}
+						});
 					break;
 				case requestTypes.copyToCollectionsRequest:
 					OpenCopyToColUI(reqData.data.id, reqData.data.name);
@@ -180,7 +316,9 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					});
 					break;
 				case requestTypes.deleteVariableRequest:
-					this.showConfirmationBox(`Do you want to delete the '${reqData.name}' variable?`).then((data: any) => {
+					this.showConfirmationBox(
+						`Do you want to delete the '${reqData.name}' variable?`,
+					).then((data: any) => {
 						if (data === "Yes") {
 							DeleteVariable(webviewView, reqData.data);
 						}
@@ -196,47 +334,83 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					OpenAttachVariableUI(reqData.data.id, reqData.data.name);
 					break;
 				case requestTypes.removeVariableRequest:
-					this.showConfirmationBox(`Do you want to remove the variable from '${reqData.data.name}' collection?`).then((data: any) => {
+					this.showConfirmationBox(
+						`Do you want to remove the variable from '${reqData.data.name}' collection?`,
+					).then((data: any) => {
 						if (data === "Yes") {
 							AttachVariable(reqData.data.id, "", null, webviewView);
 						}
 					});
 					break;
 				case requestTypes.activeVariableRequest:
-					ChangeVariableStatus(reqData.data.id, reqData.data.status, webviewView);
+					ChangeVariableStatus(
+						reqData.data.id,
+						reqData.data.status,
+						webviewView,
+					);
 					break;
 				case requestTypes.exportVariableRequest:
-					this.showInputBox("Enter an encryption key to encrypt the variables, or leave it blank to store without encryption. Note: Share key with anyone who needs to import these variables.", "", false).then((key: string) => {
-						vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file("fetch-client-variable_" + reqData.vars.name?.replace(/[/\\?%*:|"<>]/g, '-') + ".json") }).then((uri: vscode.Uri | undefined) => {
-							if (uri) {
-								const value = uri.fsPath;
-								ExportVariable(value, reqData.vars.id, key);
-							}
-						});
+					this.showInputBox(
+						"Enter an encryption key to encrypt the variables, or leave it blank to store without encryption. Note: Share key with anyone who needs to import these variables.",
+						"",
+						false,
+					).then((key: string) => {
+						vscode.window
+							.showSaveDialog({
+								defaultUri: vscode.Uri.file(
+									"fetch-client-variable_" +
+										reqData.vars.name?.replace(/[/\\?%*:|"<>]/g, "-") +
+										".json",
+								),
+							})
+							.then((uri: vscode.Uri | undefined) => {
+								if (uri) {
+									const value = uri.fsPath;
+									ExportVariable(value, reqData.vars.id, key);
+								}
+							});
 					});
 					break;
 				case requestTypes.importVariableRequest:
-					this.showInputBox("Enter decryption key if variable is encrypted else leave it blank", "", false).then((key: string) => {
-						vscode.window.showOpenDialog({ filters: { 'Files': ['json', 'env'] }, canSelectMany: true }).then((uri: vscode.Uri[] | undefined) => {
-							if (uri && uri.length > 0) {
-								uri.forEach((item, index) => {
-									const value = item.fsPath;
-									let ext = value.split('.').pop();
-									if (ext.toLowerCase() === "json") {
-										setTimeout(function () { ImportVariableFromJsonFile(webviewView, value, key); }, 250 * index);
-									} else {
-										setTimeout(function () { ImportVariableFromEnvFile(webviewView, value); }, 250 * index);
-									}
-								});
-							}
-						});
+					this.showInputBox(
+						"Enter decryption key if variable is encrypted else leave it blank",
+						"",
+						false,
+					).then((key: string) => {
+						vscode.window
+							.showOpenDialog({
+								filters: { Files: ["json", "env"] },
+								canSelectMany: true,
+							})
+							.then((uri: vscode.Uri[] | undefined) => {
+								if (uri && uri.length > 0) {
+									uri.forEach((item, index) => {
+										const value = item.fsPath;
+										let ext = value.split(".").pop();
+										if (ext.toLowerCase() === "json") {
+											setTimeout(function () {
+												ImportVariableFromJsonFile(webviewView, value, key);
+											}, 250 * index);
+										} else {
+											setTimeout(function () {
+												ImportVariableFromEnvFile(webviewView, value);
+											}, 250 * index);
+										}
+									});
+								}
+							});
 					});
 					break;
 				case requestTypes.duplicateVariableRequest:
 					DuplicateVariable(reqData.id, null, webviewView);
 					break;
 				case requestTypes.runAllUIOpenRequest:
-					OpenRunAllUI(reqData.data.colId, reqData.data.folderId, reqData.data.name, reqData.data.varId);
+					OpenRunAllUI(
+						reqData.data.colId,
+						reqData.data.folderId,
+						reqData.data.name,
+						reqData.data.varId,
+					);
 					break;
 				case requestTypes.reOrderItemUIOpenRequest:
 					OpenReOrderUI(reqData.data.colId, reqData.data.folderId);
@@ -251,10 +425,19 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 								method: reqData.data.request.method,
 								name: data,
 								url: reqData.data.request.url,
-								createdTime: reqData.data.request.createdTime ? reqData.data.request.createdTime : formatDate(),
-								modifiedTime: reqData.data.request.modifiedTime ? reqData.data.request.modifiedTime : formatDate()
+								createdTime: reqData.data.request.createdTime
+									? reqData.data.request.createdTime
+									: formatDate(),
+								modifiedTime: reqData.data.request.modifiedTime
+									? reqData.data.request.modifiedTime
+									: formatDate(),
 							};
-							NewRequestToCollection(item, reqData.data.colId, reqData.data.folderId, webviewView);
+							NewRequestToCollection(
+								item,
+								reqData.data.colId,
+								reqData.data.folderId,
+								webviewView,
+							);
 						}
 					});
 					break;
@@ -263,7 +446,12 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 						if (data) {
 							let folder = reqData.data.folder as IFolder;
 							folder.name = data;
-							NewFolderToCollection(folder, reqData.data.colId, reqData.data.folderId, webviewView);
+							NewFolderToCollection(
+								folder,
+								reqData.data.colId,
+								reqData.data.folderId,
+								webviewView,
+							);
 						}
 					});
 					break;
@@ -271,20 +459,30 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					this.showInputBox().then((name: string) => {
 						if (name) {
 							if (name.toLocaleLowerCase() === "default") {
-								vscode.window.showInformationMessage("Collection name should not be 'default'", { modal: true });
-							}
-							else {
+								vscode.window.showInformationMessage(
+									"Collection name should not be 'default'",
+									{ modal: true },
+								);
+							} else {
 								CreateNewCollection(name, webviewView);
 							}
 						}
 					});
 					break;
 				case requestTypes.openColSettingsRequest:
-					OpenColSettings(reqData.data.colId, reqData.data.folderId, reqData.data.name, reqData.data.type, reqData.data.varId);
+					OpenColSettings(
+						reqData.data.colId,
+						reqData.data.folderId,
+						reqData.data.name,
+						reqData.data.type,
+						reqData.data.varId,
+					);
 					break;
 				case requestTypes.copyItemRequest:
 					getStorageManager().setValue("item-copy-data", reqData.data.history);
-					webviewView.webview.postMessage({ type: responseTypes.copyItemResponse });
+					webviewView.webview.postMessage({
+						type: responseTypes.copyItemResponse,
+					});
 					break;
 				case requestTypes.pasteItemRequest:
 					let history = getStorageManager().getValue("item-copy-data");
@@ -296,8 +494,16 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 						} else {
 							col.data.push(history as IHistory);
 						}
-						AddToCollection(col, reqData.data.isFolder, false, null, webviewView);
-						webviewView.webview.postMessage({ type: responseTypes.pasteItemResponse });
+						AddToCollection(
+							col,
+							reqData.data.isFolder,
+							false,
+							null,
+							webviewView,
+						);
+						webviewView.webview.postMessage({
+							type: responseTypes.pasteItemResponse,
+						});
 					}
 					break;
 				case requestTypes.importCurlRequest:
@@ -326,7 +532,12 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					webviewView.webview.postMessage(getConfiguration());
 					break;
 				case requestTypes.runPerfTestUIOpenRequest:
-					OpenPerfTestUI(reqData.data.colId, reqData.data.folderId, reqData.data.name, reqData.data.varId);
+					OpenPerfTestUI(
+						reqData.data.colId,
+						reqData.data.folderId,
+						reqData.data.name,
+						reqData.data.varId,
+					);
 					break;
 			}
 		});
@@ -338,27 +549,39 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 		}
 	}
 
-	private async showInputBox(prompt: string = "Enter name", placeHolder: string = "Enter name", validate: boolean = true) {
+	private async showInputBox(
+		prompt: string = "Enter name",
+		placeHolder: string = "Enter name",
+		validate: boolean = true,
+	) {
 		const res = await vscode.window.showInputBox({
 			value: "",
 			prompt: prompt,
 			placeHolder: placeHolder,
 			ignoreFocusOut: false,
-			validateInput: validate ? text => {
-				return text !== "" && text.length <= 50 ? null : "Enter the valid name (length should be <=50)";
-			} : null
+			validateInput: validate
+				? (text) => {
+						return text !== "" && text.length <= 50
+							? null
+							: "Enter the valid name (length should be <=50)";
+					}
+				: null,
 		});
 
 		return res;
 	}
 
 	private async showConfirmationBox(text: string) {
-		const res = await vscode.window.showWarningMessage(text, { modal: true }, "Yes", "No");
+		const res = await vscode.window.showWarningMessage(
+			text,
+			{ modal: true },
+			"Yes",
+			"No",
+		);
 		return res;
 	}
 
 	private getHtmlForWebview(webview: vscode.Webview): string {
-		return buildWebviewHtml(webview, this._extensionUri, 'sideBar');
+		return buildWebviewHtml(webview, this._extensionUri, "sideBar");
 	}
 }
-

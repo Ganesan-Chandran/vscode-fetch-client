@@ -1,9 +1,9 @@
 export interface ICommonConfig {
-	open: boolean[],
+	open: boolean[];
 	horizontalLayout: boolean;
 	theme: number;
 	runItem: boolean;
-	responseLimit: number
+	responseLimit: number;
 }
 
 export interface ITableData {
@@ -14,6 +14,12 @@ export interface ITableData {
 	value: string;
 }
 
-export type TableType = "reqHeaders" | "queryParams" | "resHeaders" | "formData" | "urlEncoded" | "resCookies";
+export type TableType =
+	| "reqHeaders"
+	| "queryParams"
+	| "resHeaders"
+	| "formData"
+	| "urlEncoded"
+	| "resCookies";
 
 export type TextType = "text" | "password";

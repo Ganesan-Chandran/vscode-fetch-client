@@ -1,12 +1,12 @@
 .request-panel {
-	margin : 5px;
+	margin: 5px;
 	padding: 10px;
 }
 
 .request-container {
-	display       : flex;
+	display: flex;
 	flex-direction: row;
-	width         : 100%;
+	width: 100%;
 }
 
 .request-drop-down-panel {
@@ -14,19 +14,19 @@
 }
 
 .request-method-drop-down {
-	border-radius   : 2px;
-	cursor          : pointer;
-	font-weight     : bolder;
-	outline         : none;
-	padding         : 9px;
-	width           : 90px;
-	color           : var(--text-color);
+	border-radius: 2px;
+	cursor: pointer;
+	font-weight: bolder;
+	outline: none;
+	padding: 9px;
+	width: 90px;
+	color: var(--text-color);
 	background-color: var(--background-color);
-	border          : var(--border-size) solid var(--border-color);
+	border: var(--border-size) solid var(--border-color);
 }
 
 .request-method-drop-down option {
-	color           : var(--text-color);
+	color: var(--text-color);
 	background-color: var(--background-color);
 }
 
@@ -37,28 +37,28 @@
 
 .request-url-panel {
 	width: calc(100% - 200px);
-	flex : auto;
+	flex: auto;
 }
 
 .request-url-text,
 .DraftEditor-editorContainer {
-	display         : inline-block;
-	outline         : none;
-	padding         : 10px;
-	width           : 100%;
-	color           : var(--text-color);
+	display: inline-block;
+	outline: none;
+	padding: 10px;
+	width: 100%;
+	color: var(--text-color);
 	background-color: var(--background-color);
-	box-sizing      : border-box;
+	box-sizing: border-box;
 }
 
 .request-url-panel .DraftEditor-editorContainer {
-	border       : var(--border-size) solid var(--border-color);
+	border: var(--border-size) solid var(--border-color);
 	border-radius: 2px;
-	padding      : 9px !important;
+	padding: 9px !important;
 }
 
 mark {
-	color           : var(--button-background-color);
+	color: var(--button-background-color);
 	background-color: var(--background-color);
 }
 
@@ -69,20 +69,20 @@ mark {
 
 .request-send-panel {
 	margin-left: 10px;
-	width      : 80px;
+	width: 80px;
 }
 
 .request-send-button {
 	background-color: var(--button-background-color);
-	border          : 0;
-	border-radius   : 3px;
-	color           : var(--button-text-color);
-	cursor          : pointer;
-	display         : inline-block;
-	font-weight     : bold;
-	outline         : none;
-	padding         : 11px;
-	width           : 75px;
+	border: 0;
+	border-radius: 3px;
+	color: var(--button-text-color);
+	cursor: pointer;
+	display: inline-block;
+	font-weight: bold;
+	outline: none;
+	padding: 11px;
+	width: 75px;
 }
 
 .request-send-button:disabled,
@@ -90,8 +90,8 @@ mark {
 .request-send-button:disabled:hover,
 .request-send-button[disabled]:hover {
 	background-color: #ccc;
-	color           : #666;
-	cursor          : not-allowed;
+	color: #666;
+	cursor: not-allowed;
 }
 
 .request-send-button:hover {
@@ -99,13 +99,13 @@ mark {
 }
 
 #custom-url-editor {
-	width           : 400px;
-	height          : 100px;
-	padding         : 10px;
+	width: 400px;
+	height: 100px;
+	padding: 10px;
 	background-color: #444;
-	color           : white;
-	font-size       : 14px;
-	font-family     : monospace;
+	color: white;
+	font-size: 14px;
+	font-family: monospace;
 }
 
 .statement {

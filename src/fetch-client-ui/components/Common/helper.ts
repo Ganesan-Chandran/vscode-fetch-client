@@ -4,8 +4,8 @@ export const notesMaxLimit = 2500;
 
 export function GetDataFromHTML(data: string): string {
 	let removedData: string;
-	removedData = data?.replace(/(<([^>]+)>)/gm, '');
-	removedData = removedData?.replace(/(&nbsp;|&gt;|&lt;|&amp;)/gm, ' ');
+	removedData = data?.replace(/(<([^>]+)>)/gm, "");
+	removedData = removedData?.replace(/(&nbsp;|&gt;|&lt;|&amp;)/gm, " ");
 	return removedData;
 }
 
@@ -18,8 +18,7 @@ export function GetDomainName(url: string, cookie: ITableData): string {
 
 	try {
 		domainName = getDomainNameFromURL(url);
-	}
-	catch {
+	} catch {
 		domainName = getDomainNameFromCookie(cookie);
 	}
 
@@ -34,7 +33,10 @@ function getDomainNameFromCookie(cookie: ITableData): string {
 		let str = cookie.value.substring(startIndex);
 		str = str.replace("domain=", "").trim();
 		endIndex = str.indexOf(";");
-		domainName = str.substring(0, endIndex === -1 ? cookie.value.length - 1 : endIndex);
+		domainName = str.substring(
+			0,
+			endIndex === -1 ? cookie.value.length - 1 : endIndex,
+		);
 		if (domainName.charAt(0) === ".") {
 			domainName = domainName.replace(".", "").trim();
 		}
@@ -51,11 +53,11 @@ export function getDomainNameFromURL(url: string): string {
 		url = "https://" + url;
 	}
 	let domain = new URL(url);
-	domainName = domain.hostname.replace('www.', '').trim();
+	domainName = domain.hostname.replace("www.", "").trim();
 
 	return domainName;
 }
 
 export function GetFileName(path: string) {
-	return path.split('\\').pop().split("/").pop();
+	return path.split("\\").pop().split("/").pop();
 }

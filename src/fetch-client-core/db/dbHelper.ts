@@ -1,6 +1,11 @@
 import path from "path";
-import * as vscode from 'vscode';
-import { getCustomDbPathConfiguration, getDbPathConfiguration, getSaveToWorkspaceConfiguration, getWorkspacePathConfiguration } from "../utils/vscodeConfig";
+import * as vscode from "vscode";
+import {
+	getCustomDbPathConfiguration,
+	getDbPathConfiguration,
+	getSaveToWorkspaceConfiguration,
+	getWorkspacePathConfiguration,
+} from "../utils/vscodeConfig";
 
 let globalStorageUri = "";
 
@@ -36,33 +41,34 @@ export function getExtLocalDbPath(): string {
 	if (existingPath) {
 		return existingPath;
 	}
-	const workspacePath = vscode?.workspace?.workspaceFolders?.[0]?.uri?.fsPath ?? "";
+	const workspacePath =
+		vscode?.workspace?.workspaceFolders?.[0]?.uri?.fsPath ?? "";
 	return workspacePath ? path.resolve(workspacePath, "fetch-client") : "";
 }
 
 export function getExtDbPath(): string {
-    const pathState = getSaveToWorkspaceConfiguration();
+	const pathState = getSaveToWorkspaceConfiguration();
 
-    if (pathState) {
-        return getExtLocalDbPath();
-    }
+	if (pathState) {
+		return getExtLocalDbPath();
+	}
 
-    const mode = getDbPathConfiguration();
+	const mode = getDbPathConfiguration();
 
-    if (mode === "Workspace") {
-        return getExtLocalDbPath();
-    }
+	if (mode === "Workspace") {
+		return getExtLocalDbPath();
+	}
 
-    if (mode === "Custom Path") {
-        const custom = getCustomDbPathConfiguration();
-        return custom || globalStorageUri;
-    }
+	if (mode === "Custom Path") {
+		const custom = getCustomDbPathConfiguration();
+		return custom || globalStorageUri;
+	}
 
-    if (getSaveToWorkspaceConfiguration()) {
-        return getExtLocalDbPath();
-    }
+	if (getSaveToWorkspaceConfiguration()) {
+		return getExtLocalDbPath();
+	}
 
-    return globalStorageUri;
+	return globalStorageUri;
 }
 
 export function getExtDbBKPPath(): string {

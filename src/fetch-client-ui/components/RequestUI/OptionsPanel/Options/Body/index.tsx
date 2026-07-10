@@ -7,16 +7,20 @@ import { GraphQL } from "./GraphQL";
 import { IRootState } from "../../../../../reducer/combineReducer";
 import { None } from "./None";
 import { Raw } from "./Raw/Raw";
-import { requestBodyRaw, requestBodyTypes } from "../../../../../../fetch-client-core/consts/requestBody.consts";
+import {
+	requestBodyRaw,
+	requestBodyTypes,
+} from "../../../../../../fetch-client-core/consts/requestBody.consts";
 import { UrlEncoded } from "./UrlEncoded";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useState } from "react";
 
 export const Body = () => {
-
 	const dispatch = useDispatch<AppDispatch>();
 
-	const { bodyType, raw } = useSelector((state: IRootState) => state.requestData.body);
+	const { bodyType, raw } = useSelector(
+		(state: IRootState) => state.requestData.body,
+	);
 
 	const [format, setFormat] = useState(false);
 
@@ -52,18 +56,25 @@ export const Body = () => {
 	function renderTextmodeUI(type: string) {
 		return (
 			<>
-				{type === "raw" &&
+				{type === "raw" && (
 					<>
 						<span className="reqest-body-raw-type-text">Type : </span>
-						<select className="raw-lang-select" value={raw.lang} onChange={(e) => setBodyLang(e.target.value)}>
+						<select
+							className="raw-lang-select"
+							value={raw.lang}
+							onChange={(e) => setBodyLang(e.target.value)}
+						>
 							{requestBodyRaw.map((type) => (
 								<option key={type.value} value={type.value}>
 									{type.name}
 								</option>
 							))}
 						</select>
-					</>}
-				<button onClick={onFormatClick} className="format-button">Format</button>
+					</>
+				)}
+				<button onClick={onFormatClick} className="format-button">
+					Format
+				</button>
 			</>
 		);
 	}
@@ -77,24 +88,24 @@ export const Body = () => {
 							key={value}
 							onClick={() => setBodyType(value)}
 							className={
-								bodyType === value
-									? "option option-selected"
-									: "option"
+								bodyType === value ? "option option-selected" : "option"
 							}
 						>
-							<div className="option-names">
-								{name}
-							</div>
+							<div className="option-names">{name}</div>
 						</button>
 					</div>
 				))}
 			</div>
-			{
-				(bodyType === "raw" || bodyType === "graphql") && <div className="reqest-body-raw-type">
-					{renderTextmodeUI(bodyType)}
-				</div>
-			}
-			<div className={bodyType === "raw" ? "request-body-details-panel raw-type" : "request-body-details-panel"}>
+			{(bodyType === "raw" || bodyType === "graphql") && (
+				<div className="reqest-body-raw-type">{renderTextmodeUI(bodyType)}</div>
+			)}
+			<div
+				className={
+					bodyType === "raw"
+						? "request-body-details-panel raw-type"
+						: "request-body-details-panel"
+				}
+			>
 				{renderBody(bodyType)}
 			</div>
 		</>

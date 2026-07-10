@@ -1,6 +1,6 @@
 .curl-text-panel {
-	height    : 49%;
-	padding   : 15px;
+	height: 49%;
+	padding: 15px;
 	box-sizing: border-box;
 }
 
@@ -9,15 +9,15 @@
 }
 
 .curl-text-box {
-	width           : calc(100% - 100px);
-	height          : calc(100% - 25px);
-	resize          : none;
+	width: calc(100% - 100px);
+	height: calc(100% - 25px);
+	resize: none;
 	background-color: var(--background-color);
-	color           : var(--text-color);
-	border-color    : var(--border-color);
-	outline         : none;
-	margin-top      : 5px;
-	padding         : 10px;
+	color: var(--text-color);
+	border-color: var(--border-color);
+	outline: none;
+	margin-top: 5px;
+	padding: 10px;
 }
 
 .curl-text-box:focus {
@@ -38,13 +38,13 @@
 
 .curl-text-section {
 	display: flex;
-	height : calc(100% - 45px);
+	height: calc(100% - 45px);
 	padding: 5px;
 }
 
 .curl-run-btn {
-	top        : 30%;
-	position   : relative;
+	top: 30%;
+	position: relative;
 	margin-left: 15px;
 }
 
@@ -52,8 +52,8 @@
 .curl-run-col-btn[disabled] .curl-run-btn:disabled,
 .curl-run-btn[disabled] {
 	background-color: #ccc;
-	color           : #666;
-	cursor          : not-allowed;
+	color: #666;
+	cursor: not-allowed;
 }
 
 .curl-run-col-btn {
@@ -65,8 +65,8 @@
 }
 
 .curl-col-table {
-	width      : 50%;
-	padding    : 10px;
+	width: 50%;
+	padding: 10px;
 	margin-left: 10px;
 }
 
@@ -88,12 +88,12 @@
 }
 
 .curl-import-btn-panel {
-	width     : 100%;
+	width: 100%;
 	text-align: center;
 }
 
 .curl-error {
-	width     : 100%;
-	margin    : 0 auto;
+	width: 100%;
+	margin: 0 auto;
 	text-align: center;
 }

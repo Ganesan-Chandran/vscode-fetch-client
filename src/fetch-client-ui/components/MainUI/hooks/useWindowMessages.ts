@@ -2,11 +2,21 @@ import { Actions } from "../../RequestUI/redux";
 import { AppDispatch } from "../../../store/appStore";
 import { CookiesActions } from "../../Cookies/redux";
 import { ICookie } from "../../../../fetch-client-core/types/cookie.types";
-import { IReqSettings, ICollection } from "../../../../fetch-client-core/types/prefetch.types";
+import {
+	IReqSettings,
+	ICollection,
+} from "../../../../fetch-client-core/types/prefetch.types";
 import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
-import { IVariable, ISettings } from "../../../../fetch-client-core/types/sidebar.types";
+import {
+	IVariable,
+	ISettings,
+} from "../../../../fetch-client-core/types/sidebar.types";
 import { MutableRefObject, useEffect, useRef } from "react";
-import { pubSubTypes, requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
+import {
+	pubSubTypes,
+	requestTypes,
+	responseTypes,
+} from "../../../../fetch-client-core/consts/requestTypes.consts";
 import { ResponseActions } from "../../ResponseUI/redux";
 import { SendRequest } from "../../RequestUI/RequestPanel/common";
 import { UIActions } from "../redux";
@@ -34,7 +44,7 @@ export function useWindowMessages(
 	dispatch: AppDispatch,
 	colId: string,
 	refs: IWindowMessageRefs,
-	callbacks: IWindowMessageCallbacks
+	callbacks: IWindowMessageCallbacks,
 ): void {
 	const callbacksRef = useRef(callbacks);
 	callbacksRef.current = callbacks;
@@ -42,7 +52,9 @@ export function useWindowMessages(
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
 			const { data } = event;
-			if (!data?.type) { return; }
+			if (!data?.type) {
+				return;
+			}
 
 			const cb = callbacksRef.current;
 
@@ -55,12 +67,20 @@ export function useWindowMessages(
 				}
 
 				case responseTypes.configResponse: {
-					const config = JSON.parse(data.configData as string) as Record<string, unknown>;
+					const config = JSON.parse(data.configData as string) as Record<
+						string,
+						unknown
+					>;
 					const layoutConfig = config["layout"] as string;
 					const responseLimit = (config["responseLimit"] as number) * 1048576;
 					cb.setLayout(layoutConfig);
 					cb.setHoriLayout(config["horizontalLayout"] as string);
-					dispatch(UIActions.SetLayoutAction(layoutConfig === "Horizontal Split", data.theme as number));
+					dispatch(
+						UIActions.SetLayoutAction(
+							layoutConfig === "Horizontal Split",
+							data.theme as number,
+						),
+					);
 					dispatch(UIActions.SetResponseLimitAction(responseLimit));
 					break;
 				}
@@ -69,15 +89,33 @@ export function useWindowMessages(
 				case responseTypes.getOpenAndRunItemDataResponse: {
 					const reqData = data.item[0] as IRequestModel;
 					dispatch(Actions.SetRequestAction(reqData));
-					if (reqData.body.bodyType === "binary" && reqData.body.binary?.fileName) {
-						vscode.postMessage({ type: requestTypes.readFileRequest, path: reqData.body.binary.fileName });
+					if (
+						reqData.body.bodyType === "binary" &&
+						reqData.body.binary?.fileName
+					) {
+						vscode.postMessage({
+							type: requestTypes.readFileRequest,
+							path: reqData.body.binary.fileName,
+						});
 					}
 					cb.setLoadingApp(false);
 					if (data.type === responseTypes.getOpenAndRunItemDataResponse) {
-						if ((reqData.body.bodyType === "binary" && reqData.body.binary?.fileName) || reqData.auth.authType === "inherit") {
+						if (
+							(reqData.body.bodyType === "binary" &&
+								reqData.body.binary?.fileName) ||
+							reqData.auth.authType === "inherit"
+						) {
 							refs.waitForSend.current = true;
 						} else {
-							SendRequest(dispatch, false, colId, reqData, refs.selectedVariable.current, refs.parentSettings.current, refs.reqSettings.current);
+							SendRequest(
+								dispatch,
+								false,
+								colId,
+								reqData,
+								refs.selectedVariable.current,
+								refs.parentSettings.current,
+								refs.reqSettings.current,
+							);
 						}
 					}
 					break;
@@ -87,25 +125,47 @@ export function useWindowMessages(
 					dispatch(Actions.SetRequestBinaryDataAction(data.fileData));
 					if (refs.waitForSend.current) {
 						refs.waitForSend.current = false;
-						SendRequest(dispatch, false, colId, refs.requestData.current, refs.selectedVariable.current, refs.parentSettings.current, refs.reqSettings.current);
+						SendRequest(
+							dispatch,
+							false,
+							colId,
+							refs.requestData.current,
+							refs.selectedVariable.current,
+							refs.parentSettings.current,
+							refs.reqSettings.current,
+						);
 					}
 					break;
 				}
 
 				case responseTypes.getAllVariableResponse: {
-					dispatch(VariableActions.SetReqAllVariableAction(data.variable as IVariable[]));
+					dispatch(
+						VariableActions.SetReqAllVariableAction(
+							data.variable as IVariable[],
+						),
+					);
 					break;
 				}
 
 				case responseTypes.getRunItemDataResponse: {
 					const reqData = data.reqData as IRequestModel;
 					dispatch(Actions.SetRequestAction(reqData));
-					if (reqData.body.bodyType === "binary" && reqData.body.binary?.fileName) {
-						vscode.postMessage({ type: requestTypes.readFileRequest, path: reqData.body.binary.fileName });
+					if (
+						reqData.body.bodyType === "binary" &&
+						reqData.body.binary?.fileName
+					) {
+						vscode.postMessage({
+							type: requestTypes.readFileRequest,
+							path: reqData.body.binary.fileName,
+						});
 					}
 					dispatch(ResponseActions.SetResponseAction(data.resData.response));
-					dispatch(ResponseActions.SetResponseHeadersAction(data.resData.headers));
-					dispatch(ResponseActions.SetResponseCookiesAction(data.resData.cookies));
+					dispatch(
+						ResponseActions.SetResponseHeadersAction(data.resData.headers),
+					);
+					dispatch(
+						ResponseActions.SetResponseCookiesAction(data.resData.cookies),
+					);
 					cb.setLoadingApp(false);
 					break;
 				}
@@ -116,22 +176,36 @@ export function useWindowMessages(
 				}
 
 				case responseTypes.getAllCookiesResponse: {
-					dispatch(CookiesActions.SetAllCookiesAction(data.cookies as ICookie[]));
+					dispatch(
+						CookiesActions.SetAllCookiesAction(data.cookies as ICookie[]),
+					);
 					break;
 				}
 
 				case responseTypes.getParentSettingsResponse: {
-					dispatch(Actions.SetReqParentSettingsAction(data.settings as ISettings));
+					dispatch(
+						Actions.SetReqParentSettingsAction(data.settings as ISettings),
+					);
 					if (refs.waitForSend.current) {
 						refs.waitForSend.current = false;
-						SendRequest(dispatch, false, colId, refs.requestData.current, refs.selectedVariable.current, data.settings as ISettings, refs.reqSettings.current);
+						SendRequest(
+							dispatch,
+							false,
+							colId,
+							refs.requestData.current,
+							refs.selectedVariable.current,
+							data.settings as ISettings,
+							refs.reqSettings.current,
+						);
 					}
 					break;
 				}
 
 				case pubSubTypes.updateVariables: {
 					if (data.data) {
-						dispatch(VariableActions.SetReqVariableAction(data.data as IVariable));
+						dispatch(
+							VariableActions.SetReqVariableAction(data.data as IVariable),
+						);
 					} else {
 						vscode.postMessage({ type: requestTypes.getAllVariableRequest });
 					}
@@ -159,15 +233,19 @@ export function useWindowMessages(
 				}
 
 				case responseTypes.getAllCollectionNameResponse: {
-					const col: ICollection[] = (data.collectionNames as { value: string; name: string }[])
-						?.map((item) => ({ id: item.value, name: item.name })) ?? [];
+					const col: ICollection[] =
+						(data.collectionNames as { value: string; name: string }[])?.map(
+							(item) => ({ id: item.value, name: item.name }),
+						) ?? [];
 					col.unshift({ id: "", name: "select" });
 					dispatch(Actions.SetCollectionListAction(col));
 					break;
 				}
 
 				case responseTypes.preFetchResponse: {
-					dispatch(ResponseActions.SetPreFetchResponseAction(data.preFetchResponse));
+					dispatch(
+						ResponseActions.SetPreFetchResponseAction(data.preFetchResponse),
+					);
 					break;
 				}
 			}

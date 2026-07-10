@@ -1,19 +1,27 @@
 import "../style.css";
-import { executeTests, setVariable } from "../../../../fetch-client-core/helpers/tests.helper";
+import {
+	executeTests,
+	setVariable,
+} from "../../../../fetch-client-core/helpers/tests.helper";
 import { exportCSV, exportJson } from "./helper";
 import { getMethodClassName } from "../../SideBar/util";
 import { GetResponseTime } from "../../../../fetch-client-core/helpers/dateTime.helper";
 import { IReponseModel } from "../../../../fetch-client-core/types/response.types";
 import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
-import { ISettings, IVariable } from "../../../../fetch-client-core/types/sidebar.types";
-import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
+import {
+	ISettings,
+	IVariable,
+} from "../../../../fetch-client-core/types/sidebar.types";
+import {
+	requestTypes,
+	responseTypes,
+} from "../../../../fetch-client-core/consts/requestTypes.consts";
 import { RunAllSettings } from "./runAllSettings";
 import React, { useEffect, useRef, useState } from "react";
 import vscode from "../../Common/vscodeAPI";
 import PanelLayout from "../../Common/Layout/panelLayout";
 
 const RunAll = () => {
-
 	const [sourceColName, setSourceColName] = useState("");
 	const [processing, setProcessing] = useState(false);
 	const [start, setStart] = useState(false);
@@ -102,22 +110,36 @@ const RunAll = () => {
 		setColId(colId?.trim());
 
 		const handleMessage = (event: MessageEvent) => {
-			if (event.data && event.data.type === responseTypes.getCollectionsByIdResponse) {
-				setReq((event.data.collections as IRequestModel[]));
+			if (
+				event.data &&
+				event.data.type === responseTypes.getCollectionsByIdResponse
+			) {
+				setReq(event.data.collections as IRequestModel[]);
 				setItemPaths(event.data.paths);
 			} else if (event.data && event.data.type === responseTypes.apiResponse) {
 				setResponse(event.data);
 				setProcessing(false);
-			} else if (event.data && event.data.type === responseTypes.getVariableItemResponse) {
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.getVariableItemResponse
+			) {
 				setSelectedVariable(event.data.data[0] as IVariable);
-			} else if (event.data && event.data.type === responseTypes.multipleApiResponse) {
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.multipleApiResponse
+			) {
 				if (event.data.output && event.data.output.length > 0) {
 					event.data.output.forEach((item, index: number) => {
 						let enabledIndex: number;
 						if (index === 0) {
-							enabledIndex = refSelectedReq.current.findIndex(item => item === true);
+							enabledIndex = refSelectedReq.current.findIndex(
+								(item) => item === true,
+							);
 						} else {
-							enabledIndex = getNextIndex(refCurIndex.current, refSelectedReq.current);
+							enabledIndex = getNextIndex(
+								refCurIndex.current,
+								refSelectedReq.current,
+							);
 						}
 
 						setCurIndex(enabledIndex);
@@ -125,14 +147,27 @@ const RunAll = () => {
 					});
 					setProcessing(false);
 				}
-			} else if (event.data && event.data.type === responseTypes.getParentSettingsResponse) {
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.getParentSettingsResponse
+			) {
 				setParentSettings(event.data.settings as ISettings);
 				setLoading(false);
 			}
 		};
 		window.addEventListener("message", handleMessage);
-		vscode.postMessage({ type: requestTypes.getVariableItemRequest, data: { id: varId, isGlobal: varId ? false : true } });
-		vscode.postMessage({ type: requestTypes.getCollectionsByIdRequest, data: { colId: colId, folderId: folderId, type: name.trim().includes("\\") ? "fol" : "col" } });
+		vscode.postMessage({
+			type: requestTypes.getVariableItemRequest,
+			data: { id: varId, isGlobal: varId ? false : true },
+		});
+		vscode.postMessage({
+			type: requestTypes.getCollectionsByIdRequest,
+			data: {
+				colId: colId,
+				folderId: folderId,
+				type: name.trim().includes("\\") ? "fol" : "col",
+			},
+		});
 		setLoading(true);
 
 		return () => window.removeEventListener("message", handleMessage);
@@ -144,16 +179,24 @@ const RunAll = () => {
 			id: refReq.current[refCurIndex.current].id,
 			response: data.response,
 			headers: data.headers,
-			cookies: data.cookies
+			cookies: data.cookies,
 		};
 		if (refReq.current[refCurIndex.current].tests.length - 1 > 0) {
-			newRes.testResults = executeTests(refReq.current[refCurIndex.current].tests, newRes, refSelectedVariable.current.data);
+			newRes.testResults = executeTests(
+				refReq.current[refCurIndex.current].tests,
+				newRes,
+				refSelectedVariable.current.data,
+			);
 		} else {
 			newRes.testResults = [];
 		}
 
 		if (refReq.current[refCurIndex.current].setvar.length - 1 > 0) {
-			let variable = setVariable(refSelectedVariable.current, refReq.current[refCurIndex.current].setvar, newRes);
+			let variable = setVariable(
+				refSelectedVariable.current,
+				refReq.current[refCurIndex.current].setvar,
+				newRes,
+			);
 			setSelectedVariable(variable);
 		}
 
@@ -164,7 +207,10 @@ const RunAll = () => {
 		local[refProcessIteration.current][refCurIndex.current] = newRes;
 
 		if (refCurIndex.current === refReq.current.length - 1) {
-			vscode.postMessage({ type: requestTypes.updateVariableRequest, data: refSelectedVariable.current });
+			vscode.postMessage({
+				type: requestTypes.updateVariableRequest,
+				data: refSelectedVariable.current,
+			});
 		}
 		setRes(local);
 	}
@@ -187,7 +233,7 @@ const RunAll = () => {
 	}
 
 	function sequentialRun() {
-		let enabledIndex = selectedReq.findIndex(item => item === true);
+		let enabledIndex = selectedReq.findIndex((item) => item === true);
 		if (enabledIndex !== -1) {
 			setCurIndex(enabledIndex);
 			let id = itemPaths[req[enabledIndex].id].split(";")[1];
@@ -195,17 +241,37 @@ const RunAll = () => {
 				id = "";
 			}
 			setProcessing(true);
-			vscode.postMessage({ type: requestTypes.apiRequest, data: { settings: parentSettings, reqData: req[enabledIndex], variableData: selectedVariable, colId: colId, folderId: id } });
+			vscode.postMessage({
+				type: requestTypes.apiRequest,
+				data: {
+					settings: parentSettings,
+					reqData: req[enabledIndex],
+					variableData: selectedVariable,
+					colId: colId,
+					folderId: id,
+				},
+			});
 		}
 	}
 
 	function parallelRun() {
 		const { selectedRequest, selectedPaths } = getAllSelectedRequest();
-		vscode.postMessage({ type: requestTypes.multipleApiRequest, data: { reqData: selectedRequest, variableData: selectedVariable ? selectedVariable.data : null, colId: colId, itemPaths: selectedPaths } });
+		vscode.postMessage({
+			type: requestTypes.multipleApiRequest,
+			data: {
+				reqData: selectedRequest,
+				variableData: selectedVariable ? selectedVariable.data : null,
+				colId: colId,
+				itemPaths: selectedPaths,
+			},
+		});
 	}
 
-	function getAllSelectedRequest(): { selectedRequest: IRequestModel[], selectedPaths: any[] } {
-		let enabledIndex = selectedReq.findIndex(item => item === true);
+	function getAllSelectedRequest(): {
+		selectedRequest: IRequestModel[];
+		selectedPaths: any[];
+	} {
+		let enabledIndex = selectedReq.findIndex((item) => item === true);
 		if (enabledIndex === -1) {
 			return null;
 		}
@@ -236,7 +302,15 @@ const RunAll = () => {
 		const { selectedRequest, selectedPaths } = getAllSelectedRequest();
 		setProcessing(true);
 		setProcessIteration(processIteration + 1);
-		vscode.postMessage({ type: requestTypes.multipleApiRequest, data: { reqData: selectedRequest, variableData: selectedVariable ? selectedVariable.data : null, colId: colId, itemPaths: selectedPaths } });
+		vscode.postMessage({
+			type: requestTypes.multipleApiRequest,
+			data: {
+				reqData: selectedRequest,
+				variableData: selectedVariable ? selectedVariable.data : null,
+				colId: colId,
+				itemPaths: selectedPaths,
+			},
+		});
 	}
 
 	useEffect(() => {
@@ -245,11 +319,14 @@ const RunAll = () => {
 		}
 
 		if (selectedOption === 2) {
-			if (res[processIteration].length === req.length && (processIteration + 1) < totalIteration) {
+			if (
+				res[processIteration].length === req.length &&
+				processIteration + 1 < totalIteration
+			) {
 				setTimeout(nextParallelCall, iterationDelay);
 			}
 
-			if ((processIteration + 1) >= totalIteration) {
+			if (processIteration + 1 >= totalIteration) {
 				setStart(false);
 				setDone(true);
 			}
@@ -266,17 +343,24 @@ const RunAll = () => {
 						}
 						setTimeout(() => {
 							setProcessing(true);
-							vscode.postMessage({ type: requestTypes.apiRequest, data: { reqData: req[enabledIndex], variableData: selectedVariable, colId: colId, folderId: id, settings: parentSettings } });
+							vscode.postMessage({
+								type: requestTypes.apiRequest,
+								data: {
+									reqData: req[enabledIndex],
+									variableData: selectedVariable,
+									colId: colId,
+									folderId: id,
+									settings: parentSettings,
+								},
+							});
 							setCurIndex(enabledIndex);
 						}, requestDelay);
-
 					} else {
 						setStart(false);
 						setDone(true);
 					}
 				} else {
-
-					if ((processIteration + 1) < totalIteration) {
+					if (processIteration + 1 < totalIteration) {
 						setProcessIteration(processIteration + 1);
 						setTimeout(sequentialRun, iterationDelay);
 						return;
@@ -304,35 +388,62 @@ const RunAll = () => {
 
 	function getResponseStatus(index: number) {
 		if (cancelled) {
-			if ((processIteration + 1) < totalIteration && selectedIteration > processIteration && selectedReq[index]) {
+			if (
+				processIteration + 1 < totalIteration &&
+				selectedIteration > processIteration &&
+				selectedReq[index]
+			) {
 				return "CANCELLED";
 			}
 
-			if (!(res[selectedIteration] && res[selectedIteration][index]) && selectedReq[index]) {
+			if (
+				!(res[selectedIteration] && res[selectedIteration][index]) &&
+				selectedReq[index]
+			) {
 				return "CANCELLED";
 			}
-
 		}
-		return res[selectedIteration] && res[selectedIteration][index] ? res[selectedIteration][index].response.isError ? "ERROR" : (res[selectedIteration][index].response.status === 0 ? "" : (res[selectedIteration][index].response.status + " " + res[selectedIteration][index].response.statusText)) : "";
+		return res[selectedIteration] && res[selectedIteration][index]
+			? res[selectedIteration][index].response.isError
+				? "ERROR"
+				: res[selectedIteration][index].response.status === 0
+					? ""
+					: res[selectedIteration][index].response.status +
+						" " +
+						res[selectedIteration][index].response.statusText
+			: "";
 	}
 
 	function getResponseDuration(index: number) {
 		if (cancelled) {
-			if ((processIteration + 1) < totalIteration && selectedIteration > processIteration && selectedReq[index]) {
+			if (
+				processIteration + 1 < totalIteration &&
+				selectedIteration > processIteration &&
+				selectedReq[index]
+			) {
 				return "CANCELLED";
 			}
 
-			if (!(res[selectedIteration] && res[selectedIteration][index]) && selectedReq[index]) {
+			if (
+				!(res[selectedIteration] && res[selectedIteration][index]) &&
+				selectedReq[index]
+			) {
 				return "CANCELLED";
 			}
-
 		}
-		return res[selectedIteration] && res[selectedIteration][index] ? res[selectedIteration][index]?.response.isError ? "0 ms" : GetResponseTime(res[selectedIteration][index].response.duration) : "";
+		return res[selectedIteration] && res[selectedIteration][index]
+			? res[selectedIteration][index]?.response.isError
+				? "0 ms"
+				: GetResponseTime(res[selectedIteration][index].response.duration)
+			: "";
 	}
 
 	function getStatusClassName(index: number): string {
 		if (cancelled) {
-			if (((processIteration + 1) < totalIteration) && (selectedIteration > processIteration)) {
+			if (
+				processIteration + 1 < totalIteration &&
+				selectedIteration > processIteration
+			) {
 				return "runall-status-error";
 			}
 
@@ -341,7 +452,10 @@ const RunAll = () => {
 			}
 		}
 
-		if (!res[selectedIteration][index] || (selectedOption === 2 && processing)) {
+		if (
+			!res[selectedIteration][index] ||
+			(selectedOption === 2 && processing)
+		) {
 			return "runall-status-normal";
 		}
 
@@ -358,7 +472,10 @@ const RunAll = () => {
 
 	function getClassName(index: number): string {
 		if (cancelled) {
-			if ((processIteration + 1) < totalIteration && selectedIteration > processIteration) {
+			if (
+				processIteration + 1 < totalIteration &&
+				selectedIteration > processIteration
+			) {
 				return "runall-status-error";
 			}
 
@@ -367,7 +484,10 @@ const RunAll = () => {
 			}
 		}
 
-		if (!res[selectedIteration][index] || (processing && selectedOption === 2)) {
+		if (
+			!res[selectedIteration][index] ||
+			(processing && selectedOption === 2)
+		) {
 			return "runall-status-normal";
 		}
 
@@ -380,20 +500,52 @@ const RunAll = () => {
 
 	function onRowClick(index: number) {
 		if (res[selectedIteration] && res[selectedIteration][index]) {
-			vscode.postMessage({ type: requestTypes.openRunRequest, data: { reqData: req[index], resData: res[selectedIteration][index], id: req[index].id, varId: varId, colId: colId, folderId: folderId } });
+			vscode.postMessage({
+				type: requestTypes.openRunRequest,
+				data: {
+					reqData: req[index],
+					resData: res[selectedIteration][index],
+					id: req[index].id,
+					varId: varId,
+					colId: colId,
+					folderId: folderId,
+				},
+			});
 		}
 	}
 
 	function onClickExportJson(e: any) {
 		e.preventDefault();
-		let exportData = exportJson(req, selectedReq, res, sourceColName, selectedVariable, totalIteration);
-		vscode.postMessage({ type: requestTypes.exportRunTestJsonRequest, data: exportData, name: sourceColName });
+		let exportData = exportJson(
+			req,
+			selectedReq,
+			res,
+			sourceColName,
+			selectedVariable,
+			totalIteration,
+		);
+		vscode.postMessage({
+			type: requestTypes.exportRunTestJsonRequest,
+			data: exportData,
+			name: sourceColName,
+		});
 	}
 
 	function onClickExportCSV(e: any) {
 		e.preventDefault();
-		let data = exportCSV(req, selectedReq, res, sourceColName, selectedVariable, totalIteration);
-		vscode.postMessage({ type: requestTypes.exportRunTestCSVRequest, data: data, name: sourceColName });
+		let data = exportCSV(
+			req,
+			selectedReq,
+			res,
+			sourceColName,
+			selectedVariable,
+			totalIteration,
+		);
+		vscode.postMessage({
+			type: requestTypes.exportRunTestCSVRequest,
+			data: data,
+			name: sourceColName,
+		});
 	}
 
 	function getTestClassName(index: number) {
@@ -408,7 +560,9 @@ const RunAll = () => {
 		}
 
 		if (res[selectedIteration][index]) {
-			let pass = res[selectedIteration][index].testResults?.filter(item => item.result === true).length;
+			let pass = res[selectedIteration][index].testResults?.filter(
+				(item) => item.result === true,
+			).length;
 
 			if (total === pass) {
 				return "runall-test-pass";
@@ -425,7 +579,9 @@ const RunAll = () => {
 			return "No Tests";
 		}
 		if (res[selectedIteration][index]) {
-			let pass = res[selectedIteration][index].testResults?.filter(item => item.result === true).length;
+			let pass = res[selectedIteration][index].testResults?.filter(
+				(item) => item.result === true,
+			).length;
 			return `${pass} / ${total}`;
 		}
 		return `${0}/${total}`;
@@ -445,12 +601,10 @@ const RunAll = () => {
 		localReq.splice(index, 1);
 		localReq.splice(e.target.value, 0, element);
 
-
 		let localSelectedReq = [...selectedReq];
 		var eleReq = localSelectedReq[index];
 		localSelectedReq.splice(index, 1);
 		localSelectedReq.splice(e.target.value, 0, eleReq);
-
 
 		setReq(localReq);
 		setSelectedReq(localSelectedReq);
@@ -458,7 +612,9 @@ const RunAll = () => {
 
 	function isDisabled() {
 		if (selectedReq) {
-			return selectedReq.filter(item => item === true).length === 0 ? true : false;
+			return selectedReq.filter((item) => item === true).length === 0
+				? true
+				: false;
 		}
 
 		return true;
@@ -471,13 +627,7 @@ const RunAll = () => {
 	function renderBody() {
 		return (
 			<div className="runall-tab-items-panel">
-				{
-					selectedTab === "Runner"
-						?
-						renderRunAllTable()
-						:
-						renderSettings()
-				}
+				{selectedTab === "Runner" ? renderRunAllTable() : renderSettings()}
 			</div>
 		);
 	}
@@ -490,7 +640,13 @@ const RunAll = () => {
 
 	function setDelayValueBlur(e: any) {
 		if (e.target.validity.valid) {
-			setRequsetDelay(e.target.value === "" ? 0 : (e.target.value > 300000 ? 300000 : e.target.value));
+			setRequsetDelay(
+				e.target.value === ""
+					? 0
+					: e.target.value > 300000
+						? 300000
+						: e.target.value,
+			);
 		}
 	}
 
@@ -505,7 +661,13 @@ const RunAll = () => {
 
 	function setIterationValueBlur(e: any) {
 		if (e.target.validity.valid) {
-			setTotalIteration(e.target.value === "" || e.target.value === 0 ? 1 : (e.target.value > 10 ? 10 : e.target.value));
+			setTotalIteration(
+				e.target.value === "" || e.target.value === 0
+					? 1
+					: e.target.value > 10
+						? 10
+						: e.target.value,
+			);
 			if (e.target.value === "" || e.target.value < 2) {
 				setIterationDelay(0);
 			}
@@ -520,7 +682,13 @@ const RunAll = () => {
 
 	function setIterationDelayValueBlur(e: any) {
 		if (e.target.validity.valid) {
-			setIterationDelay(e.target.value === "" ? 0 : (e.target.value > 300000 ? 300000 : e.target.value));
+			setIterationDelay(
+				e.target.value === ""
+					? 0
+					: e.target.value > 300000
+						? 300000
+						: e.target.value,
+			);
 		}
 	}
 
@@ -559,14 +727,37 @@ const RunAll = () => {
 			<>
 				<div className="runall-iteration-process-text">
 					<label>Processing Iteration : </label>
-					{(start || done) && <label>{processIteration + 1} / {totalIteration}</label>}
+					{(start || done) && (
+						<label>
+							{processIteration + 1} / {totalIteration}
+						</label>
+					)}
 					{!start && !done && <label>-</label>}
 				</div>
 				<div className="runall-iteration-selector-panel">
 					<label>Iteration : </label>
-					<button className="runall-iteration-prevButton" type="button" disabled={!done} onClick={() => onPrevClick(selectedIteration - 1)}>{"<"}</button>
-					<input className="runall-iteration-text" type="text" value={selectedIteration + 1} readOnly={true} />
-					<button className="runall-iteration-nextButton" type="button" disabled={!done} onClick={() => onNextClick(selectedIteration + 1)}>{">"}</button>
+					<button
+						className="runall-iteration-prevButton"
+						type="button"
+						disabled={!done}
+						onClick={() => onPrevClick(selectedIteration - 1)}
+					>
+						{"<"}
+					</button>
+					<input
+						className="runall-iteration-text"
+						type="text"
+						value={selectedIteration + 1}
+						readOnly={true}
+					/>
+					<button
+						className="runall-iteration-nextButton"
+						type="button"
+						disabled={!done}
+						onClick={() => onNextClick(selectedIteration + 1)}
+					>
+						{">"}
+					</button>
 				</div>
 				<div className="runall-tbl-panel">
 					<table className="runall-tbl center" cellPadding={0} cellSpacing={0}>
@@ -579,68 +770,122 @@ const RunAll = () => {
 								<th className="runall-col-1">Status</th>
 								<th className="runall-col-1">Duration</th>
 								<th className="runall-col-1">Tests (Pass / Total)</th>
-								{selectedOption === 1 && <th className="runall-col-5">Order</th>}
+								{selectedOption === 1 && (
+									<th className="runall-col-5">Order</th>
+								)}
 							</tr>
 						</thead>
 						<tbody>
-							{
-								req.map((item, index) => {
-									return <tr key={item.id} onClick={() => onRowClick(index)} className={selectedReq[index] ? "runall-enabled" : "runall-disabled"} >
+							{req.map((item, index) => {
+								return (
+									<tr
+										key={item.id}
+										onClick={() => onRowClick(index)}
+										className={
+											selectedReq[index] ? "runall-enabled" : "runall-disabled"
+										}
+									>
 										<td className="runall-col-1">
-											<input type="checkbox"
-												checked={selectedReq[index] !== undefined ? selectedReq[index] : true}
+											<input
+												type="checkbox"
+												checked={
+													selectedReq[index] !== undefined
+														? selectedReq[index]
+														: true
+												}
 												onChange={(e) => onSelectChange(e, index)}
 											/>
 										</td>
 										<td className="runall-col-2">
-											<span className="runall-label">{itemPaths ? itemPaths[item.id].split(";")[0] : ""}</span>
+											<span className="runall-label">
+												{itemPaths ? itemPaths[item.id].split(";")[0] : ""}
+											</span>
 										</td>
 										<td className="runall-col-1">
-											<span className={"runall-method-label " + getMethodClassName(item.method.toUpperCase(), selectedReq[index])}>{item.method.toUpperCase()}</span>
+											<span
+												className={
+													"runall-method-label " +
+													getMethodClassName(
+														item.method.toUpperCase(),
+														selectedReq[index],
+													)
+												}
+											>
+												{item.method.toUpperCase()}
+											</span>
 										</td>
 										<td className="runall-col-2">
 											<span className="runall-label">{item.name}</span>
 										</td>
 										<td className="runall-col-1">
-											<span className={getStatusClassName(index) + " runall-label"}>{(selectedOption === 1 && curIndex === index && processing) || (selectedOption === 2 && processing && selectedReq[index]) ? "loading..." : getResponseStatus(index)}</span>
+											<span
+												className={getStatusClassName(index) + " runall-label"}
+											>
+												{(selectedOption === 1 &&
+													curIndex === index &&
+													processing) ||
+												(selectedOption === 2 &&
+													processing &&
+													selectedReq[index])
+													? "loading..."
+													: getResponseStatus(index)}
+											</span>
 										</td>
 										<td className="runall-col-1">
-											<span className={getClassName(index) + " runall-label"}>{(selectedOption === 1 && curIndex === index && processing) || (selectedOption === 2 && processing && selectedReq[index]) ? "loading..." : getResponseDuration(index)}</span>
+											<span className={getClassName(index) + " runall-label"}>
+												{(selectedOption === 1 &&
+													curIndex === index &&
+													processing) ||
+												(selectedOption === 2 &&
+													processing &&
+													selectedReq[index])
+													? "loading..."
+													: getResponseDuration(index)}
+											</span>
 										</td>
 										<td className="runall-col-1">
-											<span className={getTestClassName(index) + " runall-label"}>{(selectedOption === 1 && curIndex === index && processing) || (selectedOption === 2 && processing && selectedReq[index]) ? "loading..." : getTestResult(index)}</span>
+											<span
+												className={getTestClassName(index) + " runall-label"}
+											>
+												{(selectedOption === 1 &&
+													curIndex === index &&
+													processing) ||
+												(selectedOption === 2 &&
+													processing &&
+													selectedReq[index])
+													? "loading..."
+													: getTestResult(index)}
+											</span>
 										</td>
-										{selectedOption === 1 && <td className="runall-col-5">
-											<select
-												required={true}
-												className={"runall-order-select"}
-												id={"order_" + index.toString()}
-												value={index}
-												disabled={!selectedReq[index]}
-												onChange={(e) => onSelect(e, index)}>
-												{
-													req.map((_param: any, index: number) => {
+										{selectedOption === 1 && (
+											<td className="runall-col-5">
+												<select
+													required={true}
+													className={"runall-order-select"}
+													id={"order_" + index.toString()}
+													value={index}
+													disabled={!selectedReq[index]}
+													onChange={(e) => onSelect(e, index)}
+												>
+													{req.map((_param: any, index: number) => {
 														return (
-															<option
-																key={index}
-																value={index}
-															>
+															<option key={index} value={index}>
 																{index + 1}
 															</option>
 														);
-													})
-												}
-											</select>
-										</td>}
-									</tr>;
-								})
-							}
+													})}
+												</select>
+											</td>
+										)}
+									</tr>
+								);
+							})}
 						</tbody>
 					</table>
 				</div>
 			</>
 		);
-	}	
+	}
 
 	function renderHeader() {
 		return (
@@ -654,13 +899,9 @@ const RunAll = () => {
 
 					<span className="addto-label">{sourceColName}</span>
 
-					<span className="addto-label">
-						Attached Variable :
-					</span>
+					<span className="addto-label">Attached Variable :</span>
 
-					<span className="addto-label">
-						{selectedVariable?.name ?? "-"}
-					</span>
+					<span className="addto-label">{selectedVariable?.name ?? "-"}</span>
 				</div>
 
 				{renderTabs()}
@@ -671,14 +912,10 @@ const RunAll = () => {
 	function renderTabs() {
 		return (
 			<div>
-				{["Runner", "Settings"].map(tab => (
+				{["Runner", "Settings"].map((tab) => (
 					<button
 						key={tab}
-						className={
-							selectedTab === tab
-								? "tab-menu selected"
-								: "tab-menu"
-						}
+						className={selectedTab === tab ? "tab-menu selected" : "tab-menu"}
 						onClick={() => onSelectedTab(tab)}
 					>
 						{tab}

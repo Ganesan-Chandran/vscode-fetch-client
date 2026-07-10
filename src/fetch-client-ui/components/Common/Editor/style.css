@@ -17,7 +17,9 @@
 	position: absolute;
 	right: 1rem;
 	top: 0.8rem;
-	transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+	transition:
+		opacity 0.2s ease-in-out,
+		visibility 0.2s ease-in-out;
 	visibility: hidden;
 	z-index: 99;
 }

@@ -1,7 +1,9 @@
 import { ICookie } from "../../../../fetch-client-core/types/cookie.types";
 
-export const FETCH_CLIENT_SET_COOKIE: "FETCH_CLIENT_SET_COOKIE" = "FETCH_CLIENT_SET_COOKIE";
-export const FETCH_CLIENT_SET_ALL_COOKIE: "FETCH_CLIENT_SET_ALL_COOKIE" = "FETCH_CLIENT_SET_ALL_COOKIE";
+export const FETCH_CLIENT_SET_COOKIE: "FETCH_CLIENT_SET_COOKIE" =
+	"FETCH_CLIENT_SET_COOKIE";
+export const FETCH_CLIENT_SET_ALL_COOKIE: "FETCH_CLIENT_SET_ALL_COOKIE" =
+	"FETCH_CLIENT_SET_ALL_COOKIE";
 
 export interface ISetCookie {
 	type: typeof FETCH_CLIENT_SET_COOKIE;
@@ -17,4 +19,4 @@ export interface ISetAllCookies {
 	};
 }
 
-export type CookieActionTypes = | ISetCookie | ISetAllCookies;
+export type CookieActionTypes = ISetCookie | ISetAllCookies;

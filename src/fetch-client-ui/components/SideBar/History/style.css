@@ -20,7 +20,7 @@ details.history-bucket {
 	padding-left: 15px;
 }
 
-details.history-bucket>summary.history-bucket-summary {
+details.history-bucket > summary.history-bucket-summary {
 	list-style: none;
 	padding-left: 27px;
 	background-color: transparent !important;
@@ -29,7 +29,7 @@ details.history-bucket>summary.history-bucket-summary {
 	position: relative;
 }
 
-details.history-bucket>summary.history-bucket-summary::before {
+details.history-bucket > summary.history-bucket-summary::before {
 	content: "📁";
 	position: absolute;
 	left: 4px;
@@ -37,15 +37,15 @@ details.history-bucket>summary.history-bucket-summary::before {
 	transform: translateY(-50%);
 }
 
-details.history-bucket[open]>summary.history-bucket-summary::before {
+details.history-bucket[open] > summary.history-bucket-summary::before {
 	content: "📂";
 }
 
-details.history-bucket>summary.history-bucket-summary:hover {
+details.history-bucket > summary.history-bucket-summary:hover {
 	background-color: var(--list-hover-background-color) !important;
 }
 
-details.history-bucket>.activity-items {
+details.history-bucket > .activity-items {
 	padding-left: 12px;
 	box-sizing: border-box;
 }

@@ -1,7 +1,7 @@
 import "./style.css";
-import { ITableData } from '../../../../fetch-client-core/types/common.types';
-import { TableProps } from './Table';
-import React from 'react';
+import { ITableData } from "../../../../fetch-client-core/types/common.types";
+import { TableProps } from "./Table";
+import React from "react";
 
 export const ResponseTable = (props: TableProps) => {
 	const { data } = props;
@@ -10,30 +10,39 @@ export const ResponseTable = (props: TableProps) => {
 		return (
 			<tr key={index}>
 				<td>
-					<div id={props.type + "_key_" + index.toString()} className="res-table-input">
+					<div
+						id={props.type + "_key_" + index.toString()}
+						className="res-table-input"
+					>
 						{row.key}
 					</div>
 				</td>
 				<td>
-					<div id={props.type + "_val_" + index.toString()} className="res-table-input">
+					<div
+						id={props.type + "_val_" + index.toString()}
+						className="res-table-input"
+					>
 						{props.type === "resCookies" ? row.value.split(";")[0] : row.value}
 					</div>
 				</td>
-				{props.type === "resCookies" && <td>
-					<div id={props.type + "_val_1_" + index.toString()} className="res-table-input">
-						{row.value.substring(row.value.indexOf(";") + 1)}
-					</div>
-				</td>}
+				{props.type === "resCookies" && (
+					<td>
+						<div
+							id={props.type + "_val_1_" + index.toString()}
+							className="res-table-input"
+						>
+							{row.value.substring(row.value.indexOf(";") + 1)}
+						</div>
+					</td>
+				)}
 			</tr>
 		);
 	};
 
 	const makeTable = (data: ITableData[]) => {
-		return (
-			data.map((item: ITableData, index: number) => {
-				return tableRow(item, index);
-			})
-		);
+		return data.map((item: ITableData, index: number) => {
+			return tableRow(item, index);
+		});
 	};
 
 	return (
@@ -42,14 +51,12 @@ export const ResponseTable = (props: TableProps) => {
 				<tr>
 					<th>{props.headers ? props.headers.key : "Key"}</th>
 					<th>{props.headers ? props.headers.value : "Value"}</th>
-					{props.type === "resCookies" && <th>{props.headers ? props.headers.value1 : "Details"}</th>}
+					{props.type === "resCookies" && (
+						<th>{props.headers ? props.headers.value1 : "Details"}</th>
+					)}
 				</tr>
 			</thead>
-			<tbody>
-				{
-					makeTable(data)
-				}
-			</tbody>
+			<tbody>{makeTable(data)}</tbody>
 		</table>
 	);
 };

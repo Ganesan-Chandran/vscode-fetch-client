@@ -1,21 +1,27 @@
 import "../style.css";
 import { formatDate } from "../../../../fetch-client-core/helpers/dateTime.helper";
 import { getMethodClassName } from "../../SideBar/util";
-import { IHistory, IFolder, ICollections } from "../../../../fetch-client-core/types/sidebar.types";
+import {
+	IHistory,
+	IFolder,
+	ICollections,
+} from "../../../../fetch-client-core/types/sidebar.types";
 import { InitialSettings } from "../../../../fetch-client-core/consts/initialValues.consts";
-import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
+import {
+	requestTypes,
+	responseTypes,
+} from "../../../../fetch-client-core/consts/requestTypes.consts";
 import { useState } from "react";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import React, { useEffect } from "react";
 import vscode from "../../Common/vscodeAPI";
 import PanelLayout from "../../Common/Layout/panelLayout";
 
 const AddToCollection = () => {
-
 	const [errors, setErrors] = useState({
-		"colSelect": "",
-		"colName": "",
-		"folderName": ""
+		colSelect: "",
+		colName: "",
+		folderName: "",
 	});
 
 	const [selectedCollection, selSelectedCollection] = useState("");
@@ -30,24 +36,39 @@ const AddToCollection = () => {
 	const [folders, setFolders] = useState([]);
 	const [currentFolders, setCurrentFolders] = useState([]);
 
-
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
-			if (event.data && event.data.type === responseTypes.getAllCollectionNameResponse) {
+			if (
+				event.data &&
+				event.data.type === responseTypes.getAllCollectionNameResponse
+			) {
 				let colNames = [{ name: "Select", value: "", disabled: true }];
 				colNames = [...colNames, ...event.data.collectionNames];
-				colNames.push({ name: "----------------------", value: "-1", disabled: true });
+				colNames.push({
+					name: "----------------------",
+					value: "-1",
+					disabled: true,
+				});
 				colNames.push({ name: "Create New", value: "0", disabled: false });
 				setCollections(colNames);
 				setFolders(event.data.folderNames);
-			} else if (event.data && event.data.type === responseTypes.getHistoryItemResponse) {
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.getHistoryItemResponse
+			) {
 				setHistory(event.data.history[0] as IHistory);
-			} else if (event.data && event.data.type === responseTypes.addToCollectionsResponse) {
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.addToCollectionsResponse
+			) {
 				setDone(true);
 			}
 		};
 		window.addEventListener("message", handleMessage);
-		vscode.postMessage({ type: requestTypes.getAllCollectionNameRequest, data: "addtocol" });
+		vscode.postMessage({
+			type: requestTypes.getAllCollectionNameRequest,
+			data: "addtocol",
+		});
 		let id = document.title.split("@:@")[1];
 		vscode.postMessage({ type: requestTypes.getHistoryItemRequest, data: id });
 
@@ -58,48 +79,70 @@ const AddToCollection = () => {
 		selSelectedCollection(event.target.value);
 		setColName("");
 
-		let folderNames = [{ colId: "", name: "Select", value: "", disabled: true }];
-		folderNames = [...folderNames, ...folders.filter(item => item.colId === event.target.value)];
-		folderNames.push({ colId: "-1", name: "----------------------", value: "-1", disabled: true });
-		folderNames.push({ colId: "0", name: "Create New", value: "0", disabled: false });
+		let folderNames = [
+			{ colId: "", name: "Select", value: "", disabled: true },
+		];
+		folderNames = [
+			...folderNames,
+			...folders.filter((item) => item.colId === event.target.value),
+		];
+		folderNames.push({
+			colId: "-1",
+			name: "----------------------",
+			value: "-1",
+			disabled: true,
+		});
+		folderNames.push({
+			colId: "0",
+			name: "Create New",
+			value: "0",
+			disabled: false,
+		});
 
 		setCurrentFolders(folderNames);
 		setSelectedFolder("");
 		setFolderName("");
 
 		setErrors({
-			...errors, "colSelect": "",
-			"colName": "",
-			"folderName": ""
+			...errors,
+			colSelect: "",
+			colName: "",
+			folderName: "",
 		});
 	};
 
 	const onSelectFolder = (event: React.ChangeEvent<HTMLSelectElement>) => {
-		setErrors({ ...errors, "folderName": "" });
+		setErrors({ ...errors, folderName: "" });
 		setSelectedFolder(event.target.value);
 		setFolderName("");
 	};
 
 	function handleValidation() {
 		if (selectedCollection === "") {
-			setErrors({ ...errors, "colSelect": "Please select/create the collection" });
+			setErrors({
+				...errors,
+				colSelect: "Please select/create the collection",
+			});
 			return false;
 		}
 
 		if (selectedCollection === "0") {
 			if (!colName) {
-				setErrors({ ...errors, "colName": "Cannot be empty" });
+				setErrors({ ...errors, colName: "Cannot be empty" });
 				return false;
 			}
 			if (colName.toUpperCase().trim() === "DEFAULT") {
-				setErrors({ ...errors, "colName": "Collection name should not be 'Default'" });
+				setErrors({
+					...errors,
+					colName: "Collection name should not be 'Default'",
+				});
 				return false;
 			}
 		}
 
 		if (selectedFolder === "0") {
 			if (!folderName) {
-				setErrors({ ...errors, "folderName": "Cannot be empty" });
+				setErrors({ ...errors, folderName: "Cannot be empty" });
 				return false;
 			}
 		}
@@ -108,7 +151,6 @@ const AddToCollection = () => {
 	}
 
 	function onSubmitClick() {
-
 		if (handleValidation()) {
 			let folder: IFolder;
 
@@ -120,7 +162,7 @@ const AddToCollection = () => {
 					modifiedTime: formatDate(),
 					type: "folder",
 					data: [history],
-					settings: InitialSettings
+					settings: InitialSettings,
 				};
 			}
 
@@ -131,27 +173,45 @@ const AddToCollection = () => {
 				name: selectedCollection === "0" ? colName : "",
 				data: folder ? [folder] : [history],
 				variableId: "",
-				settings: InitialSettings
+				settings: InitialSettings,
 			};
 
-			vscode.postMessage({ type: requestTypes.addToCollectionsRequest, data: { col: collection, hasFolder: folder ? true : false, isNewFolder: selectedFolder === "0" ? true : false } });
+			vscode.postMessage({
+				type: requestTypes.addToCollectionsRequest,
+				data: {
+					col: collection,
+					hasFolder: folder ? true : false,
+					isNewFolder: selectedFolder === "0" ? true : false,
+				},
+			});
 		}
 	}
 
 	function onNameChange(e: any) {
 		setColName(e.target.value);
-		setErrors({ ...errors, "colName": (e.target.value ? (e.target.value.toUpperCase().trim() === "DEFAULT" ? "Collection name should not be 'Default'" : "") : "Cannot be empty") });
+		setErrors({
+			...errors,
+			colName: e.target.value
+				? e.target.value.toUpperCase().trim() === "DEFAULT"
+					? "Collection name should not be 'Default'"
+					: ""
+				: "Cannot be empty",
+		});
 	}
 
 	function onFolderNameChange(e: any) {
 		setFolderName(e.target.value);
-		setErrors({ ...errors, "folderName": (e.target.value ? "" : "Cannot be empty") });
+		setErrors({
+			...errors,
+			folderName: e.target.value ? "" : "Cannot be empty",
+		});
 	}
 
 	function renderHint() {
 		return (
 			<div className="reorder-hint">
-				Add the selected history request to an existing collection or create a new collection.
+				Add the selected history request to an existing collection or create a
+				new collection.
 			</div>
 		);
 	}
@@ -213,9 +273,7 @@ const AddToCollection = () => {
 							: history.url}
 					</div>
 
-					<div className="req-details">
-						{formatDate(history.createdTime)}
-					</div>
+					<div className="req-details">{formatDate(history.createdTime)}</div>
 				</td>
 			</tr>
 		);
@@ -231,9 +289,7 @@ const AddToCollection = () => {
 				<td className="col-2-size block-display">
 					<select
 						className={
-							errors.colSelect
-								? "addto-select required-value"
-								: "addto-select"
+							errors.colSelect ? "addto-select required-value" : "addto-select"
 						}
 						value={selectedCollection}
 						onChange={onSelect}
@@ -268,9 +324,7 @@ const AddToCollection = () => {
 				<td className="col-2-size">
 					<input
 						className={
-							errors.colName
-								? "addto-text required-value"
-								: "addto-text"
+							errors.colName ? "addto-text required-value" : "addto-text"
 						}
 						value={colName}
 						onChange={onNameChange}
@@ -326,9 +380,7 @@ const AddToCollection = () => {
 				<td className="col-2-size">
 					<input
 						className={
-							errors.folderName
-								? "addto-text required-value"
-								: "addto-text"
+							errors.folderName ? "addto-text required-value" : "addto-text"
 						}
 						value={folderName}
 						onChange={onFolderNameChange}
@@ -360,8 +412,8 @@ const AddToCollection = () => {
 		);
 	}
 
-	return (
-		history?.name ? <PanelLayout
+	return history?.name ? (
+		<PanelLayout
 			title="✅ Add To Collection"
 			loading={!history}
 			footer={renderFooter()}
@@ -369,8 +421,8 @@ const AddToCollection = () => {
 			{renderHint()}
 			{renderForm()}
 		</PanelLayout>
-			:
-			<></>
+	) : (
+		<></>
 	);
 };
 

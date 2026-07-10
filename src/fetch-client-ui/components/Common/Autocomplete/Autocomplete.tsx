@@ -25,7 +25,7 @@ export const Autocomplete = (props: IAutocompleteProps) => {
 		topStyle: {
 			top: topPosition + "px",
 			width: width + "px",
-			zIndex: 1
+			zIndex: 1,
 		} as React.CSSProperties,
 	};
 
@@ -46,8 +46,8 @@ export const Autocomplete = (props: IAutocompleteProps) => {
 		const { suggestions } = props;
 
 		const filteredSuggestions = suggestions.filter(
-			suggestion =>
-				suggestion.toLowerCase().indexOf(value.toLowerCase()) > -1
+			(suggestion) =>
+				suggestion.toLowerCase().indexOf(value.toLowerCase()) > -1,
 		);
 
 		setactiveSuggestion(0);
@@ -65,7 +65,6 @@ export const Autocomplete = (props: IAutocompleteProps) => {
 	};
 
 	const onKeyDown = (keyCode: number) => {
-
 		if (keyCode === 13) {
 			setactiveSuggestion(0);
 			setShowSuggestions(false);
@@ -75,8 +74,7 @@ export const Autocomplete = (props: IAutocompleteProps) => {
 				return;
 			}
 			setactiveSuggestion(activeSuggestion - 1);
-		}
-		else if (keyCode === 40) {
+		} else if (keyCode === 40) {
 			if (activeSuggestion - 1 === filteredSuggestions.length) {
 				return;
 			}
@@ -93,7 +91,13 @@ export const Autocomplete = (props: IAutocompleteProps) => {
 					<ul className="suggestions" style={styles.topStyle}>
 						{filteredSuggestions.map((suggestion, index) => {
 							return (
-								<li className={index === activeSuggestion ? "suggestion-active" : ""} key={suggestion} onMouseDown={onMouseDown}>
+								<li
+									className={
+										index === activeSuggestion ? "suggestion-active" : ""
+									}
+									key={suggestion}
+									onMouseDown={onMouseDown}
+								>
 									{suggestion}
 								</li>
 							);
@@ -101,9 +105,7 @@ export const Autocomplete = (props: IAutocompleteProps) => {
 					</ul>
 				);
 			} else {
-				suggestionsListComponent = (
-					<></>
-				);
+				suggestionsListComponent = <></>;
 			}
 		}
 
@@ -118,9 +120,9 @@ export const Autocomplete = (props: IAutocompleteProps) => {
 	return (
 		<>
 			<div id={props.id}>
-				{
-					props.selectedVariable.id && <TextEditor
-						varWords={props.selectedVariable.data.map(item => item.key)}
+				{props.selectedVariable.id && (
+					<TextEditor
+						varWords={props.selectedVariable.data.map((item) => item.key)}
 						placeholder={props.placeholder}
 						onChange={(val) => onChange(val, props.value)}
 						value={props.value}
@@ -130,7 +132,7 @@ export const Autocomplete = (props: IAutocompleteProps) => {
 						onFocus={onFocus}
 						focus={false}
 					/>
-				}
+				)}
 			</div>
 			{suggestionsListComponentRender()}
 		</>

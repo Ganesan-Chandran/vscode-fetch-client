@@ -2,9 +2,12 @@ import "./style.css";
 import { formatDate } from "../../../fetch-client-core/helpers/dateTime.helper";
 import { ITableData } from "../../../fetch-client-core/types/common.types";
 import { IVariable } from "../../../fetch-client-core/types/sidebar.types";
-import { requestTypes, responseTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
+import {
+	requestTypes,
+	responseTypes,
+} from "../../../fetch-client-core/consts/requestTypes.consts";
 import { Table } from "../Common/Table/Table";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import PanelLayout from "../Common/Layout/panelLayout";
 import React, { useEffect, useState } from "react";
 import vscode from "../Common/vscodeAPI";
@@ -14,7 +17,6 @@ export interface IVariableProps {
 }
 
 const Variables = (_props: IVariableProps) => {
-
 	const [isDone, setDone] = useState(false);
 	const [isNew, setNew] = useState(true);
 	const [enabled, setEnabled] = useState(true);
@@ -25,11 +27,15 @@ const Variables = (_props: IVariableProps) => {
 	const [collectionNames, setCollectionNames] = useState([]);
 	const [viewVariables, setViewVariables] = useState(false);
 
-	function onRowAdd(event: React.ChangeEvent<HTMLInputElement>, index: number, isKey: boolean = true) {
+	function onRowAdd(
+		event: React.ChangeEvent<HTMLInputElement>,
+		index: number,
+		isKey: boolean = true,
+	) {
 		let newRow: ITableData = {
 			isChecked: false,
 			key: "",
-			value: ""
+			value: "",
 		};
 
 		let localTable = addValue(event.target.value, index, isKey);
@@ -41,24 +47,31 @@ const Variables = (_props: IVariableProps) => {
 		setDone(false);
 	}
 
-	function onRowUpdate(event: React.ChangeEvent<HTMLInputElement>, index: number, isKey: boolean = true) {
+	function onRowUpdate(
+		event: React.ChangeEvent<HTMLInputElement>,
+		index: number,
+		isKey: boolean = true,
+	) {
 		let localTable = addValue(event.target.value, index, isKey);
 		setVariableItem({ ...variableItem, data: localTable });
 		setDone(false);
 	}
 
-	const addValue = (value: string, index: number, isKey: boolean): ITableData[] => {
+	const addValue = (
+		value: string,
+		index: number,
+		isKey: boolean,
+	): ITableData[] => {
 		let localTable = [...variableItem.data];
 		let rowData = localTable[index];
 		localTable[index] = {
 			isChecked: true,
 			key: isKey ? value : rowData.key,
-			value: !isKey ? value : rowData.value
+			value: !isKey ? value : rowData.value,
 		};
 
 		return localTable;
 	};
-
 
 	function deleteParam(index: number) {
 		let localTable = [...variableItem.data];
@@ -69,15 +82,25 @@ const Variables = (_props: IVariableProps) => {
 
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
-			if (event.data && event.data.type === responseTypes.getVariableItemResponse) {
+			if (
+				event.data &&
+				event.data.type === responseTypes.getVariableItemResponse
+			) {
 				let varItem = event.data.data[0] as IVariable;
 				varItem.data.push({ isChecked: false, key: "", value: "" });
 				setVariableItem(varItem);
 				setDefaultGlobal(varItem.name.toUpperCase().trim() === "GLOBAL");
 				setEnabled(false);
-			} else if (event.data && (event.data.type === responseTypes.saveVariableResponse || event.data.type === responseTypes.updateVariableResponse)) {
+			} else if (
+				event.data &&
+				(event.data.type === responseTypes.saveVariableResponse ||
+					event.data.type === responseTypes.updateVariableResponse)
+			) {
 				setDone(true);
-			} else if (event.data && (event.data.type === responseTypes.getAttachedColIdsResponse)) {
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.getAttachedColIdsResponse
+			) {
 				setCollectionNames(event.data.colNames);
 			}
 		};
@@ -86,7 +109,10 @@ const Variables = (_props: IVariableProps) => {
 
 		let id = document.title.split("@:@")[1];
 		if (id !== "undefined") {
-			vscode.postMessage({ type: requestTypes.getVariableItemRequest, data: { id: id, isGlobal: false } });
+			vscode.postMessage({
+				type: requestTypes.getVariableItemRequest,
+				data: { id: id, isGlobal: false },
+			});
 			setNew(false);
 		} else {
 			setVariableItem({
@@ -95,11 +121,13 @@ const Variables = (_props: IVariableProps) => {
 				isActive: true,
 				createdTime: formatDate(),
 				modifiedTime: formatDate(),
-				data: [{
-					isChecked: false,
-					key: "",
-					value: "",
-				}]
+				data: [
+					{
+						isChecked: false,
+						key: "",
+						value: "",
+					},
+				],
 			});
 		}
 		return () => {
@@ -108,17 +136,24 @@ const Variables = (_props: IVariableProps) => {
 	}, []);
 
 	function onSubmitClick() {
-		let duplicates = variableItem.data.map((item) => {
-			return item.key.trim();
-		}).filter((item, index, self) => self.indexOf(item) !== index);
+		let duplicates = variableItem.data
+			.map((item) => {
+				return item.key.trim();
+			})
+			.filter((item, index, self) => self.indexOf(item) !== index);
 
 		if (duplicates.length > 0) {
 			setDuplicates(duplicates);
 		} else {
 			setDuplicates([]);
 			let localVar = { ...variableItem };
-			localVar.data = localVar.data.filter(item => item.key);
-			vscode.postMessage({ type: isNew ? requestTypes.saveVariableRequest : requestTypes.updateVariableRequest, data: localVar });
+			localVar.data = localVar.data.filter((item) => item.key);
+			vscode.postMessage({
+				type: isNew
+					? requestTypes.saveVariableRequest
+					: requestTypes.updateVariableRequest,
+				data: localVar,
+			});
 		}
 	}
 
@@ -136,7 +171,14 @@ const Variables = (_props: IVariableProps) => {
 
 	function onNameChange(event: any) {
 		setVariableItem({ ...variableItem, name: event.target.value });
-		setErrors({ ...errors, "varName": (event.target.value ? (event.target.value.toUpperCase().trim() === "GLOBAL" ? "Variable name should not be 'Global'" : "") : "Cannot be empty") });
+		setErrors({
+			...errors,
+			varName: event.target.value
+				? event.target.value.toUpperCase().trim() === "GLOBAL"
+					? "Variable name should not be 'Global'"
+					: ""
+				: "Cannot be empty",
+		});
 	}
 
 	function onSelectChange(evt: React.ChangeEvent<HTMLInputElement>) {
@@ -147,9 +189,7 @@ const Variables = (_props: IVariableProps) => {
 		return (
 			<>
 				<div className="variable-panel-name">
-					<label className="variable-text-label">
-						Name :
-					</label>
+					<label className="variable-text-label">Name :</label>
 
 					<input
 						className={
@@ -164,9 +204,7 @@ const Variables = (_props: IVariableProps) => {
 					/>
 
 					{errors["varName"] && (
-						<div className="var-name-valid error-text">
-							{errors["varName"]}
-						</div>
+						<div className="var-name-valid error-text">{errors["varName"]}</div>
 					)}
 				</div>
 
@@ -178,7 +216,6 @@ const Variables = (_props: IVariableProps) => {
 							checked={viewVariables}
 							onChange={onSelectChange}
 						/>
-
 						View Variables
 					</label>
 				</div>
@@ -220,12 +257,10 @@ const Variables = (_props: IVariableProps) => {
 
 		return (
 			<div className="variable-col-panel">
-				<label className="variable-col-label">
-					Attached Collections :
-				</label>
+				<label className="variable-col-label">Attached Collections :</label>
 
 				<label className="variable-col-list-label">
-					{' ' + collectionNames.join(", ")}
+					{" " + collectionNames.join(", ")}
 				</label>
 			</div>
 		);

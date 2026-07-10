@@ -11,5 +11,5 @@ export const requestBodyRaw = [
 	{ name: "Text", value: "text" },
 	{ name: "JSON", value: "json" },
 	{ name: "HTML", value: "html" },
-	{ name: "XML", value: "xml" }
+	{ name: "XML", value: "xml" },
 ];

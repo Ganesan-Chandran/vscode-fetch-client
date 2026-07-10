@@ -4,8 +4,8 @@ export interface ThunderClient_Schema_1_2 {
 	collectionId: string;
 	dateExported: string;
 	version: string;
-	folders?: (FoldersEntity)[] | null;
-	requests?: (RequestsEntity)[] | null;
+	folders?: FoldersEntity[] | null;
+	requests?: RequestsEntity[] | null;
 	settings: Settings;
 	ref: string;
 }

@@ -3,28 +3,39 @@ import { Actions } from "../RequestUI/redux";
 import { AppDispatch } from "../../store/appStore";
 import { IRootState } from "../../reducer/combineReducer";
 import { ISetVar } from "../../../fetch-client-core/types/prefetch.types";
-import { ReactComponent as BinLogo } from '../../../../icons/bin.svg';
+import { ReactComponent as BinLogo } from "../../../../icons/bin.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { VariableActions } from "./redux";
 import React from "react";
 
 const ResToVariables = () => {
-
 	const dispatch = useDispatch<AppDispatch>();
 
-	const { variables, selectedVariable, setVarChanged } = useSelector((state: IRootState) => state.variableData);
+	const { variables, selectedVariable, setVarChanged } = useSelector(
+		(state: IRootState) => state.variableData,
+	);
 	const { setvar } = useSelector((state: IRootState) => state.requestData);
 
-	function onRowAdd(event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>, index: number, type: string) {
+	function onRowAdd(
+		event:
+			| React.ChangeEvent<HTMLInputElement>
+			| React.ChangeEvent<HTMLSelectElement>,
+		index: number,
+		type: string,
+	) {
 		let newRow: ISetVar = {
 			parameter: "",
 			key: "",
-			variableName: ""
+			variableName: "",
 		};
 
 		let localTable = addValue(event.target.value, index, type);
 
-		if (localTable[index].parameter && localTable[index].key && localTable[index].variableName) {
+		if (
+			localTable[index].parameter &&
+			localTable[index].key &&
+			localTable[index].variableName
+		) {
 			localTable.push(newRow);
 		}
 
@@ -35,7 +46,13 @@ const ResToVariables = () => {
 		}
 	}
 
-	function onRowUpdate(event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>, index: number, type: string) {
+	function onRowUpdate(
+		event:
+			| React.ChangeEvent<HTMLInputElement>
+			| React.ChangeEvent<HTMLSelectElement>,
+		index: number,
+		type: string,
+	) {
 		let localTable = addValue(event.target.value, index, type);
 		dispatch(Actions.SetVarAction(localTable));
 
@@ -50,7 +67,7 @@ const ResToVariables = () => {
 		localTable[index] = {
 			parameter: type === "parameter" ? value : rowData.parameter,
 			key: type === "key" ? value : rowData.key,
-			variableName: type === "variableName" ? value : rowData.variableName
+			variableName: type === "variableName" ? value : rowData.variableName,
 		};
 
 		return localTable;
@@ -59,11 +76,16 @@ const ResToVariables = () => {
 	function onDelete(index: number) {
 		let localValue = [...setvar];
 		localValue.splice(index, 1);
-		if ((localValue.length === 0) || (localValue[localValue.length - 1].parameter && localValue[localValue.length - 1].key && localValue[localValue.length - 1].variableName)) {
+		if (
+			localValue.length === 0 ||
+			(localValue[localValue.length - 1].parameter &&
+				localValue[localValue.length - 1].key &&
+				localValue[localValue.length - 1].variableName)
+		) {
 			let newRow: ISetVar = {
 				parameter: "",
 				key: "",
-				variableName: ""
+				variableName: "",
 			};
 			localValue.push(newRow);
 		}
@@ -80,21 +102,29 @@ const ResToVariables = () => {
 						className="test-parameter-select"
 						id={"parameter_" + index.toString()}
 						value={row.parameter}
-						onChange={(event) => index === setvar.length - 1 ? onRowAdd(event, index, "parameter") : onRowUpdate(event, index, "parameter")}>
-						{
-							[{ name: "select", value: "", }, { name: "Header", value: "Header", }, { name: "Cookie", value: "Cookie", }, { name: "Json Response", value: "JSON", }].map((param: any, index: number) => {
-								return (
-									<option
-										disabled={index === 0 ? true : false}
-										hidden={index === 0 ? true : false}
-										key={index + param.name}
-										value={param.value}
-									>
-										{param.name}
-									</option>
-								);
-							})
+						onChange={(event) =>
+							index === setvar.length - 1
+								? onRowAdd(event, index, "parameter")
+								: onRowUpdate(event, index, "parameter")
 						}
+					>
+						{[
+							{ name: "select", value: "" },
+							{ name: "Header", value: "Header" },
+							{ name: "Cookie", value: "Cookie" },
+							{ name: "Json Response", value: "JSON" },
+						].map((param: any, index: number) => {
+							return (
+								<option
+									disabled={index === 0 ? true : false}
+									hidden={index === 0 ? true : false}
+									key={index + param.name}
+									value={param.value}
+								>
+									{param.name}
+								</option>
+							);
+						})}
 					</select>
 				</td>
 				<td>
@@ -102,8 +132,20 @@ const ResToVariables = () => {
 						id={"set_var_key_" + index.toString()}
 						className="table-input"
 						value={row.key}
-						onChange={(event) => index === setvar.length - 1 ? onRowAdd(event, index, "key") : onRowUpdate(event, index, "key")}
-						placeholder={row.parameter ? row.parameter === "Header" ? "header name" : row.parameter === "Cookie" ? "cookie name" : "json data" : "value"}
+						onChange={(event) =>
+							index === setvar.length - 1
+								? onRowAdd(event, index, "key")
+								: onRowUpdate(event, index, "key")
+						}
+						placeholder={
+							row.parameter
+								? row.parameter === "Header"
+									? "header name"
+									: row.parameter === "Cookie"
+										? "cookie name"
+										: "json data"
+								: "value"
+						}
 					/>
 				</td>
 				<td>
@@ -111,60 +153,61 @@ const ResToVariables = () => {
 						id={"set_var_value_" + index.toString()}
 						className="table-input"
 						value={row.variableName}
-						onChange={(event) => index === setvar.length - 1 ? onRowAdd(event, index, "variableName") : onRowUpdate(event, index, "variableName")}
+						onChange={(event) =>
+							index === setvar.length - 1
+								? onRowAdd(event, index, "variableName")
+								: onRowUpdate(event, index, "variableName")
+						}
 						placeholder="variable name without {{ and }}"
 					/>
 				</td>
 				<td className="test-action-cell">
-					{
-						row.parameter || row.key || row.variableName ?
-							<BinLogo className="delete-button" onClick={() => onDelete(index)} />
-							:
-							<></>
-					}
+					{row.parameter || row.key || row.variableName ? (
+						<BinLogo
+							className="delete-button"
+							onClick={() => onDelete(index)}
+						/>
+					) : (
+						<></>
+					)}
 				</td>
-			</tr >
+			</tr>
 		);
 	};
 
 	const makeTable = (data: ISetVar[]) => {
-		return (
-			data.map((item: ISetVar, index: number) => {
-				return tableRow(item, index);
-			})
-		);
+		return data.map((item: ISetVar, index: number) => {
+			return tableRow(item, index);
+		});
 	};
 
-	return (
-		variables && variables.length > 0
-			?
-			<div className="set-variable-panel">
-				<div className="set-variable-panel-name">
-					<span className="addto-var-label">Variable :</span>
-					<span className="addto-var-label">{selectedVariable.name}</span>
-				</div>
-				<div className="var-tbl-panel remove-overflow">
-					<table className="test-table">
-						<thead>
-							<tr>
-								<th>Parameter</th>
-								<th>Value</th>
-								<th>Variable Name</th>
-								<th className="action-cell"></th>
-							</tr>
-						</thead>
-						<tbody>
-							{
-								makeTable(setvar)
-							}
-						</tbody>
-					</table>
-					<br />
-					<span className="addto-var-label-note"><b>{"Note : "}</b>{"Enter the variable name without {{ and }}"}</span>
-				</div>
+	return variables && variables.length > 0 ? (
+		<div className="set-variable-panel">
+			<div className="set-variable-panel-name">
+				<span className="addto-var-label">Variable :</span>
+				<span className="addto-var-label">{selectedVariable.name}</span>
 			</div>
-			:
-			<></>
+			<div className="var-tbl-panel remove-overflow">
+				<table className="test-table">
+					<thead>
+						<tr>
+							<th>Parameter</th>
+							<th>Value</th>
+							<th>Variable Name</th>
+							<th className="action-cell"></th>
+						</tr>
+					</thead>
+					<tbody>{makeTable(setvar)}</tbody>
+				</table>
+				<br />
+				<span className="addto-var-label-note">
+					<b>{"Note : "}</b>
+					{"Enter the variable name without {{ and }}"}
+				</span>
+			</div>
+		</div>
+	) : (
+		<></>
 	);
 };
 

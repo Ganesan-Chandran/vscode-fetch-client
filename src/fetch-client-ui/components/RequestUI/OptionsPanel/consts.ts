@@ -4,10 +4,10 @@ export const requestOptions = [
 	{ name: "Headers", value: "headers" },
 	{ name: "Body", value: "body" },
 	{ name: "PreFetch", value: "preFetch" },
-	{ name: "PostFetch", value: "postFetch" }
+	{ name: "PostFetch", value: "postFetch" },
 ];
 
 export const postFetchOptions = [
 	{ name: "Tests", value: "tests" },
-	{ name: "Variable", value: "setvar" }
+	{ name: "Variable", value: "setvar" },
 ];

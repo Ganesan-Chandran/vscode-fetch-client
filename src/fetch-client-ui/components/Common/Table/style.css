@@ -1,9 +1,9 @@
 .option-table {
 	border-collapse: collapse;
-	width          : 100%;
-	margin-top     : 10px;
-	table-layout   : fixed;
-	margin-bottom  : 10px;
+	width: 100%;
+	margin-top: 10px;
+	table-layout: fixed;
+	margin-bottom: 10px;
 }
 
 .option-table tr,
@@ -26,13 +26,13 @@
 
 .table-input {
 	background-color: transparent;
-	border          : 0;
-	box-sizing      : border-box;
-	color           : var(--text-color);
-	font-size       : var(--font-size);
-	outline         : none;
-	padding         : 10px;
-	width           : 100%;
+	border: 0;
+	box-sizing: border-box;
+	color: var(--text-color);
+	font-size: var(--font-size);
+	outline: none;
+	padding: 10px;
+	width: 100%;
 }
 
 .table-input:focus {
@@ -41,7 +41,7 @@
 
 .action-cell {
 	text-align: center;
-	width     : 50px;
+	width: 50px;
 }
 
 .type-action-cell {
@@ -51,7 +51,7 @@
 .delete-button {
 	cursor: pointer;
 	height: 16px;
-	width : 16px;
+	width: 16px;
 }
 
 .delete-button path {
@@ -66,31 +66,31 @@
 	color: var(--input-unchecked);
 }
 
-.option-table>tbody>tr:hover,
-.option-table>tbody>tr:focus {
+.option-table > tbody > tr:hover,
+.option-table > tbody > tr:focus {
 	background-color: var(--list-hover-background-color);
-	border          : var(--border-size) solid var(--border-color);
+	border: var(--border-size) solid var(--border-color);
 }
 
-.option-table>tbody>tr:hover .DraftEditor-editorContainer,
-.option-table>tbody>tr:focus .DraftEditor-editorContainer {
+.option-table > tbody > tr:hover .DraftEditor-editorContainer,
+.option-table > tbody > tr:focus .DraftEditor-editorContainer {
 	background-color: var(--list-hover-background-color);
 }
 
 .res-table-input {
 	background-color: transparent;
-	border          : 0;
-	box-sizing      : border-box;
-	color           : var(--text-color);
-	font-size       : var(--font-size);
-	outline         : none;
-	padding         : 10px;
-	width           : 100%;
-	word-break      : break-word;
+	border: 0;
+	box-sizing: border-box;
+	color: var(--text-color);
+	font-size: var(--font-size);
+	outline: none;
+	padding: 10px;
+	width: 100%;
+	word-break: break-word;
 }
 
 .file-select {
-	width      : 52px;
+	width: 52px;
 	margin-left: 5px;
 }
 

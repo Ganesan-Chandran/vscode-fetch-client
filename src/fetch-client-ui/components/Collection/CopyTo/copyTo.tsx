@@ -1,19 +1,20 @@
 import "../style.css";
-import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
+import {
+	requestTypes,
+	responseTypes,
+} from "../../../../fetch-client-core/consts/requestTypes.consts";
 import { useState } from "react";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import PanelLayout from "../../Common/Layout/panelLayout";
 import React, { useEffect } from "react";
 import vscode from "../../Common/vscodeAPI";
 
 const CopyTo = () => {
-
 	const [sourceColName, setSourceColName] = useState("");
 	const [sourceColId, setSourceColId] = useState("");
 	const [destColId, setDestColId] = useState("");
 	const [destColName, setDestColName] = useState("");
 	const [collectionNames, setCollectionNames] = useState([]);
-
 
 	const [errors, setErrors] = useState({});
 	const [isDone, setDone] = useState(false);
@@ -25,45 +26,64 @@ const CopyTo = () => {
 		setSourceColName(name);
 
 		const handleMessage = (event: MessageEvent) => {
-			if (event.data && event.data.type === responseTypes.getAllCollectionNamesResponse) {
+			if (
+				event.data &&
+				event.data.type === responseTypes.getAllCollectionNamesResponse
+			) {
 				let findIndex: number = -1;
 				let names = event.data.collectionNames;
 				let colNames = [{ name: "Select", value: "", disabled: true }];
-				let found = names.some(function (item: any, index: number) { findIndex = index; return item.value === id; });
+				let found = names.some(function (item: any, index: number) {
+					findIndex = index;
+					return item.value === id;
+				});
 				if (found) {
 					names.splice(findIndex, 1);
 				}
 				colNames = [...colNames, ...names];
-				colNames.push({ name: "----------------------", value: "-1", disabled: true });
+				colNames.push({
+					name: "----------------------",
+					value: "-1",
+					disabled: true,
+				});
 				colNames.push({ name: "Create New", value: "0", disabled: false });
 				setCollectionNames(colNames);
-			} else if (event.data && event.data.type === responseTypes.copyToCollectionsResponse) {
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.copyToCollectionsResponse
+			) {
 				setDone(true);
 			}
 		};
 		window.addEventListener("message", handleMessage);
-		vscode.postMessage({ type: requestTypes.getAllCollectionNameRequest, data: "copytocol" });
+		vscode.postMessage({
+			type: requestTypes.getAllCollectionNameRequest,
+			data: "copytocol",
+		});
 
 		return () => window.removeEventListener("message", handleMessage);
 	}, []);
 
 	const onSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
-		setErrors({ ...errors, "colName": "" });
+		setErrors({ ...errors, colName: "" });
 		setDestColId(event.target.value);
 	};
 
 	function handleValidation() {
 		if (destColId === "") {
-			setErrors({ ...errors, "colName": "Please select/create the collection" });
+			setErrors({ ...errors, colName: "Please select/create the collection" });
 			return false;
 		}
 		if (destColId === "0") {
 			if (!destColName) {
-				setErrors({ ...errors, "colName": "Cannot be empty" });
+				setErrors({ ...errors, colName: "Cannot be empty" });
 				return false;
 			}
 			if (destColName.toUpperCase().trim() === "DEFAULT") {
-				setErrors({ ...errors, "colName": "Collection name should not be 'Default'" });
+				setErrors({
+					...errors,
+					colName: "Collection name should not be 'Default'",
+				});
 				return false;
 			}
 			return true;
@@ -73,13 +93,27 @@ const CopyTo = () => {
 
 	function onSubmitClick() {
 		if (handleValidation()) {
-			vscode.postMessage({ type: requestTypes.copyToCollectionsRequest, data: { sourceId: sourceColId, distId: destColId === "0" ? uuidv4() : destColId, name: destColId === "0" ? destColName : "" } });
+			vscode.postMessage({
+				type: requestTypes.copyToCollectionsRequest,
+				data: {
+					sourceId: sourceColId,
+					distId: destColId === "0" ? uuidv4() : destColId,
+					name: destColId === "0" ? destColName : "",
+				},
+			});
 		}
 	}
 
 	function onNameChange(e: any) {
 		setDestColName(e.target.value);
-		setErrors({ ...errors, "colName": (e.target.value ? (e.target.value.toUpperCase().trim() === "DEFAULT" ? "Collection name should not be 'Default'" : "") : "Cannot be empty") });
+		setErrors({
+			...errors,
+			colName: e.target.value
+				? e.target.value.toUpperCase().trim() === "DEFAULT"
+					? "Collection name should not be 'Default'"
+					: ""
+				: "Cannot be empty",
+		});
 	}
 
 	function renderHint() {
@@ -92,7 +126,11 @@ const CopyTo = () => {
 
 	function renderForm() {
 		return (
-			<table className="addto-table copyto-scroll-panel" cellPadding={0} cellSpacing={0}>
+			<table
+				className="addto-table copyto-scroll-panel"
+				cellPadding={0}
+				cellSpacing={0}
+			>
 				<tbody>
 					<tr>
 						<td className="col-1-size">
@@ -153,9 +191,7 @@ const CopyTo = () => {
 					<td className="col-2-size">
 						<input
 							className={
-								errors["colName"]
-									? "addto-text required-value"
-									: "addto-text"
+								errors["colName"] ? "addto-text required-value" : "addto-text"
 							}
 							type="text"
 							value={destColName}
@@ -168,9 +204,7 @@ const CopyTo = () => {
 					<tr>
 						<td />
 						<td className="col-2-size">
-							<div className="error-text">
-								{errors["colName"]}
-							</div>
+							<div className="error-text">{errors["colName"]}</div>
 						</td>
 					</tr>
 				)}
@@ -208,11 +242,11 @@ const CopyTo = () => {
 			footer={renderFooter()}
 		>
 			{renderHint()}
-			<div className="reorder-tree-panel">
-				{renderForm()}
-			</div>
+			<div className="reorder-tree-panel">{renderForm()}</div>
 		</PanelLayout>
-	) : <></>;
+	) : (
+		<></>
+	);
 };
 
 export default CopyTo;

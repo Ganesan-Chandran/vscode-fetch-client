@@ -12,8 +12,11 @@ import {
 	variableDBPath,
 } from "./dbHelper";
 
-
-function createDatabase(dbPath: string, fnName: string, initializer: (db: loki) => void): Promise<void> {
+function createDatabase(
+	dbPath: string,
+	fnName: string,
+	initializer: (db: loki) => void,
+): Promise<void> {
 	return new Promise((resolve, reject) => {
 		try {
 			const idbAdapter = new LokiFsAdapter();
@@ -44,7 +47,12 @@ function createDatabase(dbPath: string, fnName: string, initializer: (db: loki) 
 export function CreateHistoryDB(): Promise<void> {
 	return createDatabase(historyDBPath(), "CreateHistoryDB", (db) => {
 		if (db.getCollection("userHistory") === null) {
-			db.addCollection("userHistory", { autoupdate: true, disableMeta: true, unique: ["id"], indices: "id" });
+			db.addCollection("userHistory", {
+				autoupdate: true,
+				disableMeta: true,
+				unique: ["id"],
+				indices: "id",
+			});
 		}
 	});
 }
@@ -53,16 +61,33 @@ export function CreateCollectionDB(): Promise<void> {
 	return createDatabase(collectionDBPath(), "CreateCollectionDB", (db) => {
 		let userCollections = db.getCollection("userCollections");
 		if (userCollections === null) {
-			userCollections = db.addCollection("userCollections", { autoupdate: true, disableMeta: true, unique: ["id"], indices: ["id", "variableId"] });
+			userCollections = db.addCollection("userCollections", {
+				autoupdate: true,
+				disableMeta: true,
+				unique: ["id"],
+				indices: ["id", "variableId"],
+			});
 		}
-		userCollections.insert({ id: uuidv4(), name: "Default", variableId: "", createdTime: formatDate(), modifiedTime: formatDate(), data: [] });
+		userCollections.insert({
+			id: uuidv4(),
+			name: "Default",
+			variableId: "",
+			createdTime: formatDate(),
+			modifiedTime: formatDate(),
+			data: [],
+		});
 	});
 }
 
 export function CreateMainDB(): Promise<void> {
 	return createDatabase(mainDBPath(), "CreateMainDB", (db) => {
 		if (db.getCollection("apiRequests") === null) {
-			db.addCollection("apiRequests", { autoupdate: true, disableMeta: true, unique: ["id"], indices: "id" });
+			db.addCollection("apiRequests", {
+				autoupdate: true,
+				disableMeta: true,
+				unique: ["id"],
+				indices: "id",
+			});
 		}
 	});
 }
@@ -71,16 +96,33 @@ export function CreateVariableDB(): Promise<void> {
 	return createDatabase(variableDBPath(), "CreateVariableDB", (db) => {
 		let userVariables = db.getCollection("userVariables");
 		if (userVariables === null) {
-			userVariables = db.addCollection("userVariables", { autoupdate: true, disableMeta: true, unique: ["id"], indices: "id" });
+			userVariables = db.addCollection("userVariables", {
+				autoupdate: true,
+				disableMeta: true,
+				unique: ["id"],
+				indices: "id",
+			});
 		}
-		userVariables.insert({ id: uuidv4(), name: "Global", isActive: true, createdTime: formatDate(), modifiedTime: formatDate(), data: [] });
+		userVariables.insert({
+			id: uuidv4(),
+			name: "Global",
+			isActive: true,
+			createdTime: formatDate(),
+			modifiedTime: formatDate(),
+			data: [],
+		});
 	});
 }
 
 export function CreateCookieDB(): Promise<void> {
 	return createDatabase(cookieDBPath(), "CreateCookieDB", (db) => {
 		if (db.getCollection("userCookies") === null) {
-			db.addCollection("userCookies", { autoupdate: true, disableMeta: true, unique: ["id"], indices: ["id", "name"] });
+			db.addCollection("userCookies", {
+				autoupdate: true,
+				disableMeta: true,
+				unique: ["id"],
+				indices: ["id", "name"],
+			});
 		}
 	});
 }
@@ -88,7 +130,12 @@ export function CreateCookieDB(): Promise<void> {
 export function CreateAutoRequestDB(): Promise<void> {
 	return createDatabase(autoRequestDBPath(), "CreateAutoRequestDB", (db) => {
 		if (db.getCollection("autoRequests") === null) {
-			db.addCollection("autoRequests", { autoupdate: true, disableMeta: true, unique: ["id"], indices: ["id"] });
+			db.addCollection("autoRequests", {
+				autoupdate: true,
+				disableMeta: true,
+				unique: ["id"],
+				indices: ["id"],
+			});
 		}
 	});
 }
@@ -96,7 +143,12 @@ export function CreateAutoRequestDB(): Promise<void> {
 export function CreateResponseDB(): Promise<void> {
 	return createDatabase(responseDBPath(), "CreateResponseDB", (db) => {
 		if (db.getCollection("apiResponses") === null) {
-			db.addCollection("apiResponses", { autoupdate: true, disableMeta: true, unique: ["id"], indices: ["id"] });
+			db.addCollection("apiResponses", {
+				autoupdate: true,
+				disableMeta: true,
+				unique: ["id"],
+				indices: ["id"],
+			});
 		}
 	});
 }

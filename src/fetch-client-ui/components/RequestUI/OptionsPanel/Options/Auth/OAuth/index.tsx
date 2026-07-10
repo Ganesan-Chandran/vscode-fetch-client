@@ -2,18 +2,34 @@ import "./style.css";
 import { Actions } from "../../../../redux";
 import { AppDispatch } from "../../../../../../store/appStore";
 import { formatDate } from "../../../../../../../fetch-client-core/helpers/dateTime.helper";
-import { grantTypeOpt, clientAuthOpt } from "../../../../../../../fetch-client-core/consts/auth.consts";
-import { IAuth, GrantType, ClientAuth } from "../../../../../../../fetch-client-core/types/auth.types";
-import { InitialRequestHeaders, InitialBody, InitialTest, InitialSetVar, InitialPreFetch } from "../../../../../../../fetch-client-core/consts/initialValues.consts";
+import {
+	grantTypeOpt,
+	clientAuthOpt,
+} from "../../../../../../../fetch-client-core/consts/auth.consts";
+import {
+	IAuth,
+	GrantType,
+	ClientAuth,
+} from "../../../../../../../fetch-client-core/types/auth.types";
+import {
+	InitialRequestHeaders,
+	InitialBody,
+	InitialTest,
+	InitialSetVar,
+	InitialPreFetch,
+} from "../../../../../../../fetch-client-core/consts/initialValues.consts";
 import { IRequestModel } from "../../../../../../../fetch-client-core/types/request.types";
 import { IResponse } from "../../../../../../../fetch-client-core/types/response.types";
 import { IRootState } from "../../../../../../reducer/combineReducer";
 import { ITableData } from "../../../../../../../fetch-client-core/types/common.types";
 import { IVariable } from "../../../../../../../fetch-client-core/types/sidebar.types";
-import { requestTypes, responseTypes } from "../../../../../../../fetch-client-core/consts/requestTypes.consts";
+import {
+	requestTypes,
+	responseTypes,
+} from "../../../../../../../fetch-client-core/consts/requestTypes.consts";
 import { TextEditor } from "../../../../../Common/TextEditor/TextEditor";
 import { useDispatch, useSelector } from "react-redux";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import React, { useEffect } from "react";
 import vscode from "../../../../../Common/vscodeAPI";
 
@@ -25,12 +41,17 @@ export interface IOAuthProps {
 }
 
 export const OAuth = (props: IOAuthProps) => {
-
 	const dispatch = useDispatch<AppDispatch>();
 
-	const auth = props.settingAuth ? props.settingAuth : useSelector((state: IRootState) => state.requestData.auth);
-	const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
-	const { parentSettings } = useSelector((state: IRootState) => state.reqColData);
+	const auth = props.settingAuth
+		? props.settingAuth
+		: useSelector((state: IRootState) => state.requestData.auth);
+	const { selectedVariable } = useSelector(
+		(state: IRootState) => state.variableData,
+	);
+	const { parentSettings } = useSelector(
+		(state: IRootState) => state.reqColData,
+	);
 
 	const onSetGrantype = (value: GrantType) => {
 		let localAuth = { ...auth };
@@ -98,28 +119,68 @@ export const OAuth = (props: IOAuthProps) => {
 		let localAuth = { ...auth };
 		let urlencoded: ITableData[] = [];
 
-		urlencoded.push({ isChecked: true, key: "grant_type", value: auth.oauth.grantType === GrantType.Client_Crd ? "client_credentials" : "password" });
+		urlencoded.push({
+			isChecked: true,
+			key: "grant_type",
+			value:
+				auth.oauth.grantType === GrantType.Client_Crd
+					? "client_credentials"
+					: "password",
+		});
 		urlencoded.push({ isChecked: true, key: "scope", value: auth.oauth.scope });
 
 		if (auth.oauth.clientAuth === ClientAuth.Body) {
-			urlencoded.push({ isChecked: true, key: "client_id", value: auth.oauth.clientId });
-			urlencoded.push({ isChecked: true, key: "client_secret", value: auth.oauth.clientSecret });
+			urlencoded.push({
+				isChecked: true,
+				key: "client_id",
+				value: auth.oauth.clientId,
+			});
+			urlencoded.push({
+				isChecked: true,
+				key: "client_secret",
+				value: auth.oauth.clientSecret,
+			});
 		} else {
-			let encodedString = Buffer.from(auth.oauth.clientId + ":" + auth.oauth.clientSecret).toString('base64');
-			reqData.headers.push({ isChecked: true, key: "Authorization", value: "Basic " + encodedString });
+			let encodedString = Buffer.from(
+				auth.oauth.clientId + ":" + auth.oauth.clientSecret,
+			).toString("base64");
+			reqData.headers.push({
+				isChecked: true,
+				key: "Authorization",
+				value: "Basic " + encodedString,
+			});
 		}
 
 		if (auth.oauth.grantType === GrantType.PWD_Crd) {
-			urlencoded.push({ isChecked: true, key: "username", value: auth.oauth.username });
-			urlencoded.push({ isChecked: true, key: "password", value: auth.oauth.password });
+			urlencoded.push({
+				isChecked: true,
+				key: "username",
+				value: auth.oauth.username,
+			});
+			urlencoded.push({
+				isChecked: true,
+				key: "password",
+				value: auth.oauth.password,
+			});
 		}
 
-		if (auth.oauth.grantType === GrantType.Client_Crd && auth.oauth.advancedOpt?.resource) {
-			urlencoded.push({ isChecked: true, key: "resource", value: auth.oauth.advancedOpt.resource });
+		if (
+			auth.oauth.grantType === GrantType.Client_Crd &&
+			auth.oauth.advancedOpt?.resource
+		) {
+			urlencoded.push({
+				isChecked: true,
+				key: "resource",
+				value: auth.oauth.advancedOpt.resource,
+			});
 		}
 
 		if (auth.oauth.advancedOpt?.audience) {
-			urlencoded.push({ isChecked: true, key: "audience", value: auth.oauth.advancedOpt?.audience });
+			urlencoded.push({
+				isChecked: true,
+				key: "audience",
+				value: auth.oauth.advancedOpt?.audience,
+			});
 		}
 
 		reqData.body.bodyType = "formurlencoded";
@@ -127,7 +188,14 @@ export const OAuth = (props: IOAuthProps) => {
 
 		localAuth.password = "";
 		dispatch(Actions.SetRequestAuthAction(localAuth));
-		vscode.postMessage({ type: requestTypes.tokenRequest, data: { reqData: reqData, variableData: selectedVariable?.data, settings: parentSettings } });
+		vscode.postMessage({
+			type: requestTypes.tokenRequest,
+			data: {
+				reqData: reqData,
+				variableData: selectedVariable?.data,
+				settings: parentSettings,
+			},
+		});
 	}
 
 	useEffect(() => {
@@ -136,8 +204,14 @@ export const OAuth = (props: IOAuthProps) => {
 				let tokenResponse: IResponse = event.data.response as IResponse;
 				if (!tokenResponse.isError && tokenResponse.status === 200) {
 					const responseData = JSON.parse(tokenResponse.responseData);
-					let tokenName = auth.oauth.tokenName ? auth.oauth.tokenName : "access_token";
-					dispatch(Actions.SetOAuthTokenAction(responseData[tokenName] ? responseData[tokenName] : ""));
+					let tokenName = auth.oauth.tokenName
+						? auth.oauth.tokenName
+						: "access_token";
+					dispatch(
+						Actions.SetOAuthTokenAction(
+							responseData[tokenName] ? responseData[tokenName] : "",
+						),
+					);
 				}
 			}
 		};
@@ -149,27 +223,37 @@ export const OAuth = (props: IOAuthProps) => {
 	return (
 		<div className="collction-item">
 			<div className="oauth-text-panel">
-				<span className="oauth-label" title="The generated token will be automatically added to Autorization header">Access Token<label className="runall-settings-info-label" title="The generated token will be automatically added to Autorization header">ⓘ</label></span>
-				{
-					props.envVar && props.selectedVariable.id && <TextEditor
+				<span
+					className="oauth-label"
+					title="The generated token will be automatically added to Autorization header"
+				>
+					Access Token
+					<label
+						className="runall-settings-info-label"
+						title="The generated token will be automatically added to Autorization header"
+					>
+						ⓘ
+					</label>
+				</span>
+				{props.envVar && props.selectedVariable.id && (
+					<TextEditor
 						varWords={props.envVar}
 						value={auth.password}
 						focus={false}
 						disabled={true}
 					/>
-				}
-
+				)}
 			</div>
 			<div className="oauth-text-panel">
 				<label className="oauth-label">Header Prefix</label>
-				{
-					props.envVar && props.selectedVariable.id && <TextEditor
+				{props.envVar && props.selectedVariable.id && (
+					<TextEditor
 						varWords={props.envVar}
 						onChange={(value: string) => onSetValue("tokenPrefix", value)}
 						value={auth.tokenPrefix}
 						focus={false}
 					/>
-				}
+				)}
 			</div>
 			<label className="oauth-section-header">{"Configure New Token"}</label>
 			<div className="oauth-text-panel">
@@ -188,72 +272,73 @@ export const OAuth = (props: IOAuthProps) => {
 			</div>
 			<div className="oauth-text-panel">
 				<label className="oauth-label">Access Token URL</label>
-				{
-					props.envVar && props.selectedVariable.id && <TextEditor
+				{props.envVar && props.selectedVariable.id && (
+					<TextEditor
 						varWords={props.envVar}
 						onChange={(value: string) => onSetValue("tokenUrl", value)}
 						value={auth.oauth.tokenUrl}
 						focus={false}
 					/>
-				}
+				)}
 			</div>
 			<div className="oauth-text-panel">
 				<label className="oauth-label">Client ID</label>
-				{
-					props.envVar && props.selectedVariable.id && <TextEditor
+				{props.envVar && props.selectedVariable.id && (
+					<TextEditor
 						varWords={props.envVar}
 						onChange={(value: string) => onSetValue("clientId", value)}
 						value={auth.oauth.clientId}
 						focus={false}
 					/>
-				}
+				)}
 			</div>
 			<div className="oauth-text-panel">
 				<label className="oauth-label">Client Secret</label>
-				{
-					props.envVar && props.selectedVariable.id && <TextEditor
+				{props.envVar && props.selectedVariable.id && (
+					<TextEditor
 						varWords={props.envVar}
 						onChange={(value: string) => onSetValue("clientSecret", value)}
 						value={auth.oauth.clientSecret}
 						focus={false}
 					/>
-				}
+				)}
 			</div>
-			{auth.oauth.grantType === GrantType.PWD_Crd && <>
-				<div className="oauth-text-panel">
-					<label className="oauth-label">Username</label>
-					{
-						props.envVar && props.selectedVariable.id && <TextEditor
-							varWords={props.envVar}
-							onChange={(value: string) => onSetValue("username", value)}
-							value={auth.oauth.username}
-							focus={false}
-						/>
-					}
-				</div>
-				<div className="oauth-text-panel">
-					<label className="oauth-label">Password</label>
-					{
-						props.envVar && props.selectedVariable.id && <TextEditor
-							varWords={props.envVar}
-							onChange={(value: string) => onSetValue("password", value)}
-							value={auth.oauth.password}
-							focus={false}
-						/>
-					}
-				</div>
-			</>
-			}
+			{auth.oauth.grantType === GrantType.PWD_Crd && (
+				<>
+					<div className="oauth-text-panel">
+						<label className="oauth-label">Username</label>
+						{props.envVar && props.selectedVariable.id && (
+							<TextEditor
+								varWords={props.envVar}
+								onChange={(value: string) => onSetValue("username", value)}
+								value={auth.oauth.username}
+								focus={false}
+							/>
+						)}
+					</div>
+					<div className="oauth-text-panel">
+						<label className="oauth-label">Password</label>
+						{props.envVar && props.selectedVariable.id && (
+							<TextEditor
+								varWords={props.envVar}
+								onChange={(value: string) => onSetValue("password", value)}
+								value={auth.oauth.password}
+								focus={false}
+							/>
+						)}
+					</div>
+				</>
+			)}
 			<div className="oauth-text-panel">
 				<label className="oauth-label">Scope</label>
-				{
-					props.envVar && props.selectedVariable.id && <TextEditor
+				{props.envVar && props.selectedVariable.id && (
+					<TextEditor
 						varWords={props.envVar}
 						onChange={(value: string) => onSetValue("scope", value)}
 						value={auth.oauth.scope}
 						focus={false}
 					/>
-				}
+				)}
 			</div>
 			<div className="oauth-text-panel">
 				<label className="oauth-label">Client Authentication</label>
@@ -270,41 +355,43 @@ export const OAuth = (props: IOAuthProps) => {
 				</select>
 			</div>
 			<label className="oauth-section-header">{"Advanced Options"}</label>
-			{auth.oauth.grantType === GrantType.Client_Crd && <div className="oauth-text-panel">
-				<label className="oauth-label">Resource</label>
-				{
-					props.envVar && props.selectedVariable.id && <TextEditor
-						varWords={props.envVar}
-						onChange={(value: string) => onSetValue("resource", value)}
-						value={auth.oauth.advancedOpt?.resource}
-						placeholder="Resource (Optional)"
-						focus={false}
-					/>
-				}
-			</div>}
+			{auth.oauth.grantType === GrantType.Client_Crd && (
+				<div className="oauth-text-panel">
+					<label className="oauth-label">Resource</label>
+					{props.envVar && props.selectedVariable.id && (
+						<TextEditor
+							varWords={props.envVar}
+							onChange={(value: string) => onSetValue("resource", value)}
+							value={auth.oauth.advancedOpt?.resource}
+							placeholder="Resource (Optional)"
+							focus={false}
+						/>
+					)}
+				</div>
+			)}
 			<div className="oauth-text-panel">
 				<label className="oauth-label">Audience</label>
-				{
-					props.envVar && props.selectedVariable.id && <TextEditor
+				{props.envVar && props.selectedVariable.id && (
+					<TextEditor
 						varWords={props.envVar}
 						onChange={(value: string) => onSetValue("audience", value)}
 						value={auth.oauth.advancedOpt?.audience}
 						placeholder="Audience (Optional)"
 						focus={false}
 					/>
-				}
+				)}
 			</div>
 			<div className="oauth-text-panel">
 				<label className="oauth-label">Token Name</label>
-				{
-					props.envVar && props.selectedVariable.id && <TextEditor
+				{props.envVar && props.selectedVariable.id && (
+					<TextEditor
 						varWords={props.envVar}
 						onChange={(value: string) => onSetValue("tokenName", value)}
 						value={auth.oauth.tokenName}
 						placeholder="Token Name (Optional)"
 						focus={false}
 					/>
-				}
+				)}
 			</div>
 			<div className="oauth-btn-panel">
 				<button

@@ -60,9 +60,13 @@ const languageToAceMode: Record<string, string> = {
 };
 
 function themeFromCode(theme?: number): string {
-	if (theme === 2) { return "tomorrow_night"; } // vs-dark
-	if (theme === 3) { return "github_dark"; }    // hc-black
-	return "github";                          // vs (light)
+	if (theme === 2) {
+		return "tomorrow_night";
+	} // vs-dark
+	if (theme === 3) {
+		return "github_dark";
+	} // hc-black
+	return "github"; // vs (light)
 }
 
 async function formatValue(value: string, language: string): Promise<string> {

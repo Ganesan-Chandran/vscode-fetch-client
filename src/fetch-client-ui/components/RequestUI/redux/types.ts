@@ -1,38 +1,78 @@
 import { IAuth } from "../../../../fetch-client-core/types/auth.types";
-import { IRequestModel, MethodType, IBodyData } from "../../../../fetch-client-core/types/request.types";
+import {
+	IRequestModel,
+	MethodType,
+	IBodyData,
+} from "../../../../fetch-client-core/types/request.types";
 import { ITableData } from "../../../../fetch-client-core/types/common.types";
-import { ITest, ISetVar, IRunRequest, ICollection, IColRequest, IPreFetch } from "../../../../fetch-client-core/types/prefetch.types";
+import {
+	ITest,
+	ISetVar,
+	IRunRequest,
+	ICollection,
+	IColRequest,
+	IPreFetch,
+} from "../../../../fetch-client-core/types/prefetch.types";
 import { ISettings } from "../../../../fetch-client-core/types/sidebar.types";
 
-export const FETCH_CLIENT_SET_REQ_URL: "FETCH_CLIENT_SET_REQ_URL" = "FETCH_CLIENT_SET_REQ_URL";
-export const FETCH_CLIENT_SET_REQ_METHOD: "FETCH_CLIENT_SET_REQ_METHOD" = "FETCH_CLIENT_SET_REQ_METHOD";
-export const FETCH_CLIENT_SET_REQ_PARAMS: "FETCH_CLIENT_SET_REQ_PARAMS" = "FETCH_CLIENT_SET_REQ_PARAMS";
-export const FETCH_CLIENT_SET_REQ_AUTH: "FETCH_CLIENT_SET_REQ_AUTH" = "FETCH_CLIENT_SET_REQ_AUTH";
-export const FETCH_CLIENT_SET_REQ_HEADERS: "FETCH_CLIENT_SET_REQ_HEADERS" = "FETCH_CLIENT_SET_REQ_HEADERS";
-export const FETCH_CLIENT_SET_REQ_BODY: "FETCH_CLIENT_SET_REQ_BODY" = "FETCH_CLIENT_SET_REQ_BODY";
-export const FETCH_CLIENT_SET_REQ_FORM_DATA_BODY: "FETCH_CLIENT_SET_REQ_FORM_DATA_BODY" = "FETCH_CLIENT_SET_REQ_FORM_DATA_BODY";
-export const FETCH_CLIENT_SET_REQ_RESET_BODY: "FETCH_CLIENT_SET_REQ_RESET_BODY" = "FETCH_CLIENT_SET_REQ_RESET_BODY";
-export const FETCH_CLIENT_SET_REQ_RAW: "FETCH_CLIENT_SET_REQ_RAW" = "FETCH_CLIENT_SET_REQ_RAW";
-export const FETCH_CLIENT_SET_REQ_RAW_LANG: "FETCH_CLIENT_SET_REQ_RAW_LANG" = "FETCH_CLIENT_SET_REQ_RAW_LANG";
-export const FETCH_CLIENT_SET_REQ_BINARY_DATA: "FETCH_CLIENT_SET_REQ_BINARY_DATA" = "FETCH_CLIENT_SET_REQ_BINARY_DATA";
-export const FETCH_CLIENT_SET_REQ: "FETCH_CLIENT_SET_REQ" = "FETCH_CLIENT_SET_REQ";
-export const FETCH_CLIENT_SET_TEST: "FETCH_CLIENT_SET_TEST" = "FETCH_CLIENT_SET_TEST";
-export const FETCH_CLIENT_SET_NOTES: "FETCH_CLIENT_SET_NOTES" = "FETCH_CLIENT_SET_NOTES";
-export const FETCH_CLIENT_SET_SET_VAR: "FETCH_CLIENT_SET_SET_VAR" = "FETCH_CLIENT_SET_SET_VAR";
-export const FETCH_CLIENT_SET_REQ_COL_DETAILS: "FETCH_CLIENT_SET_REQ_COL_DETAILS" = "FETCH_CLIENT_SET_REQ_COL_DETAILS";
-export const FETCH_CLIENT_SET_REQ_PARENT_SETTINGS: "FETCH_CLIENT_SET_REQ_PARENT_SETTINGS" = "FETCH_CLIENT_SET_REQ_PARENT_SETTINGS";
-export const FETCH_CLIENT_SET_OAUTH_TOKEN: "FETCH_CLIENT_SET_OAUTH_TOKEN" = "FETCH_CLIENT_SET_OAUTH_TOKEN";
-export const FETCH_CLIENT_SET_PRECONDITION: "FETCH_CLIENT_SET_PRECONDITION" = "FETCH_CLIENT_SET_PRECONDITION";
-export const FETCH_CLIENT_SET_ADD_PREREQUEST: "FETCH_CLIENT_SET_ADD_PREREQUEST" = "FETCH_CLIENT_SET_ADD_PREREQUEST";
-export const FETCH_CLIENT_SET_DELETE_PREREQUEST: "FETCH_CLIENT_SET_DELETE_PREREQUEST" = "FETCH_CLIENT_SET_DELETE_PREREQUEST";
-export const FETCH_CLIENT_SET_DELETE_PRECONDITION: "FETCH_CLIENT_SET_DELETE_PRECONDITION" = "FETCH_CLIENT_SET_DELETE_PRECONDITION";
-export const FETCH_CLIENT_SET_COLLECTION_LIST: "FETCH_CLIENT_SET_COLLECTION_LIST" = "FETCH_CLIENT_SET_COLLECTION_LIST";
-export const FETCH_CLIENT_SET_COL_REQUEST_LIST: "FETCH_CLIENT_SET_COL_REQUEST_LIST" = "FETCH_CLIENT_SET_COL_REQUEST_LIST";
-export const FETCH_CLIENT_SET_COL_ID: "FETCH_CLIENT_SET_COL_ID" = "FETCH_CLIENT_SET_COL_ID";
-export const FETCH_CLIENT_SET_REQ_ID: "FETCH_CLIENT_SET_REQ_ID" = "FETCH_CLIENT_SET_REQ_ID";
-export const FETCH_CLIENT_SET_PREFETCH: "FETCH_CLIENT_SET_PREFETCH" = "FETCH_CLIENT_SET_PREFETCH";
-export const FETCH_CLIENT_SET_SKIP_PARENT_PREFETCH: "FETCH_CLIENT_SET_SKIP_PARENT_PREFETCH" = "FETCH_CLIENT_SET_SKIP_PARENT_PREFETCH";
-export const FETCH_CLIENT_SET_SKIP_PARENT_HEADERS: "FETCH_CLIENT_SET_SKIP_PARENT_HEADERS" = "FETCH_CLIENT_SET_SKIP_PARENT_HEADERS";
+export const FETCH_CLIENT_SET_REQ_URL: "FETCH_CLIENT_SET_REQ_URL" =
+	"FETCH_CLIENT_SET_REQ_URL";
+export const FETCH_CLIENT_SET_REQ_METHOD: "FETCH_CLIENT_SET_REQ_METHOD" =
+	"FETCH_CLIENT_SET_REQ_METHOD";
+export const FETCH_CLIENT_SET_REQ_PARAMS: "FETCH_CLIENT_SET_REQ_PARAMS" =
+	"FETCH_CLIENT_SET_REQ_PARAMS";
+export const FETCH_CLIENT_SET_REQ_AUTH: "FETCH_CLIENT_SET_REQ_AUTH" =
+	"FETCH_CLIENT_SET_REQ_AUTH";
+export const FETCH_CLIENT_SET_REQ_HEADERS: "FETCH_CLIENT_SET_REQ_HEADERS" =
+	"FETCH_CLIENT_SET_REQ_HEADERS";
+export const FETCH_CLIENT_SET_REQ_BODY: "FETCH_CLIENT_SET_REQ_BODY" =
+	"FETCH_CLIENT_SET_REQ_BODY";
+export const FETCH_CLIENT_SET_REQ_FORM_DATA_BODY: "FETCH_CLIENT_SET_REQ_FORM_DATA_BODY" =
+	"FETCH_CLIENT_SET_REQ_FORM_DATA_BODY";
+export const FETCH_CLIENT_SET_REQ_RESET_BODY: "FETCH_CLIENT_SET_REQ_RESET_BODY" =
+	"FETCH_CLIENT_SET_REQ_RESET_BODY";
+export const FETCH_CLIENT_SET_REQ_RAW: "FETCH_CLIENT_SET_REQ_RAW" =
+	"FETCH_CLIENT_SET_REQ_RAW";
+export const FETCH_CLIENT_SET_REQ_RAW_LANG: "FETCH_CLIENT_SET_REQ_RAW_LANG" =
+	"FETCH_CLIENT_SET_REQ_RAW_LANG";
+export const FETCH_CLIENT_SET_REQ_BINARY_DATA: "FETCH_CLIENT_SET_REQ_BINARY_DATA" =
+	"FETCH_CLIENT_SET_REQ_BINARY_DATA";
+export const FETCH_CLIENT_SET_REQ: "FETCH_CLIENT_SET_REQ" =
+	"FETCH_CLIENT_SET_REQ";
+export const FETCH_CLIENT_SET_TEST: "FETCH_CLIENT_SET_TEST" =
+	"FETCH_CLIENT_SET_TEST";
+export const FETCH_CLIENT_SET_NOTES: "FETCH_CLIENT_SET_NOTES" =
+	"FETCH_CLIENT_SET_NOTES";
+export const FETCH_CLIENT_SET_SET_VAR: "FETCH_CLIENT_SET_SET_VAR" =
+	"FETCH_CLIENT_SET_SET_VAR";
+export const FETCH_CLIENT_SET_REQ_COL_DETAILS: "FETCH_CLIENT_SET_REQ_COL_DETAILS" =
+	"FETCH_CLIENT_SET_REQ_COL_DETAILS";
+export const FETCH_CLIENT_SET_REQ_PARENT_SETTINGS: "FETCH_CLIENT_SET_REQ_PARENT_SETTINGS" =
+	"FETCH_CLIENT_SET_REQ_PARENT_SETTINGS";
+export const FETCH_CLIENT_SET_OAUTH_TOKEN: "FETCH_CLIENT_SET_OAUTH_TOKEN" =
+	"FETCH_CLIENT_SET_OAUTH_TOKEN";
+export const FETCH_CLIENT_SET_PRECONDITION: "FETCH_CLIENT_SET_PRECONDITION" =
+	"FETCH_CLIENT_SET_PRECONDITION";
+export const FETCH_CLIENT_SET_ADD_PREREQUEST: "FETCH_CLIENT_SET_ADD_PREREQUEST" =
+	"FETCH_CLIENT_SET_ADD_PREREQUEST";
+export const FETCH_CLIENT_SET_DELETE_PREREQUEST: "FETCH_CLIENT_SET_DELETE_PREREQUEST" =
+	"FETCH_CLIENT_SET_DELETE_PREREQUEST";
+export const FETCH_CLIENT_SET_DELETE_PRECONDITION: "FETCH_CLIENT_SET_DELETE_PRECONDITION" =
+	"FETCH_CLIENT_SET_DELETE_PRECONDITION";
+export const FETCH_CLIENT_SET_COLLECTION_LIST: "FETCH_CLIENT_SET_COLLECTION_LIST" =
+	"FETCH_CLIENT_SET_COLLECTION_LIST";
+export const FETCH_CLIENT_SET_COL_REQUEST_LIST: "FETCH_CLIENT_SET_COL_REQUEST_LIST" =
+	"FETCH_CLIENT_SET_COL_REQUEST_LIST";
+export const FETCH_CLIENT_SET_COL_ID: "FETCH_CLIENT_SET_COL_ID" =
+	"FETCH_CLIENT_SET_COL_ID";
+export const FETCH_CLIENT_SET_REQ_ID: "FETCH_CLIENT_SET_REQ_ID" =
+	"FETCH_CLIENT_SET_REQ_ID";
+export const FETCH_CLIENT_SET_PREFETCH: "FETCH_CLIENT_SET_PREFETCH" =
+	"FETCH_CLIENT_SET_PREFETCH";
+export const FETCH_CLIENT_SET_SKIP_PARENT_PREFETCH: "FETCH_CLIENT_SET_SKIP_PARENT_PREFETCH" =
+	"FETCH_CLIENT_SET_SKIP_PARENT_PREFETCH";
+export const FETCH_CLIENT_SET_SKIP_PARENT_HEADERS: "FETCH_CLIENT_SET_SKIP_PARENT_HEADERS" =
+	"FETCH_CLIENT_SET_SKIP_PARENT_HEADERS";
 
 export interface ISetTest {
 	type: typeof FETCH_CLIENT_SET_TEST;
@@ -123,14 +163,14 @@ export interface ISetResetBody {
 	type: typeof FETCH_CLIENT_SET_REQ_RESET_BODY;
 	payload: {
 		bodyType: string;
-	}
+	};
 }
 
 export interface ISetNotes {
 	type: typeof FETCH_CLIENT_SET_NOTES;
 	payload: {
 		notes: string;
-	}
+	};
 }
 
 export interface ISetAddVar {
@@ -145,21 +185,21 @@ export interface ISetReqColDetails {
 	payload: {
 		colId: string;
 		folderId: string;
-	}
+	};
 }
 
 export interface ISetReqParentSettings {
 	type: typeof FETCH_CLIENT_SET_REQ_PARENT_SETTINGS;
 	payload: {
 		parentSettings: ISettings;
-	}
+	};
 }
 
 export interface ISetOAuthToken {
 	type: typeof FETCH_CLIENT_SET_OAUTH_TOKEN;
 	payload: {
 		token: string;
-	}
+	};
 }
 
 export interface ISetPreCondition {
@@ -168,21 +208,21 @@ export interface ISetPreCondition {
 		condition: ITest;
 		reqIndex: number;
 		condIndex: number;
-	}
+	};
 }
 
 export interface ISetAddPreRequest {
 	type: typeof FETCH_CLIENT_SET_ADD_PREREQUEST;
 	payload: {
 		request: IRunRequest;
-	}
+	};
 }
 
 export interface ISetDeletePreRequest {
 	type: typeof FETCH_CLIENT_SET_DELETE_PREREQUEST;
 	payload: {
 		index: number;
-	}
+	};
 }
 
 export interface ISetDeletePreCondition {
@@ -190,21 +230,21 @@ export interface ISetDeletePreCondition {
 	payload: {
 		reqIndex: number;
 		condIndex: number;
-	}
+	};
 }
 
 export interface ISetCollectionList {
 	type: typeof FETCH_CLIENT_SET_COLLECTION_LIST;
 	payload: {
 		colList: ICollection[];
-	}
+	};
 }
 
 export interface ISetColRequestList {
 	type: typeof FETCH_CLIENT_SET_COL_REQUEST_LIST;
 	payload: {
 		colReqList: IColRequest;
-	}
+	};
 }
 
 export interface ISetSelectedCol {
@@ -212,7 +252,7 @@ export interface ISetSelectedCol {
 	payload: {
 		colId: string;
 		index: number;
-	}
+	};
 }
 
 export interface ISetSelectedRequest {
@@ -221,31 +261,57 @@ export interface ISetSelectedRequest {
 		reqId: string;
 		index: number;
 		parentId: string;
-	}
+	};
 }
 
 export interface ISetPreFetch {
 	type: typeof FETCH_CLIENT_SET_PREFETCH;
 	payload: {
 		preFetch: IPreFetch;
-	}
+	};
 }
 
 export interface ISetSkipPreFetch {
 	type: typeof FETCH_CLIENT_SET_SKIP_PARENT_PREFETCH;
 	payload: {
 		skip: boolean;
-	}
+	};
 }
 
 export interface ISetSkipHeaders {
-	type: typeof FETCH_CLIENT_SET_SKIP_PARENT_HEADERS
+	type: typeof FETCH_CLIENT_SET_SKIP_PARENT_HEADERS;
 	payload: {
 		skip: boolean;
-	}
+	};
 }
 
-export type RequestActionTypes = | ISetURL | ISetMethod | ISetParams | ISetAuth | ISetHeaders | ISetBody | ISetRequest | ISetTest |
-	ISetRawLang | ISetResetBody | ISetRawValue | ISetBinaryData | ISetNotes | ISetAddVar | ISetReqColDetails | ISetReqParentSettings | ISetFormDataBody |
-	ISetOAuthToken | ISetPreCondition | ISetAddPreRequest | ISetDeletePreRequest | ISetDeletePreCondition | ISetCollectionList | ISetColRequestList |
-	ISetSelectedCol | ISetSelectedRequest | ISetPreFetch | ISetSkipPreFetch | ISetSkipHeaders;
+export type RequestActionTypes =
+	| ISetURL
+	| ISetMethod
+	| ISetParams
+	| ISetAuth
+	| ISetHeaders
+	| ISetBody
+	| ISetRequest
+	| ISetTest
+	| ISetRawLang
+	| ISetResetBody
+	| ISetRawValue
+	| ISetBinaryData
+	| ISetNotes
+	| ISetAddVar
+	| ISetReqColDetails
+	| ISetReqParentSettings
+	| ISetFormDataBody
+	| ISetOAuthToken
+	| ISetPreCondition
+	| ISetAddPreRequest
+	| ISetDeletePreRequest
+	| ISetDeletePreCondition
+	| ISetCollectionList
+	| ISetColRequestList
+	| ISetSelectedCol
+	| ISetSelectedRequest
+	| ISetPreFetch
+	| ISetSkipPreFetch
+	| ISetSkipHeaders;

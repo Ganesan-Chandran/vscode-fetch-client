@@ -1,18 +1,20 @@
-import { SysVariables } from '../consts/systemVariables.consts';
-import { v4 as uuidv4 } from 'uuid';
-import moment from 'moment-mini';
+import { SysVariables } from "../consts/systemVariables.consts";
+import { v4 as uuidv4 } from "uuid";
+import moment from "moment-mini";
 
 export function checkSysVariable(variable: string): string {
-	if ((variable.startsWith("{{#num,") || variable.startsWith("{{#date,")) && variable.endsWith("}}")) {
+	if (
+		(variable.startsWith("{{#num,") || variable.startsWith("{{#date,")) &&
+		variable.endsWith("}}")
+	) {
 		return variable.replace("{{", "").replace("}}", "").replace("#", "").trim();
 	}
-	if (SysVariables.findIndex(t => t === variable) !== -1) {
+	if (SysVariables.findIndex((t) => t === variable) !== -1) {
 		return variable.replace("{{", "").replace("}}", "").replace("#", "").trim();
 	}
 
 	return null;
 }
-
 
 export function getSysVariableWithValue(data: string) {
 	try {
@@ -55,26 +57,33 @@ export function getSysVariableWithValue(data: string) {
 				}
 				return null;
 		}
-	}
-	catch {
+	} catch {
 		return null;
 	}
 }
 
 function getRandomEMail() {
 	let name = getRandomString(getRandomIntFromInterval(1, 15), "str");
-	let domain = ["yahoo", "gmail", "hotmail", "outlook"].at(getRandomIntFromInterval(0, 3));
+	let domain = ["yahoo", "gmail", "hotmail", "outlook"].at(
+		getRandomIntFromInterval(0, 3),
+	);
 	return name + "@" + domain + ".com";
 }
 
-
 function getRandomDate(start: Date, end: Date) {
-	return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+	return new Date(
+		start.getTime() + Math.random() * (end.getTime() - start.getTime()),
+	);
 }
 
 function getRandomString(len: number, type: string) {
 	var text = "";
-	var charset = type === "str" ? "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" : type === "strnum" ? "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890" : "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~`!@#$%^&*()_+-={}[]:\"\'<>?,./|\\'";
+	var charset =
+		type === "str"
+			? "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+			: type === "strnum"
+				? "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+				: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~`!@#$%^&*()_+-={}[]:\"\'<>?,./|\\'";
 	for (var i = 0; i < len; i++) {
 		text += charset.charAt(Math.floor(Math.random() * charset.length));
 	}

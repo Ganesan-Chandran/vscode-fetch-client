@@ -15,7 +15,6 @@ export interface IAwsAuthProps {
 }
 
 export const AwsAuth = (props: IAwsAuthProps) => {
-
 	const dispatch = useDispatch<AppDispatch>();
 
 	const { auth } = useSelector((state: IRootState) => state.requestData);
@@ -61,66 +60,64 @@ export const AwsAuth = (props: IAwsAuthProps) => {
 		<div>
 			<div className="aws-auth-text-panel">
 				<label className="aws-label">AccessKey</label>
-				{
-					props.envVar && props.selectedVariable.id && <TextEditor
+				{props.envVar && props.selectedVariable.id && (
+					<TextEditor
 						varWords={props.envVar}
 						onChange={onSetAccessKey}
 						value={awsAuth.accessKey}
 						focus={false}
 					/>
-				}
+				)}
 			</div>
 			<div className="aws-auth-text-panel">
 				<label className="aws-label">SecretKey</label>
-				{
-					props.envVar && props.selectedVariable.id && <TextEditor
+				{props.envVar && props.selectedVariable.id && (
+					<TextEditor
 						varWords={props.envVar}
 						onChange={onSetSecretKey}
 						value={awsAuth.secretAccessKey}
 						focus={false}
 					/>
-				}
+				)}
 			</div>
 			<details open={true} key={"aws-auth"}>
 				<summary className="collection-items">
 					{"Advanced"}
-					<div>
-
-					</div>
+					<div></div>
 				</summary>
 				<div className="collction-item">
 					<div className="aws-auth-text-panel">
 						<label className="aws-label">AWS Region</label>
-						{
-							props.envVar && props.selectedVariable.id && <TextEditor
+						{props.envVar && props.selectedVariable.id && (
+							<TextEditor
 								varWords={props.envVar}
 								onChange={onSetRegion}
 								value={awsAuth.region}
 								focus={false}
 							/>
-						}
+						)}
 					</div>
 					<div className="aws-auth-text-panel">
 						<label className="aws-label">Service Name</label>
-						{
-							props.envVar && props.selectedVariable.id && <TextEditor
+						{props.envVar && props.selectedVariable.id && (
+							<TextEditor
 								varWords={props.envVar}
 								onChange={onSetServiceName}
 								value={awsAuth.service}
 								focus={false}
 							/>
-						}
+						)}
 					</div>
 					<div className="aws-auth-text-panel">
 						<label className="aws-label">Session Token</label>
-						{
-							props.envVar && props.selectedVariable.id && <TextEditor
+						{props.envVar && props.selectedVariable.id && (
+							<TextEditor
 								varWords={props.envVar}
 								onChange={onSetSessionToken}
 								value={awsAuth.sessionToken}
 								focus={false}
 							/>
-						}
+						)}
 					</div>
 				</div>
 			</details>

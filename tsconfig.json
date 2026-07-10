@@ -22,7 +22,7 @@
     "noImplicitOverride": true,
     "noImplicitThis": true,
     // "strictNullChecks": true
-    "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
+    "noImplicitReturns": true /* Report error when not all code paths in function return a value. */
   },
   "exclude": [
     "node_modules",

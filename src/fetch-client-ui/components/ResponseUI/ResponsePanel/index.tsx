@@ -1,15 +1,15 @@
 import "./style.css";
-import { IRootState } from '../../../reducer/combineReducer';
-import { NotesEditor } from '../../Common/NotesEditor';
-import { PreFetchResponse } from '../OptionsPanel/Options/PreFetchResponse';
+import { IRootState } from "../../../reducer/combineReducer";
+import { NotesEditor } from "../../Common/NotesEditor";
+import { PreFetchResponse } from "../OptionsPanel/Options/PreFetchResponse";
 import { ResponseCookies } from "../OptionsPanel/Options/Cookies";
 import { ResponseHeaders } from "../OptionsPanel/Options/Headers";
 import { ResponseOptionsTab } from "../OptionsPanel/OptionTab";
-import { ResponseSection } from '../OptionsPanel/Options/Response';
-import { TestResult } from '../../TestUI/TestResult';
-import { useSelector } from 'react-redux';
-import React, { useEffect, useState } from 'react';
-import TypesGenerator from '../..//Common/TypesGenerator';
+import { ResponseSection } from "../OptionsPanel/Options/Response";
+import { TestResult } from "../../TestUI/TestResult";
+import { useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
+import TypesGenerator from "../..//Common/TypesGenerator";
 
 export interface ResponsePanelProps {
 	isVerticalLayout: boolean;
@@ -17,29 +17,40 @@ export interface ResponsePanelProps {
 }
 
 export const ReponsePanel = (props: ResponsePanelProps) => {
-
 	const { loading } = useSelector((state: IRootState) => state.responseData);
 	const { runItem } = useSelector((state: IRootState) => state.uiData);
 
-	const [selectedTab, setSelectedTab] = useState(runItem ? "testresults" : "response");
+	const [selectedTab, setSelectedTab] = useState(
+		runItem ? "testresults" : "response",
+	);
 
-	const CodeSnippetGenerator = React.lazy(() => import('../../Common/CodeGenerator'));
+	const CodeSnippetGenerator = React.lazy(
+		() => import("../../Common/CodeGenerator"),
+	);
 
 	const renderOptionsUI = (tab: string) => {
 		switch (tab) {
-			case 'headers':
+			case "headers":
 				return <ResponseHeaders />;
-			case 'cookies':
+			case "cookies":
 				return <ResponseCookies />;
-			case 'testresults':
+			case "testresults":
 				return <TestResult />;
-			case 'codesnippet':
-				return <React.Suspense fallback={<div>loading...</div>}><CodeSnippetGenerator /></React.Suspense>;
-			case 'codetype':
-				return <React.Suspense fallback={<div>loading...</div>}><TypesGenerator /></React.Suspense>;
-			case 'notes':
+			case "codesnippet":
+				return (
+					<React.Suspense fallback={<div>loading...</div>}>
+						<CodeSnippetGenerator />
+					</React.Suspense>
+				);
+			case "codetype":
+				return (
+					<React.Suspense fallback={<div>loading...</div>}>
+						<TypesGenerator />
+					</React.Suspense>
+				);
+			case "notes":
 				return <NotesEditor />;
-			case 'prefetchresults':
+			case "prefetchresults":
 				return <PreFetchResponse />;
 			default:
 				return <></>;
@@ -55,9 +66,25 @@ export const ReponsePanel = (props: ResponsePanelProps) => {
 	return (
 		<div className="response-panel">
 			<div className="response-container">
-				<ResponseOptionsTab selectedTab={selectedTab} setSelectedTab={setSelectedTab} isVerticalLayout={props.isVerticalLayout} isCurl={props.isCurl} />
-				<div className={props.isVerticalLayout ? "response-options-tab-panel-vertical" : "response-options-tab-panel"}>
-					<div id="response-section-panel" className={selectedTab === "response" ? "res-visible" : "res-hidden"}>
+				<ResponseOptionsTab
+					selectedTab={selectedTab}
+					setSelectedTab={setSelectedTab}
+					isVerticalLayout={props.isVerticalLayout}
+					isCurl={props.isCurl}
+				/>
+				<div
+					className={
+						props.isVerticalLayout
+							? "response-options-tab-panel-vertical"
+							: "response-options-tab-panel"
+					}
+				>
+					<div
+						id="response-section-panel"
+						className={
+							selectedTab === "response" ? "res-visible" : "res-hidden"
+						}
+					>
 						<ResponseSection isCurl={props.isCurl} />
 					</div>
 					{renderOptionsUI(selectedTab)}

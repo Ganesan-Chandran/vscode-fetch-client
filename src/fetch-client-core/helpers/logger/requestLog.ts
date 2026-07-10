@@ -12,7 +12,7 @@ export function logDetails(
 	responseStatus: number,
 	responseHeaders: ITableData[],
 	responseData: unknown,
-	duration: number
+	duration: number,
 ): void {
 	try {
 		let log = `\n-----------------------------------------------------------------------------\n`;
@@ -21,7 +21,7 @@ export function logDetails(
 		log += `𝘙𝘦𝘲𝘶𝘦𝘴𝘵 𝘋𝘦𝘵𝘢𝘪𝘭𝘴: \n Url: ${request.url}\n Method: ${request.method.toUpperCase()}\n`;
 		log += ` Time: ${formatDateWithMs()}\n`;
 
-		if (request.headers.filter(i => i.isChecked).length > 0) {
+		if (request.headers.filter((i) => i.isChecked).length > 0) {
 			log += ` Request Headers:`;
 			for (const [prop, val] of Object.entries(reqHeaders)) {
 				log += `\n\t${prop}: "${val}"`;
@@ -33,9 +33,9 @@ export function logDetails(
 			log += ` Request Body:\n`;
 			const body = request.body;
 			if (body.bodyType === "binary") {
-				log += `\tsrc: ${body.binary?.fileName ?? ''}\n`;
+				log += `\tsrc: ${body.binary?.fileName ?? ""}\n`;
 			} else if (body.bodyType === "formurlencoded") {
-				log += `\t${decodeURIComponent(String(requestBody).replace(/\+/g, ' '))}`;
+				log += `\t${decodeURIComponent(String(requestBody).replace(/\+/g, " "))}`;
 			} else if (body.bodyType === "formdata") {
 				const formData = requestBody as { getBuffer(): Buffer };
 				log += `\t${formData.getBuffer()}`;

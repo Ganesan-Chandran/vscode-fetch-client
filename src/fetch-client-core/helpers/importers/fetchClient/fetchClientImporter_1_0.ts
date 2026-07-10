@@ -1,7 +1,12 @@
 import { formatDate } from "../../dateTime.helper";
 import { InitialSettings } from "../../../consts/initialValues.consts";
 import { IRequestModel } from "../../../types/request.types";
-import { ISettings, ICollections, IFolder, IVariable } from "../../../types/sidebar.types";
+import {
+	ISettings,
+	ICollections,
+	IFolder,
+	IVariable,
+} from "../../../types/sidebar.types";
 import { isFolder } from "../../common.helper";
 import { v4 as uuidv4 } from "uuid";
 import { writeLog } from "../../logger/logger";
@@ -32,7 +37,10 @@ function cloneSettings(settings?: ISettings): ISettings {
 	return JSON.parse(JSON.stringify(settings ?? InitialSettings));
 }
 
-function importFolder(source: IRawImportFolder, reqData: IRequestModel[]): IFolder {
+function importFolder(
+	source: IRawImportFolder,
+	reqData: IRequestModel[],
+): IFolder {
 	const folder: IFolder = {
 		id: uuidv4(),
 		name: source.name,
@@ -49,7 +57,12 @@ function importFolder(source: IRawImportFolder, reqData: IRequestModel[]): IFold
 		} else {
 			const req = item as IRawImportRequest;
 			const id = uuidv4();
-			const requestModel: IRequestModel = { ...req, id, createdTime: formatDate(), modifiedTime: formatDate() };
+			const requestModel: IRequestModel = {
+				...req,
+				id,
+				createdTime: formatDate(),
+				modifiedTime: formatDate(),
+			};
 			reqData.push(requestModel);
 			folder.data!.push(buildHistoryEntry(id, req));
 		}
@@ -58,7 +71,9 @@ function importFolder(source: IRawImportFolder, reqData: IRequestModel[]): IFold
 	return folder;
 }
 
-export const fetchClientImporter = (parsedData: IRawImportCollection): IImportResult | null => {
+export const fetchClientImporter = (
+	parsedData: IRawImportCollection,
+): IImportResult | null => {
 	try {
 		const reqData: IRequestModel[] = [];
 
@@ -78,16 +93,22 @@ export const fetchClientImporter = (parsedData: IRawImportCollection): IImportRe
 			} else {
 				const req = item as IRawImportRequest;
 				const id = uuidv4();
-				const requestModel: IRequestModel = { ...req, id, createdTime: formatDate(), modifiedTime: formatDate() };
+				const requestModel: IRequestModel = {
+					...req,
+					id,
+					createdTime: formatDate(),
+					modifiedTime: formatDate(),
+				};
 				reqData.push(requestModel);
 				colData.data!.push(buildHistoryEntry(id, req));
 			}
 		}
 
 		return { fcCollection: colData, fcRequests: reqData };
-
 	} catch (err) {
-		writeLog(`error::fetchClientImporter() - ${err instanceof Error ? err.message : String(err)}`);
+		writeLog(
+			`error::fetchClientImporter() - ${err instanceof Error ? err.message : String(err)}`,
+		);
 		return null;
 	}
 };

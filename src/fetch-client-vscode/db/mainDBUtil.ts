@@ -1,18 +1,30 @@
 import {
 	ExportPayload,
-	Main_Repository_BuildBulkExport, Main_Repository_BuildBulkExportV2, Main_Repository_BuildExport, Main_Repository_BuildExport_Postman, Main_Repository_BuildExport_V2, Main_Repository_CopyExistingItems,
-	Main_Repository_DeleteExistingItem, Main_Repository_DeleteExistingItems,
-	Main_Repository_GetCollectionRequests, Main_Repository_GetExistingItem,
-	Main_Repository_GetRequestItem, Main_Repository_Import,
-	Main_Repository_RenameRequestItem, Main_Repository_SaveRequest,
-	Main_Repository_UpdateRequest
-} from '../../fetch-client-core/db/mainDB.repository';
-import { getVariableEncryptionConfiguration, getVariableEncryptionKey } from '../../fetch-client-core/utils/vscodeConfig';
-import { IFetchClientExportV2 } from '../../fetch-client-core/types/fetchClient_2_0_types';
-import { IRequestModel } from '../../fetch-client-core/types/request.types';
-import { PostmanSchema_2_1 } from '../../fetch-client-core/types/postman_2_1.types';
-import { responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
-import { writeLog } from '../../fetch-client-core/helpers/logger/logger';
+	Main_Repository_BuildBulkExport,
+	Main_Repository_BuildBulkExportV2,
+	Main_Repository_BuildExport,
+	Main_Repository_BuildExport_Postman,
+	Main_Repository_BuildExport_V2,
+	Main_Repository_CopyExistingItems,
+	Main_Repository_DeleteExistingItem,
+	Main_Repository_DeleteExistingItems,
+	Main_Repository_GetCollectionRequests,
+	Main_Repository_GetExistingItem,
+	Main_Repository_GetRequestItem,
+	Main_Repository_Import,
+	Main_Repository_RenameRequestItem,
+	Main_Repository_SaveRequest,
+	Main_Repository_UpdateRequest,
+} from "../../fetch-client-core/db/mainDB.repository";
+import {
+	getVariableEncryptionConfiguration,
+	getVariableEncryptionKey,
+} from "../../fetch-client-core/utils/vscodeConfig";
+import { IFetchClientExportV2 } from "../../fetch-client-core/types/fetchClient_2_0_types";
+import { IRequestModel } from "../../fetch-client-core/types/request.types";
+import { PostmanSchema_2_1 } from "../../fetch-client-core/types/postman_2_1.types";
+import { responseTypes } from "../../fetch-client-core/consts/requestTypes.consts";
+import { writeLog } from "../../fetch-client-core/helpers/logger/logger";
 import * as vscode from "vscode";
 import fs from "fs";
 
@@ -33,7 +45,9 @@ export async function UpdateRequest(reqData: IRequestModel): Promise<void> {
 	}
 }
 
-export async function GetRequestItem(reqId: string): Promise<IRequestModel | null> {
+export async function GetRequestItem(
+	reqId: string,
+): Promise<IRequestModel | null> {
 	try {
 		const results = await Main_Repository_GetRequestItem(reqId);
 		return results;
@@ -43,7 +57,12 @@ export async function GetRequestItem(reqId: string): Promise<IRequestModel | nul
 	}
 }
 
-export async function GetExitingItem(webview: vscode.Webview, id: string, callback?: (results: IRequestModel[]) => void, type?: string): Promise<void> {
+export async function GetExitingItem(
+	webview: vscode.Webview,
+	id: string,
+	callback?: (results: IRequestModel[]) => void,
+	type?: string,
+): Promise<void> {
 	try {
 		const results = await Main_Repository_GetExistingItem(id);
 		const msgType =
@@ -57,7 +76,10 @@ export async function GetExitingItem(webview: vscode.Webview, id: string, callba
 	}
 }
 
-export async function CopyExitingItems(oldIds: string[], ids: Record<string, string>): Promise<void> {
+export async function CopyExitingItems(
+	oldIds: string[],
+	ids: Record<string, string>,
+): Promise<void> {
 	try {
 		await Main_Repository_CopyExistingItems(oldIds, ids);
 	} catch (err) {
@@ -81,7 +103,10 @@ export async function DeleteExitingItems(ids: string[]): Promise<void> {
 	}
 }
 
-export async function RenameRequestItem(id: string, name: string): Promise<void> {
+export async function RenameRequestItem(
+	id: string,
+	name: string,
+): Promise<void> {
 	try {
 		await Main_Repository_RenameRequestItem(id, name);
 	} catch (err) {
@@ -89,31 +114,57 @@ export async function RenameRequestItem(id: string, name: string): Promise<void>
 	}
 }
 
-export async function GetColsRequests(ids: string[], paths: unknown, webview: vscode.Webview): Promise<void> {
+export async function GetColsRequests(
+	ids: string[],
+	paths: unknown,
+	webview: vscode.Webview,
+): Promise<void> {
 	try {
 		const apiRequests = await Main_Repository_GetCollectionRequests(ids);
-		webview?.postMessage({ type: responseTypes.getCollectionsByIdResponse, collections: apiRequests, paths, });
+		webview?.postMessage({
+			type: responseTypes.getCollectionsByIdResponse,
+			collections: apiRequests,
+			paths,
+		});
 	} catch (err) {
 		writeLog("error::GetColsRequests(): " + err);
 	}
 }
 
-export async function Export(path: string, colId: string, hisId: string, folderId: string, version: number): Promise<void> {
+export async function Export(
+	path: string,
+	colId: string,
+	hisId: string,
+	folderId: string,
+	version: number,
+): Promise<void> {
 	try {
-		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
-		const exportData = version === 1 ? await Main_Repository_BuildExport(colId, hisId, folderId) : await Main_Repository_BuildExport_V2(colId, hisId, folderId, key);
+		const key = getVariableEncryptionConfiguration()
+			? getVariableEncryptionKey()
+			: null;
+		const exportData =
+			version === 1
+				? await Main_Repository_BuildExport(colId, hisId, folderId)
+				: await Main_Repository_BuildExport_V2(colId, hisId, folderId, key);
 		fs.writeFile(
 			path,
-			version === 1 ? JSON.stringify(exportData) : JSON.stringify(exportData, null, "\t"),
+			version === 1
+				? JSON.stringify(exportData)
+				: JSON.stringify(exportData, null, "\t"),
 			(error) => {
 				if (error) {
-					vscode.window.showErrorMessage(`Could not save to '${path}'. Error Message : ${error.message}`, { modal: true });
+					vscode.window.showErrorMessage(
+						`Could not save to '${path}'. Error Message : ${error.message}`,
+						{ modal: true },
+					);
 					writeLog("error::Export()::FileWrite() " + error.message);
+				} else {
+					vscode.window.showInformationMessage(
+						`Successfully saved to '${path}'.`,
+						{ modal: true },
+					);
 				}
-				else {
-					vscode.window.showInformationMessage(`Successfully saved to '${path}'.`, { modal: true });
-				}
-			}
+			},
 		);
 	} catch (err) {
 		writeLog("error::Export(): " + err);
@@ -121,38 +172,63 @@ export async function Export(path: string, colId: string, hisId: string, folderI
 	}
 }
 
-export async function ExportOtherFormats(path: string, colId: string, hisId: string, folderId: string, _format: string): Promise<void> {
+export async function ExportOtherFormats(
+	path: string,
+	colId: string,
+	hisId: string,
+	folderId: string,
+	_format: string,
+): Promise<void> {
 	try {
-		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
-		const exportData = await Main_Repository_BuildExport_Postman(colId, hisId, folderId, key);
-		fs.writeFile(
-			path,
-			JSON.stringify(exportData, null, "\t"),
-			(error) => {
-				if (error) {
-					vscode.window.showErrorMessage(`Could not save to '${path}'. Error Message : ${error.message}`, { modal: true });
-					writeLog("error::Export()::FileWrite() " + error.message);
-				}
-				else {
-					vscode.window.showInformationMessage(`Successfully saved to '${path}'.`, { modal: true });
-				}
-			}
+		const key = getVariableEncryptionConfiguration()
+			? getVariableEncryptionKey()
+			: null;
+		const exportData = await Main_Repository_BuildExport_Postman(
+			colId,
+			hisId,
+			folderId,
+			key,
 		);
+		fs.writeFile(path, JSON.stringify(exportData, null, "\t"), (error) => {
+			if (error) {
+				vscode.window.showErrorMessage(
+					`Could not save to '${path}'. Error Message : ${error.message}`,
+					{ modal: true },
+				);
+				writeLog("error::Export()::FileWrite() " + error.message);
+			} else {
+				vscode.window.showInformationMessage(
+					`Successfully saved to '${path}'.`,
+					{ modal: true },
+				);
+			}
+		});
 	} catch (err) {
 		writeLog("error::Export(): " + err);
 		vscode.window.showErrorMessage("Export failed.", { modal: true });
 	}
 }
 
-export async function BulkExportV2(path: string, selectedCols: string[], formatType: string, webview: vscode.Webview): Promise<void> {
+export async function BulkExportV2(
+	path: string,
+	selectedCols: string[],
+	formatType: string,
+	webview: vscode.Webview,
+): Promise<void> {
 	if (!selectedCols?.length) {
 		webview?.postMessage({ type: responseTypes.bulkColExportResponse });
 		return;
 	}
 
 	try {
-		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
-		const exportPayloads = await Main_Repository_BuildBulkExportV2(selectedCols, key, formatType);
+		const key = getVariableEncryptionConfiguration()
+			? getVariableEncryptionKey()
+			: null;
+		const exportPayloads = await Main_Repository_BuildBulkExportV2(
+			selectedCols,
+			key,
+			formatType,
+		);
 		const writePromises = exportPayloads.map((exportData) => {
 			return exportIntoFile(path, exportData, 2);
 		});
@@ -164,7 +240,11 @@ export async function BulkExportV2(path: string, selectedCols: string[], formatT
 	}
 }
 
-export async function BulkExport(path: string, selectedCols: string[], webview: vscode.Webview): Promise<void> {
+export async function BulkExport(
+	path: string,
+	selectedCols: string[],
+	webview: vscode.Webview,
+): Promise<void> {
 	if (!selectedCols?.length) {
 		webview?.postMessage({ type: responseTypes.bulkColExportResponse });
 		return;
@@ -184,7 +264,9 @@ export async function BulkExport(path: string, selectedCols: string[], webview: 
 	}
 }
 
-function getExportName(exportData: ExportPayload | IFetchClientExportV2 | PostmanSchema_2_1): string {
+function getExportName(
+	exportData: ExportPayload | IFetchClientExportV2 | PostmanSchema_2_1,
+): string {
 	if ("name" in exportData) {
 		return exportData.name;
 	}
@@ -196,7 +278,11 @@ function getExportName(exportData: ExportPayload | IFetchClientExportV2 | Postma
 	return exportData.info.name;
 }
 
-async function exportIntoFile(path: string, exportData: ExportPayload | IFetchClientExportV2 | PostmanSchema_2_1, version: number): Promise<void> {
+async function exportIntoFile(
+	path: string,
+	exportData: ExportPayload | IFetchClientExportV2 | PostmanSchema_2_1,
+	version: number,
+): Promise<void> {
 	const name = getExportName(exportData);
 	const safeName = name.replace(/[/\\?%*:|"<>]/g, "-");
 	const fullPath = `${path}\\fetch-client-collection_${safeName}.json`;
@@ -204,46 +290,52 @@ async function exportIntoFile(path: string, exportData: ExportPayload | IFetchCl
 	return new Promise<void>((resolve) => {
 		fs.writeFile(
 			fullPath,
-			version === 1 ? JSON.stringify(exportData) : JSON.stringify(exportData, null, "\t"),
+			version === 1
+				? JSON.stringify(exportData)
+				: JSON.stringify(exportData, null, "\t"),
 			(error) => {
-
 				if (error) {
 					vscode.window.showErrorMessage(
 						`Could not save to '${fullPath}'. Error Message : ${error.message}`,
-						{ modal: true }
+						{ modal: true },
 					);
 
-					writeLog(
-						"error::BulkExport()::FileWrite() " +
-						error.message
-					);
+					writeLog("error::BulkExport()::FileWrite() " + error.message);
 				}
 
 				resolve();
-			}
+			},
 		);
 	});
 }
 
-export async function Import(webviewView: vscode.WebviewView, path: string): Promise<void> {
+export async function Import(
+	webviewView: vscode.WebviewView,
+	path: string,
+): Promise<void> {
 	try {
 		const data = fs.readFileSync(path, "utf8");
-		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
+		const key = getVariableEncryptionConfiguration()
+			? getVariableEncryptionKey()
+			: null;
 		const result = await Main_Repository_Import(data, key);
 
 		webviewView?.webview?.postMessage({
 			type: responseTypes.importResponse,
-			data: result.fcCollection
+			data: result.fcCollection,
 		});
 
 		if (result.fcVariables) {
 			webviewView?.webview?.postMessage({
 				type: responseTypes.importVariableResponse,
-				vars: result.fcVariables
+				vars: result.fcVariables,
 			});
 		}
 	} catch (err) {
-		vscode.window.showErrorMessage("Could not import the collection - Invalid data.", { modal: true });
+		vscode.window.showErrorMessage(
+			"Could not import the collection - Invalid data.",
+			{ modal: true },
+		);
 		writeLog("error::Import() - " + err);
 	}
 }

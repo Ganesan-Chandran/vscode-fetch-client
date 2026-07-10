@@ -53,7 +53,6 @@
 	border-bottom: 0.25px solid #cbcbcb;
 }
 
-
 .folder-activity-items {
 	padding-left: var(--fpl) !important;
 }
@@ -239,14 +238,14 @@
 }
 
 .dropdown-more {
-	position        : absolute;
-	width           : 140px;
-	box-shadow      : 10px 8px 16px 0px rgba(0, 0, 0, 0.4);
-	z-index         : 1000;
-	color           : var(--text-color);
+	position: absolute;
+	width: 140px;
+	box-shadow: 10px 8px 16px 0px rgba(0, 0, 0, 0.4);
+	z-index: 1000;
+	color: var(--text-color);
 	background-color: var(--background-color);
-	border          : 1px solid var(--border-color);
-	text-align      : left;
+	border: 1px solid var(--border-color);
+	text-align: left;
 }
 
 .dropdown-more {
@@ -276,7 +275,7 @@
 .new-request-panel {
 	margin: 0 auto;
 	max-width: 300px;
-	transition: max-width .2s ease-out;
+	transition: max-width 0.2s ease-out;
 	padding: 10px 20px 1em;
 }
 

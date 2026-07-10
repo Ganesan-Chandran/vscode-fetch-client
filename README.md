@@ -17,20 +17,20 @@ The Fetch Client extension lets you build, test, organize, and debug REST APIs w
 
 ## Features
 
-* 🚀 Lightweight and fast
-* 🌙 Native VS Code theme support
-* 🔐 Multiple authentication methods (Basic, Bearer, API Key, OAuth 2.0, AWS Signature)
-* 📦 Request bodies: JSON, XML, Form Data, URL Encoded, Binary, GraphQL
-* 🧪 Built-in visual API testing (no scripting required)
-* 📁 Collections, History, Environment Variables, and Cookies
-* 🔄 Pre-requests and Collection Runner
-* ⏰ Schedule and run API calls automatically
-* ⚡ Performance Test
-* 📥 Import from Fetch Client, Postman, Thunder Client, Insomina and Open API
-* 📥 Export for Fetch Client and Postman
-* 💻 Generate code snippets in multiple languages
-* ⚡ Run cURL commands
-* 🔒 All data is stored locally
+- 🚀 Lightweight and fast
+- 🌙 Native VS Code theme support
+- 🔐 Multiple authentication methods (Basic, Bearer, API Key, OAuth 2.0, AWS Signature)
+- 📦 Request bodies: JSON, XML, Form Data, URL Encoded, Binary, GraphQL
+- 🧪 Built-in visual API testing (no scripting required)
+- 📁 Collections, History, Environment Variables, and Cookies
+- 🔄 Pre-requests and Collection Runner
+- ⏰ Schedule and run API calls automatically
+- ⚡ Performance Test
+- 📥 Import from Fetch Client, Postman, Thunder Client, Insomnia and Open API
+- 📥 Export for Fetch Client and Postman
+- 💻 Generate code snippets in multiple languages
+- ⚡ Run cURL commands
+- 🔒 All data is stored locally
 
 ## CLI
 
@@ -38,14 +38,14 @@ The Fetch Client CLI brings your API collections to the command line. It uses th
 
 ### Features
 
-* 🖥️ Cross-platform (Windows, macOS, and Linux)
-* ▶️ Run requests, folders, collections, or all collections
-* 🧪 Execute API tests and validate responses
-* 📄 Generate JSON, XML, HTML, CSV and NUnit test reports
-* ⚙️ Configure variables
-* 🔄 Import and execute cURL commands
-* 🤖 CI/CD friendly with appropriate exit codes
-* 🚀 Lightweight with no additional server required
+- 🖥️ Cross-platform (Windows, macOS, and Linux)
+- ▶️ Run requests, folders, collections, or all collections
+- 🧪 Execute API tests and validate responses
+- 📄 Generate JSON, XML, HTML, CSV and NUnit test reports
+- ⚙️ Configure variables
+- 🔄 Import and execute cURL commands
+- 🤖 CI/CD friendly with appropriate exit codes
+- 🚀 Lightweight with no additional server required
 
 ## Documentation
 
@@ -55,14 +55,14 @@ https://fetchclient.github.io/
 
 ## 🖥️ Running the extension locally for development
 
-* Clone the [vscode-fetch-client](https://github.com/Ganesan-Chandran/vscode-fetch-client) repo.
-* Run `npm install` command to install dependencies.
-* Press `F5` to open an extension development window with `fetch-client` extension loaded.
+- Clone the [vscode-fetch-client](https://github.com/Ganesan-Chandran/vscode-fetch-client) repo.
+- Run `npm install` command to install dependencies.
+- Press `F5` to open an extension development window with `fetch-client` extension loaded.
 
 ## 🔒 Privacy
 
-* Fetch client **`DOES NOT`** collect any your personal or request data.
-* Fetch client has no back-end storage and all your data are stored **`LOCALLY`** on your computer.
+- Fetch client **`DOES NOT`** collect any your personal or request data.
+- Fetch client has no back-end storage and all your data are stored **`LOCALLY`** on your computer.
 
 ## 📝 Changelog
 

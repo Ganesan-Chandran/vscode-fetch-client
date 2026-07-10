@@ -7,10 +7,11 @@ import { useDispatch, useSelector } from "react-redux";
 import React from "react";
 
 export const UrlEncoded = () => {
-
 	const dispatch = useDispatch<AppDispatch>();
 	const { body } = useSelector((state: IRootState) => state.requestData);
-	const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
+	const { selectedVariable } = useSelector(
+		(state: IRootState) => state.variableData,
+	);
 
 	const onSelectChange = (index: number) => {
 		let localbody = { ...body };
@@ -20,7 +21,7 @@ export const UrlEncoded = () => {
 			localUrlEncoded[index] = {
 				isChecked: !rowData.isChecked,
 				key: rowData.key,
-				value: rowData.value
+				value: rowData.value,
 			};
 			localbody.formdata = localUrlEncoded;
 			dispatch(Actions.SetRequestBodyAction(localbody));
@@ -31,7 +32,7 @@ export const UrlEncoded = () => {
 		let newRow: ITableData = {
 			isChecked: false,
 			key: "",
-			value: ""
+			value: "",
 		};
 
 		let localbody = { ...body };
@@ -55,7 +56,11 @@ export const UrlEncoded = () => {
 		dispatch(Actions.SetRequestBodyAction(localbody));
 	};
 
-	const addValue = (value: string, index: number, isKey: boolean): ITableData[] => {
+	const addValue = (
+		value: string,
+		index: number,
+		isKey: boolean,
+	): ITableData[] => {
 		let localbody = { ...body };
 		if (localbody.urlencoded) {
 			let localUrlEncoded = [...localbody.urlencoded];
@@ -63,7 +68,7 @@ export const UrlEncoded = () => {
 			localUrlEncoded[index] = {
 				isChecked: true,
 				key: isKey ? value : rowData.key,
-				value: !isKey ? value : rowData.value
+				value: !isKey ? value : rowData.value,
 			};
 			return localUrlEncoded;
 		}

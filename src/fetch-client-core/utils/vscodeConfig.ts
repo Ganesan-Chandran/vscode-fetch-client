@@ -1,6 +1,6 @@
-import * as vscode from 'vscode';
-import { responseTypes } from '../consts/requestTypes.consts';
-import { getExtLocalDbPath } from '../db/dbHelper';
+import * as vscode from "vscode";
+import { responseTypes } from "../consts/requestTypes.consts";
+import { getExtLocalDbPath } from "../db/dbHelper";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -29,14 +29,14 @@ interface ThemeResponse {
 // ---------------------------------------------------------------------------
 
 let variableEncryptionConfiguration = false;
-let variableEncryptionKeyCache = '';
+let variableEncryptionKeyCache = "";
 
 // ---------------------------------------------------------------------------
 // Internal helper
 // ---------------------------------------------------------------------------
 
 function getFetchClientConfiguration(): vscode.WorkspaceConfiguration {
-	return vscode.workspace.getConfiguration('fetch-client');
+	return vscode.workspace.getConfiguration("fetch-client");
 }
 
 // ---------------------------------------------------------------------------
@@ -44,14 +44,24 @@ function getFetchClientConfiguration(): vscode.WorkspaceConfiguration {
 // ---------------------------------------------------------------------------
 
 export function getLayoutConfiguration(): LayoutConfigResponse {
-	const layoutConfig = getFetchClientConfiguration().get<string>("layout", "Horizontal Split");
-	return { type: responseTypes.layoutConfigResponse, layoutConfigData: layoutConfig };
+	const layoutConfig = getFetchClientConfiguration().get<string>(
+		"layout",
+		"Horizontal Split",
+	);
+	return {
+		type: responseTypes.layoutConfigResponse,
+		layoutConfigData: layoutConfig,
+	};
 }
 
 export function getConfiguration(): ConfigResponse {
 	const config = getFetchClientConfiguration();
 	const theme = vscode.window.activeColorTheme.kind;
-	return { type: responseTypes.configResponse, configData: JSON.stringify(config), theme };
+	return {
+		type: responseTypes.configResponse,
+		configData: JSON.stringify(config),
+		theme,
+	};
 }
 
 export function getVSCodeTheme(): ThemeResponse {
@@ -76,7 +86,10 @@ export function getTimeOutConfiguration(): number {
 }
 
 export function getHeadersConfiguration(): boolean {
-	return getFetchClientConfiguration().get<boolean>("headersCaseSensitive", true);
+	return getFetchClientConfiguration().get<boolean>(
+		"headersCaseSensitive",
+		true,
+	);
 }
 
 export function getProtocolConfiguration(): string {
@@ -84,7 +97,10 @@ export function getProtocolConfiguration(): string {
 }
 
 export function getRequestTabOption(): boolean {
-	return getFetchClientConfiguration().get<boolean>("separateRequestTab", false);
+	return getFetchClientConfiguration().get<boolean>(
+		"separateRequestTab",
+		false,
+	);
 }
 
 export function getLogOption(): boolean {
@@ -112,15 +128,25 @@ export function getCustomDbPathConfiguration(): string {
 }
 
 export function updateDbPathConfiguration(value: DbPathOption): void {
-	getFetchClientConfiguration().update("dbPath", value, vscode.ConfigurationTarget.Global);
+	getFetchClientConfiguration().update(
+		"dbPath",
+		value,
+		vscode.ConfigurationTarget.Global,
+	);
 }
 
 export function getVariableEncryptionFCConfiguration(): boolean {
-	return getFetchClientConfiguration().get<boolean>("encryptedVariables", false);
+	return getFetchClientConfiguration().get<boolean>(
+		"encryptedVariables",
+		false,
+	);
 }
 
 export function responseLimitConfiguration(): number {
-	const responseLimit = getFetchClientConfiguration().get<number>("responseLimit", 5);
+	const responseLimit = getFetchClientConfiguration().get<number>(
+		"responseLimit",
+		5,
+	);
 	return responseLimit * 1048576;
 }
 
@@ -133,19 +159,33 @@ export function getSharedDBConfiguration(): boolean {
 }
 
 export function getVariableEncryptionKey(): string {
-	return variableEncryptionKeyCache || getFetchClientConfiguration().get<string>("variableEncryptionKey", "");
+	return (
+		variableEncryptionKeyCache ||
+		getFetchClientConfiguration().get<string>("variableEncryptionKey", "")
+	);
 }
 
 export function getExportCollectionConfiguration(): boolean {
-	return getFetchClientConfiguration().get<boolean>("exportCollectionWithVariables", false);
+	return getFetchClientConfiguration().get<boolean>(
+		"exportCollectionWithVariables",
+		false,
+	);
 }
 
 export function updateVariableEncryptionKey(key: string) {
-	return getFetchClientConfiguration().update("variableEncryptionKey", key, vscode.ConfigurationTarget.Global);
+	return getFetchClientConfiguration().update(
+		"variableEncryptionKey",
+		key,
+		vscode.ConfigurationTarget.Global,
+	);
 }
 
 export function updateVariableEncryption(shouldEncrypt: boolean) {
-	return getFetchClientConfiguration().update("encryptedVariables", shouldEncrypt, vscode.ConfigurationTarget.Global);
+	return getFetchClientConfiguration().update(
+		"encryptedVariables",
+		shouldEncrypt,
+		vscode.ConfigurationTarget.Global,
+	);
 }
 
 // ---------------------------------------------------------------------------
@@ -175,5 +215,9 @@ export function updateSaveToWorkspaceConfiguration(value: boolean): void {
 }
 
 export function updateWorkspacePathConfiguration(value: string): void {
-	getFetchClientConfiguration().update("workspacePath", value, vscode.ConfigurationTarget.Global);
+	getFetchClientConfiguration().update(
+		"workspacePath",
+		value,
+		vscode.ConfigurationTarget.Global,
+	);
 }

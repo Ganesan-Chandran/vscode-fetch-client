@@ -1,30 +1,52 @@
 import { FCCipher } from "../../fetch-client-packages/crypto/index";
-import { FetchClientVariableProxy } from '../../fetch-client-core/helpers/validators/fetchClientVariableValidator';
-import { formatDate } from '../../fetch-client-core/helpers/dateTime.helper';
-import { getVariableEncryptionConfiguration, getVariableEncryptionKey } from "../../fetch-client-core/utils/vscodeConfig";
+import { FetchClientVariableProxy } from "../../fetch-client-core/helpers/validators/fetchClientVariableValidator";
+import { formatDate } from "../../fetch-client-core/helpers/dateTime.helper";
+import {
+	getVariableEncryptionConfiguration,
+	getVariableEncryptionKey,
+} from "../../fetch-client-core/utils/vscodeConfig";
 import { ITableData } from "../../fetch-client-core/types/common.types";
 import { IVariable } from "../../fetch-client-core/types/sidebar.types";
-import { PostmanVariableSchema_2_1 } from '../../fetch-client-core/types/postman_2_1.variable_types';
-import { pubSub } from '../../extension';
-import { pubSubTypes, responseTypes } from '../../fetch-client-core/consts/requestTypes.consts';
-import { RemoveVariable } from './collectionDBUtil';
+import { PostmanVariableSchema_2_1 } from "../../fetch-client-core/types/postman_2_1.variable_types";
+import { pubSub } from "../../extension";
+import {
+	pubSubTypes,
+	responseTypes,
+} from "../../fetch-client-core/consts/requestTypes.consts";
+import { RemoveVariable } from "./collectionDBUtil";
 import { ThunderClientVariableSchema_1_2 } from "../../fetch-client-core/types/thunderClient_1_2.variable_types";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import { VariableImportType } from "../../fetch-client-core/consts/import.consts";
-import { writeLog } from '../../fetch-client-core/helpers/logger/logger';
-import * as vscode from 'vscode';
+import { writeLog } from "../../fetch-client-core/helpers/logger/logger";
+import * as vscode from "vscode";
 import fs from "fs";
 import {
-	Var_Repository_Insert, Var_Repository_InsertDuplicate, Var_Repository_Update, Var_Repository_UpdateAndReturn,
-	Var_Repository_FindAll, Var_Repository_UpdateAllWithReEncryption, Var_Repository_EncryptAll, Var_Repository_DecryptAll,
-	Var_Repository_FindById, Var_Repository_FindByIdSync, Var_Repository_Delete, Var_Repository_Rename, Var_Repository_UpdateStatus,
-	Var_Repository_FindByIdRaw, Var_Repository_InsertRaw
+	Var_Repository_Insert,
+	Var_Repository_InsertDuplicate,
+	Var_Repository_Update,
+	Var_Repository_UpdateAndReturn,
+	Var_Repository_FindAll,
+	Var_Repository_UpdateAllWithReEncryption,
+	Var_Repository_EncryptAll,
+	Var_Repository_DecryptAll,
+	Var_Repository_FindById,
+	Var_Repository_FindByIdSync,
+	Var_Repository_Delete,
+	Var_Repository_Rename,
+	Var_Repository_UpdateStatus,
+	Var_Repository_FindByIdRaw,
+	Var_Repository_InsertRaw,
 } from "../../fetch-client-core/db/variableDB.repository";
 
-
-export async function SaveVariable(item: IVariable, webview: vscode.Webview, sideBarView: vscode.WebviewView) {
+export async function SaveVariable(
+	item: IVariable,
+	webview: vscode.Webview,
+	sideBarView: vscode.WebviewView,
+) {
 	try {
-		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
+		const key = getVariableEncryptionConfiguration()
+			? getVariableEncryptionKey()
+			: null;
 		await Var_Repository_Insert(item, key);
 
 		if (webview) {
@@ -32,7 +54,10 @@ export async function SaveVariable(item: IVariable, webview: vscode.Webview, sid
 		}
 
 		if (sideBarView) {
-			sideBarView.webview.postMessage({ type: responseTypes.appendToVariableResponse, collection: item });
+			sideBarView.webview.postMessage({
+				type: responseTypes.appendToVariableResponse,
+				collection: item,
+			});
 		}
 
 		if (pubSub.size > 0) {
@@ -43,7 +68,11 @@ export async function SaveVariable(item: IVariable, webview: vscode.Webview, sid
 	}
 }
 
-export async function DuplicateVariable(id: string, webview: vscode.Webview, sideBarView: vscode.WebviewView) {
+export async function DuplicateVariable(
+	id: string,
+	webview: vscode.Webview,
+	sideBarView: vscode.WebviewView,
+) {
 	try {
 		const distData = await Var_Repository_InsertDuplicate(id);
 
@@ -53,7 +82,10 @@ export async function DuplicateVariable(id: string, webview: vscode.Webview, sid
 			}
 
 			if (sideBarView) {
-				sideBarView.webview.postMessage({ type: responseTypes.appendToVariableResponse, collection: distData });
+				sideBarView.webview.postMessage({
+					type: responseTypes.appendToVariableResponse,
+					collection: distData,
+				});
 			}
 		}
 	} catch (err) {
@@ -63,7 +95,9 @@ export async function DuplicateVariable(id: string, webview: vscode.Webview, sid
 
 export async function UpdateVariable(item: IVariable, webview: vscode.Webview) {
 	try {
-		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
+		const key = getVariableEncryptionConfiguration()
+			? getVariableEncryptionKey()
+			: null;
 		await Var_Repository_Update(item, key);
 
 		if (webview) {
@@ -80,7 +114,9 @@ export async function UpdateVariable(item: IVariable, webview: vscode.Webview) {
 
 export function UpdateVariableSync(item: IVariable) {
 	try {
-		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
+		const key = getVariableEncryptionConfiguration()
+			? getVariableEncryptionKey()
+			: null;
 		return new Promise<IVariable>(async (resolve, _reject) => {
 			const result = await Var_Repository_UpdateAndReturn(item, key);
 			resolve(result);
@@ -93,9 +129,14 @@ export function UpdateVariableSync(item: IVariable) {
 
 export async function GetAllVariable(webview: vscode.Webview) {
 	try {
-		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
+		const key = getVariableEncryptionConfiguration()
+			? getVariableEncryptionKey()
+			: null;
 		const userVariables = await Var_Repository_FindAll(key);
-		webview?.postMessage({ type: responseTypes.getAllVariableResponse, variable: userVariables });
+		webview?.postMessage({
+			type: responseTypes.getAllVariableResponse,
+			variable: userVariables,
+		});
 	} catch (err) {
 		writeLog("error::GetAllVariable(): " + err);
 	}
@@ -126,11 +167,20 @@ export async function UpdateToDecryptedVariables(key: string) {
 	}
 }
 
-export async function GetVariableById(id: string, isGlobal: boolean, webview: vscode.Webview) {
+export async function GetVariableById(
+	id: string,
+	isGlobal: boolean,
+	webview: vscode.Webview,
+) {
 	try {
-		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
+		const key = getVariableEncryptionConfiguration()
+			? getVariableEncryptionKey()
+			: null;
 		const userVariables = await Var_Repository_FindById(id, isGlobal, key);
-		webview.postMessage({ type: responseTypes.getVariableItemResponse, data: userVariables });
+		webview.postMessage({
+			type: responseTypes.getVariableItemResponse,
+			data: userVariables,
+		});
 	} catch (err) {
 		writeLog("error::GetVariableById(): " + err);
 	}
@@ -138,7 +188,9 @@ export async function GetVariableById(id: string, isGlobal: boolean, webview: vs
 
 export function GetVariableByIdSync(id: string) {
 	try {
-		const key = getVariableEncryptionConfiguration() ? getVariableEncryptionKey() : null;
+		const key = getVariableEncryptionConfiguration()
+			? getVariableEncryptionKey()
+			: null;
 		return new Promise<IVariable>(async (resolve, _reject) => {
 			const result = await Var_Repository_FindByIdSync(id, key);
 			resolve(result);
@@ -149,11 +201,17 @@ export function GetVariableByIdSync(id: string) {
 	}
 }
 
-export async function DeleteVariable(webviewView: vscode.WebviewView, id: string) {
+export async function DeleteVariable(
+	webviewView: vscode.WebviewView,
+	id: string,
+) {
 	try {
 		await Var_Repository_Delete(id);
 		RemoveVariable(id);
-		webviewView.webview.postMessage({ type: responseTypes.deleteVariableResponse, id: id });
+		webviewView.webview.postMessage({
+			type: responseTypes.deleteVariableResponse,
+			id: id,
+		});
 		if (pubSub.size > 0) {
 			pubSub.publish({ messageType: pubSubTypes.updateVariables });
 		}
@@ -162,10 +220,17 @@ export async function DeleteVariable(webviewView: vscode.WebviewView, id: string
 	}
 }
 
-export async function RenameVariable(webviewView: vscode.WebviewView, id: string, name: string) {
+export async function RenameVariable(
+	webviewView: vscode.WebviewView,
+	id: string,
+	name: string,
+) {
 	try {
 		await Var_Repository_Rename(id, name);
-		webviewView.webview.postMessage({ type: responseTypes.renameVariableResponse, params: { id: id, name: name } });
+		webviewView.webview.postMessage({
+			type: responseTypes.renameVariableResponse,
+			params: { id: id, name: name },
+		});
 		if (pubSub.size > 0) {
 			pubSub.publish({ messageType: pubSubTypes.updateVariables });
 		}
@@ -174,25 +239,48 @@ export async function RenameVariable(webviewView: vscode.WebviewView, id: string
 	}
 }
 
-export async function ChangeVariableStatus(id: string, status: boolean, webviewView: vscode.WebviewView) {
+export async function ChangeVariableStatus(
+	id: string,
+	status: boolean,
+	webviewView: vscode.WebviewView,
+) {
 	try {
 		await Var_Repository_UpdateStatus(id, status);
-		webviewView.webview.postMessage({ type: responseTypes.activeVariableResponse, params: { id: id, status: status } });
+		webviewView.webview.postMessage({
+			type: responseTypes.activeVariableResponse,
+			params: { id: id, status: status },
+		});
 	} catch (err) {
 		writeLog("error::ChangeVariableStatus(): " + err);
 	}
 }
 
-export async function BulkExportVariables(path: string, selectedVars: string[], exportKey: string, webview: vscode.Webview) {
+export async function BulkExportVariables(
+	path: string,
+	selectedVars: string[],
+	exportKey: string,
+	webview: vscode.Webview,
+) {
 	try {
 		selectedVars?.forEach(async (item: string) => {
 			let vars = await Var_Repository_FindByIdRaw(item);
 			if (vars?.length > 0) {
 				let exportData = FormatExportedVariables(vars, exportKey);
-				let fullPath = path + "\\" + "fetch-client-variable_" + exportData.name.replace(/[/\\?%*:|"<>]/g, '-') + ".json";
+				let fullPath =
+					path +
+					"\\" +
+					"fetch-client-variable_" +
+					exportData.name.replace(/[/\\?%*:|"<>]/g, "-") +
+					".json";
 				fs.writeFile(fullPath, JSON.stringify(exportData), (error) => {
 					if (error) {
-						vscode.window.showErrorMessage("Could not save to '" + path + "'. Error Message : " + error.message, { modal: true });
+						vscode.window.showErrorMessage(
+							"Could not save to '" +
+								path +
+								"'. Error Message : " +
+								error.message,
+							{ modal: true },
+						);
 						writeLog("error::BulkExport()::FileWrite()" + error.message);
 					}
 				});
@@ -205,17 +293,30 @@ export async function BulkExportVariables(path: string, selectedVars: string[], 
 	}
 }
 
-export async function ExportVariable(path: string, id: string, exportKey: string) {
+export async function ExportVariable(
+	path: string,
+	id: string,
+	exportKey: string,
+) {
 	try {
 		let vars = await Var_Repository_FindByIdRaw(id);
 		if (vars && vars.length > 0) {
 			let exportData = FormatExportedVariables(vars, exportKey);
 			fs.writeFile(path, JSON.stringify(exportData), (error) => {
 				if (error) {
-					vscode.window.showErrorMessage("Could not save to '" + path + "'. Error Message : " + error.message, { modal: true });
+					vscode.window.showErrorMessage(
+						"Could not save to '" +
+							path +
+							"'. Error Message : " +
+							error.message,
+						{ modal: true },
+					);
 					writeLog("error::ExportVariable()::FileWrite()" + error.message);
 				} else {
-					vscode.window.showInformationMessage("Successfully saved to '" + path + "'.", { modal: true });
+					vscode.window.showInformationMessage(
+						"Successfully saved to '" + path + "'.",
+						{ modal: true },
+					);
 				}
 			});
 		}
@@ -228,7 +329,10 @@ function FormatExportedVariables(vars: any[], exportKey: string) {
 	let exportData = {
 		app: "Fetch Client",
 		id: vars[0].id,
-		name: vars[0].name.toUpperCase().trim() === "GLOBAL" ? "Global Export" : vars[0].name,
+		name:
+			vars[0].name.toUpperCase().trim() === "GLOBAL"
+				? "Global Export"
+				: vars[0].name,
 		version: "1.0",
 		type: "variables",
 		createdTime: vars[0].createdTime,
@@ -261,8 +365,14 @@ function FormatExportedVariables(vars: any[], exportKey: string) {
 function ValidateData(data: string): VariableImportType | null {
 	try {
 		if (!data || data.length === 0) {
-			vscode.window.showErrorMessage("Could not import the variable - Empty Data.", { modal: true });
-			writeLog("error::ImportVariable::ValidateData() " + "Error Message : Could not import the variable - Empty Data.");
+			vscode.window.showErrorMessage(
+				"Could not import the variable - Empty Data.",
+				{ modal: true },
+			);
+			writeLog(
+				"error::ImportVariable::ValidateData() " +
+					"Error Message : Could not import the variable - Empty Data.",
+			);
 			return null;
 		}
 
@@ -271,14 +381,25 @@ function ValidateData(data: string): VariableImportType | null {
 			return VariableImportType.FetchClient_Variable_1_0;
 		} catch (err) {
 			let postmanData = JSON.parse(data) as PostmanVariableSchema_2_1;
-			if (postmanData?._postman_variable_scope && postmanData?._postman_exported_using) {
+			if (
+				postmanData?._postman_variable_scope &&
+				postmanData?._postman_exported_using
+			) {
 				return VariableImportType.Postman_Variable_2_1;
 			}
 
-			let thunderClientData = JSON.parse(data) as ThunderClientVariableSchema_1_2;
-			if (thunderClientData?.clientName === "Thunder Client" && thunderClientData?.ref) {
+			let thunderClientData = JSON.parse(
+				data,
+			) as ThunderClientVariableSchema_1_2;
+			if (
+				thunderClientData?.clientName === "Thunder Client" &&
+				thunderClientData?.ref
+			) {
 				if (thunderClientData?.version !== "1.2") {
-					vscode.window.showErrorMessage("Could not import the variable - Invalid version.", { modal: true });
+					vscode.window.showErrorMessage(
+						"Could not import the variable - Invalid version.",
+						{ modal: true },
+					);
 					return null;
 				}
 				return VariableImportType.ThunderClient_Variable_1_2;
@@ -287,13 +408,24 @@ function ValidateData(data: string): VariableImportType | null {
 			return null;
 		}
 	} catch (err) {
-		vscode.window.showErrorMessage("Could not import the variable - Invalid Data.", { modal: true });
-		writeLog("error::ImportVariable::ValidateData() " + "Error Message : Could not import the variable - " + err);
+		vscode.window.showErrorMessage(
+			"Could not import the variable - Invalid Data.",
+			{ modal: true },
+		);
+		writeLog(
+			"error::ImportVariable::ValidateData() " +
+				"Error Message : Could not import the variable - " +
+				err,
+		);
 		return null;
 	}
 }
 
-export function ImportVariableFromJsonFile(webviewView: vscode.WebviewView, path: string, decryptKey: string) {
+export function ImportVariableFromJsonFile(
+	webviewView: vscode.WebviewView,
+	path: string,
+	decryptKey: string,
+) {
 	try {
 		const data = fs.readFileSync(path, "utf8");
 		var type = ValidateData(data);
@@ -308,15 +440,25 @@ export function ImportVariableFromJsonFile(webviewView: vscode.WebviewView, path
 				ImportThunderClientVariable(webviewView, data);
 				break;
 			default:
-				vscode.window.showErrorMessage("Could not import the variable - Invalid type.", { modal: true });
+				vscode.window.showErrorMessage(
+					"Could not import the variable - Invalid type.",
+					{ modal: true },
+				);
 		}
 	} catch (err) {
-		vscode.window.showErrorMessage("Could not import the variable - Invalid data.", { modal: true });
+		vscode.window.showErrorMessage(
+			"Could not import the variable - Invalid data.",
+			{ modal: true },
+		);
 		writeLog("error::ImportVariableFromJsonFile(): - Error Mesaage : " + err);
 	}
 }
 
-function ImportFetchClientVariable(webviewView: vscode.WebviewView, data: string, decryptKey: string) {
+function ImportFetchClientVariable(
+	webviewView: vscode.WebviewView,
+	data: string,
+	decryptKey: string,
+) {
 	const parsedData = JSON.parse(data);
 	let secretVariables = parsedData.secretVariables;
 	let encryptVariableConfiguration = getVariableEncryptionConfiguration();
@@ -326,7 +468,7 @@ function ImportFetchClientVariable(webviewView: vscode.WebviewView, data: string
 		modifiedTime: formatDate(),
 		name: parsedData.name,
 		isActive: parsedData.isActive,
-		data: parsedData.data
+		data: parsedData.data,
 	};
 
 	let fcCryptoEncrypt: FCCipher;
@@ -353,8 +495,13 @@ function ImportPostmanVariable(webviewView: vscode.WebviewView, data: string) {
 	const parsedData = JSON.parse(data) as PostmanVariableSchema_2_1;
 	let varData: ITableData[] = [];
 
-	if (!parsedData?._postman_exported_using?.includes("Postman/") || !parsedData?._postman_variable_scope?.includes("environment")) {
-		writeLog("error::ImportPostmanVariable(): - Error Mesaage : Could not import the variable - Invalid data.");
+	if (
+		!parsedData?._postman_exported_using?.includes("Postman/") ||
+		!parsedData?._postman_variable_scope?.includes("environment")
+	) {
+		writeLog(
+			"error::ImportPostmanVariable(): - Error Mesaage : Could not import the variable - Invalid data.",
+		);
 		throw new Error("Could not import the variable - Invalid data.");
 	}
 
@@ -371,7 +518,9 @@ function ImportPostmanVariable(webviewView: vscode.WebviewView, data: string) {
 			varData.push({
 				isChecked: parsedData.values[i].enabled,
 				key: parsedData.values[i].key,
-				value: encryptVariableConfiguration ? fcCrypto.EncryptData(parsedData.values[i].value) : parsedData.values[i].value
+				value: encryptVariableConfiguration
+					? fcCrypto.EncryptData(parsedData.values[i].value)
+					: parsedData.values[i].value,
 			});
 		}
 	}
@@ -382,13 +531,16 @@ function ImportPostmanVariable(webviewView: vscode.WebviewView, data: string) {
 		modifiedTime: formatDate(),
 		name: parsedData.name,
 		isActive: true,
-		data: varData
+		data: varData,
 	};
 
 	ImportVariable(webviewView, convertedData);
 }
 
-function ImportThunderClientVariable(webviewView: vscode.WebviewView, data: string) {
+function ImportThunderClientVariable(
+	webviewView: vscode.WebviewView,
+	data: string,
+) {
 	const parsedData = JSON.parse(data) as ThunderClientVariableSchema_1_2;
 
 	let varData: ITableData[] = [];
@@ -403,7 +555,9 @@ function ImportThunderClientVariable(webviewView: vscode.WebviewView, data: stri
 			varData.push({
 				isChecked: true,
 				key: parsedData.variables[i].name,
-				value: encryptVariableConfiguration ? fcCrypto.EncryptData(parsedData.variables[i].value) : parsedData.variables[i].value
+				value: encryptVariableConfiguration
+					? fcCrypto.EncryptData(parsedData.variables[i].value)
+					: parsedData.variables[i].value,
 			});
 		}
 	}
@@ -414,16 +568,25 @@ function ImportThunderClientVariable(webviewView: vscode.WebviewView, data: stri
 		modifiedTime: formatDate(),
 		name: parsedData.environmentName,
 		isActive: true,
-		data: varData
+		data: varData,
 	};
 
 	ImportVariable(webviewView, convertedData);
 }
 
-export function ImportVariableFromEnvFile(webviewView: vscode.WebviewView, path: string) {
+export function ImportVariableFromEnvFile(
+	webviewView: vscode.WebviewView,
+	path: string,
+) {
 	try {
 		const data = fs.readFileSync(path, "utf8").toString().split("\n");
-		let fileName = path.split('\\').pop().split('/').pop().split('.')[0]?.trim();
+		let fileName = path
+			.split("\\")
+			.pop()
+			.split("/")
+			.pop()
+			.split(".")[0]
+			?.trim();
 
 		let reqData: IVariable = {
 			id: uuidv4(),
@@ -431,7 +594,7 @@ export function ImportVariableFromEnvFile(webviewView: vscode.WebviewView, path:
 			createdTime: formatDate(),
 			modifiedTime: formatDate(),
 			isActive: true,
-			data: []
+			data: [],
 		};
 
 		let encryptVariableConfiguration = getVariableEncryptionConfiguration();
@@ -448,24 +611,38 @@ export function ImportVariableFromEnvFile(webviewView: vscode.WebviewView, path:
 				reqData.data.push({
 					isChecked: true,
 					key: line.substring(0, line.indexOf("=")).trim(),
-					value: encryptVariableConfiguration ? fcCrypto.EncryptData(line.substring(line.indexOf("=") + 1).trim()) : line.substring(line.indexOf("=") + 1).trim()
+					value: encryptVariableConfiguration
+						? fcCrypto.EncryptData(line.substring(line.indexOf("=") + 1).trim())
+						: line.substring(line.indexOf("=") + 1).trim(),
 				});
 			}
 		}
 
 		ImportVariable(webviewView, reqData);
 	} catch (err) {
-		vscode.window.showErrorMessage("Could not import the variable - Invalid data.", { modal: true });
+		vscode.window.showErrorMessage(
+			"Could not import the variable - Invalid data.",
+			{ modal: true },
+		);
 		writeLog("error::ImportVariableFromEnvFile(): - Error Mesaage : " + err);
 	}
 }
 
-export async function ImportVariable(webviewView: vscode.WebviewView, reqData: IVariable) {
+export async function ImportVariable(
+	webviewView: vscode.WebviewView,
+	reqData: IVariable,
+) {
 	try {
 		await Var_Repository_InsertRaw(reqData);
-		webviewView.webview.postMessage({ type: responseTypes.importVariableResponse, vars: reqData });
+		webviewView.webview.postMessage({
+			type: responseTypes.importVariableResponse,
+			vars: reqData,
+		});
 	} catch (err) {
-		vscode.window.showErrorMessage("Could not import the variable - Invalid data.", { modal: true });
+		vscode.window.showErrorMessage(
+			"Could not import the variable - Invalid data.",
+			{ modal: true },
+		);
 		writeLog("error::ImportVariable(): - Error Mesaage : " + err);
 	}
 }

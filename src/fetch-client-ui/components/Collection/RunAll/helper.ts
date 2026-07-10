@@ -1,5 +1,8 @@
 import { FormatBytes } from "../../../../fetch-client-core/helpers/common.helper";
-import { formatDate, GetResponseTime } from "../../../../fetch-client-core/helpers/dateTime.helper";
+import {
+	formatDate,
+	GetResponseTime,
+} from "../../../../fetch-client-core/helpers/dateTime.helper";
 import { IReponseModel } from "../../../../fetch-client-core/types/response.types";
 import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
 import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";
@@ -10,9 +13,8 @@ export function exportJson(
 	res: IReponseModel[][],
 	sourceColName: string,
 	selectedVariable: IVariable,
-	totalIterations: number
+	totalIterations: number,
 ): any {
-
 	let iteration: any[] = [];
 	for (let i = 0; i < totalIterations; i++) {
 		let iterationData: any[] = [];
@@ -25,29 +27,46 @@ export function exportJson(
 						name: item.name,
 						createdTime: item.createdTime,
 						method: item.method.toUpperCase(),
-						notes: item.notes
+						notes: item.notes,
 					},
-					response: res[i] && res[i][index] ? {
-						status: res[i][index].response.status,
-						statusText: res[i][index].response.statusText,
-						duration: getResponseDuration(res, i, index),
-						size: getResponseSize(res, i, index)
-					} : "[]",
-					tests: res[i] && res[i][index] && res[i][index].testResults ? res[i][index].testResults.map((itm) => {
-						return {
-							testCase: itm.test,
-							actualValue: itm.actualValue,
-							result: itm.result
-						};
-					}) : "[]",
-					totalTests: res[i] && res[i][index] && res[i][index].testResults ? res[i][index].testResults.length : 0,
-					passedTests: res[i] && res[i][index] && res[i][index].testResults ? res[i][index].testResults.filter(re => re.result === true).length : 0,
-					failedTests: res[i] && res[i][index] && res[i][index].testResults ? res[i][index].testResults.filter(re => re.result === false).length : 0,
+					response:
+						res[i] && res[i][index]
+							? {
+									status: res[i][index].response.status,
+									statusText: res[i][index].response.statusText,
+									duration: getResponseDuration(res, i, index),
+									size: getResponseSize(res, i, index),
+								}
+							: "[]",
+					tests:
+						res[i] && res[i][index] && res[i][index].testResults
+							? res[i][index].testResults.map((itm) => {
+									return {
+										testCase: itm.test,
+										actualValue: itm.actualValue,
+										result: itm.result,
+									};
+								})
+							: "[]",
+					totalTests:
+						res[i] && res[i][index] && res[i][index].testResults
+							? res[i][index].testResults.length
+							: 0,
+					passedTests:
+						res[i] && res[i][index] && res[i][index].testResults
+							? res[i][index].testResults.filter((re) => re.result === true)
+									.length
+							: 0,
+					failedTests:
+						res[i] && res[i][index] && res[i][index].testResults
+							? res[i][index].testResults.filter((re) => re.result === false)
+									.length
+							: 0,
 				});
 			}
 		});
 
-		let totalRequests = selectedReq.filter(item => item === true).length;
+		let totalRequests = selectedReq.filter((item) => item === true).length;
 		let passedCount = passedRequestsCount(res[i]);
 
 		let iterationInfo = {
@@ -55,7 +74,7 @@ export function exportJson(
 			totalRequests: totalRequests,
 			passedRequests: passedCount,
 			failedRequests: totalRequests - passedCount,
-			iterationData: iterationData
+			iterationData: iterationData,
 		};
 		iteration.push(iterationInfo);
 	}
@@ -67,7 +86,7 @@ export function exportJson(
 		exportedDate: formatDate(),
 		variableName: selectedVariable.name,
 		totalIterations: totalIterations,
-		iterations: iteration
+		iterations: iteration,
 	};
 
 	return exportData;
@@ -79,16 +98,20 @@ export function exportCSV(
 	res: IReponseModel[][],
 	sourceColName: string,
 	selectedVariable: IVariable,
-	totalIterations: number
+	totalIterations: number,
 ): string {
 	let data = `app,Fetch Client\ncollectionName,${sourceColName}\nversion,1.0\nexportedDate,${formatDate()}\nvariableName,${selectedVariable.name}\ntotalIterations,${totalIterations}\n\n`;
 
 	for (let i = 0; i < totalIterations; i++) {
 		data = data + `iteration,${i + 1}\n`;
-		data = data + `Id,Url,Name,Method,Status,Status Text,Duration,Size,Total Tests,Total Passed,Total Failed\n`;
+		data =
+			data +
+			`Id,Url,Name,Method,Status,Status Text,Duration,Size,Total Tests,Total Passed,Total Failed\n`;
 		req.forEach((item, index) => {
 			if (selectedReq[index]) {
-				data = data + `${item.id},${item.url},${item.name},${item.method.toUpperCase()},${res[i] && res[i][index] ? res[i][index].response.status : ""},${res[i] && res[i][index] ? res[i][index].response.statusText : ""},${getResponseDuration(res, i, index)},${getResponseSize(res, i, index)},${res[i] && res[i][index] && res[i][index].testResults ? res[i][index].testResults.length : 0},${res[i] && res[i][index] && res[i][index].testResults ? res[i][index].testResults.filter(re => re.result === true).length : 0},${res[i] && res[i][index] && res[i][index].testResults ? res[i][index].testResults.filter(re => re.result === false).length : 0}\n`;
+				data =
+					data +
+					`${item.id},${item.url},${item.name},${item.method.toUpperCase()},${res[i] && res[i][index] ? res[i][index].response.status : ""},${res[i] && res[i][index] ? res[i][index].response.statusText : ""},${getResponseDuration(res, i, index)},${getResponseSize(res, i, index)},${res[i] && res[i][index] && res[i][index].testResults ? res[i][index].testResults.length : 0},${res[i] && res[i][index] && res[i][index].testResults ? res[i][index].testResults.filter((re) => re.result === true).length : 0},${res[i] && res[i][index] && res[i][index].testResults ? res[i][index].testResults.filter((re) => re.result === false).length : 0}\n`;
 			}
 		});
 		data = data + "\n";
@@ -108,10 +131,26 @@ function passedRequestsCount(res: IReponseModel[]) {
 	return count;
 }
 
-function getResponseDuration(res: IReponseModel[][], selectedIteration: number, index: number) {
-	return res[selectedIteration] && res[selectedIteration][index] ? res[selectedIteration][index]?.response.isError ? "0 ms" : GetResponseTime(res[selectedIteration][index].response.duration) : "";
+function getResponseDuration(
+	res: IReponseModel[][],
+	selectedIteration: number,
+	index: number,
+) {
+	return res[selectedIteration] && res[selectedIteration][index]
+		? res[selectedIteration][index]?.response.isError
+			? "0 ms"
+			: GetResponseTime(res[selectedIteration][index].response.duration)
+		: "";
 }
 
-function getResponseSize(res: IReponseModel[][], selectedIteration: number, index: number) {
-	return res[selectedIteration] && res[selectedIteration][index] ? res[selectedIteration][index]?.response.size ? FormatBytes(parseInt(res[selectedIteration][index].response.size)) : "" : "";
+function getResponseSize(
+	res: IReponseModel[][],
+	selectedIteration: number,
+	index: number,
+) {
+	return res[selectedIteration] && res[selectedIteration][index]
+		? res[selectedIteration][index]?.response.size
+			? FormatBytes(parseInt(res[selectedIteration][index].response.size))
+			: ""
+		: "";
 }

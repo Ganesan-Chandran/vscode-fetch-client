@@ -1,9 +1,36 @@
-import { ApikeyElement, Auth, Body, Header, Items, POSTMAN_SCHEMA_V2_1, PostmanSchema_2_1, RequestObject, URLObject, Variable } from "../../../types/postman_2_1.types";
+import {
+	ApikeyElement,
+	Auth,
+	Body,
+	Header,
+	Items,
+	POSTMAN_SCHEMA_V2_1,
+	PostmanSchema_2_1,
+	RequestObject,
+	URLObject,
+	Variable,
+} from "../../../types/postman_2_1.types";
 import { formatDate } from "../../dateTime.helper";
 import { IAuth, ClientAuth, GrantType } from "../../../types/auth.types";
-import { ICollections, IVariable, IHistory, IFolder, ISettings } from "../../../types/sidebar.types";
-import { InitialAuth, InitialBody, InitialPreFetch, InitialSetVar, InitialTest } from "../../../consts/initialValues.consts";
-import { IRequestModel, IBodyData, MethodType } from "../../../types/request.types";
+import {
+	ICollections,
+	IVariable,
+	IHistory,
+	IFolder,
+	ISettings,
+} from "../../../types/sidebar.types";
+import {
+	InitialAuth,
+	InitialBody,
+	InitialPreFetch,
+	InitialSetVar,
+	InitialTest,
+} from "../../../consts/initialValues.consts";
+import {
+	IRequestModel,
+	IBodyData,
+	MethodType,
+} from "../../../types/request.types";
 import { isJson } from "../../tests.helper";
 import { ITableData } from "../../../types/common.types";
 import { PostmanScriptParser } from "./postmanScript.helper";
@@ -32,14 +59,17 @@ export class PostmanImport {
 		this.collection = collection;
 	}
 
-	private importVariable(variables: Variable[], name: string): IVariable | null {
+	private importVariable(
+		variables: Variable[],
+		name: string,
+	): IVariable | null {
 		if (!variables?.length) {
 			return null;
 		}
 
 		const varData: ITableData[] = variables
-			.filter(v => v.key !== undefined)
-			.map(v => ({
+			.filter((v) => v.key !== undefined)
+			.map((v) => ({
 				isChecked: !v.disabled,
 				key: v.key,
 				value: v.value as string,
@@ -71,9 +101,18 @@ export class PostmanImport {
 
 	private buildRawUrl(url: URLObject): string {
 		const protocol = url.protocol ? `${url.protocol}://` : "";
-		const host = Array.isArray(url.host) ? url.host.join(".") : (url.host ?? "");
-		const path = Array.isArray(url.path) ? "/" + url.path.join("/") : (url.path ? "/" + url.path : "");
-		const query = (url.query ?? []).filter(q => !q.disabled).map(q => `${q.key}=${q.value}`).join("&");
+		const host = Array.isArray(url.host)
+			? url.host.join(".")
+			: (url.host ?? "");
+		const path = Array.isArray(url.path)
+			? "/" + url.path.join("/")
+			: url.path
+				? "/" + url.path
+				: "";
+		const query = (url.query ?? [])
+			.filter((q) => !q.disabled)
+			.map((q) => `${q.key}=${q.value}`)
+			.join("&");
 		return protocol + host + path + (query ? `?${query}` : "");
 	}
 
@@ -89,7 +128,8 @@ export class PostmanImport {
 				continue;
 			}
 			const placeholder = `:${variable.key}`;
-			const replacement = variable.value !== undefined ? `{{${variable.key}}}` : placeholder;
+			const replacement =
+				variable.value !== undefined ? `{{${variable.key}}}` : placeholder;
 			updatedUrl = updatedUrl.replace(placeholder, replacement);
 		}
 
@@ -142,9 +182,15 @@ export class PostmanImport {
 					return fcAuth;
 				}
 				fcAuth.aws.accessKey = this.findValueByKey(auth.awsv4, "accessKey");
-				fcAuth.aws.secretAccessKey = this.findValueByKey(auth.awsv4, "secretKey");
+				fcAuth.aws.secretAccessKey = this.findValueByKey(
+					auth.awsv4,
+					"secretKey",
+				);
 				fcAuth.aws.service = this.findValueByKey(auth.awsv4, "service");
-				fcAuth.aws.sessionToken = this.findValueByKey(auth.awsv4, "sessionToken");
+				fcAuth.aws.sessionToken = this.findValueByKey(
+					auth.awsv4,
+					"sessionToken",
+				);
 				fcAuth.aws.region = this.findValueByKey(auth.awsv4, "region");
 				fcAuth.authType = "aws";
 				return fcAuth;
@@ -187,26 +233,44 @@ export class PostmanImport {
 					return fcAuth;
 				}
 				const grantType = this.findValueByKey(auth.oauth2, "grant_type");
-				if (grantType !== "client_credentials" && grantType !== "password_credentials") {
+				if (
+					grantType !== "client_credentials" &&
+					grantType !== "password_credentials"
+				) {
 					return fcAuth;
 				}
-				const clientAuth = this.findValueByKey(auth.oauth2, "client_authentication");
-				fcAuth.oauth.clientAuth = clientAuth === "body" ? ClientAuth.Body : ClientAuth.Header;
+				const clientAuth = this.findValueByKey(
+					auth.oauth2,
+					"client_authentication",
+				);
+				fcAuth.oauth.clientAuth =
+					clientAuth === "body" ? ClientAuth.Body : ClientAuth.Header;
 				fcAuth.oauth.clientId = this.findValueByKey(auth.oauth2, "clientId");
-				fcAuth.oauth.clientSecret = this.findValueByKey(auth.oauth2, "clientSecret");
-				fcAuth.oauth.grantType = grantType === "client_credentials" ? GrantType.Client_Crd : GrantType.PWD_Crd;
+				fcAuth.oauth.clientSecret = this.findValueByKey(
+					auth.oauth2,
+					"clientSecret",
+				);
+				fcAuth.oauth.grantType =
+					grantType === "client_credentials"
+						? GrantType.Client_Crd
+						: GrantType.PWD_Crd;
 				fcAuth.oauth.password = this.findValueByKey(auth.oauth2, "password");
 				fcAuth.oauth.username = this.findValueByKey(auth.oauth2, "username");
 				fcAuth.oauth.scope = this.findValueByKey(auth.oauth2, "scope");
-				fcAuth.oauth.tokenUrl = this.findValueByKey(auth.oauth2, "accessTokenUrl");
+				fcAuth.oauth.tokenUrl = this.findValueByKey(
+					auth.oauth2,
+					"accessTokenUrl",
+				);
 
 				const resource = this.findObjectByKey(auth.oauth2, "resource");
 				const resourceKey = resource ? Object.keys(resource)[0] : "";
-				fcAuth.oauth.advancedOpt.resource = resource && resourceKey ? String(resource[resourceKey]) : "";
+				fcAuth.oauth.advancedOpt.resource =
+					resource && resourceKey ? String(resource[resourceKey]) : "";
 
 				const audience = this.findObjectByKey(auth.oauth2, "audience");
 				const audienceKey = audience ? Object.keys(audience)[0] : "";
-				fcAuth.oauth.advancedOpt.audience = audience && audienceKey ? String(audience[audienceKey]) : "";
+				fcAuth.oauth.advancedOpt.audience =
+					audience && audienceKey ? String(audience[audienceKey]) : "";
 
 				fcAuth.authType = "oauth2";
 				return fcAuth;
@@ -242,22 +306,30 @@ export class PostmanImport {
 			case "formdata": {
 				fcBody.bodyType = "formdata";
 				fcBody.formdata.shift();
-				body.formdata?.forEach(item => {
+				body.formdata?.forEach((item) => {
 					fcBody.formdata.push({
 						isChecked: !item.disabled,
 						key: item.key,
-						value: item.type === "file" ? this.getSrc(item.src as string[] | null | string) : (item.value ?? ""),
+						value:
+							item.type === "file"
+								? this.getSrc(item.src as string[] | null | string)
+								: (item.value ?? ""),
 						type: item.type === "file" ? "File" : "Text",
 					});
 				});
-				fcBody.formdata.push({ isChecked: false, key: "", value: "", type: "Text" });
+				fcBody.formdata.push({
+					isChecked: false,
+					key: "",
+					value: "",
+					type: "Text",
+				});
 				return fcBody;
 			}
 
 			case "urlencoded": {
 				fcBody.bodyType = "formurlencoded";
 				fcBody.urlencoded.shift();
-				body.urlencoded?.forEach(item => {
+				body.urlencoded?.forEach((item) => {
 					fcBody.urlencoded.push({
 						isChecked: !item.disabled,
 						key: item.key,
@@ -271,8 +343,14 @@ export class PostmanImport {
 			case "graphql": {
 				fcBody.bodyType = "graphql";
 				if (body.graphql) {
-					fcBody.graphql.query = typeof body.graphql.query === "string" ? body.graphql.query : JSON.stringify(body.graphql.query ?? "", null, 2);
-					fcBody.graphql.variables = typeof body.graphql.variables === "string" ? body.graphql.variables : JSON.stringify(body.graphql.variables ?? {}, null, 2);
+					fcBody.graphql.query =
+						typeof body.graphql.query === "string"
+							? body.graphql.query
+							: JSON.stringify(body.graphql.query ?? "", null, 2);
+					fcBody.graphql.variables =
+						typeof body.graphql.variables === "string"
+							? body.graphql.variables
+							: JSON.stringify(body.graphql.variables ?? {}, null, 2);
 				}
 				return fcBody;
 			}
@@ -285,7 +363,9 @@ export class PostmanImport {
 				if (postmanLang) {
 					fcBody.raw.lang = postmanLang;
 				} else {
-					fcBody.raw.lang = this.getRawBodyType(rawData.replace(/(?:\\[rn]|[\r\n]+)+/g, ""));
+					fcBody.raw.lang = this.getRawBodyType(
+						rawData.replace(/(?:\\[rn]|[\r\n]+)+/g, ""),
+					);
 				}
 				return fcBody;
 			}
@@ -294,7 +374,9 @@ export class PostmanImport {
 				fcBody.bodyType = "binary";
 				if (body.file) {
 					fcBody.binary.data = body.file.content ?? "";
-					fcBody.binary.fileName = body.file.src ? body.file.src.substring(1) : "";
+					fcBody.binary.fileName = body.file.src
+						? body.file.src.substring(1)
+						: "";
 					fcBody.binary.contentTypeOption = "manual";
 				}
 				return fcBody;
@@ -339,9 +421,7 @@ export class PostmanImport {
 		if (this.isHTML(data)) {
 			return "html";
 		}
-		if (
-			/^\s*(const|let|var|function|class|export|import)\b/.test(data)
-		) {
+		if (/^\s*(const|let|var|function|class|export|import)\b/.test(data)) {
 			return "javascript";
 		}
 
@@ -359,18 +439,21 @@ export class PostmanImport {
 		if (!array) {
 			return "";
 		}
-		const obj = array.find(o => o.key === key);
+		const obj = array.find((o) => o.key === key);
 		if (obj && typeof obj.value === "string") {
 			return obj.value;
 		}
 		return "";
 	}
 
-	private findObjectByKey(array?: ApikeyElement[], key?: string): Record<string, unknown> | null {
+	private findObjectByKey(
+		array?: ApikeyElement[],
+		key?: string,
+	): Record<string, unknown> | null {
 		if (!array) {
 			return null;
 		}
-		const obj = array.find(o => o.key === key);
+		const obj = array.find((o) => o.key === key);
 		if (obj && typeof obj.value === "object" && obj.value !== null) {
 			return obj.value as Record<string, unknown>;
 		}
@@ -393,11 +476,14 @@ export class PostmanImport {
 		if (reqObject) {
 			const testScript = this.scripts.getEventScript(item.event, "test");
 			const preScript = this.scripts.getEventScript(item.event, "prerequest");
-			const { runRequests, leftover } = this.scripts.parsePreRequestScript(preScript);
+			const { runRequests, leftover } =
+				this.scripts.parsePreRequestScript(preScript);
 
 			let notes = "";
 			if (leftover.length) {
-				notes = "Imported pre-request script (not auto-convertible):\n" + leftover.join("\n\n");
+				notes =
+					"Imported pre-request script (not auto-convertible):\n" +
+					leftover.join("\n\n");
 			}
 
 			const tests = this.scripts.parsePostmanTests(testScript);
@@ -417,14 +503,20 @@ export class PostmanImport {
 				tests: tests.length > 0 ? tests : deepClone(InitialTest),
 				setvar: setvar.length > 0 ? setvar : deepClone(InitialSetVar),
 				notes,
-				preFetch: runRequests.length > 0 ? { requests: runRequests } : deepClone(InitialPreFetch),
+				preFetch:
+					runRequests.length > 0
+						? { requests: runRequests }
+						: deepClone(InitialPreFetch),
 			});
 		}
 
 		return history;
 	}
 
-	private reduceItems(items: Items[], requests: IRequestModel[]): (IHistory | IFolder)[] {
+	private reduceItems(
+		items: Items[],
+		requests: IRequestModel[],
+	): (IHistory | IFolder)[] {
 		return items.reduce<(IHistory | IFolder)[]>((acc, item) => {
 			if (Object.prototype.hasOwnProperty.call(item, "request")) {
 				return [...acc, this.buildHistoryItem(item, requests)];
@@ -464,11 +556,14 @@ export class PostmanImport {
 			this.collection.item,
 			"",
 			this.collectionId,
-			item => this.getUrl((item.request as RequestObject)?.url),
-			item => (item.request as RequestObject)?.method ?? "get",
+			(item) => this.getUrl((item.request as RequestObject)?.url),
+			(item) => (item.request as RequestObject)?.method ?? "get",
 		);
 
-		const variable = this.importVariable(this.collection.variable ?? [], this.collection.info.name);
+		const variable = this.importVariable(
+			this.collection.variable ?? [],
+			this.collection.info.name,
+		);
 		const requests: IRequestModel[] = [];
 
 		const collection: ICollections = {
@@ -481,11 +576,17 @@ export class PostmanImport {
 			settings: this.buildSettings(this.collection.auth),
 		};
 
-		return { fcCollection: collection, fcRequests: requests, fcVariables: variable };
+		return {
+			fcCollection: collection,
+			fcRequests: requests,
+			fcVariables: variable,
+		};
 	}
 }
 
-export const postmanImporter = (rawData: string): PostmanImportResult | null => {
+export const postmanImporter = (
+	rawData: string,
+): PostmanImportResult | null => {
 	try {
 		const collection = JSON.parse(rawData) as PostmanSchema_2_1;
 		if (collection?.info?.schema === POSTMAN_SCHEMA_V2_1) {
