@@ -1,5 +1,8 @@
-import { ITableData } from "../../Common/Table/types";
-import { ISettings } from "../../SideBar/redux/types";
+
+import { IAuth } from "../../../../fetch-client-core/types/auth.types";
+import { IBodyData, IRequestModel, MethodType } from "../../../../fetch-client-core/types/request.types";
+import { ITableData } from "../../../../fetch-client-core/types/common.types";
+import { ITest, ISetVar, IRunRequest, ICollection, IColRequest, IPreFetch } from "../../../../fetch-client-core/types/prefetch.types";
 import {
 	FETCH_CLIENT_SET_ADD_PREREQUEST,
 	FETCH_CLIENT_SET_COL_ID, FETCH_CLIENT_SET_COL_REQUEST_LIST,
@@ -13,10 +16,9 @@ import {
 	FETCH_CLIENT_SET_REQ_RAW, FETCH_CLIENT_SET_REQ_RAW_LANG, FETCH_CLIENT_SET_REQ_RESET_BODY, FETCH_CLIENT_SET_REQ_URL, FETCH_CLIENT_SET_SET_VAR,
 	FETCH_CLIENT_SET_SKIP_PARENT_HEADERS,
 	FETCH_CLIENT_SET_SKIP_PARENT_PREFETCH,
-	FETCH_CLIENT_SET_TEST, IAuth, IBodyData, ICollection, IColRequest,
-	IPreFetch,
-	IRequestModel, IRunRequest, ISetVar, ITest, MethodType, RequestActionTypes
+	FETCH_CLIENT_SET_TEST, RequestActionTypes
 } from "./types";
+import { ISettings } from "../../../../fetch-client-core/types/sidebar.types";
 
 export const SetRequestAction = (value: IRequestModel): RequestActionTypes => {
 	return {

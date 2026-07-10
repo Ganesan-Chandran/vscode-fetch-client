@@ -1,8 +1,14 @@
-import { applyMiddleware, compose, createStore, Store } from "redux";
-import thunk from "redux-thunk";
-import createRootReducer, { IRootState } from "../reducer/combineReducer";
+import createRootReducer, { } from "../reducer/combineReducer";
+import { configureStore } from "@reduxjs/toolkit";
 
-export const composeStore = (): any =>
-	compose(applyMiddleware(thunk));
+export const store = configureStore({
+	reducer: createRootReducer(),
+	middleware: (getDefaultMiddleware) =>
+		getDefaultMiddleware({
+			immutableCheck: false,
+			serializableCheck: false
+		})
+});
 
-export const getAppStore = (): Store<IRootState> => createStore(createRootReducer(), composeStore());
+export type AppDispatch = typeof store.dispatch;
+export type RootState = ReturnType<typeof store.getState>;

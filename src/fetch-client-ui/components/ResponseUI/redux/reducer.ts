@@ -1,27 +1,13 @@
-import { responseType } from "../OptionsPanel/Options/Response/consts";
+import { InitialResponse } from "../../../../fetch-client-core/consts/initialValues.consts";
+import { IReponseModel } from "../../../../fetch-client-core/types/response.types";
 import {
 	FETCH_CLIENT_SET_LOADING,
 	FETCH_CLIENT_SET_RES_COOKIES, FETCH_CLIENT_SET_RES_HEADERS, FETCH_CLIENT_SET_RES_PREFETCH_RESPONSE, FETCH_CLIENT_SET_RES_RESPONSE,
-	FETCH_CLIENT_SET_TEST_RESULT,
-	IReponseModel, IResponse, ResponseActionTypes
+	FETCH_CLIENT_SET_TEST_RESULT,ResponseActionTypes
 } from "./types";
 
-
-
-export const InitialResponse: IResponse = {
-	responseData: "",
-	responseType: {
-		isBinaryFile: false,
-		format: responseType[1].value
-	},
-	status: 0,
-	statusText: "",
-	size: "",
-	duration: 0,
-	isError: false,
-};
-
 export const InitialState: IReponseModel = {
+	id: "",
 	response: InitialResponse,
 	headers: [],
 	cookies: [],

@@ -1,17 +1,11 @@
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import "./style.css";
+import { allAuthTypes, basicAuthTypes } from "../../../../fetch-client-core/consts/auth.consts";
 import { IRootState } from "../../../reducer/combineReducer";
 import { OptionsTab } from "./OptionTab";
-import { AuthPanel } from "./Options/Auth";
-import { allAuthTypes, basicAuthTypes } from "./Options/Auth/consts";
-import { Body } from "./Options/Body";
-import { RequestHeadersPanel } from "./Options/Headers/requestHeaders";
-import { PostFetch } from "./Options/PostFetch";
-import { PreFetch } from "./Options/PreFetch";
-import { QueryParams } from "./Options/QueryParams";
-import { Settings } from "./Options/Settings";
 import { requestOptions } from "./consts";
-import "./style.css";
+import { useSelector } from "react-redux";
+import QueryParams from "./Options/QueryParams";
+import React, { useState } from "react";
 
 export const OptionsPanel = () => {
 
@@ -21,22 +15,29 @@ export const OptionsPanel = () => {
 
 	const [selectedTab, setSelectedTab] = useState(runItem ? "postFetch" : "params");
 
+	const AuthPanel = React.lazy(() => import('./Options/Auth'));
+	const RequestHeadersPanel = React.lazy(() => import('./Options/Headers/requestHeaders'));
+	const Body = React.lazy(() => import('./Options/Body'));
+	const Settings = React.lazy(() => import('./Options/Settings'));
+	const PreFetch = React.lazy(() => import('./Options/PreFetch'));
+	const PostFetch = React.lazy(() => import('./Options/PostFetch'));
+
 	const renderOptionsUI = (tab: string) => {
 		switch (tab) {
 			case 'params':
 				return <QueryParams />;
 			case 'authorization':
-				return <AuthPanel authTypes={colId ? allAuthTypes : basicAuthTypes} selectedVariable={selectedVariable} />;
+				return <React.Suspense fallback={<div>loading...</div>}><AuthPanel authTypes={colId ? allAuthTypes : basicAuthTypes} selectedVariable={selectedVariable} /></React.Suspense>;
 			case 'headers':
-				return <RequestHeadersPanel />;
+				return <React.Suspense fallback={<div>loading...</div>}><RequestHeadersPanel /></React.Suspense>;
 			case 'body':
-				return <Body />;
+				return <React.Suspense fallback={<div>loading...</div>}><Body /></React.Suspense>;
 			case 'settings':
-				return <Settings />;
+				return <React.Suspense fallback={<div>loading...</div>}><Settings /></React.Suspense>;
 			case 'preFetch':
-				return <PreFetch />;
+				return <React.Suspense fallback={<div>loading...</div>}><PreFetch /></React.Suspense>;
 			default:
-				return <PostFetch />;
+				return <React.Suspense fallback={<div>loading...</div>}><PostFetch /></React.Suspense>;
 		}
 	};
 

@@ -1,11 +1,3 @@
-export interface ICommonConfig {
-	open: boolean[],
-	horizontalLayout: boolean;
-	theme: number;
-	runItem: boolean;
-	responseLimit: number
-}
-
 export const FETCH_CLIENT_SET_ACC_OPEN: "FETCH_CLIENT_SET_ACC_OPEN" = "FETCH_CLIENT_SET_ACC_OPEN";
 export const FETCH_CLIENT_SET_UI_HORIZONTAL: "FETCH_CLIENT_SET_UI_HORIZONTAL" = "FETCH_CLIENT_SET_UI_HORIZONTAL";
 export const FETCH_CLIENT_SET_UI_THEME: "FETCH_CLIENT_SET_UI_THEME" = "FETCH_CLIENT_SET_UI_THEME";
@@ -48,4 +40,4 @@ export interface ISetResponseLimit {
 	};
 }
 
-export type UIActionTypes = | ISetOpen | ISetLayout | ISetRunItem | ISetTheme |ISetResponseLimit;
+export type UIActionTypes = | ISetOpen | ISetLayout | ISetRunItem | ISetTheme | ISetResponseLimit;

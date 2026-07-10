@@ -2,63 +2,69 @@
   "name": "fetch-client",
   "displayName": "Fetch Client",
   "description": "Rest API Client for VS Code which is used to test your API's within VS Code.",
-  "version": "1.8.0",
+  "version": "2.0.0",
   "publisher": "GanesanChandran",
   "author": {
     "name": "Ganesan Chandran <https://ganesan-chandran.github.io/>"
   },
   "engines": {
-    "vscode": "^1.75.0"
+    "vscode": "^1.117.0"
   },
   "icon": "icons/fetch-client.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/Ganesan-Chandran/vscode-fetch-client.git"
   },
+  "license": "MIT",
+  "homepage": "https://github.com/Ganesan-Chandran/vscode-fetch-client",
   "categories": [
-    "Other",
     "Programming Languages",
-    "Snippets",
     "Testing"
   ],
   "keywords": [
-    "fetch client",
-    "api client",
-    "rest client",
-    "http client",
+    "API Testing",
+    "API",
+    "OpenAPI",
+    "API Client",
+    "REST",
+    "GraphQL",
     "api",
-    "rest",
-    "postman",
-    "graphql",
-    "testing",
+    "rest client",
+    "api client",
     "api testing",
     "rest testing",
-    "http",
+    "http client",
     "rest api",
+    "curl",
+    "graphql",
+    "postman",
+    "insomnia",
+    "testing",
+    "fetchclient",
+    "fetch client",
+    "fetch api client",
+    "bearer token",
+    "basic auth",
     "fetchclient",
     "apiclient",
     "restclient",
     "httpclient",
     "apitesting",
     "resttesting",
-    "restapi"
+    "restapi",
+    "api key",
+    "oauth 2.0",
+    "aws signature",
+    "cookies",
+    "collections",
+    "environment variables",
+    "json viewer",
+    "xml viewer",
+    "code snippets",
+    "cli",
+    "fetch client cli"
   ],
-  "license": "MIT",
-  "homepage": "https://github.com/Ganesan-Chandran/vscode-fetch-client",
-  "bugs": {
-    "url": "https://github.com/Ganesan-Chandran/vscode-fetch-client/issues"
-  },
   "activationEvents": [
-    "onCommand:fetch-client.newRequest",
-    "onCommand:fetch-client.addToCol",
-    "onView:fetch-client.sideBar",
-    "onCommand:fetch-client.newVar",
-    "onCommand:fetch-client.manageCookies",
-    "onCommand:fetch-client.openSettings",
-    "onCommand:fetch-client.openErrorLog",
-    "onCommand:fetch-client.curlRequest",
-    "onCommand:fetch-client.bulkExport",
-    "onCommand:fetch-client.autoRequest",
     "onStartupFinished"
   ],
   "main": "./dist/extension.js",
@@ -128,7 +134,8 @@
           "type": "webview",
           "id": "fetch-client.sideBar",
           "name": "Fetch Client",
-          "contextualTitle": "Fetch Client"
+          "contextualTitle": "Fetch Client",
+          "icon": "icons/fetch-client.svg"
         }
       ]
     },
@@ -186,11 +193,22 @@
             "order": 4,
             "markdownDescription": "Select the number of items to be displayed in the history"
           },
+          "fetch-client.historyView": {
+            "type": "string",
+            "default": "Folder",
+            "enum": [
+              "List",
+              "Folder"
+            ],
+            "scope": "resource",
+            "order": 5,
+            "markdownDescription": "View mode of the history items"
+          },
           "fetch-client.timeOut": {
             "type": "number",
             "default": 120000,
             "scope": "resource",
-            "order": 5,
+            "order": 6,
             "markdownDescription": "Select the request timeout (`in milliseconds`). 0 means no timeout"
           },
           "fetch-client.defaultProtocol": {
@@ -201,35 +219,35 @@
               "https"
             ],
             "scope": "resource",
-            "order": 6,
+            "order": 7,
             "markdownDescription": "Select which protocol to be added with url (if url has no protocol)."
           },
           "fetch-client.headersCaseSensitive": {
             "type": "boolean",
             "default": true,
             "scope": "resource",
-            "order": 7,
+            "order": 8,
             "markdownDescription": "By Default headers will send `same as in request`. If it is disabled, header will send in `lowercase`."
           },
           "fetch-client.separateRequestTab": {
             "type": "boolean",
             "default": false,
             "scope": "resource",
-            "order": 8,
+            "order": 9,
             "markdownDescription": "By Default request will be open in `same tab`. If it is enabled, request will be open in `separate tab`."
           },
           "fetch-client.log": {
             "type": "boolean",
             "default": false,
             "scope": "resource",
-            "order": 9,
+            "order": 10,
             "markdownDescription": "By Default `request details` will be logged. If it is enabled, both `request and response` details will be logged."
           },
           "fetch-client.runMainRequest": {
             "type": "boolean",
             "default": false,
             "scope": "resource",
-            "order": 10,
+            "order": 11,
             "markdownDescription": "By Default `main request will run` even if pre-request(s)/pre-condition(s) are getting failed. If it is disabled, `main request won't run` if any pre-request/pre-condition are failed."
           },
           "fetch-client.responseLimit": {
@@ -245,35 +263,68 @@
             "default": 5,
             "scope": "resource",
             "markdownDescription": "Response Limit in MB, Default value is 5MB",
-            "order": 11
+            "order": 12
+          },
+          "fetch-client.dbPath": {
+            "type": "string",
+            "default": "Default",
+            "enum": [
+              "Default",
+              "Workspace",
+              "Custom Path"
+            ],
+            "scope": "resource",
+            "order": 13,
+            "markdownDescription": "Select where Fetch Client stores its databases."
+          },
+          "fetch-client.customDbPath": {
+            "type": "string",
+            "default": "",
+            "scope": "resource",
+            "order": 14,
+            "markdownDescription": "Absolute directory path used when **DB Path** is set to Custom Path."
           },
           "fetch-client.saveToWorkspace": {
             "type": "boolean",
             "default": false,
             "scope": "resource",
-            "markdownDescription": "Save all the data into the `current workspace` location",
-            "order": 12
+            "markdownDescription": "(**Deprecated** - use **DB Path** instead) Save all the data into the current workspace location.",
+            "order": 15
           },
           "fetch-client.workspacePath": {
             "type": "string",
             "default": "",
             "scope": "resource",
-            "markdownDescription": "Workspace location (**`Do not edit manually. Configuration will be done automatically. Manual editing may lead to data loss.`**)",
-            "order": 13
+            "markdownDescription": "Internal DB path store (**Do not edit manually**).",
+            "order": 16
           },
           "fetch-client.encryptedVariables": {
             "type": "boolean",
             "default": false,
             "scope": "resource",
-            "markdownDescription": "Encrypt the environment variable values in the local store.",
-            "order": 14
+            "markdownDescription": "Encrypt environment variable values stored locally. **`Note: Changes to this setting require reloading VS Code to take effect.`**",
+            "order": 17
           },
-          "fetch-client.encryptedVariablesInExport": {
-            "type": "boolean",
-            "default": true,
+          "fetch-client.variableEncryptionKey": {
+            "type": "string",
+            "default": "fetch-client-Tr@nsit-$ecret-z0z4",
             "scope": "resource",
-            "markdownDescription": "Encrypt the environment variable values during export.",
-            "order": 15
+            "markdownDescription": "Encryption key to encrypt the variable in store.",
+            "order": 18
+          },
+          "fetch-client.exportCollectionWithVariables": {
+            "type": "boolean",
+            "default": false,
+            "scope": "resource",
+            "markdownDescription": "Export the collection with any variables linked to it. If this option is selected, the linked variables will be exported in an unencrypted format.",
+            "order": 19
+          },
+          "fetch-client.saveResponse": {
+            "type": "boolean",
+            "default": false,
+            "scope": "resource",
+            "markdownDescription": "Save the response data (File response won't be saved).",
+            "order": 20
           }
         }
       }
@@ -348,95 +399,107 @@
       ]
     }
   },
+  "bin": {
+    "fc": "./cli/cli.js"
+  },
   "scripts": {
     "vscode:prepublish": "npm run package",
-    "compile": "webpack --mode development --progress --watch",
-    "watch": "webpack --mode development --progress --watch",
-    "package": "webpack --mode production",
-    "compile-tests": "tsc -p ./",
-    "watch-tests": "tsc -watch -p ./",
-    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "compile": "npm run lint && webpack --mode development --progress --watch",
+    "watch": "npm run lint && webpack --mode development --progress --watch",
+    "package": "npm run lint && webpack --mode production",
     "lint-check": "editorconfig-checker",
+    "lint": "eslint src --ext .ts,.tsx",
     "md-lint": "markdownlint *.md ./**/*.md ./**/**/*.md --ignore node_modules --ignore CHANGELOG.md",
     "md-lint-fix": "markdownlint *.md ./**/*.md ./**/**/*.md --ignore node_modules --ignore CHANGELOG.md --fix",
     "md-spellcheck": "spellchecker -f *.md ./**/*.md -d dictionary.txt --language en-GB",
-    "pre-commit": "npm run lint-check && npm run md-lint && npm run md-spellcheck",
-    "test": "node ./out/test/runTest.js"
+    "pre-commit": "npm run lint-check && npm run md-lint && npm run md-spellcheck"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^5.16.2",
-    "@testing-library/react": "^12.1.4",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/aws4": "^1.11.2",
-    "@types/draft-js": "^0.11.9",
-    "@types/glob": "^7.2.0",
-    "@types/httpsnippet": "^1.23.1",
-    "@types/jest": "^27.5.2",
-    "@types/lokijs": "^1.5.7",
-    "@types/markdown-it": "^12.2.3",
-    "@types/mocha": "^9.1.1",
-    "@types/node": "^16.11.26",
-    "@types/react": "^17.0.40",
-    "@types/react-dom": "^17.0.13",
-    "@types/react-redux": "^7.1.23",
-    "@types/uuid": "^8.3.4",
-    "@types/vscode": "^1.65.0",
-    "@types/yargs-parser": "^21.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.9.1",
-    "@typescript-eslint/parser": "^5.9.1",
-    "@vscode/test-electron": "^2.0.3",
-    "buffer": "^6.0.3",
-    "cross-env": "^7.0.3",
-    "draft-js": "^0.11.7",
-    "editorconfig-checker": "^5.1.8",
-    "eslint": "^8.57.0",
-    "fast-xml-parser": "^4.0.7",
-    "glob": "^7.2.0",
-    "httpsnippet": "^2.0.0",
-    "jest": "^29.7.0",
-    "lokijs": "^1.5.12",
-    "markdownlint": "^0.34.0",
-    "markdownlint-cli": "^0.41.0",
-    "mini-css-extract-plugin": "^2.6.0",
-    "mocha": "^9.2.2",
-    "monaco-editor": "^0.33.0",
-    "monaco-editor-webpack-plugin": "^7.0.1",
-    "path-browserify": "^1.0.1",
-    "process": "^0.11.10",
-    "react-error-boundary": "^3.1.4",
-    "react-json-view": "^1.21.3",
-    "react-scripts": "^5.0.0",
-    "react-simple-wysiwyg": "^2.0.2",
-    "react-split": "^2.0.14",
-    "redux": "^4.1.2",
-    "redux-thunk": "^2.4.1",
-    "source-map-loader": "^3.0.1",
-    "spellchecker-cli": "^6.2.0",
-    "stream": "0.0.2",
-    "stream-browserify": "^3.0.0",
-    "terser-webpack-plugin": "^5.3.1",
-    "ts-loader": "^9.2.8",
-    "typescript": "^4.6.2",
-    "url": "^0.11.0",
-    "url-loader": "^4.1.1",
-    "util": "^0.12.4",
-    "web-vitals": "^2.1.4",
-    "webpack": "^5.66.0",
-    "webpack-bundle-analyzer": "^4.5.0",
-    "webpack-cli": "^4.9.2"
+    "@svgr/webpack": "8.1.0",
+    "@types/aws4": "1.11.6",
+    "@types/draft-js": "0.11.20",
+    "@types/js-yaml": "4.0.9",
+    "@types/lokijs": "1.5.14",
+    "@types/markdown-it": "14.1.2",
+    "@types/node": "22.19.19",
+    "@types/prettier": "2.7.3",
+    "@types/react": "18.3.7",
+    "@types/react-dom": "18.3.7",
+    "@types/vscode": "1.118.0",
+    "@types/yargs-parser": "21.0.3",
+    "@typescript-eslint/eslint-plugin": "7.18.0",
+    "@typescript-eslint/parser": "7.18.0",
+    "assert": "2.1.0",
+    "buffer": "6.0.3",
+    "cross-env": "10.1.0",
+    "css-loader": "7.1.4",
+    "draft-js": "0.11.7",
+    "editorconfig-checker": "6.1.1",
+    "eslint": "8.57.0",
+    "fast-xml-parser": "5.8.0",
+    "file-loader": "6.2.0",
+    "glob": "13.0.6",
+    "httpsnippet": "3.0.10",
+    "lokijs": "1.5.12",
+    "markdownlint": "0.40.0",
+    "markdownlint-cli": "0.48.0",
+    "mini-css-extract-plugin": "2.10.2",
+    "os-browserify": "0.3.0",
+    "path-browserify": "1.0.1",
+    "process": "0.11.10",
+    "querystring-es3": "0.2.1",
+    "react-error-boundary": "6.1.1",
+    "react-simple-wysiwyg": "2.0.2",
+    "react-split": "2.0.14",
+    "redux": "5.0.1",
+    "source-map-loader": "5.0.0",
+    "spellchecker-cli": "7.0.3",
+    "stream": "0.0.3",
+    "stream-browserify": "3.0.0",
+    "terser-webpack-plugin": "5.6.0",
+    "ts-loader": "9.5.7",
+    "tty-browserify": "0.0.1",
+    "typescript": "4.9.5",
+    "url": "0.11.4",
+    "url-loader": "4.1.1",
+    "util": "0.12.5",
+    "web-vitals": "5.2.0",
+    "webpack": "5.107.2",
+    "webpack-bundle-analyzer": "4.10.2",
+    "webpack-cli": "5.1.4",
+    "worker-loader": "3.0.8"
   },
   "dependencies": {
-    "@ganesan-chandran/fetch-client-crypto": "^1.0.1",
-    "aws4": "^1.11.0",
-    "axios": "^0.26.1",
-    "cron": "^3.1.7",
-    "form-data": "^4.0.0",
-    "moment-mini": "^2.29.4",
-    "quicktype-core": "^6.1.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-redux": "^7.2.6",
-    "uuid": "^8.3.2",
-    "yargs-parser": "^21.0.1"
+    "@reduxjs/toolkit": "2.12.0",
+    "ace-builds": "1.44.0",
+    "aws4": "1.13.2",
+    "axios": "1.17.0",
+    "cron": "3.5.0",
+    "form-data": "4.0.6",
+    "js-yaml": "4.1.0",
+    "json-edit-react": "1.30.1",
+    "moment-mini": "2.29.4",
+    "prettier": "3.8.4",
+    "quicktype-core": "6.1.0",
+    "react": "18.3.1",
+    "react-ace": "14.0.1",
+    "react-dom": "18.3.1",
+    "react-redux": "9.2.0",
+    "uuid": "14.0.0",
+    "xml-formatter": "3.7.0",
+    "yargs-parser": "22.0.0"
+  },
+  "overrides": {
+    "nth-check": "^2.1.1",
+    "postcss": "^8.5.10",
+    "serialize-javascript": "^7.0.5",
+    "node-fetch": "^2.6.12",
+    "immutable": "^3.8.3",
+    "httpsnippet": {
+      "form-data": "^4.0.6"
+    },
+    "axios": {
+      "form-data": "^4.0.6"
+    }
   }
 }

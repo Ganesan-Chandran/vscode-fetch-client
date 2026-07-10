@@ -55,7 +55,7 @@
 }
 
 .delete-button path {
-	fill: #f05348;
+	fill: #f05348 !important;
 }
 
 .option-names {

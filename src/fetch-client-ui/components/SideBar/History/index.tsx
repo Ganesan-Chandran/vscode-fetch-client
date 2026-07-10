@@ -1,19 +1,88 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import { ReactComponent as DotsLogo } from '../../../../../icons/dots.svg';
-import { requestTypes } from "../../../../utils/configuration";
-import { IRootState } from "../../../reducer/combineReducer";
-import vscode from "../../Common/vscodeAPI";
-import { IHistory } from "../redux/types";
-import { getDays, getMethodClassName, getMethodName } from "../util";
 import "./style.css";
+import { DropdownPortal } from "../dropdownMenu";
+import { getDays } from "../../../../fetch-client-core/helpers/dateTime.helper";
+import { getMethodClassName, getMethodName } from "../util";
+import { IHistory } from "../../../../fetch-client-core/types/sidebar.types";
+import { IRootState } from "../../../reducer/combineReducer";
+import { ReactComponent as DotsLogo } from '../../../../../icons/dots.svg';
+import { requestTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
+import { useSelector } from "react-redux";
+import React, { useEffect, useRef, useState } from "react";
+import vscode from "../../Common/vscodeAPI";
 
 export interface IHistoryProps {
 	filterCondition: string;
-	isLoading: boolean;
+	loadingStatus: number;
 	selectedItem: {
 		itemId: string;
+	},
+	viewMode: "List" | "Folder";
+}
+
+export type HistoryBucket =
+	| "Today"
+	| "Yesterday"
+	| "This Week"
+	| "Last Week"
+	| "This Month"
+	| "Last Month"
+	| "Older";
+
+const BUCKET_ORDER: HistoryBucket[] = [
+	"Today", "Yesterday", "This Week", "Last Week", "This Month", "Last Month", "Older"
+];
+
+function startOfDay(d: Date): Date {
+	const x = new Date(d);
+	x.setHours(0, 0, 0, 0);
+	return x;
+}
+
+function startOfWeek(d: Date): Date {
+	const x = startOfDay(d);
+	const day = x.getDay();
+	const diff = (day === 0 ? -6 : 1) - day;
+	x.setDate(x.getDate() + diff);
+	return x;
+}
+
+export function getHistoryBucket(createdTime: string, now: Date = new Date()): HistoryBucket {
+	const created = new Date(createdTime);
+
+	const today = startOfDay(now);
+	const yesterday = new Date(today);
+	yesterday.setDate(yesterday.getDate() - 1);
+
+	const thisWeekStart = startOfWeek(now);
+	const lastWeekStart = new Date(thisWeekStart);
+	lastWeekStart.setDate(lastWeekStart.getDate() - 7);
+
+	const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+	const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+	if (created >= today) { return "Today"; }
+	if (created >= yesterday) { return "Yesterday"; }
+	if (created >= thisWeekStart) { return "This Week"; }
+	if (created >= lastWeekStart) { return "Last Week"; }
+	if (created >= thisMonthStart) { return "This Month"; }
+	if (created >= lastMonthStart) { return "Last Month"; }
+	return "Older";
+}
+
+export function groupHistoryByBucket(history: IHistory[]): Map<HistoryBucket, IHistory[]> {
+	const map = new Map<HistoryBucket, IHistory[]>();
+	BUCKET_ORDER.forEach(b => map.set(b, []));
+
+	for (const item of history) {
+		const bucket = getHistoryBucket(item.createdTime);
+		map.get(bucket)!.push(item);
 	}
+
+	for (const b of BUCKET_ORDER) {
+		if (map.get(b)!.length === 0) { map.delete(b); }
+	}
+
+	return map;
 }
 
 export const HistoryBar = (props: IHistoryProps) => {
@@ -21,10 +90,7 @@ export const HistoryBar = (props: IHistoryProps) => {
 	const { theme } = useSelector((state: IRootState) => state.uiData);
 	const { history } = useSelector((state: IRootState) => state.sideBarData);
 
-	const [ddPosition, setPosition] = useState("");
-
 	const [selectedItem, setSelectedItem] = useState("");
-
 	const [currentIndex, _setCurrentIndex] = useState(-1);
 
 	useEffect(() => {
@@ -38,12 +104,6 @@ export const HistoryBar = (props: IHistoryProps) => {
 	};
 
 	const moreMenuWrapperRef = useRef([]);
-
-	const styles = {
-		bottomStyle: {
-			bottom: ddPosition
-		} as React.CSSProperties,
-	};
 
 	useEffect(() => {
 		moreMenuWrapperRef.current = moreMenuWrapperRef.current.slice(0, history.length);
@@ -61,17 +121,6 @@ export const HistoryBar = (props: IHistoryProps) => {
 			return;
 		}
 
-		let element = document.getElementById("three-dots-" + index);
-		if (element) {
-			let rect = element.getBoundingClientRect();
-			let viewportHeight = window.innerHeight;
-			let total = rect.top + 100;
-			if (total > viewportHeight) {
-				setPosition("100%");
-			} else {
-				setPosition("");
-			}
-		}
 		setCurrentIndex(index);
 	}
 
@@ -169,14 +218,14 @@ export const HistoryBar = (props: IHistoryProps) => {
 					<div className={index === currentIndex ? "more-icon display-block" : "more-icon"} ref={el => moreMenuWrapperRef.current[index] = el}>
 						<DotsLogo id={"three-dots-" + history.id} onClick={(e) => openMoreMenu(e, index)} />
 						<input type="checkbox" className="dd-input" checked={index === currentIndex} readOnly={true} />
-						<div id={"drop-down-menu-" + history.id} className="dropdown-more" style={styles.bottomStyle}>
+						<DropdownPortal id={history.id} open={index === currentIndex}>
 							<button onClick={(e) => onClickNewTab(e, history.id, history.name)}>Open in New Tab</button>
 							<button onClick={(e) => onRunClick(e, history.id, history.name)}>Run Request</button>
 							<div className="divider"></div>
 							<button onClick={(e) => onSaveToCollection(e, history.id)}>Save to Collection</button>
 							<button onClick={(e) => onRename(e, history.id)}>Rename</button>
 							<button onClick={(e) => onDelete(e, history.id, history.name)}>Delete</button>
-						</div>
+						</DropdownPortal>
 					</div>
 				</div>
 			</div>
@@ -184,30 +233,65 @@ export const HistoryBar = (props: IHistoryProps) => {
 	}
 
 	function handleClickOutside(evt: any) {
-		if (moreMenuWrapperRef.current && moreMenuWrapperRef.current[refIndex.current] && !moreMenuWrapperRef.current[refIndex.current].contains(evt.target)) {
+		const triggerEl = moreMenuWrapperRef.current[refIndex.current];
+		const menuEl = document.getElementById("drop-down-menu-" + (history[refIndex.current]?.id ?? ""));
+		if (triggerEl && !triggerEl.contains(evt.target) && !(menuEl && menuEl.contains(evt.target))) {
 			setCurrentIndex(-1);
 		}
 	}
 
 	useEffect(() => {
-		document.addEventListener("mousedown", handleClickOutside, false);
+		const handleBlur = () => {
+			setCurrentIndex(-1);
+		};
+
+		document.addEventListener("click", handleClickOutside, false);
+		window.addEventListener("blur", handleBlur);
+
 		return () => {
-			document.removeEventListener("mousedown", handleClickOutside, false);
+			window.removeEventListener("blur", handleBlur);
+			document.removeEventListener("click", handleClickOutside, false);
 		};
 	}, []);
+
+	function getFolderBody() {
+		const sourceHistory = props.filterCondition
+			? history.filter(el =>
+				el.name?.toLowerCase().includes(props.filterCondition)
+				|| el.url?.toLowerCase().includes(props.filterCondition)
+				|| el.method?.toLowerCase().includes(props.filterCondition)
+				|| el.createdTime?.toLowerCase().includes(props.filterCondition))
+			: history;
+
+		const grouped = groupHistoryByBucket(sourceHistory);
+
+		return Array.from(grouped.entries()).map(([bucket, items]) => (
+			<details className="history-bucket" open={props.filterCondition ? true : false} key={"bucket-" + bucket}>
+				<summary className="history-bucket-summary">
+					<div className="col-fol-title">{bucket}</div>
+				</summary>
+				{
+					items.map((h) => {
+						const globalIndex = history.indexOf(h);
+						return getHistoryItems(h, globalIndex);
+					})
+				}
+			</details >
+		));
+	}
 
 
 	return (
 		<>
 			{
-				props.isLoading ?
+				props.loadingStatus === 0 || props.loadingStatus === 1 ?
 					<>
 						<div id="divSpinner" className="spinner loading"></div>
 						<div className="loading-history-text">{"Loading...."}</div>
 					</>
 					:
 					history.length > 0 ?
-						getActivityBody()
+						(props.viewMode === "Folder" ? getFolderBody() : getActivityBody())
 						:
 						<div className="no-history-text">{"No History Available"}</div>
 			}

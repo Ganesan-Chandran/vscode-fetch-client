@@ -1,11 +1,12 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { IRootState } from "../../../../../../reducer/combineReducer";
-import { TextEditor } from "../../../../../Common/TextEditor/TextEditor";
-import { IVariable } from "../../../../../SideBar/redux/types";
-import { Actions } from "../../../../redux";
-import { IAuth } from "../../../../redux/types";
 import "./style.css";
+import { Actions } from "../../../../redux";
+import { AppDispatch } from "../../../../../../store/appStore";
+import { IAuth } from "../../../../../../../fetch-client-core/types/auth.types";
+import { IRootState } from "../../../../../../reducer/combineReducer";
+import { IVariable } from "../../../../../../../fetch-client-core/types/sidebar.types";
+import { TextEditor } from "../../../../../Common/TextEditor/TextEditor";
+import { useDispatch, useSelector } from "react-redux";
+import React from "react";
 
 export interface IAwsAuthProps {
 	settingAuth?: IAuth;
@@ -15,9 +16,16 @@ export interface IAwsAuthProps {
 
 export const AwsAuth = (props: IAwsAuthProps) => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const { auth } = useSelector((state: IRootState) => state.requestData);
+
+	const useSettingAuth =
+		props.settingAuth &&
+		props.settingAuth.aws?.accessKey?.trim() &&
+		props.settingAuth.aws?.secretAccessKey?.trim();
+
+	const awsAuth = useSettingAuth ? props.settingAuth.aws : auth.aws;
 
 	const onSetAccessKey = (value: string) => {
 		let localAuth = { ...auth };
@@ -57,7 +65,7 @@ export const AwsAuth = (props: IAwsAuthProps) => {
 					props.envVar && props.selectedVariable.id && <TextEditor
 						varWords={props.envVar}
 						onChange={onSetAccessKey}
-						value={props.settingAuth ? props.settingAuth.aws.accessKey : auth.aws.accessKey}
+						value={awsAuth.accessKey}
 						focus={false}
 					/>
 				}
@@ -68,7 +76,7 @@ export const AwsAuth = (props: IAwsAuthProps) => {
 					props.envVar && props.selectedVariable.id && <TextEditor
 						varWords={props.envVar}
 						onChange={onSetSecretKey}
-						value={props.settingAuth ? props.settingAuth.aws.secretAccessKey : auth.aws.secretAccessKey}
+						value={awsAuth.secretAccessKey}
 						focus={false}
 					/>
 				}
@@ -87,7 +95,7 @@ export const AwsAuth = (props: IAwsAuthProps) => {
 							props.envVar && props.selectedVariable.id && <TextEditor
 								varWords={props.envVar}
 								onChange={onSetRegion}
-								value={props.settingAuth ? props.settingAuth.aws.region : auth.aws.region}
+								value={awsAuth.region}
 								focus={false}
 							/>
 						}
@@ -98,7 +106,7 @@ export const AwsAuth = (props: IAwsAuthProps) => {
 							props.envVar && props.selectedVariable.id && <TextEditor
 								varWords={props.envVar}
 								onChange={onSetServiceName}
-								value={props.settingAuth ? props.settingAuth.aws.service : auth.aws.service}
+								value={awsAuth.service}
 								focus={false}
 							/>
 						}
@@ -109,7 +117,7 @@ export const AwsAuth = (props: IAwsAuthProps) => {
 							props.envVar && props.selectedVariable.id && <TextEditor
 								varWords={props.envVar}
 								onChange={onSetSessionToken}
-								value={props.settingAuth ? props.settingAuth.aws.sessionToken : auth.aws.sessionToken}
+								value={awsAuth.sessionToken}
 								focus={false}
 							/>
 						}

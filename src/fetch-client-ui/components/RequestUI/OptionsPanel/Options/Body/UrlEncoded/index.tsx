@@ -1,13 +1,14 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { IRootState } from "../../../../../../reducer/combineReducer";
-import { Table } from "../../../../../Common/Table/Table";
-import { ITableData } from "../../../../../Common/Table/types";
 import { Actions } from "../../../../redux";
+import { AppDispatch } from "../../../../../../store/appStore";
+import { IRootState } from "../../../../../../reducer/combineReducer";
+import { ITableData } from "../../../../../../../fetch-client-core/types/common.types";
+import { Table } from "../../../../../Common/Table/Table";
+import { useDispatch, useSelector } from "react-redux";
+import React from "react";
 
 export const UrlEncoded = () => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 	const { body } = useSelector((state: IRootState) => state.requestData);
 	const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
 

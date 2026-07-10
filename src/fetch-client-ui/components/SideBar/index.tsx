@@ -1,25 +1,28 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
-import { pubSubTypes, requestTypes, responseTypes } from "../../../utils/configuration";
-import { getColFolDotMenu } from "../Common/icons";
-import vscode from "../Common/vscodeAPI";
-import { UIActions } from "../MainUI/redux";
-import { CollectionBar } from "./Collection";
-import { HistoryBar } from "./History";
-import { SideBarActions } from "./redux";
-import { ICollections, IHistory, IVariable } from "./redux/types";
 import "./style.css";
-import { VariableSection } from "./Variables";
+import { AppDispatch } from "../../store/appStore";
+import { getColFolDotMenu } from "../Common/icons";
+import { HistoryBar } from "./History";
+import { IHistory, ICollections, IVariable } from "../../../fetch-client-core/types/sidebar.types";
+import { pubSubTypes, requestTypes, responseTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
+import { SideBarActions } from "./redux";
+import { UIActions } from "../MainUI/redux";
+import { useDispatch } from "react-redux";
+import React, { useEffect, useRef, useState } from "react";
+import vscode from "../Common/vscodeAPI";
 
 const SideBar = () => {
 
-	const dispatch = useDispatch();
+	const CollectionBar = React.lazy(() => import('./Collection'));
+	const VariableSection = React.lazy(() => import('./Variables'));
+
+	const dispatch = useDispatch<AppDispatch>();
 
 	const [tabOptions] = useState(["History", "Collection", "Variable"]);
 	const [selectedTab, setSelectedTab] = useState("History");
+	const [historyView, setHistoryView] = useState<"List" | "Folder">("List");
 	const [menuShow, setMenuShow] = useState(false);
 	const [filterCondititon, setFilterCondition] = useState("");
-	const [isHisLoading, setHisLoading] = useState(true);
+	const [isHisLoading, setHisLoading] = useState(0);
 	const [isColLoading, setColLoading] = useState(true);
 	const [isVarLoading, setVarLoading] = useState(true);
 	const [isViewLogOpen, setViewLogOpen] = useState(false);
@@ -111,11 +114,34 @@ const SideBar = () => {
 		setMenuShow(false);
 	}
 
+	const [isHostReady, setHostReady] = useState(false);
+	let readyCheckTimer: ReturnType<typeof setTimeout> | undefined;
+
+	function pingHost() {
+		vscode.postMessage({ type: requestTypes.readyCheckRequest });
+		readyCheckTimer = setTimeout(() => {
+			if (!isHostReady) {
+				pingHost();
+			}
+		}, 1500);
+	}
+
 	useEffect(() => {
-		window.addEventListener("message", (event) => {
-			if (event.data && event.data.type === responseTypes.getAllHistoryResponse) {
+		if (isHostReady) {
+			setHisLoading(1);
+			setColLoading(false);
+			setVarLoading(false);
+		}
+	}, [isHostReady]);
+
+	useEffect(() => {
+		const handleMessage = (event: MessageEvent) => {
+			if (event.data.type === responseTypes.readyCheckResponse) {
+				setHostReady(true);
+				clearTimeout(readyCheckTimer);
+			} else if (event.data && event.data.type === responseTypes.getAllHistoryResponse) {
 				dispatch(SideBarActions.SetHistoryAction(event.data.history as IHistory[]));
-				setHisLoading(false);
+				setHisLoading(2);
 			} else if (event.data && event.data.type === responseTypes.deleteAllHistoryResponse) {
 				dispatch(SideBarActions.SetHistoryAction([]));
 			} else if (event.data && event.data.type === responseTypes.deleteHistoryResponse) {
@@ -126,7 +152,7 @@ const SideBar = () => {
 				dispatch(SideBarActions.SetNewHistoryAction(event.data.history as IHistory));
 			} else if (event.data && event.data.type === responseTypes.getAllCollectionsResponse) {
 				dispatch(SideBarActions.SetCollectionAction(event.data.collections as ICollections[]));
-				setColLoading(false);
+				// setColLoading(false);
 			} else if (event.data && event.data.type === responseTypes.appendToCollectionsResponse) {
 				dispatch(SideBarActions.SetHistoryToCollectionAction(event.data.collection as ICollections));
 			} else if (event.data && event.data.type === responseTypes.renameCollectionItemResponse) {
@@ -148,7 +174,7 @@ const SideBar = () => {
 				dispatch(SideBarActions.SetCopyToCollectionAction(event.data.data as ICollections));
 			} else if (event.data && event.data.type === responseTypes.getAllVariableResponse) {
 				dispatch(SideBarActions.SetVariableAction(event.data.variable as IVariable[]));
-				setVarLoading(false);
+				// setVarLoading(false);
 			} else if (event.data && event.data.type === responseTypes.renameVariableResponse) {
 				dispatch(SideBarActions.SetRenameVariableAction(event.data.params.id, event.data.params.name));
 			} else if (event.data && event.data.type === responseTypes.deleteVariableResponse) {
@@ -193,25 +219,27 @@ const SideBar = () => {
 					dispatch(SideBarActions.SetUpdateHistoryItemAction(event.data.item));
 				}
 			}
-		});
-
+			else if (event.data && event.data.type === responseTypes.configResponse) {
+				const config = JSON.parse(event.data.configData as string) as Record<string, unknown>;
+				const historyView = config["historyView"] as string;
+				setHistoryView(historyView === "List" ? "List" : "Folder");
+			}
+		};
+		window.addEventListener("message", handleMessage);
 		vscode.postMessage({ type: requestTypes.themeRequest });
+		vscode.postMessage({ type: requestTypes.configRequest });
 		vscode.postMessage({ type: requestTypes.getAllHistoryRequest });
-
-		setTimeout(() => {
-			vscode.postMessage({ type: requestTypes.getAllCollectionsRequest });
-		}, 1000);
-
-		setTimeout(() => {
-			vscode.postMessage({ type: requestTypes.getAllVariableRequest });
-		}, 1000);
+		vscode.postMessage({ type: requestTypes.getAllCollectionsRequest });
+		vscode.postMessage({ type: requestTypes.getAllVariableRequest });
 
 		document.body.style.backgroundColor = "transparent";
 
 		document.addEventListener("mousedown", handleClickOutside, false);
+		pingHost();
 
 		return () => {
 			document.removeEventListener("mousedown", handleClickOutside, false);
+			window.removeEventListener("message", handleMessage);
 		};
 	}, []);
 
@@ -223,7 +251,15 @@ const SideBar = () => {
 		return (
 			<>
 				<button onClick={(e) => onNewCollection(e)}>New Collection</button>
-				<button onClick={(e) => onAutoRequest(e)}>Auto Request</button>
+				<div className="dropdown-item-with-submenu">
+					<button className="submenu-trigger"
+						onClick={(e) => { e.stopPropagation(); e.preventDefault(); }} onContextMenu={(e) => { e.stopPropagation(); e.preventDefault(); }}>
+						Tools <span className="submenu-arrow">›</span>
+					</button>
+					<div className="dropdown-more tools-submenu">
+						<button onClick={(e) => onAutoRequest(e)}>Auto Request</button>
+					</div>
+				</div>
 				<hr />
 				<button onClick={(e) => onImportCurl(e)}>Import/Run Curl</button>
 				<button onClick={(e) => onImportData(e)}>Import</button>
@@ -262,33 +298,61 @@ const SideBar = () => {
 					<input type="text"
 						className="activity-search"
 						value={filterCondititon}
-						placeholder={selectedTab === "History" ? "filter history" : selectedTab === "Collection" ? "filter collection" : "filter variable"}
+						placeholder={
+							selectedTab === "History" ? "filter history"
+								: selectedTab === "Collection" ? "filter collection"
+									: "filter variable"
+						}
 						onChange={onFilterChange} />
-					<div className="hamburger-menu-panel dropdown" ref={wrapperRef} >
-						{getColFolDotMenu("hamburger-menu", "Menu", "hamburger-menu", (e) => { e.stopPropagation(); e.preventDefault(); }, (e) => setShowMenu(e))}
-						{menuShow && (<div id="myDropdown" className={"dropdown-content show"}>
-							{selectedTab === "History" ? getHistoryMenuItems() : selectedTab === "Collection" ? getCollectionsMenuItems() : getVariableMenuItems()}
-						</div>)}
+					<div className="hamburger-menu-panel dropdown" ref={wrapperRef}>
+						{getColFolDotMenu("hamburger-menu", "Menu", "hamburger-menu",
+							(e) => { e.stopPropagation(); e.preventDefault(); },
+							(e) => setShowMenu(e)
+						)}
+						{menuShow && (
+							<div id="myDropdown" className={"dropdown-content show has-submenu"}>
+								{selectedTab === "History" ? getHistoryMenuItems()
+									: selectedTab === "Collection" ? getCollectionsMenuItems()
+										: getVariableMenuItems()}
+							</div>
+						)}
 					</div>
 				</div>
+
 				<div className="activity-items-panel">
-					{
-						selectedTab === "History"
-							?
-							<HistoryBar filterCondition={filterCondititon?.toLowerCase()} isLoading={isHisLoading} selectedItem={selectedItem} />
-							: selectedTab === "Collection"
-								?
-								<CollectionBar filterCondition={filterCondititon?.toLowerCase()} isLoading={isColLoading} selectedItem={selectedItem} sort={colSort} />
-								:
-								<VariableSection filterCondition={filterCondititon?.toLowerCase()} isLoading={isVarLoading} sort={varSort} />
-					}
+					<div style={{ display: selectedTab === "History" ? "block" : "none" }}>
+						<HistoryBar
+							filterCondition={filterCondititon?.toLowerCase()}
+							loadingStatus={isHisLoading}
+							selectedItem={selectedItem}
+							viewMode={historyView}
+						/>
+					</div>
+					<div style={{ display: selectedTab === "Collection" ? "block" : "none" }}>
+						<React.Suspense fallback={<div>loading...</div>}>
+							<CollectionBar
+								filterCondition={filterCondititon?.toLowerCase()}
+								isLoading={isColLoading}
+								selectedItem={selectedItem}
+								sort={colSort}
+							/>
+						</React.Suspense>
+					</div>
+					<div style={{ display: selectedTab === "Variable" ? "block" : "none" }}>
+						<React.Suspense fallback={<div>loading...</div>}>
+							<VariableSection
+								filterCondition={filterCondititon?.toLowerCase()}
+								isLoading={isVarLoading}
+								sort={varSort}
+							/>
+						</React.Suspense>
+					</div>
 				</div>
 				<footer className="bottom-menu-panel">
 					<a className="view-log" onClick={onViewLogClick}>
-						{isViewLogOpen ?
-							<span className="log-span">📝 Close Log</span>
-							:
-							<span className="log-span">📝 View Log</span>
+						{isViewLogOpen
+							? <span className="log-span">📝 Close Log</span>
+							: <span className="log-span">📝 View Log</span>
 						}
 					</a>
 				</footer>

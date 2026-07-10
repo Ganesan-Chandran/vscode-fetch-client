@@ -1,29 +1,30 @@
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { replaceValueWithVariable } from "../../../../utils/helper";
-import { IRootState } from "../../../reducer/combineReducer";
-import { IRequestModel } from "../../RequestUI/redux/types";
-import { MonacoEditor } from "../Editor";
-import { codeSnippetLangunages } from "./consts";
 import "./style.css";
-import HTTPSnippet = require("httpsnippet");
+import { codeSnippetLangunages } from "../../../../fetch-client-core/consts/codeLang.consts";
+import { HTTPSnippet, type TargetId, type ClientId } from "httpsnippet";
+import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
+import { IRootState } from "../../../reducer/combineReducer";
+import { AceEditor } from "../Editor";
+import { replaceValueWithVariable } from "../../../../fetch-client-core/helpers/variable.helper";
+import { useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
 
 const CodeSnippetGenerator = () => {
 
-	const [language, setLang] = useState("csharp");
-	const [option, setOption] = useState("httpclient");
+	const [language, setLang] = useState<TargetId>("csharp");
+	const [option, setOption] = useState<ClientId>("httpclient");
 	const [codeSnippet, setCodeSnippet] = useState("");
 
 	const requestData = useSelector((state: IRootState) => state.requestData);
 	const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
 
 	function onSelectedLanguage(e: React.ChangeEvent<HTMLSelectElement>) {
-		setLang(e.target.value);
-		setOption(codeSnippetLangunages.filter(l => l.value === e.target.value)[0].options[0].value);
+		const lang = e.target.value as TargetId;
+		setLang(lang);
+		setOption(codeSnippetLangunages.filter(l => l.value === lang)[0].options[0].value as ClientId);
 	}
 
 	function onSelectedOption(e: React.ChangeEvent<HTMLSelectElement>) {
-		setOption(e.target.value);
+		setOption(e.target.value as ClientId);
 	}
 
 	function getRawContentType(rawType: string): string {
@@ -61,7 +62,10 @@ const CodeSnippetGenerator = () => {
 			request.url = "https://" + requestData.url;
 		}
 
-		let body: any;
+		let body: any = {
+			"mimeType": "",
+			text: "",
+		};
 
 		if (request.body.bodyType === "formdata") {
 			let params = [];
@@ -112,8 +116,6 @@ const CodeSnippetGenerator = () => {
 					variables: request.body.graphql.variables,
 				}),
 			};
-		} else {
-			body = {};
 		}
 
 		let headers = [];
@@ -126,22 +128,23 @@ const CodeSnippetGenerator = () => {
 		let value: any;
 
 		try {
-			var snippet = new HTTPSnippet({
-				method: request.method,
+			var harRequest = {
+				method: request.method.toUpperCase(),
 				url: request.url,
-				httpVersion: "",
+				httpVersion: "HTTP/1.1",
 				cookies: [],
 				headers: headers,
 				queryString: [],
 				headersSize: -1,
 				bodySize: -1,
-				postData: body
-			});
+				postData: body,
+			};
+			const snippet = new HTTPSnippet(harRequest);
 			value = snippet.convert(language, option);
 		}
 		catch (err) {
 			value = "";
-			console.log("error", err);
+			console.log("CodeSnippetGenerator error: " + JSON.stringify(err, null, 2));
 		}
 
 		let str = isString(value) ? value as string : "";
@@ -197,7 +200,7 @@ const CodeSnippetGenerator = () => {
 				</div>
 			</div>
 				<div className="code-snippet-editor-panel">
-					<MonacoEditor
+					<AceEditor
 						value={codeSnippet}
 						language={language === "node" ? "javascript" : language}
 						readOnly={true}

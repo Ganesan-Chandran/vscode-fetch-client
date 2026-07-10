@@ -1,4 +1,5 @@
-import { FETCH_CLIENT_SET_SKIP_PARENT_HEADERS, FETCH_CLIENT_SET_SKIP_PARENT_PREFETCH, IReqSettings, RequestActionTypes } from "./types";
+import { FETCH_CLIENT_SET_SKIP_PARENT_HEADERS, FETCH_CLIENT_SET_SKIP_PARENT_PREFETCH, RequestActionTypes } from "./types";
+import { IReqSettings } from "../../../../fetch-client-core/types/prefetch.types";
 
 export const InitialState: IReqSettings = {
 	skipParentHeaders: false,

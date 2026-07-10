@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { IVariable } from "../../SideBar/redux/types";
-import { TextEditor } from "../TextEditor/TextEditor";
 import "./style.css";
+import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";
+import { TextEditor } from "../TextEditor/TextEditor";
+import React, { useState } from "react";
 
 export interface IAutocompleteProps {
 	id: string;

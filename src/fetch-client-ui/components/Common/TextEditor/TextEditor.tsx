@@ -1,10 +1,11 @@
-import { CompositeDecorator, ContentState, DraftHandleValue, Editor, EditorState, getDefaultKeyBinding, Modifier } from "draft-js";
-import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import { replaceDataWithVariable } from "../../../../utils/helper";
-import { IRootState } from "../../../reducer/combineReducer";
-import { checkSysVariable, SysVariables } from "../Consts/sysVariables";
 import "./style.css";
+import { checkSysVariable } from "../../../../fetch-client-core/helpers/systemVariable.helper";
+import { CompositeDecorator, ContentState, DraftHandleValue, Editor, EditorState, getDefaultKeyBinding, Modifier } from "draft-js";
+import { IRootState } from "../../../reducer/combineReducer";
+import { replaceDataWithVariable } from "../../../../fetch-client-core/helpers/variable.helper";
+import { SysVariables } from "../../../../fetch-client-core/consts/systemVariables.consts";
+import { useSelector } from "react-redux";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export interface TextEditorProps {
 	varWords: string[];
@@ -19,6 +20,9 @@ export interface TextEditorProps {
 	onBlur?: any;
 	onFocus?: any;
 }
+
+const VAR_REGEX = /{{[A-Za-z0-9\s!@#$%^&*()_+=-`~\\\]\[|';:\/.,?><]+}}/g;
+const SYS_VAR_REGEX = /(({{#)((num|str|char|rdate|date|dateISO|email|guid|bool)|(num,[ ]?[0-9]+,[ ]?[0-9]+)|(date,( )*[a-zA-Z $&+,:;=?@#|'<>.^*()%!-\/]*))(}}))/g;
 
 export const TextEditor = (props: TextEditorProps) => {
 
@@ -35,90 +39,81 @@ export const TextEditor = (props: TextEditorProps) => {
 
 	const editor = React.useRef(null);
 
-	const matchedDecorated = (props: any) => {
+	const varWordsRef = useRef(props.varWords);
+	useEffect(() => {
+		varWordsRef.current = props.varWords;
+	}, [props.varWords]);
+
+	const matchedDecorated = useCallback((props: any) => {
 		if (!checkSysVariable(props.decoratedText)) {
 			let title = replaceDataWithVariable(props.decoratedText, refVarData.current);
 			if (title) {
 				return <span style={{ color: "rgb(18, 187, 18)" }} title={title}>{props.children}</span>;
 			}
 		}
-
 		return <span style={{ color: "rgb(18, 187, 18)" }}>{props.children}</span>;
-	};
+	}, []);
 
-	const unmatchedDecorated = ({ children }) => {
+	const unmatchedDecorated = useCallback(({ children }) => {
 		return <span style={{ color: "#f05348" }}>{children}</span>;
-	};
+	}, []);
 
 	function findWithRegex(words: string[], contentBlock: any, callback: any) {
 		const text = contentBlock.getText();
+		const matches = [...text.matchAll(VAR_REGEX)].map(a => ({ index: a.index, word: a[0] }));
+		const sysVarMatches = [...text.matchAll(SYS_VAR_REGEX)].map(a => ({ index: a.index, word: a[0] }));
 
-		let regexEx = /{{[A-Za-z0-9\s!@#$%^&*()_+=-`~\\\]\[|';:\/.,?><]+}}/;
-		let sysVarRegex = /(({{#)((num|str|char|rdate|date|dateISO|email|guid|bool)|(num,[ ]?[0-9]+,[ ]?[0-9]+)|(date,( )*[a-zA-Z $&+,:;=?@#|'<>.^*()%!-\/]*))(}}))/;
-		const matches = [...text.matchAll(new RegExp(regexEx, 'gm'))].map(a => { return { index: a.index, word: a[0] }; });
-		const sysVarMatches = [...text.matchAll(new RegExp(sysVarRegex, 'gm'))].map(a => { return { index: a.index, word: a[0] }; });
-
-		[...matches].forEach(match => {
-			let word = match.word.replace("{{", "").replace("}}", "").trim();
+		matches.forEach(match => {
+			const word = match.word.replace("{{", "").replace("}}", "").trim();
 			if (words.includes(word)) {
 				callback(match.index, match.index + match.word.length);
 			}
 		});
 
-		[...sysVarMatches].forEach(match => {
+		sysVarMatches.forEach(match => {
 			if (SysVariables.includes(match.word) || match.word.includes("{{#num,") || match.word.includes("{{#date,")) {
 				callback(match.index, match.index + match.word.length);
 			}
-		}
-		);
+		});
 	}
 
 	function findWithRegexUnMatched(words: string[], contentBlock: any, callback: any) {
 		const text = contentBlock.getText();
+		const matches = [...text.matchAll(VAR_REGEX)].map(a => ({ index: a.index, word: a[0] }));
+		const sysVarMatches = [...text.matchAll(SYS_VAR_REGEX)].map(a => ({ index: a.index, word: a[0] }));
 
-		let regexEx = /{{[A-Za-z0-9\s!@#$%^&*()_+=-`~\\\]\[|';:\/.,?><]+}}/;
-		let sysVarRegex = /(({{#)((num|str|char|rdate|date|dateISO|email|guid|bool)|(num,[ ]?[0-9]+,[ ]?[0-9]+)|(date,( )*[a-zA-Z $&+,:;=?@#|'<>.^*()%!-\/]*))(}}))/;
-		const matches = [...text.matchAll(new RegExp(regexEx, 'gm'))].map(a => { return { index: a.index, word: a[0] }; });
-		const sysVarMatches = [...text.matchAll(new RegExp(sysVarRegex, 'gm'))].map(a => { return { index: a.index, word: a[0] }; });
-
-		[...matches].forEach(match => {
-			let word = match.word.replace("{{", "").replace("}}", "").trim();
+		matches.forEach(match => {
+			const word = match.word.replace("{{", "").replace("}}", "").trim();
 			if (!words.includes(word)) {
 				callback(match.index, match.index + match.word.length);
 			}
-		}
-		);
+		});
 
-		[...sysVarMatches].forEach(match => {
+		sysVarMatches.forEach(match => {
 			if (!SysVariables.includes(match.word) && !match.word.includes("{{#num,") && !match.word.includes("{{#date,")) {
 				callback(match.index, match.index + match.word.length);
 			}
-		}
-		);
+		});
 	}
 
-	function matchedHandleStrategy(contentBlock: any, callback: any) {
-		findWithRegex(props.varWords, contentBlock, callback);
-	}
+	const matchedHandleStrategy = useCallback((contentBlock: any, callback: any) => {
+		findWithRegex(varWordsRef.current, contentBlock, callback);
+	}, []);
 
-	function unmatchedHandleStrategy(contentBlock: any, callback: any) {
-		findWithRegexUnMatched(props.varWords, contentBlock, callback);
-	}
+	const unmatchedHandleStrategy = useCallback((contentBlock: any, callback: any) => {
+		findWithRegexUnMatched(varWordsRef.current, contentBlock, callback);
+	}, []);
 
-	const createDecorator = () =>
+	const decorator = useMemo(() =>
 		new CompositeDecorator([
-			{
-				strategy: matchedHandleStrategy,
-				component: matchedDecorated
-			},
-			{
-				strategy: unmatchedHandleStrategy,
-				component: unmatchedDecorated
-			}
-		]);
+			{ strategy: matchedHandleStrategy, component: matchedDecorated },
+			{ strategy: unmatchedHandleStrategy, component: unmatchedDecorated }
+		]),
+		[matchedHandleStrategy, unmatchedHandleStrategy, matchedDecorated, unmatchedDecorated]
+	);
 
 	const [editorState, setEditorState] = React.useState(
-		EditorState.createWithContent(ContentState.createFromText(props.value ?? ""), createDecorator())
+		EditorState.createWithContent(ContentState.createFromText(props.value ?? ""), decorator)
 	);
 
 	useEffect(() => {
@@ -146,29 +141,31 @@ export const TextEditor = (props: TextEditorProps) => {
 		}
 	}, [props.value]);
 
-	function focusEditor() {
+	const focusEditor = React.useCallback(() => {
 		if (props.focus) {
-			editor.current.focus();
+			editor.current?.focus();
 		}
-	}
+	}, [props.focus]);
 
 	useEffect(() => {
 		if (selectedVariable.data.length > 0) {
-			let varData = {};
-
-			setEditorState(EditorState.set(editorState, { decorator: createDecorator() }));
-
+			const varData = {};
 			selectedVariable.data.forEach(item => {
 				varData[item.key] = item.value;
 			});
-
 			setVarData(varData);
+
+			setEditorState(prev => EditorState.set(prev, { decorator }));
 		}
-	}, [selectedVariable]);
+	}, [selectedVariable, decorator]);
 
 	React.useEffect(() => {
 		focusEditor();
 	}, []);
+
+	React.useEffect(() => {
+		focusEditor();
+	}, [focusEditor]);
 
 	const handlePaste = (text: string, _html: string | undefined, editorState: EditorState): DraftHandleValue => {
 		if (props.maxLength) {
@@ -191,6 +188,10 @@ export const TextEditor = (props: TextEditorProps) => {
 	};
 
 	const handleChange = (changeEditorState: EditorState) => {
+
+		if (changeEditorState === editorState) {
+			return;
+		}
 
 		setEditorState(changeEditorState);
 

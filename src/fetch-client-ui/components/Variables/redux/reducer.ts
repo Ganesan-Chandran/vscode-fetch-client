@@ -6,6 +6,7 @@ export const InitialState: IVariableModel = {
 		id: "",
 		name: "",
 		createdTime: "",
+		modifiedTime: "",
 		isActive: false,
 		data: []
 	},
@@ -26,6 +27,7 @@ export const VariableReducer: (state?: IVariableModel,
 						id: action.payload.variable.id,
 						name: action.payload.variable.name,
 						createdTime: action.payload.variable.createdTime,
+						modifiedTime: action.payload.variable.modifiedTime,
 						isActive: action.payload.variable.isActive,
 						data: action.payload.variable.data,
 					}

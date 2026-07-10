@@ -1,17 +1,17 @@
-import React, { useMemo, useState } from 'react';
-import { useSelector } from "react-redux";
+import "./style.css";
+import { HTMLViewer } from '../../../../Common/Viewer/HTMLViewer';
+import { IRootState } from "../../../../../reducer/combineReducer";
+import { JSONViewer } from '../../../../Common/Viewer/JSONViewer';
+import { AceEditor } from "../../../../Common/Editor";
 import { ReactComponent as CollapseLogo } from '../../../../../../../icons/collapse.svg';
 import { ReactComponent as ExpandLogo } from '../../../../../../../icons/expand.svg';
-import FetchClientIcon from "../../../../../../../icons/fetch-client.png";
-import { requestTypes } from '../../../../../../utils/configuration';
-import { IRootState } from "../../../../../reducer/combineReducer";
-import { MonacoEditor } from "../../../../Common/Editor";
-import { HTMLViewer } from '../../../../Common/Viewer/HTMLViewer';
-import { JSONViewer } from '../../../../Common/Viewer/JSONViewer';
+import { requestTypes } from '../../../../../../fetch-client-core/consts/requestTypes.consts';
+import { responseType } from '../../../../../../fetch-client-core/consts/response.consts';
+import { useSelector } from "react-redux";
 import { XMLViewer } from '../../../../Common/Viewer/XMLViewer';
+import FetchClientIcon from "../../../../../../../icons/fetch-client.png";
+import React, { useMemo, useState } from 'react';
 import vscode from '../../../../Common/vscodeAPI';
-import { responseType } from "./consts";
-import "./style.css";
 
 export const ResponseSection = (props: any) => {
 
@@ -23,7 +23,7 @@ export const ResponseSection = (props: any) => {
 	const [wordWrap, setWordWrap] = useState(false);
 
 	const editor = useMemo(() => {
-		return <MonacoEditor
+		return <AceEditor
 			value={response.responseData ?? ""}
 			language={response.responseType?.format ? response.responseType.format : responseType[1].value}
 			readOnly={true}

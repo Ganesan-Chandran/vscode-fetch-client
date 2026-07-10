@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { requestTypes } from "../../../../../../utils/configuration";
-import { IRootState } from "../../../../../reducer/combineReducer";
-import { GetDomainName } from "../../../../Common/helper";
-import vscode from "../../../../Common/vscodeAPI";
-import { IVariable } from "../../../../SideBar/redux/types";
-import { VariableActions } from "../../../../Variables/redux";
 import "./style.css";
+import { AppDispatch } from "../../../../../store/appStore";
+import { GetDomainName } from "../../../../Common/helper";
+import { IRootState } from "../../../../../reducer/combineReducer";
+import { IVariable } from "../../../../../../fetch-client-core/types/sidebar.types";
+import { requestTypes } from "../../../../../../fetch-client-core/consts/requestTypes.consts";
+import { useDispatch, useSelector } from "react-redux";
+import { VariableActions } from "../../../../Variables/redux";
+import React, { useEffect, useState } from "react";
+import vscode from "../../../../Common/vscodeAPI";
 
 export const Settings = () => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const { selectedVariable, variables, isLocalChange } = useSelector((state: IRootState) => state.variableData);
 	const { url } = useSelector((state: IRootState) => state.requestData);
@@ -129,3 +130,5 @@ export const Settings = () => {
 		</div>
 	);
 };
+
+export default Settings;

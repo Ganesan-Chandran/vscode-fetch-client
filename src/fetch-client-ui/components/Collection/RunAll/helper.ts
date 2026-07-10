@@ -1,8 +1,8 @@
-import { formatDate } from "../../../../utils/helper";
-import { IRequestModel } from "../../RequestUI/redux/types";
-import { FormatBytes, GetResponseTime } from "../../ResponseUI/OptionsPanel/OptionTab/util";
-import { IReponseModel } from "../../ResponseUI/redux/types";
-import { IVariable } from "../../SideBar/redux/types";
+import { FormatBytes } from "../../../../fetch-client-core/helpers/common.helper";
+import { formatDate, GetResponseTime } from "../../../../fetch-client-core/helpers/dateTime.helper";
+import { IReponseModel } from "../../../../fetch-client-core/types/response.types";
+import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
+import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";
 
 export function exportJson(
 	req: IRequestModel[],

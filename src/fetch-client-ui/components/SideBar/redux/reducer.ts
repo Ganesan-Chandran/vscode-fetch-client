@@ -1,5 +1,5 @@
-import { InitialAuth, InitialPreFetch, InitialRequestHeaders } from "../../RequestUI/redux/reducer";
-import { isFolder } from "../util";
+import { isFolder } from "../../../../fetch-client-core/helpers/common.helper";
+import { ISideBarModel, IHistory, ICollections, IVariable, IFolder } from "../../../../fetch-client-core/types/sidebar.types";
 import {
 	FETCH_CLIENT_SET_ACTIVE_INACTIVE_VARIABLE, FETCH_CLIENT_SET_ATTACH_DETACH_VARIABLE, FETCH_CLIENT_SET_CLEAR_COLLECTION,
 	FETCH_CLIENT_SET_COLLECTION, FETCH_CLIENT_SET_COPY_TO_COLLECTION, FETCH_CLIENT_SET_DELETE_COLLECTION,
@@ -8,17 +8,10 @@ import {
 	FETCH_CLIENT_SET_NEW_HISTORY_TO_COLLECTION, FETCH_CLIENT_SET_NEW_REQUEST_TO_COLLECTION, FETCH_CLIENT_SET_NEW_VARIABLE,
 	FETCH_CLIENT_SET_RENAME_COLLECTION, FETCH_CLIENT_SET_RENAME_COL_ITEM, FETCH_CLIENT_SET_RENAME_HISTORY,
 	FETCH_CLIENT_SET_RENAME_VARIABLE, FETCH_CLIENT_SET_VARIABLE,
-	ICollections, ISettings, IFolder, IHistory, ISideBarModel, IVariable, SideBarActionTypes,
+	SideBarActionTypes,
 	FETCH_CLIENT_SET_UPDATE_COLLECTION_ITEM,
 	FETCH_CLIENT_SET_UPDATE_HISTORY_ITEM
 } from "./types";
-
-
-export const InitialSettings: ISettings = {
-	auth: InitialAuth,
-	preFetch: InitialPreFetch,
-	headers: InitialRequestHeaders
-};
 
 export const InitialState: ISideBarModel = {
 	history: [],
@@ -166,7 +159,7 @@ export const SideBarReducer: (state?: ISideBarModel,
 			case FETCH_CLIENT_SET_UPDATE_HISTORY_ITEM: {
 				return {
 					...state,
-					history: updateItemInHistoryState(action.payload.item, state.history)
+					history: updateItemInHistoryState(action.payload.item, [...state.history])
 				};
 			}
 			default: {

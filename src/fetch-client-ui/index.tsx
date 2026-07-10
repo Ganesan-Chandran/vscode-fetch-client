@@ -1,17 +1,14 @@
+import './index.css';
+import { StateAndRouterProvider } from './store/stateAndRouterProvider';
+import { store } from './store/appStore';
+import App from './App';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
-import './index.css';
-import { getAppStore } from './store/appStore';
-import { StateAndRouterProvider } from './store/stateAndRouterProvider';
 
-const store = getAppStore();
-
+// @ts-ignore
 ReactDOM.render(
 	<StateAndRouterProvider store={store}>
-		<React.StrictMode>
-			<App />
-		</React.StrictMode>
+		<App />
 	</StateAndRouterProvider>,
-	document.getElementById('root')
+	document.getElementById('root')!
 );

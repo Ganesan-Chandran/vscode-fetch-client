@@ -1,15 +1,16 @@
-import { Dispatch } from "redux";
-import { v4 as uuidv4 } from 'uuid';
-import { requestTypes } from "../../../../utils/configuration";
-import { formatDate } from "../../../../utils/helper";
-import { GetDataFromHTML, notesMaxLimit } from "../../Common/helper";
-import vscode from "../../Common/vscodeAPI";
-import { ResponseActions } from "../../ResponseUI/redux";
-import { ISettings, IVariable } from "../../SideBar/redux/types";
 import { Actions } from "../redux";
-import { IReqSettings, IRequestModel } from "../redux/types";
+import { AppDispatch } from "../../../store/appStore";
+import { formatDate } from "../../../../fetch-client-core/helpers/dateTime.helper";
+import { GetDataFromHTML, notesMaxLimit } from "../../Common/helper";
+import { IReqSettings } from '../../../../fetch-client-core/types/prefetch.types';
+import { IRequestModel } from '../../../../fetch-client-core/types/request.types';
+import { ISettings, IVariable } from "../../../../fetch-client-core/types/sidebar.types";
+import { requestTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
+import { ResponseActions } from "../../ResponseUI/redux";
+import { v4 as uuidv4 } from 'uuid';
+import vscode from "../../Common/vscodeAPI";
 
-export const SendRequest = (dispatch: Dispatch<any>, newReq: boolean, colId: string, requestData: IRequestModel, selectedVariable: IVariable, parentSettings: ISettings, reqSettings: IReqSettings) => {
+export const SendRequest = (dispatch: AppDispatch, newReq: boolean, colId: string, requestData: IRequestModel, selectedVariable: IVariable, parentSettings: ISettings, reqSettings: IReqSettings) => {
 	dispatch(ResponseActions.SetResponseLoadingAction(true));
 	dispatch(ResponseActions.SetPreFetchResponseAction([]));
 
@@ -19,6 +20,7 @@ export const SendRequest = (dispatch: Dispatch<any>, newReq: boolean, colId: str
 		reqData.id = uuidv4();
 		reqData.name = reqData.url.trim();
 		reqData.createdTime = formatDate();
+		reqData.modifiedTime = formatDate();
 		dispatch(Actions.SetRequestAction(reqData));
 	}
 

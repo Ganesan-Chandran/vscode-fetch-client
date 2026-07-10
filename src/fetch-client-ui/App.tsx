@@ -1,6 +1,6 @@
-import * as React from "react";
-import { ErrorBoundary } from 'react-error-boundary';
 import "./App.css";
+import { ErrorBoundary } from 'react-error-boundary';
+import * as React from "react";
 
 const SideBar = React.lazy(() => import('./components/SideBar'));
 const MainUI = React.lazy(() => import('./components/MainUI'));
@@ -15,6 +15,8 @@ const ErrorLog = React.lazy(() => import('./components/ErrorLog/ErrorLog'));
 const CurlUI = React.lazy(() => import('./components/Curl'));
 const BulkExportUI = React.lazy(() => import('./components/Collection/BulkExport/bulkExport'));
 const AutoRequestUI = React.lazy(() => import('./components/AutoRequest'));
+const ReOrder = React.lazy(() => import('./components/Collection/ReOrder/reorder'));
+const PerformanceTest = React.lazy(() => import('./components/Collection/Testing/PerformanceTest'));
 
 function ErrorFallback({ error }) {
 	const errorData = " Name : " + error.name + "\n\n" + " Message : " + error.message + "\n\n" + " Stack : " + error.stack;
@@ -62,6 +64,8 @@ function renderUI() {
 		return <AttachVariable />;
 	} else if (document.title.includes('runall')) {
 		return <RunAll />;
+	} else if (document.title.includes('reorder')) {
+		return <ReOrder />;
 	} else if (document.title.includes('colsettings')) {
 		return <CollectionSettings />;
 	} else if (document.title.includes('curlreq')) {
@@ -74,6 +78,8 @@ function renderUI() {
 		return <BulkExportUI />;
 	} else if (document.title.includes('autorequest')) {
 		return <AutoRequestUI />;
+	} else if (document.title.includes('perftest')) {
+		return <PerformanceTest />;
 	} else {
 		return <MainUI />;
 	}

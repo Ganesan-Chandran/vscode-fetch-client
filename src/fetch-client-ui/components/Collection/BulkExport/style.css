@@ -11,12 +11,8 @@
 	height: 250px;
 	padding-bottom: 15px;
 	width: 100%;
-	border: 1px solid;
-}
-
-.bulk-panel {
-	padding-left: 10%;
-	padding-top: 20px;
+	border: 1px solid var(--border-color);
+	border-radius: 3px;
 }
 
 .bulk-list {
@@ -42,10 +38,10 @@
 		grid-auto-rows: 1fr;
 		grid-template-columns: 0.3fr 1fr 1fr;
 	}
+}
 
-	.bulk-text-title{
-		text-align: right !important;
-	}
+.bulk-footer-grid {
+	align-items: center;
 }
 
 .bulk-path-select-panel {
@@ -55,21 +51,64 @@
 .bulk-path-btn {
 	width: 75px;
 	height: 30px;
+	flex-shrink: 0;
 }
 
 .bulk-filename-text {
 	color: var(--text-color);
 	font-size: var(--font-size);
-	margin-left: 10px;
-	width: calc(100% - 85px);
+	flex: 1;
+	white-space: normal;
+	word-break: break-word;
+	overflow-wrap: anywhere;
 }
 
 .bulk-message-panel {
-	margin     : 0 auto;
+	margin: 0 auto;
 	padding-top: 15px;
-	text-align : center;
+	text-align: center;
 }
 
-.bulk-text-title{
+.bulk-text-title {
 	text-align: left;
+}
+
+.bulk-key-panel {
+	display: grid;
+}
+
+.bulk-key-text {
+	height: 25px;
+	width: 98%;
+}
+
+.bulk-key-note {
+	text-align: left;
+	margin-top: 10px;
+}
+
+.bulk-btn-panel {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+}
+
+.bulk-success-message {
+	text-align: center;
+}
+
+.first-row {
+	height: max-content !important;
+	padding-bottom: 15px;
+}
+
+.export-type-select {
+	height: 32px;
+	padding-left: 10px;
+}
+
+.file-upload-container {
+	display: flex;
+	gap: 10px;
 }

@@ -194,7 +194,7 @@
 }
 
 .expand-btn path {
-	fill: var(--text-color);
+	fill: var(--text-color) !important;
 }
 
 .collapse-btn {
@@ -206,7 +206,7 @@
 }
 
 .collapse-btn path {
-	fill: var(--text-color);
+	fill: var(--text-color) !important;
 }
 
 .response-section-panel-full-screen {

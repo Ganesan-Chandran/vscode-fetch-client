@@ -1,13 +1,14 @@
-import React, { useEffect } from "react";
+import "../style.css";
+import { formatDate } from "../../../../fetch-client-core/helpers/dateTime.helper";
+import { getMethodClassName } from "../../SideBar/util";
+import { IHistory, IFolder, ICollections } from "../../../../fetch-client-core/types/sidebar.types";
+import { InitialSettings } from "../../../../fetch-client-core/consts/initialValues.consts";
+import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
 import { useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
-import { requestTypes, responseTypes } from "../../../../utils/configuration";
-import { formatDate } from "../../../../utils/helper";
+import React, { useEffect } from "react";
 import vscode from "../../Common/vscodeAPI";
-import { InitialSettings } from "../../SideBar/redux/reducer";
-import { ICollections, IFolder, IHistory } from "../../SideBar/redux/types";
-import { getMethodClassName } from "../../SideBar/util";
-import "../style.css";
+import PanelLayout from "../../Common/Layout/panelLayout";
 
 const AddToCollection = () => {
 
@@ -31,7 +32,7 @@ const AddToCollection = () => {
 
 
 	useEffect(() => {
-		window.addEventListener("message", (event) => {
+		const handleMessage = (event: MessageEvent) => {
 			if (event.data && event.data.type === responseTypes.getAllCollectionNameResponse) {
 				let colNames = [{ name: "Select", value: "", disabled: true }];
 				colNames = [...colNames, ...event.data.collectionNames];
@@ -44,11 +45,13 @@ const AddToCollection = () => {
 			} else if (event.data && event.data.type === responseTypes.addToCollectionsResponse) {
 				setDone(true);
 			}
-		});
-
+		};
+		window.addEventListener("message", handleMessage);
 		vscode.postMessage({ type: requestTypes.getAllCollectionNameRequest, data: "addtocol" });
 		let id = document.title.split("@:@")[1];
 		vscode.postMessage({ type: requestTypes.getHistoryItemRequest, data: id });
+
+		return () => window.removeEventListener("message", handleMessage);
 	}, []);
 
 	const onSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -114,6 +117,7 @@ const AddToCollection = () => {
 					id: selectedFolder === "0" ? uuidv4() : selectedFolder,
 					name: selectedFolder === "0" ? folderName : "",
 					createdTime: formatDate(),
+					modifiedTime: formatDate(),
 					type: "folder",
 					data: [history],
 					settings: InitialSettings
@@ -123,13 +127,14 @@ const AddToCollection = () => {
 			let collection: ICollections = {
 				id: selectedCollection === "0" ? uuidv4() : selectedCollection,
 				createdTime: formatDate(),
+				modifiedTime: formatDate(),
 				name: selectedCollection === "0" ? colName : "",
 				data: folder ? [folder] : [history],
 				variableId: "",
 				settings: InitialSettings
 			};
 
-			vscode.postMessage({ type: requestTypes.addToCollectionsRequest, data: { col: collection, hasFolder: folder ? true : false, isNewFolder : selectedFolder === "0" ? true : false} });
+			vscode.postMessage({ type: requestTypes.addToCollectionsRequest, data: { col: collection, hasFolder: folder ? true : false, isNewFolder: selectedFolder === "0" ? true : false } });
 		}
 	}
 
@@ -143,120 +148,227 @@ const AddToCollection = () => {
 		setErrors({ ...errors, "folderName": (e.target.value ? "" : "Cannot be empty") });
 	}
 
-	return (
-		history && history.name ?
-			<div>
-				<div className="addto-header">✅ Add To Collection</div>
-				<div className="addto-body">
-					<table className="addto-table center" cellPadding={0} cellSpacing={0}>
-						<tbody>
-							<tr>
-								<td className="col-1-size">
-									<span className="addto-label">History Name :</span>
-								</td>
-								<td className="col-2-size">
-									<input className="addto-text disabled" type="text" title="Name" value={history.name} disabled={true}></input>
-								</td>
-							</tr>
-							<tr className="details-row">
-								<td className="col-1-size">
-									<span className="addto-label">Request Details :</span>
-								</td>
-								<td className="col-2-size details-col">
-									<div className={"req-details method-label " + getMethodClassName(history.method.toUpperCase())}>{history.method.toUpperCase()}</div>
-									<div className="req-details" title={history.url}>{history.url?.length > 50 ? history.url.substring(0, 50) + "..." : history.url}</div>
-									<div className="req-details">{formatDate(history.createdTime)}</div>
-								</td>
-							</tr>
-							<tr>
-								<td className="col-1-size">
-									<span className="addto-label">Collection :</span>
-								</td>
-								<td className="col-2-size block-display">
-									<select
-										className={errors["colSelect"] ? "addto-select required-value" : "addto-select"}
-										required={true}
-										value={selectedCollection}
-										onChange={(e) => onSelect(e)}
-									>
-										{
-											collections.map((param: any, index: number) => {
-												return (
-													<option
-														disabled={param.disabled}
-														hidden={index === 0 ? true : false}
-														key={index + param.name}
-														value={param.value}
-													>
-														{param.name}
-													</option>
-												);
-											})
-										}
-									</select>
-								</td>
-							</tr>
-							{selectedCollection === "0" ? <tr>
-								<td className="col-1-size">
-									<span className="addto-label">Collection Name :</span>
-								</td>
-								<td className="col-2-size">
-									<input className={errors["colName"] ? "addto-text required-value" : "addto-text"} type="text" title="Collection Name" onChange={onNameChange}></input>
-								</td>
-							</tr> : null}
-							{selectedCollection ? <tr>
-								<td className="col-1-size">
-									<span className="addto-label">Folder :</span>
-								</td>
-								<td className="col-2-size block-display">
-									<select
-										className="addto-select"
-										required={true}
-										value={selectedFolder}
-										onChange={(e) => onSelectFolder(e)}
-									>
-										{
-											currentFolders.map((param: any, index: number) => {
-												return (
-													<option
-														disabled={param.disabled}
-														hidden={index === 0 ? true : false}
-														key={index + param.name}
-														value={param.value}
-													>
-														{param.name}
-													</option>
-												);
-											})
-										}
-									</select>
-								</td>
-							</tr> : null}
-							{selectedFolder === "0" ? <tr>
-								<td className="col-1-size">
-									<span className="addto-label">Folder Name :</span>
-								</td>
-								<td className="col-2-size">
-									<input className={errors["folderName"] ? "addto-text required-value" : "addto-text"} type="text" title="Folder Name" onChange={onFolderNameChange}></input>
-								</td>
-							</tr> : null}
-						</tbody>
-					</table>
-					<div className="button-panel">
-						<button
-							type="submit"
-							className="submit-button"
-							onClick={onSubmitClick}
-							disabled={isDone}
-						>
-							Submit
-						</button>
-					</div>
-					<div className="message-panel">
-						{isDone && (<span className="success-message">History item has added to Collection successfully</span>)}
-					</div>
-				</div>
+	function renderHint() {
+		return (
+			<div className="reorder-hint">
+				Add the selected history request to an existing collection or create a new collection.
 			</div>
+		);
+	}
+
+	function renderForm() {
+		return (
+			<div className="reorder-tree-panel addto-scroll-panel">
+				<table className="addto-table" cellPadding={0} cellSpacing={0}>
+					<tbody>
+						{renderHistoryRow()}
+						{renderRequestRow()}
+						{renderCollectionRow()}
+						{renderCollectionNameRow()}
+						{renderFolderRow()}
+						{renderFolderNameRow()}
+					</tbody>
+				</table>
+			</div>
+		);
+	}
+
+	function renderHistoryRow() {
+		return (
+			<tr>
+				<td className="col-1-size">
+					<span className="addto-label">History Name</span>
+				</td>
+				<td className="col-2-size">
+					<input
+						className="addto-text disabled"
+						value={history.name}
+						disabled
+					/>
+				</td>
+			</tr>
+		);
+	}
+
+	function renderRequestRow() {
+		return (
+			<tr className="details-row">
+				<td className="col-1-size">
+					<span className="addto-label">Request Details</span>
+				</td>
+
+				<td className="col-2-size details-col">
+					<div
+						className={
+							"req-details method-label " +
+							getMethodClassName(history.method.toUpperCase())
+						}
+					>
+						{history.method.toUpperCase()}
+					</div>
+
+					<div className="req-details" title={history.url}>
+						{history.url?.length > 50
+							? history.url.substring(0, 50) + "..."
+							: history.url}
+					</div>
+
+					<div className="req-details">
+						{formatDate(history.createdTime)}
+					</div>
+				</td>
+			</tr>
+		);
+	}
+
+	function renderCollectionRow() {
+		return (
+			<tr>
+				<td className="col-1-size">
+					<span className="addto-label">Collection</span>
+				</td>
+
+				<td className="col-2-size block-display">
+					<select
+						className={
+							errors.colSelect
+								? "addto-select required-value"
+								: "addto-select"
+						}
+						value={selectedCollection}
+						onChange={onSelect}
+					>
+						{collections.map((item: any, index) => (
+							<option
+								key={index}
+								value={item.value}
+								disabled={item.disabled}
+								hidden={index === 0}
+							>
+								{item.name}
+							</option>
+						))}
+					</select>
+				</td>
+			</tr>
+		);
+	}
+
+	function renderCollectionNameRow() {
+		if (selectedCollection !== "0") {
+			return null;
+		}
+
+		return (
+			<tr>
+				<td className="col-1-size">
+					<span className="addto-label">Collection Name</span>
+				</td>
+
+				<td className="col-2-size">
+					<input
+						className={
+							errors.colName
+								? "addto-text required-value"
+								: "addto-text"
+						}
+						value={colName}
+						onChange={onNameChange}
+					/>
+				</td>
+			</tr>
+		);
+	}
+
+	function renderFolderRow() {
+		if (!selectedCollection) {
+			return null;
+		}
+
+		return (
+			<tr>
+				<td className="col-1-size">
+					<span className="addto-label">Folder</span>
+				</td>
+
+				<td className="col-2-size block-display">
+					<select
+						className="addto-select"
+						value={selectedFolder}
+						onChange={onSelectFolder}
+					>
+						{currentFolders.map((item: any, index) => (
+							<option
+								key={index}
+								value={item.value}
+								disabled={item.disabled}
+								hidden={index === 0}
+							>
+								{item.name}
+							</option>
+						))}
+					</select>
+				</td>
+			</tr>
+		);
+	}
+
+	function renderFolderNameRow() {
+		if (selectedFolder !== "0") {
+			return null;
+		}
+
+		return (
+			<tr>
+				<td className="col-1-size">
+					<span className="addto-label">Folder Name</span>
+				</td>
+				<td className="col-2-size">
+					<input
+						className={
+							errors.folderName
+								? "addto-text required-value"
+								: "addto-text"
+						}
+						value={folderName}
+						onChange={onFolderNameChange}
+					/>
+				</td>
+			</tr>
+		);
+	}
+
+	function renderFooter() {
+		return (
+			<>
+				{isDone && (
+					<div className="reorder-status reorder-status--ok">
+						History item added to the collection successfully.
+					</div>
+				)}
+				<div className="reorder-btn-panel">
+					<button
+						type="button"
+						className="submit-button reorder-btn"
+						onClick={onSubmitClick}
+						disabled={isDone}
+					>
+						{isDone ? "✓ Added" : "Add to Collection"}
+					</button>
+				</div>
+			</>
+		);
+	}
+
+	return (
+		history?.name ? <PanelLayout
+			title="✅ Add To Collection"
+			loading={!history}
+			footer={renderFooter()}
+		>
+			{renderHint()}
+			{renderForm()}
+		</PanelLayout>
 			:
 			<></>
 	);

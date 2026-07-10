@@ -1,11 +1,12 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { IRootState } from "../../../../../reducer/combineReducer";
-import { Actions } from "../../../redux";
-import { InitialTest } from "../../../redux/reducer";
-import { IRunRequest } from "../../../redux/types";
-import { PreRequest } from "./preRequest";
 import "./style.css";
+import { Actions } from "../../../redux";
+import { AppDispatch } from "../../../../../store/appStore";
+import { InitialTest } from "../../../../../../fetch-client-core/consts/initialValues.consts";
+import { IRootState } from "../../../../../reducer/combineReducer";
+import { IRunRequest } from "../../../../../../fetch-client-core/types/prefetch.types";
+import { PreRequest } from "./preRequest";
+import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect } from "react";
 
 export interface IPreFecthProps {
 	settingsMode?: boolean;
@@ -13,7 +14,7 @@ export interface IPreFecthProps {
 
 export const PreFetch = (props: IPreFecthProps) => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 	const { preFetch } = useSelector((state: IRootState) => state.requestData);
 	const { skipParentPreFetch } = useSelector((state: IRootState) => state.reqSettings);
 
@@ -44,7 +45,11 @@ export const PreFetch = (props: IPreFecthProps) => {
 	const makeRequests = (reqs: IRunRequest[]) => {
 		return (
 			reqs?.map((item: IRunRequest, index: number) => {
-				return <div key={"preReq_req_panel_" + index} id={"preReq_req_panel_" + index}><PreRequest request={item} reqIndex={index} /></div>;
+				return (
+					<div key={"preReq_req_panel_" + index} id={"preReq_req_panel_" + index} style={{ paddingBottom: "20px" }}>
+						<PreRequest request={item} reqIndex={index} totalCount={reqs.length} />
+					</div>
+				);
 			})
 		);
 	};
@@ -57,13 +62,19 @@ export const PreFetch = (props: IPreFecthProps) => {
 		dispatch(Actions.SetSkipPreFetchAction(evt.currentTarget.checked));
 	}
 
+	const maxLimit = props?.settingsMode ? 2 : 5;
+	const currentCount = preFetch?.requests?.length ?? 0;
+
 	return (
 		<div className="preReq-container">
-			<div>
+			<div className="preReq-toolbar">
 				<div className="max-req">
-					{props?.settingsMode ? "* Max 2 request (It is recommended that each request does not contain any PreFetch requests. If there are any PreFetch requests, then the PreFetch requests won't be executed.)" : "* Max 5 request"}
+					{props?.settingsMode
+						? `Pre-requests (${currentCount}/${maxLimit}) - it is recommended that each request does not contain any PreFetch requests. If there are any, they won't be executed.`
+						: `Pre-requests (${currentCount}/${maxLimit})`}
 				</div>
-				<button onClick={onAddReqClick} disabled={isDisabled()} className="format-button">Add Pre-request
+				<button onClick={onAddReqClick} disabled={isDisabled()} className="format-button">
+					+ Add Pre-request
 				</button>
 			</div>
 			{!props?.settingsMode ?
@@ -79,9 +90,11 @@ export const PreFetch = (props: IPreFecthProps) => {
 				<>
 				</>
 			}
-			{
-				makeRequests(preFetch?.requests)
-			}
+			<div className="preReq-stepper">
+				{makeRequests(preFetch?.requests)}
+			</div>
 		</div>
 	);
 };
+
+export default PreFetch;

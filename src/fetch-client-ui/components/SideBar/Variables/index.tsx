@@ -1,11 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import { ReactComponent as DotsLogo } from '../../../../../icons/dots.svg';
-import { requestTypes } from "../../../../utils/configuration";
-import { IRootState } from "../../../reducer/combineReducer";
-import vscode from "../../Common/vscodeAPI";
-import { IVariable } from "../redux/types";
 import "./style.css";
+import { DropdownPortal } from "../dropdownMenu";
+import { IRootState } from "../../../reducer/combineReducer";
+import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";
+import { ReactComponent as DotsLogo } from '../../../../../icons/dots.svg';
+import { requestTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
+import { useSelector } from "react-redux";
+import React, { useEffect, useRef, useState } from "react";
+import vscode from "../../Common/vscodeAPI";
 
 export interface IVariableProps {
 	filterCondition: string;
@@ -17,7 +18,6 @@ export const VariableSection = (props: IVariableProps) => {
 
 	const { variable } = useSelector((state: IRootState) => state.sideBarData);
 
-	const [ddPosition, setPosition] = useState("");
 	const [selectedItem, setSelectedItem] = useState("");
 	const [currentIndex, _setCurrentIndex] = useState(-1);
 
@@ -36,12 +36,6 @@ export const VariableSection = (props: IVariableProps) => {
 
 	const moreMenuWrapperRef = useRef([]);
 
-	const styles = {
-		bottomStyle: {
-			bottom: ddPosition
-		} as React.CSSProperties,
-	};
-
 	function openMoreMenu(evt: any, index: number) {
 		evt.preventDefault();
 		evt.stopPropagation();
@@ -54,17 +48,6 @@ export const VariableSection = (props: IVariableProps) => {
 			return;
 		}
 
-		let element = document.getElementById("three-dots-" + index);
-		if (element) {
-			let rect = element.getBoundingClientRect();
-			let viewportHeight = window.innerHeight;
-			let total = rect.top + 100;
-			if (total > viewportHeight) {
-				setPosition("100%");
-			} else {
-				setPosition("");
-			}
-		}
 		setCurrentIndex(index);
 	}
 
@@ -110,16 +93,24 @@ export const VariableSection = (props: IVariableProps) => {
 	}
 
 	function handleClickOutside(evt: any) {
-		if (moreMenuWrapperRef.current && moreMenuWrapperRef.current[refIndex.current] && !moreMenuWrapperRef.current[refIndex.current].contains(evt.target)) {
+		const triggerEl = moreMenuWrapperRef.current[refIndex.current];
+		const menuEl = document.getElementById("drop-down-menu-" + (variableState[refIndex.current]?.id ?? ""));
+		if (triggerEl && !triggerEl.contains(evt.target) && !(menuEl && menuEl.contains(evt.target))) {
 			setCurrentIndex(-1);
 		}
 	}
 
 	useEffect(() => {
-		document.addEventListener("mousedown", handleClickOutside, false);
+		const handleBlur = () => {
+			setCurrentIndex(-1);
+		};
+
+		document.addEventListener("click", handleClickOutside, false);
+		window.addEventListener("blur", handleBlur);
 
 		return () => {
-			document.removeEventListener("mousedown", handleClickOutside, false);
+			window.removeEventListener("blur", handleBlur);
+			document.removeEventListener("click", handleClickOutside, false);
 		};
 	}, []);
 
@@ -152,14 +143,14 @@ export const VariableSection = (props: IVariableProps) => {
 					<div className={index === currentIndex ? "more-icon display-block" : "more-icon"} ref={el => moreMenuWrapperRef.current[index] = el}>
 						<DotsLogo id={"three-dots-" + item.id} onClick={(e) => openMoreMenu(e, index)} />
 						<input type="checkbox" className="dd-input" checked={index === currentIndex} readOnly={true} />
-						<div id={"drop-down-menu-" + item.id} className="dropdown-more" style={styles.bottomStyle}>
+						<DropdownPortal id={item.id} open={index === currentIndex}>
 							{index !== 0 && <><button onClick={(e) => onRename(e, item.id)}>Rename</button>
 								<button onClick={(e) => onDelete(e, item.id, item.name)}>Delete</button></>}
 							<button onClick={(e) => onDuplicate(e, item.id)}>Duplicate</button>
 							<div className="divider"></div>
 							{index === 0 && !item.isActive && <button onClick={(e) => onActive(e, item.id, !item.isActive)}>{item.isActive ? "Set Inactive" : "Set Active"}</button>}
 							<button onClick={(e) => onExport(e, item)}>Export</button>
-						</div>
+						</DropdownPortal>
 					</div>
 				</div>
 			</div>
@@ -201,3 +192,5 @@ export const VariableSection = (props: IVariableProps) => {
 		</>
 	);
 };
+
+export default VariableSection;

@@ -1,4 +1,5 @@
-import { FETCH_CLIENT_SET_COLLECTION_LIST, FETCH_CLIENT_SET_COL_REQUEST_LIST, FETCH_CLIENT_SET_REQ_COL_DETAILS, FETCH_CLIENT_SET_REQ_PARENT_SETTINGS, IReqColModel, RequestActionTypes } from "./types";
+import { IReqColModel } from "../../../../fetch-client-core/types/prefetch.types";
+import { FETCH_CLIENT_SET_COLLECTION_LIST, FETCH_CLIENT_SET_COL_REQUEST_LIST, FETCH_CLIENT_SET_REQ_COL_DETAILS, FETCH_CLIENT_SET_REQ_PARENT_SETTINGS, RequestActionTypes } from "./types";
 
 export const InitialState: IReqColModel = {
 	colId: "",

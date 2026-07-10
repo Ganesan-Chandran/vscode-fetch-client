@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { IRootState } from '../../../../../reducer/combineReducer';
-import { IPreFetchResponse, ITestResult } from '../../../redux/types';
 import "./style.css";
+import { IRootState } from '../../../../../reducer/combineReducer';
+import { ITestResult, IPreFetchResponse } from "../../../../../../fetch-client-core/types/response.types";
+import { useSelector } from 'react-redux';
+import React, { useState } from 'react';
 
 export const PreFetchResponse = () => {
 

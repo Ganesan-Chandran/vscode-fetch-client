@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { TestPanel } from "../../../../TestUI/TestPanel";
-import ResToVariables from "../../../../Variables/resToVar";
 import { OptionsTab } from "../../OptionTab";
 import { postFetchOptions } from "../../consts";
+import { TestPanel } from "../../../../TestUI/TestPanel";
+import React, { useState } from "react";
+import ResToVariables from "../../../../Variables/resToVar";
 
 export const PostFetch = () => {
 
@@ -26,3 +26,5 @@ export const PostFetch = () => {
 		</div>
 	);
 };
+
+export default PostFetch;

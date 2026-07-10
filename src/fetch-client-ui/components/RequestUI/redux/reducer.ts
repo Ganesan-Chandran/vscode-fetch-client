@@ -1,126 +1,23 @@
+import { IBodyData, IRequestModel } from '../../../../fetch-client-core/types/request.types';
+import { ITableData } from '../../../../fetch-client-core/types/common.types';
+import { ITest, IRunRequest } from '../../../../fetch-client-core/types/prefetch.types';
 import { v4 as uuidv4 } from 'uuid';
-import { ITableData } from "../../Common/Table/types";
-import { requestBodyRaw } from '../OptionsPanel/Options/Body/consts';
 import {
-	ClientAuth,
 	FETCH_CLIENT_SET_ADD_PREREQUEST, FETCH_CLIENT_SET_COL_ID, FETCH_CLIENT_SET_DELETE_PRECONDITION, FETCH_CLIENT_SET_DELETE_PREREQUEST,
 	FETCH_CLIENT_SET_NOTES, FETCH_CLIENT_SET_OAUTH_TOKEN, FETCH_CLIENT_SET_PRECONDITION, FETCH_CLIENT_SET_PREFETCH, FETCH_CLIENT_SET_REQ,
 	FETCH_CLIENT_SET_REQ_AUTH, FETCH_CLIENT_SET_REQ_BINARY_DATA, FETCH_CLIENT_SET_REQ_BODY, FETCH_CLIENT_SET_REQ_FORM_DATA_BODY, FETCH_CLIENT_SET_REQ_HEADERS,
 	FETCH_CLIENT_SET_REQ_ID, FETCH_CLIENT_SET_REQ_METHOD, FETCH_CLIENT_SET_REQ_PARAMS, FETCH_CLIENT_SET_REQ_RAW, FETCH_CLIENT_SET_REQ_RAW_LANG,
 	FETCH_CLIENT_SET_REQ_RESET_BODY, FETCH_CLIENT_SET_REQ_URL, FETCH_CLIENT_SET_SET_VAR, FETCH_CLIENT_SET_TEST,
-	GrantType, IAuth, IAwsAuth, IBinaryFileData, IBodyData, IOAuth, IPreFetch, IRequestModel, IRunRequest, ISetVar, ITest, RequestActionTypes
+	RequestActionTypes
 } from "./types";
-
-export const InitialRequestHeaders: ITableData[] = [
-	{
-		key: "Cache-Control",
-		value: "no-cache",
-		isChecked: true,
-	},
-	{
-		key: "Accept",
-		value: "*/*",
-		isChecked: true,
-	},
-	{
-		key: "User-Agent",
-		value: "Fetch Client",
-		isChecked: true,
-	},
-	{
-		key: "Accept-Encoding",
-		value: "gzip, deflate",
-		isChecked: true,
-	},
-	{
-		key: "Connection",
-		value: "keep-alive",
-		isChecked: true,
-	},
-	{
-		key: "",
-		value: "",
-		isChecked: false,
-	},
-];
-
-export const emptyRow: ITableData = {
-	isChecked: false,
-	key: "",
-	value: ""
-};
-
-export const InitialAwsAuth: IAwsAuth = {
-	service: "",
-	region: "",
-	accessKey: "",
-	secretAccessKey: "",
-	sessionToken: "",
-};
-
-export const InitialOAuth: IOAuth = {
-	clientAuth: ClientAuth.Body,
-	clientId: "",
-	clientSecret: "",
-	grantType: GrantType.Client_Crd,
-	password: "",
-	scope: "",
-	tokenName: "access_token",
-	tokenUrl: "",
-	username: "",
-	advancedOpt: {
-		audience: "",
-		resource: ""
-	}
-};
-
-export const InitialAuth: IAuth = {
-	authType: "noauth",
-	userName: "",
-	password: "",
-	addTo: "queryparams",
-	showPwd: false,
-	tokenPrefix: "Bearer",
-	aws: InitialAwsAuth,
-	oauth: InitialOAuth
-};
-
-export const InitialBinaryData: IBinaryFileData = {
-	fileName: "",
-	data: {},
-	contentTypeOption: "manual"
-};
-
-export const InitialBody: IBodyData = {
-	bodyType: "none",
-	formdata: [{ isChecked: false, key: "", value: "" }],
-	urlencoded: [{ isChecked: false, key: "", value: "" }],
-	raw: { data: "", lang: requestBodyRaw[1].value },
-	binary: InitialBinaryData,
-	graphql: { query: "", variables: "" },
-};
-
-export const InitialTest: ITest[] = [{
-	parameter: "",
-	action: "",
-	expectedValue: ""
-}];
-
-export const InitialSetVar: ISetVar[] = [{
-	parameter: "",
-	key: "",
-	variableName: ""
-}];
-
-export const InitialPreFetch: IPreFetch = {
-	requests: []
-};
+import { InitialAuth, InitialRequestHeaders, InitialBody, InitialTest, InitialSetVar, InitialPreFetch, emptyRow } from '../../../../fetch-client-core/consts/initialValues.consts';
 
 export const InitialState: IRequestModel = {
 	id: uuidv4(),
 	url: "",
 	name: "",
 	createdTime: "",
+	modifiedTime: "",
 	method: "get",
 	params: [{ isChecked: false, key: "", value: "" }],
 	auth: InitialAuth,
@@ -188,6 +85,7 @@ export const RequestReducer: (state?: IRequestModel,
 					url: action.payload.req.url.trim(),
 					name: action.payload.req.name.trim(),
 					createdTime: action.payload.req.createdTime,
+					modifiedTime: action.payload.req.modifiedTime,
 					method: action.payload.req.method,
 					params: action.payload.req.params,
 					auth: action.payload.req.auth,
@@ -410,21 +308,20 @@ function updateURL(url: string, params: ITableData[]): string {
 }
 
 function updateQueryParams(url: string, params: ITableData[]) {
-	let splitURL = url.split("?");
+	const queryIndex = url.indexOf("?");
 	let queryParams: ITableData[] = params.filter(getUnchecked);
 
-	if (splitURL.length > 1) {
-		if (splitURL[1].trim().length > 0) {
-			let searchParams = new URLSearchParams(splitURL[1].trim());
-			for (let p of searchParams) {
-				if (p[0] && p[0].trim()) {
-					let queryParam: ITableData = {
-						isChecked: true,
-						key: p[0] ? p[0].trim() : "",
-						value: p[1] ? p[1].trim() : "",
-					};
-					queryParams.splice(queryParams.length === 0 ? 0 : queryParams.length, 0, queryParam);
-				}
+	if (queryIndex !== -1) {
+		const queryString = url.substring(queryIndex + 1);
+		const searchParams = new URLSearchParams(queryString);
+		for (let p of searchParams) {
+			if (p[0] && p[0].trim()) {
+				let queryParam: ITableData = {
+					isChecked: true,
+					key: p[0] ? p[0].trim() : "",
+					value: p[1] ? p[1].trim() : "",
+				};
+				queryParams.splice(queryParams.length === 0 ? 0 : queryParams.length, 0, queryParam);
 			}
 		}
 	}

@@ -32,3 +32,13 @@
 	display: table-cell;
 		width: 40%;
 }
+
+.cookie-tbl {
+	max-height: 98% !important;
+	overflow-y: auto !important;
+	overflow-x: hidden !important;
+}
+
+.cookie-btn{
+	margin-right: 10px;
+}

@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from "react-redux";
-import { requestTypes, responseTypes } from '../../../../../../../utils/configuration';
-import { IRootState } from "../../../../../../reducer/combineReducer";
-import vscode from '../../../../../Common/vscodeAPI';
-import { Actions } from "../../../../redux";
-import { FileTypes } from './consts';
 import "./style.css";
+import { Actions } from "../../../../redux";
+import { AppDispatch } from '../../../../../../store/appStore';
+import { FileTypes } from '../../../../../../../fetch-client-core/consts/auth.consts';
+import { IRootState } from "../../../../../../reducer/combineReducer";
+import { requestTypes, responseTypes } from '../../../../../../../fetch-client-core/consts/requestTypes.consts';
+import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useState } from 'react';
+import vscode from '../../../../../Common/vscodeAPI';
 
 export const Binary = () => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const { body, headers } = useSelector((state: IRootState) => state.requestData);
 
@@ -23,7 +24,7 @@ export const Binary = () => {
 		};
 
 	useEffect(() => {
-		window.addEventListener("message", (event) => {
+		const handleMessage = (event: MessageEvent) => {
 			if (event.data && event.data.type === responseTypes.selectFileResponse) {
 				const fileName = event.data.path;
 				const fileType = getFileType(fileName);
@@ -38,7 +39,10 @@ export const Binary = () => {
 					}
 				}));
 			}
-		});
+		};
+		window.addEventListener("message", handleMessage);
+
+		return () => window.removeEventListener("message", handleMessage);
 	}, []);
 
 	function getFileType(fileName: string): string {

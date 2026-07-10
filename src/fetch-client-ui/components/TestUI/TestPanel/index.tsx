@@ -1,18 +1,19 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { ReactComponent as BinLogo } from '../../../../../icons/bin.svg';
-import { IRootState } from "../../../reducer/combineReducer";
-import { Autocomplete } from "../../Common/Autocomplete/Autocomplete";
-import { HerdersValues } from "../../Common/Table/types";
-import { TextEditor } from "../../Common/TextEditor/TextEditor";
-import { Actions } from "../../RequestUI/redux";
-import { ITest } from "../../RequestUI/redux/types";
-import { ActionsParametersMapping, TestCaseParameters, TestValueSuggestions } from "./consts";
 import "./style.css";
+import { Actions } from "../../RequestUI/redux";
+import { AppDispatch } from "../../../store/appStore";
+import { Autocomplete } from "../../Common/Autocomplete/Autocomplete";
+import { HerdersValues } from "../../../../fetch-client-core/consts/headers.consts";
+import { IRootState } from "../../../reducer/combineReducer";
+import { ITest } from "../../../../fetch-client-core/types/prefetch.types";
+import { ReactComponent as BinLogo } from '../../../../../icons/bin.svg';
+import { TestCaseParameters, ActionsParametersMapping, TestValueSuggestions } from "../../../../fetch-client-core/consts/test.consts";
+import { TextEditor } from "../../Common/TextEditor/TextEditor";
+import { useDispatch, useSelector } from "react-redux";
+import React from "react";
 
 export const TestPanel = () => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const { tests } = useSelector((state: IRootState) => state.requestData);
 	const { selectedVariable } = useSelector((state: IRootState) => state.variableData);

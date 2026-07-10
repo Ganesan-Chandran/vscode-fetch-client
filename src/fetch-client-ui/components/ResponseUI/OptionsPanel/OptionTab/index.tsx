@@ -1,19 +1,22 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useSelector } from "react-redux";
-import { ReactComponent as CodeLogo } from '../../../../../../icons/code.svg';
-import { requestTypes } from '../../../../../utils/configuration';
-import { IRootState } from "../../../../reducer/combineReducer";
-import { getColFolDotMenu } from '../../../Common/icons';
-import vscode from '../../../Common/vscodeAPI';
-import { curlResponseOptions, responseOptions } from "../../ResponsePanel/consts";
 import "./style.css";
-import { FormatBytes, GetResponseTime } from "./util";
+import { curlResponseOptions, responseOptions } from "../../../../../fetch-client-core/consts/response.consts";
+import { FormatBytes } from "../../../../../fetch-client-core/helpers/common.helper";
+import { getColFolDotMenu } from '../../../Common/icons';
+import { GetResponseTime } from "../../../../../fetch-client-core/helpers/dateTime.helper";
+import { IRootState } from "../../../../reducer/combineReducer";
+import { ReactComponent as CodeLogo } from '../../../../../../icons/code.svg';
+import { requestTypes } from '../../../../../fetch-client-core/consts/requestTypes.consts';
+import { useSelector } from "react-redux";
+import React, { useEffect, useRef, useState } from 'react';
+import vscode from '../../../Common/vscodeAPI';
 
 export const ResponseOptionsTab = (props: any) => {
 
 	const { selectedTab, setSelectedTab, isVerticalLayout } = props;
 
 	const { headers, response, testResults, cookies, preFetchResponse } = useSelector((state: IRootState) => state.responseData);
+	const preFetchCount = preFetchResponse?.filter(i => i.reqId)?.length ?? 0;
+	const testCount = testResults?.length ?? 0;
 	const { url } = useSelector((state: IRootState) => state.requestData);
 
 	const [menuShow, setMenuShow] = useState(false);
@@ -98,7 +101,7 @@ export const ResponseOptionsTab = (props: any) => {
 			return false;
 		}
 
-		if (opt === "codetype" && url ) { //&& !response.isError && isJson(response.responseData)) {
+		if (opt === "codetype" && url) { //&& !response.isError && isJson(response.responseData)) {
 			return false;
 		}
 
@@ -106,7 +109,19 @@ export const ResponseOptionsTab = (props: any) => {
 	}
 
 	function getResponseOptions(): { name: string; value: string; }[] {
-		return props.isCurl ? curlResponseOptions : responseOptions;
+		let options = props.isCurl ? curlResponseOptions : responseOptions;
+
+		return options.filter((option) => {
+			if (option.value === "testresults") {
+				return testCount > 0;
+			}
+
+			if (option.value === "prefetchresults") {
+				return preFetchCount > 0;
+			}
+
+			return true;
+		});
 	}
 
 	return (
@@ -149,24 +164,20 @@ export const ResponseOptionsTab = (props: any) => {
 										)
 									</div>
 								) : null}
-								{option.value === "testresults" && response.responseData ? (
+								{option.value === "testresults" && (
 									<div className="header-count">
-										(
-										{
-											testResults?.length
-										}
+										({
+											testCount}
 										)
 									</div>
-								) : null}
-								{option.value === "prefetchresults" && response.responseData ? (
+								)}
+								{option.value === "prefetchresults" && (
 									<div className="header-count">
 										(
-										{
-											preFetchResponse?.filter(i => i.reqId)?.length
-										}
+										{preFetchCount}
 										)
 									</div>
-								) : null}
+								)}
 							</div>
 						</button>
 					))}

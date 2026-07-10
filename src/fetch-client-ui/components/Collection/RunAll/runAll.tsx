@@ -1,15 +1,16 @@
-import React, { useEffect, useRef, useState } from "react";
-import { requestTypes, responseTypes } from "../../../../utils/configuration";
-import vscode from "../../Common/vscodeAPI";
-import { IRequestModel } from "../../RequestUI/redux/types";
-import { GetResponseTime } from "../../ResponseUI/OptionsPanel/OptionTab/util";
-import { IReponseModel } from "../../ResponseUI/redux/types";
-import { ISettings, IVariable } from "../../SideBar/redux/types";
-import { getMethodClassName } from "../../SideBar/util";
-import { executeTests, setVariable } from "../../TestUI/TestPanel/helper";
 import "../style.css";
+import { executeTests, setVariable } from "../../../../fetch-client-core/helpers/tests.helper";
 import { exportCSV, exportJson } from "./helper";
+import { getMethodClassName } from "../../SideBar/util";
+import { GetResponseTime } from "../../../../fetch-client-core/helpers/dateTime.helper";
+import { IReponseModel } from "../../../../fetch-client-core/types/response.types";
+import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
+import { ISettings, IVariable } from "../../../../fetch-client-core/types/sidebar.types";
+import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
 import { RunAllSettings } from "./runAllSettings";
+import React, { useEffect, useRef, useState } from "react";
+import vscode from "../../Common/vscodeAPI";
+import PanelLayout from "../../Common/Layout/panelLayout";
 
 const RunAll = () => {
 
@@ -100,7 +101,7 @@ const RunAll = () => {
 		setFolderId(folderId?.trim());
 		setColId(colId?.trim());
 
-		window.addEventListener("message", (event) => {
+		const handleMessage = (event: MessageEvent) => {
 			if (event.data && event.data.type === responseTypes.getCollectionsByIdResponse) {
 				setReq((event.data.collections as IRequestModel[]));
 				setItemPaths(event.data.paths);
@@ -128,16 +129,19 @@ const RunAll = () => {
 				setParentSettings(event.data.settings as ISettings);
 				setLoading(false);
 			}
-		});
-
+		};
+		window.addEventListener("message", handleMessage);
 		vscode.postMessage({ type: requestTypes.getVariableItemRequest, data: { id: varId, isGlobal: varId ? false : true } });
 		vscode.postMessage({ type: requestTypes.getCollectionsByIdRequest, data: { colId: colId, folderId: folderId, type: name.trim().includes("\\") ? "fol" : "col" } });
 		setLoading(true);
+
+		return () => window.removeEventListener("message", handleMessage);
 	}, []);
 
 	function setResponse(data: any) {
 		let local = [...refRes.current];
 		let newRes: IReponseModel = {
+			id: refReq.current[refCurIndex.current].id,
 			response: data.response,
 			headers: data.headers,
 			cookies: data.cookies
@@ -393,17 +397,17 @@ const RunAll = () => {
 	}
 
 	function getTestClassName(index: number) {
-		let total = refReq.current[index].tests.length - 1;
+		let total = refReq.current[index]?.tests?.length - 1;
 
 		if (!selectedReq[index]) {
 			return "runall-test-disabled";
 		}
 
-		if (total === 0) {
+		if (!total && total === 0) {
 			return "runall-test-normal";
 		}
 
-		if (res[index]) {
+		if (res[selectedIteration][index]) {
 			let pass = res[selectedIteration][index].testResults?.filter(item => item.result === true).length;
 
 			if (total === pass) {
@@ -416,11 +420,11 @@ const RunAll = () => {
 	}
 
 	function getTestResult(index: number) {
-		let total = refReq.current[index].tests.length - 1;
-		if (total === 0) {
+		let total = refReq.current[index]?.tests?.length - 1;
+		if (!total && total === 0) {
 			return "No Tests";
 		}
-		if (res[index]) {
+		if (res[selectedIteration][index]) {
 			let pass = res[selectedIteration][index].testResults?.filter(item => item.result === true).length;
 			return `${pass} / ${total}`;
 		}
@@ -462,32 +466,6 @@ const RunAll = () => {
 
 	function onSelectedTab(tab: string) {
 		setSelectedTab(tab);
-	}
-
-	function renderHeader() {
-		return (
-			<>
-				<div className="runall-col-name">
-					<span className="addto-label">{sourceColName.includes("\\") ? "Collection \\ Folder :" : "Collection :"}</span>
-					<span className="addto-label">{sourceColName}</span>
-					<span className="addto-label">{"Attached Variable :"}</span>
-					<span className="addto-label">{selectedVariable ? selectedVariable.name : "-"}</span>
-				</div>
-				{getTabRender()}
-			</>
-		);
-	}
-
-	function getTabRender() {
-		return (
-			<div>
-				{["Runner", "Settings"].map((tab) => {
-					return (
-						<button key={tab} className={selectedTab === tab ? "tab-menu selected" : "tab-menu"} onClick={() => onSelectedTab(tab)}>{tab}</button>
-					);
-				})}
-			</div>
-		);
 	}
 
 	function renderBody() {
@@ -662,64 +640,106 @@ const RunAll = () => {
 				</div>
 			</>
 		);
-	}
+	}	
 
-	function renderButton() {
+	function renderHeader() {
 		return (
 			<>
-				{
-					selectedTab === "Runner" ?
-						<div className="runall-btn-panel">
-							<button
-								type="submit"
-								className="submit-button runall-btn"
-								onClick={onSubmitClick}
-								disabled={start || done || isDisabled()}
-							>
-								Run
-							</button>
-							<button
-								type="submit"
-								className="submit-button runall-btn"
-								onClick={onCancelClick}
-								disabled={done || !start || isDisabled()}
-							>
-								Cancel
-							</button>
-							<div id="runall-dropdown" className="runall-dropdown">
-								<button className="submit-button runall-dropbtn" disabled={!done || isDisabled()} >Export</button>
-								{!isDisabled() && done && <div className={start || isDisabled() ? "runall-dropdown-content a-disabled" : "runall-dropdown-content"}>
-									<a onClick={onClickExportJson}>JSON</a>
-									<a onClick={onClickExportCSV}>CSV</a>
-								</div>}
-							</div>
-						</div>
-						:
-						<></>
-				}
+				<div className="runall-col-name">
+					<span className="addto-label">
+						{sourceColName.includes("\\")
+							? "Collection \\ Folder :"
+							: "Collection :"}
+					</span>
+
+					<span className="addto-label">{sourceColName}</span>
+
+					<span className="addto-label">
+						Attached Variable :
+					</span>
+
+					<span className="addto-label">
+						{selectedVariable?.name ?? "-"}
+					</span>
+				</div>
+
+				{renderTabs()}
 			</>
 		);
 	}
 
-	return (
-		<div className="runall-panel">
-			<div className="runall-header">🔁 Run Collection</div>
-			<div className="runall-body center">
-				{renderHeader()}
-				{
-					loading === true ?
-						<>
-							<div id="divSpinner" className="spinner loading"></div>
-							<div className="loading-history-text">{"Loading...."}</div>
-						</>
-						:
-						<>
-							{renderBody()}
-							{renderButton()}
-						</>
-				}
+	function renderTabs() {
+		return (
+			<div>
+				{["Runner", "Settings"].map(tab => (
+					<button
+						key={tab}
+						className={
+							selectedTab === tab
+								? "tab-menu selected"
+								: "tab-menu"
+						}
+						onClick={() => onSelectedTab(tab)}
+					>
+						{tab}
+					</button>
+				))}
 			</div>
-		</div>
+		);
+	}
+
+	function renderFooter() {
+		if (selectedTab !== "Runner") {
+			return null;
+		}
+
+		return (
+			<div className="runall-btn-panel">
+				<button
+					type="button"
+					className="submit-button reorder-btn run-all-button"
+					onClick={onSubmitClick}
+					disabled={start || done || isDisabled()}
+				>
+					Run
+				</button>
+
+				<button
+					type="button"
+					className="submit-button reorder-btn run-all-button"
+					onClick={onCancelClick}
+					disabled={done || !start || isDisabled()}
+				>
+					Cancel
+				</button>
+
+				<div className="runall-dropdown">
+					<button
+						className="submit-button reorder-btn run-all-button"
+						disabled={!done || isDisabled()}
+					>
+						Export
+					</button>
+					{done && !isDisabled() && (
+						<div className="runall-dropdown-content">
+							<a onClick={onClickExportJson}>JSON</a>
+							<a onClick={onClickExportCSV}>CSV</a>
+						</div>
+					)}
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<PanelLayout
+			title="🔁 Run Collection"
+			loading={loading}
+			header={renderHeader()}
+			footer={renderFooter()}
+		>
+			{renderBody()}
+		</PanelLayout>
 	);
 };
 

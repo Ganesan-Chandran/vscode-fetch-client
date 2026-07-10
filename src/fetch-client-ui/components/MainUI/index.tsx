@@ -1,28 +1,36 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from 'react-redux';
-import Split from 'react-split';
-import { v4 as uuidv4 } from 'uuid';
-import { pubSubTypes, requestTypes, responseTypes } from "../../../utils/configuration";
-import { formatDate } from "../../../utils/helper";
-import { IRootState } from '../../reducer/combineReducer';
-import vscode from "../Common/vscodeAPI";
-import { CookiesActions } from "../Cookies/redux";
-import { ICookie } from "../Cookies/redux/types";
-import { OptionsPanel } from "../RequestUI/OptionsPanel";
-import { Actions } from "../RequestUI/redux";
-import { ICollection, IRequestModel } from "../RequestUI/redux/types";
-import { RequestPanel } from "../RequestUI/RequestPanel";
-import { SendRequest } from "../RequestUI/RequestPanel/common";
-import { ResponseActions } from "../ResponseUI/redux";
-import { ReponsePanel } from "../ResponseUI/ResponsePanel";
-import { ISettings, IVariable } from "../SideBar/redux/types";
-import { VariableActions } from "../Variables/redux";
-import { UIActions } from './redux';
 import "./style.css";
+import { Actions } from "../RequestUI/redux";
+import { AppDispatch } from "../../store/appStore";
+import { formatDate } from "../../../fetch-client-core/helpers/dateTime.helper";
+import { IRootState } from '../../reducer/combineReducer';
+import { OptionsPanel } from "../RequestUI/OptionsPanel";
+import { RequestPanel } from "../RequestUI/RequestPanel";
+import { requestTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
+import { UIActions } from './redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useWindowMessages } from "./hooks/useWindowMessages";
+import { v4 as uuidv4 } from 'uuid';
+import { VariableActions } from "../Variables/redux";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Split from 'react-split';
+import vscode from "../Common/vscodeAPI";
+
+function parseDocumentTitle() {
+	const parts = document.title.split("@:@");
+	return {
+		reqId: parts[0],
+		colId: parts[1],
+		varId: parts[2],
+		isRunItem: parts[3],
+		folderId: parts[4],
+	};
+}
 
 const MainUI = () => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
+
+	const ReponsePanel = React.lazy(() => import('../ResponseUI/ResponsePanel'));
 
 	const { open } = useSelector((state: IRootState) => state.uiData);
 	const { loading, response } = useSelector((state: IRootState) => state.responseData);
@@ -32,24 +40,54 @@ const MainUI = () => {
 	const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
 	const reqSettings = useSelector((state: IRootState) => state.reqSettings);
 
-	const refReq = useRef(requestData);
-	const setReq = (data: IRequestModel) => {
-		refReq.current = data;
-	};
+	// Parse title once on mount; document.title does not change during the webview's lifetime
+	const { reqId, colId, varId: titleVarId, isRunItem, folderId } = useMemo(parseDocumentTitle, []);
+
+	// Stable refs so event-handler closures always read the latest Redux values
+	const requestDataRef = useRef(requestData);
+	const selectedVariableRef = useRef(selectedVariable);
+	const parentSettingsRef = useRef(parentSettings);
+	const reqSettingsRef = useRef(reqSettings);
+	const waitForSendRef = useRef(false);
+
+	useEffect(() => { requestDataRef.current = requestData; }, [requestData]);
+	useEffect(() => { selectedVariableRef.current = selectedVariable; }, [selectedVariable]);
+	useEffect(() => { parentSettingsRef.current = parentSettings; }, [parentSettings]);
+	useEffect(() => { reqSettingsRef.current = reqSettings; }, [reqSettings]);
 
 	const [reqClass, setReqClass] = useState("full-height");
 	const [resClass, setResClass] = useState("zero-height");
-
 	const [reqBorderClass, setReqBorderClass] = useState("");
-	const [varId, setVarId] = useState("");
 	const [resBorderClass, setResBorderClass] = useState("no-border");
-
+	const [varId, setVarId] = useState(titleVarId !== "undefined" ? titleVarId : "");
 	const [layout, setLayout] = useState("");
 	const [horiLayout, setHoriLayout] = useState("");
-
-	const [saveVisible, setVisible] = useState(false);
+	const [saveVisible, setSaveVisible] = useState(false);
 	const [loadingApp, setLoadingApp] = useState(true);
-	const [waitForSend, setWaitForSend] = useState(false);
+
+	const onSaved = useCallback(() => setSaveVisible(true), []);
+	const onSetVarId = useCallback((id: string) => setVarId(id), []);
+	const onClearVarId = useCallback(() => setVarId(""), []);
+
+	useWindowMessages(
+		dispatch,
+		colId,
+		{
+			requestData: requestDataRef,
+			selectedVariable: selectedVariableRef,
+			parentSettings: parentSettingsRef,
+			reqSettings: reqSettingsRef,
+			waitForSend: waitForSendRef,
+		},
+		{
+			setLayout,
+			setHoriLayout,
+			setLoadingApp,
+			onSaved,
+			onSetVarId,
+			onClearVarId,
+		}
+	);
 
 	useEffect(() => {
 		if (loading && resClass === "zero-height") {
@@ -64,379 +102,231 @@ const MainUI = () => {
 	}, [response]);
 
 	useEffect(() => {
-		setReq(requestData);
-	}, [requestData]);
-
-	useEffect(() => {
-		if (reqClass === "zero-height") {
-			setReqBorderClass("no-border");
-		} else {
-			setReqBorderClass("");
-		}
-
-		if (resClass === "zero-height") {
-			setResBorderClass("no-border");
-		} else {
-			setResBorderClass("");
-		}
+		setReqBorderClass(reqClass === "zero-height" ? "no-border" : "");
+		setResBorderClass(resClass === "zero-height" ? "no-border" : "");
 	}, [reqClass, resClass]);
 
 	useEffect(() => {
-		if (saveVisible) {
-			setTimeout(() => {
-				setVisible(false);
-			}, 2000);
-		}
+		const timer = saveVisible ? setTimeout(() => setSaveVisible(false), 2000) : undefined;
+		return () => { if (timer !== undefined) { clearTimeout(timer); } };
 	}, [saveVisible]);
 
 	useEffect(() => {
-		window.addEventListener("message", (event) => {
-			if (event.data && event.data.type === responseTypes.apiResponse) {
-				dispatch(ResponseActions.SetResponseCookiesAction(event.data.cookies));
-				dispatch(ResponseActions.SetResponseAction(event.data.response));
-				dispatch(ResponseActions.SetResponseHeadersAction(event.data.headers));
-			} else if (event.data && event.data.type === responseTypes.configResponse) {
-				let config = JSON.parse(event.data.configData);
-				let layoutConfig = config["layout"];
-				setLayout(layoutConfig);
-				let hariLayoutConfig = config["horizontalLayout"];
-				setHoriLayout(hariLayoutConfig);
-				let responseLimit = (config["responseLimit"] as number) * 1048576;
-				dispatch(UIActions.SetLayoutAction(layoutConfig === "Horizontal Split" ? true : false, event.data.theme));
-				dispatch(UIActions.SetResponseLimitAction(responseLimit));
-			} else if (event.data && (event.data.type === responseTypes.openExistingItemResponse || event.data.type === responseTypes.getOpenAndRunItemDataResponse)) {
-				const reqData = event.data.item[0] as IRequestModel;
-				dispatch(Actions.SetRequestAction(reqData));
-				if (reqData.body.bodyType === "binary" && reqData.body.binary.fileName) {
-					vscode.postMessage({ type: requestTypes.readFileRequest, path: reqData.body.binary.fileName });
-				}
-				setLoadingApp(false);
-				if (event.data.type === responseTypes.getOpenAndRunItemDataResponse) {
-					if ((reqData.body.bodyType === "binary" && reqData.body.binary.fileName) || reqData.auth.authType === "inherit") {
-						setWaitForSend(true);
-					} else {
-						SendRequest(dispatch, false, colId, reqData, selectedVariable, parentSettings, reqSettings);
-					}
-				}
-			} else if (event.data && event.data.type === responseTypes.readFileResponse) {
-				dispatch(Actions.SetRequestBinaryDataAction(event.data.fileData));
-				if (waitForSend === true) {
-					setWaitForSend(false);
-					SendRequest(dispatch, false, colId, requestData, selectedVariable, parentSettings, reqSettings);
-				}
-			} else if (event.data && event.data.type === responseTypes.getAllVariableResponse) {
-				dispatch(VariableActions.SetReqAllVariableAction(event.data.variable as IVariable[]));
-				setLoadingApp(false);
-			} else if (event.data && event.data.type === responseTypes.getRunItemDataResponse) {
-				const reqData = event.data.reqData as IRequestModel;
-				dispatch(Actions.SetRequestAction(reqData));
-				if (reqData.body.bodyType === "binary" && reqData.body.binary.fileName) {
-					vscode.postMessage({ type: requestTypes.readFileRequest, path: reqData.body.binary.fileName });
-				}
-				dispatch(ResponseActions.SetResponseAction(event.data.resData.response));
-				dispatch(ResponseActions.SetResponseHeadersAction(event.data.resData.headers));
-				dispatch(ResponseActions.SetResponseCookiesAction(event.data.resData.cookies));
-				setLoadingApp(false);
-			} else if (event.data && event.data.type === responseTypes.saveResponse) {
-				setVisible(true);
-			} else if (event.data && event.data.type === responseTypes.getAllCookiesResponse) {
-				dispatch(CookiesActions.SetAllCookiesAction(event.data.cookies as ICookie[]));
-			} else if (event.data && event.data.type === responseTypes.getParentSettingsResponse) {
-				dispatch(Actions.SetReqParentSettingsAction(event.data.settings as ISettings));
-				if (waitForSend === true) {
-					setWaitForSend(false);
-					SendRequest(dispatch, false, colId, requestData, selectedVariable, event.data.settings as ISettings, reqSettings);
-				}
-			} else if (event.data && event.data.type === pubSubTypes.updateVariables) {
-				vscode.postMessage({ type: requestTypes.getAllVariableRequest });
-			} else if (event.data && event.data.type === pubSubTypes.removeCurrentVariable) {
-				setVarId("");
-			} else if (event.data && event.data.type === pubSubTypes.addCurrentVariable) {
-				setVarId(event.data.data.varId);
-			} else if (event.data && event.data.type === pubSubTypes.themeChanged) {
-				vscode.postMessage({ type: requestTypes.themeRequest });
-			} else if (event.data && event.data.type === responseTypes.themeResponse) {
-				dispatch(UIActions.SetThemeAction(event.data.theme));
-			} else if (event.data && event.data.type === responseTypes.getAllCollectionNameResponse) {
-				let col: ICollection[] = event.data.collectionNames?.map((item: { value: any; name: any; }) => {
-					return {
-						id: item.value,
-						name: item.name
-					};
-				});
-				col.unshift({ id: "", name: "select" });
-				dispatch(Actions.SetCollectionListAction(col));
-			} else if (event.data && event.data.type === responseTypes.preFetchResponse) {
-				dispatch(ResponseActions.SetPreFetchResponseAction(event.data.preFetchResponse));
-			}
-		});
-
 		vscode.postMessage({ type: requestTypes.configRequest });
-
-		let reqId = document.title.split("@:@")[0];
-		let colId = document.title.split("@:@")[1];
-		let varId = document.title.split("@:@")[2];
-		let isRunItem = document.title.split("@:@")[3];
-		let folderId = document.title.split("@:@")[4];
-
 		vscode.postMessage({ type: requestTypes.getAllVariableRequest });
 
 		if (reqId !== "undefined" && isRunItem === "undefined") {
 			vscode.postMessage({ type: requestTypes.openExistingItemRequest, data: reqId });
-		} else if (reqId !== "undefined" && isRunItem !== "undefined" && isRunItem === "OpenAndRun") {
+		} else if (reqId !== "undefined" && isRunItem === "OpenAndRun") {
 			dispatch(UIActions.SetRunItemAction(true));
 			vscode.postMessage({ type: requestTypes.getOpenAndRunItemDataRequest, data: reqId });
 		} else if (isRunItem !== "undefined" && isRunItem !== "OpenAndRun") {
 			dispatch(UIActions.SetRunItemAction(true));
 			vscode.postMessage({ type: requestTypes.getRunItemDataRequest });
+		} else {
+			setLoadingApp(false);
 		}
 
-		vscode.postMessage({ type: requestTypes.getParentSettingsRequest, data: { colId: colId, folderId: folderId } });
+		vscode.postMessage({ type: requestTypes.getParentSettingsRequest, data: { colId, folderId } });
 
 		if (collectionList.length === 0) {
-			setTimeout(vscode.postMessage({ type: requestTypes.getAllCollectionNameRequest, data: "addtocol" }), 1000);
+			setTimeout(() => vscode.postMessage({ type: requestTypes.getAllCollectionNameRequest, data: "addtocol" }), 1000);
 		}
 
-		dispatch(Actions.SetReqColDetailsAction(colId !== "undefined" ? colId : "", folderId !== "undefined" ? folderId : ""));
-
-		if (varId !== "undefined") {
-			setVarId(varId);
-		}
-
-		document.addEventListener("keydown", function (e) {
-			if (e.ctrlKey && (e.key === 'S' || e.key === 's')) {
-				e.preventDefault();
-				if (!refReq.current.url) {
-					return;
-				}
-
-				let reqData = { ...refReq.current };
-				let isNew = false;
-				if (!reqData.name) {
-					reqData.id = uuidv4();
-					reqData.name = reqData.url.trim();
-					reqData.createdTime = formatDate();
-					dispatch(Actions.SetRequestAction(reqData));
-					isNew = true;
-				}
-				vscode.postMessage({ type: requestTypes.saveRequest, data: { reqData: reqData, isNew: isNew, colId: colId === "undefined" ? undefined : colId } });
-			}
-		});
+		dispatch(Actions.SetReqColDetailsAction(
+			colId !== "undefined" ? colId : "",
+			folderId !== "undefined" ? folderId : ""
+		));
 
 		vscode.postMessage({ type: requestTypes.getAllCookiesRequest });
 
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (!(e.ctrlKey && (e.key === "S" || e.key === "s"))) { return; }
+			e.preventDefault();
+			if (!requestDataRef.current.url) { return; }
+
+			let reqData = { ...requestDataRef.current };
+			let isNew = false;
+			if (!reqData.name) {
+				reqData.id = uuidv4();
+				reqData.name = reqData.url.trim();
+				reqData.createdTime = formatDate();
+				dispatch(Actions.SetRequestAction(reqData));
+				isNew = true;
+			}
+			vscode.postMessage({
+				type: requestTypes.saveRequest,
+				data: { reqData, isNew, colId: colId === "undefined" ? undefined : colId },
+			});
+		};
+
+		document.addEventListener("keydown", handleKeyDown);
+		return () => document.removeEventListener("keydown", handleKeyDown);
 	}, []);
 
 	useEffect(() => {
-		if (variables && variables.length > 0) {
-			if (varId) {
-				updateVaribleData(varId);
-			} else {
-				setRequiredGlobalVariable();
-			}
+		if (!variables?.length) { return; }
+		if (varId) {
+			updateVariableData(varId);
+		} else {
+			setRequiredGlobalVariable();
 		}
 	}, [variables, varId]);
 
-	function updateVaribleData(varId: string) {
-		let index = variables.findIndex(item => item.id === varId);
+	useEffect(() => {
+		if (parentSettings?.auth.authType === "apikey") {
+			modifyQueryParam(parentSettings.auth.addTo, parentSettings.auth.userName, parentSettings.auth.password);
+		}
+	}, [parentSettings]);
+
+	function updateVariableData(id: string) {
+		const index = variables.findIndex((item) => item.id === id);
 		if (index !== -1) {
-			setRequiredVariable(index);
+			dispatch(VariableActions.SetReqVariableAction(variables[index]));
 		} else {
 			setRequiredGlobalVariable();
 		}
 	}
 
-	function setRequiredVariable(index: number) {
-		dispatch(VariableActions.SetReqVariableAction(variables[index] as IVariable));
-	}
-
 	function setRequiredGlobalVariable() {
-		let index = variables.findIndex(item => item.name.toUpperCase().trim() === "GLOBAL" && item.isActive === true);
+		const index = variables.findIndex(
+			(item) => item.name.toUpperCase().trim() === "GLOBAL" && item.isActive === true
+		);
 		if (index !== -1) {
-			setRequiredVariable(index);
+			dispatch(VariableActions.SetReqVariableAction(variables[index]));
 			setVarId(variables[index].id);
 		}
 	}
 
-	useEffect(() => {
-		if (parentSettings && parentSettings.auth.authType === "apikey") {
-			modifyQueryParam(parentSettings.auth.addTo, parentSettings.auth.userName, parentSettings.auth.password);
-		}
-	}, [parentSettings]);
-
-	const modifyQueryParam = (section: string, userName: string, password: string) => {
+	function modifyQueryParam(section: string, userName: string, password: string) {
 		if (section === "queryparams") {
-			let localParams = [...requestData.params];
-			let available = localParams.findIndex(item => item.isFixed === true && item.key === userName && item.value === password);
-
-			if (available === -1 && userName) {
-				localParams.unshift({
-					isChecked: true,
-					key: userName,
-					value: password,
-					isFixed: true
-				});
-
+			const localParams = [...requestData.params];
+			const alreadyAdded = localParams.some(
+				(item) => item.isFixed === true && item.key === userName && item.value === password
+			);
+			if (!alreadyAdded && userName) {
+				localParams.unshift({ isChecked: true, key: userName, value: password, isFixed: true });
 				dispatch(Actions.SetRequestParamsAction(localParams));
 			}
-
 		} else {
-			let localHeaders = [...requestData.headers];
-			let available = localHeaders.findIndex(item => item.isFixed === true && item.key === userName && item.value === password);
-
-			if (available === -1 && userName) {
-				localHeaders.unshift({
-					isChecked: true,
-					key: userName,
-					value: password,
-					isFixed: true
-				});
+			const localHeaders = [...requestData.headers];
+			const alreadyAdded = localHeaders.some(
+				(item) => item.isFixed === true && item.key === userName && item.value === password
+			);
+			if (!alreadyAdded && userName) {
+				localHeaders.unshift({ isChecked: true, key: userName, value: password, isFixed: true });
 			}
-
 			dispatch(Actions.SetRequestHeadersAction(localHeaders));
 		}
-	};
+	}
 
 	function setOpenPanel(index: number) {
-		let localData = [...open];
-
 		if (index === 0) {
-			if (open[0] && open[1]) {
+			if (open[0]) {
 				setResFull();
-				localData[index] = !localData[index];
-			}
-
-			if (open[0] && !open[1]) {
-				setResFull();
-				localData = localData.map((item) => !item);
-			}
-
-			if (!open[0] && open[1]) {
+				dispatch(UIActions.SetOpenAction([false, true]));
+			} else if (!open[0] && open[1]) {
 				setBothHalf();
-				localData[index] = !localData[index];
-			}
-
-			if (!open[0] && !open[1]) {
+				dispatch(UIActions.SetOpenAction([true, true]));
+			} else {
 				setReqFull();
-				localData[index] = !localData[index];
+				dispatch(UIActions.SetOpenAction([true, false]));
+			}
+		} else {
+			if (open[1]) {
+				setReqFull();
+				dispatch(UIActions.SetOpenAction([true, false]));
+			} else if (open[0] && !open[1]) {
+				setBothHalf();
+				dispatch(UIActions.SetOpenAction([true, true]));
+			} else {
+				setResFull();
+				dispatch(UIActions.SetOpenAction([false, true]));
 			}
 		}
-
-		if (index === 1) {
-			if (open[0] && open[1]) {
-				setReqFull();
-				localData[index] = !localData[index];
-			}
-
-			if (open[0] && !open[1]) {
-				setBothHalf();
-				localData[index] = !localData[index];
-			}
-
-			if (!open[0] && open[1]) {
-				setReqFull();
-				localData = localData.map((item) => !item);
-			}
-
-			if (!open[0] && !open[1]) {
-				setResFull();
-				localData[index] = !localData[index];
-			}
-		}
-		dispatch(UIActions.SetOpenAction(localData));
 	}
 
 	function setBothHalf() {
 		setReqClass("half-height");
 		setResClass("half-height");
-		let fulScreenButton = document.getElementById("fullscreen-expand-btn");
-		if (fulScreenButton) {
-			fulScreenButton.classList.remove("fullscreen-btn-invisible");
-		}
+		document.getElementById("fullscreen-expand-btn")?.classList.remove("fullscreen-btn-invisible");
 	}
 
 	function setReqFull() {
 		setReqClass("full-height");
 		setResClass("zero-height");
-		let fulScreenButton = document.getElementById("fullscreen-expand-btn");
-		if (fulScreenButton) {
-			fulScreenButton.classList.add("fullscreen-btn-invisible");
-		}
+		document.getElementById("fullscreen-expand-btn")?.classList.add("fullscreen-btn-invisible");
 	}
 
 	function setResFull() {
 		setReqClass("zero-height");
 		setResClass("full-height");
-		let fulScreenButton = document.getElementById("fullscreen-expand-btn");
-		if (fulScreenButton) {
-			fulScreenButton.classList.remove("fullscreen-btn-invisible");
-		}
+		document.getElementById("fullscreen-expand-btn")?.classList.remove("fullscreen-btn-invisible");
 	}
 
 	return (
 		<>
-			{
-				loadingApp ?
-					<>
-						<div id="divSpinner" className="spinner loading"></div>
-						<div className="loading-history-text">{"Loading...."}</div>
-					</>
-					:
-					<>
-						{
-							layout === "Horizontal Split" ?
-								horiLayout === "Split Style" ?
-									<Split className="split split-horizontal" gutterSize={2} direction="vertical" cursor="ns-resize" minSize={60}>
-										<div>
-											<RequestPanel />
-											<div className={saveVisible ? "save-text save-visible save-text-horizontal" : "save-text save-invisible"}>Saved Successfully</div>
-											<OptionsPanel />
-										</div>
-										<div>
-											<ReponsePanel isVerticalLayout={false} isCurl={false} />
-										</div>
-									</Split>
-									:
-									<>
-										<section id="req-section" className={"accordion " + reqClass}>
-											<input type="checkbox" name="collapse" id="handle1" onChange={() => { setOpenPanel(0); }} checked={open[0]} />
-											<h2 className="handle">
-												<label className="accordion-title" htmlFor="handle1">
-													Request
-												</label>
-											</h2>
-											<div className={reqBorderClass + " content"}>
-												<RequestPanel />
-												<div className={saveVisible ? "save-text save-visible save-text-horizontal" : "save-text save-invisible"}>Saved Successfully</div>
-												<OptionsPanel />
-											</div>
-										</section>
-										<section id="res-section" className={"accordion " + resClass}>
-											<input type="checkbox" name="collapse" id="handle3" onChange={() => { setOpenPanel(1); }} checked={open[1]} />
-											<h2 className="handle">
-												<label className="accordion-title" htmlFor="handle3">
-													Response
-												</label>
-											</h2>
-											<div className={resBorderClass + " content"}>
-												<ReponsePanel isVerticalLayout={false} isCurl={false} />
-											</div>
-										</section>
-									</>
-								:
-								<Split className="split split-vertical" gutterSize={1} cursor="ew-resize" minSize={230} >
-									<div>
+			{loadingApp ? (
+				<>
+					<div id="divSpinner" className="spinner loading"></div>
+					<div className="loading-history-text">{"Loading...."}</div>
+				</>
+			) : (
+				<>
+					{layout === "Horizontal Split" ? (
+						horiLayout === "Split Style" ? (
+							<Split className="split split-horizontal" gutterSize={2} direction="vertical" cursor="ns-resize" minSize={60}>
+								<div>
+									<RequestPanel />
+									<div className={saveVisible ? "save-text save-visible save-text-horizontal" : "save-text save-invisible"}>Saved Successfully</div>
+									<OptionsPanel />
+								</div>
+								<div>
+									<React.Suspense fallback={<div>loading...</div>}><ReponsePanel isVerticalLayout={false} isCurl={false} /></React.Suspense>
+								</div>
+							</Split>
+						) : (
+							<>
+								<section id="req-section" className={"accordion " + reqClass}>
+									<input type="checkbox" name="collapse" id="handle1" onChange={() => { setOpenPanel(0); }} checked={open[0]} />
+									<h2 className="handle">
+										<label className="accordion-title" htmlFor="handle1">
+											Request
+										</label>
+									</h2>
+									<div className={reqBorderClass + " content"}>
 										<RequestPanel />
-										<div className={saveVisible ? "save-text save-visible" : "save-text save-invisible"}>Saved Successfully</div>
+										<div className={saveVisible ? "save-text save-visible save-text-horizontal" : "save-text save-invisible"}>Saved Successfully</div>
 										<OptionsPanel />
 									</div>
-									<div>
-										<ReponsePanel isVerticalLayout={true} isCurl={false} />
+								</section>
+								<section id="res-section" className={"accordion " + resClass}>
+									<input type="checkbox" name="collapse" id="handle3" onChange={() => { setOpenPanel(1); }} checked={open[1]} />
+									<h2 className="handle">
+										<label className="accordion-title" htmlFor="handle3">
+											Response
+										</label>
+									</h2>
+									<div className={resBorderClass + " content"}>
+										<React.Suspense fallback={<div>loading...</div>}><ReponsePanel isVerticalLayout={false} isCurl={false} /></React.Suspense>
 									</div>
-								</Split>
-						}
-					</>
-			}
+								</section>
+							</>
+						)
+					) : (
+						<Split className="split split-vertical" gutterSize={1} cursor="ew-resize" minSize={230}>
+							<div>
+								<RequestPanel />
+								<div className={saveVisible ? "save-text save-visible" : "save-text save-invisible"}>Saved Successfully</div>
+								<OptionsPanel />
+							</div>
+							<div>
+								<React.Suspense fallback={<div>loading...</div>}><ReponsePanel isVerticalLayout={true} isCurl={false} /></React.Suspense>
+							</div>
+						</Split>
+					)}
+				</>
+			)}
 		</>
 	);
 };

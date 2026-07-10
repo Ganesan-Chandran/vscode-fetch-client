@@ -1,13 +1,14 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { IRootState } from "../../../../../../reducer/combineReducer";
-import { MonacoEditor } from "../../../../../Common/Editor";
-import { Actions } from "../../../../redux";
 import "./style.css";
+import { Actions } from "../../../../redux";
+import { AppDispatch } from "../../../../../../store/appStore";
+import { IRootState } from "../../../../../../reducer/combineReducer";
+import { AceEditor } from "../../../../../Common/Editor";
+import { useDispatch, useSelector } from "react-redux";
+import React from "react";
 
-export const GraphQL = () => {
+export const GraphQL = (props: { format: boolean }) => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 	const { body } = useSelector((state: IRootState) => state.requestData);
 	const { horizontalLayout } = useSelector((state: IRootState) => state.uiData);
 
@@ -31,24 +32,24 @@ export const GraphQL = () => {
 		<div className={horizontalLayout ? "graphql-panel graphql-horizontal-panel" : "graphql-panel"}>
 			<div className={horizontalLayout ? "graphql-horizontal-query-panel graphql-query-panel" : "graphql-vertical-query-panel graphql-query-panel"}>
 				<span className="graphql-query-head">Query</span>
-				<MonacoEditor
+				<AceEditor
 					value={body.graphql.query ?? ""}
 					language="graphql"
 					readOnly={false}
 					copyButtonVisible={false}
-					format={false}
+					format={props.format}
 					onContentChange={onQueryContentChange}
 					className="graphql-editor"
 				/>
 			</div>
 			<div className={horizontalLayout ? "graphql-horizontal-variable-panel graphql-variable-panel" : "graphql-vertical-variable-panel graphql-variable-panel"}>
 				<span className="graphql-variable-head">Variables</span>
-				<MonacoEditor
+				<AceEditor
 					value={body.graphql.variables ?? ""}
-					language="graphql"
+					language="json"
 					readOnly={false}
 					copyButtonVisible={false}
-					format={false}
+					format={props.format}
 					onContentChange={onVariablesContentChange}
 					className="graphql-editor"
 				/>

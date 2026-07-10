@@ -1,23 +1,25 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { requestTypes, responseTypes } from "../../../../utils/configuration";
-import { IRootState } from "../../../reducer/combineReducer";
-import vscode from "../../Common/vscodeAPI";
+import "../style.css";
+import { Actions } from "../../RequestUI/redux";
+import { AppDispatch } from "../../../store/appStore";
 import { AuthPanel } from "../../RequestUI/OptionsPanel/Options/Auth";
-import { allAuthTypes, basicAuthTypes } from "../../RequestUI/OptionsPanel/Options/Auth/consts";
+import { basicAuthTypes, allAuthTypes } from "../../../../fetch-client-core/consts/auth.consts";
+import { ICollection } from "../../../../fetch-client-core/types/prefetch.types";
+import { InitialSettings } from "../../../../fetch-client-core/consts/initialValues.consts";
+import { IResponse } from "../../../../fetch-client-core/types/response.types";
+import { IRootState } from "../../../reducer/combineReducer";
+import { IVariable, ISettings } from "../../../../fetch-client-core/types/sidebar.types";
 import { ParentHeadersPanel } from "../../RequestUI/OptionsPanel/Options/Headers/parentHeaders";
 import { PreFetch } from "../../RequestUI/OptionsPanel/Options/PreFetch";
-import { Actions } from "../../RequestUI/redux";
-import { ICollection } from "../../RequestUI/redux/types";
-import { IResponse } from "../../ResponseUI/redux/types";
-import { InitialSettings } from "../../SideBar/redux/reducer";
-import { ISettings, IVariable } from "../../SideBar/redux/types";
-import { SettingsType } from "../consts";
-import "../style.css";
+import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
+import { SettingsType } from "../../../../fetch-client-core/consts/common.consts";
+import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
+import vscode from "../../Common/vscodeAPI";
+import PanelLayout from "../../Common/Layout/panelLayout";
 
 const CollectionSettings = () => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const { auth, preFetch, headers } = useSelector((state: IRootState) => state.requestData);
 
@@ -32,7 +34,7 @@ const CollectionSettings = () => {
 	const [variableItem, setVariableItem] = useState<IVariable>(null);
 
 	useEffect(() => {
-		window.addEventListener("message", (event) => {
+		const handleMessage = (event: MessageEvent) => {
 			if (event.data && event.data.type === responseTypes.getColSettingsResponse) {
 				let settings: ISettings;
 				if (event.data && event.data.data.settings) {
@@ -68,7 +70,8 @@ const CollectionSettings = () => {
 				col.unshift({ id: "", name: "select" });
 				dispatch(Actions.SetCollectionListAction(col));
 			}
-		});
+		};
+		window.addEventListener("message", handleMessage);
 
 		let splitData = document.title.split("@:@");
 		const type = splitData[1];
@@ -84,6 +87,8 @@ const CollectionSettings = () => {
 		vscode.postMessage({ type: requestTypes.getVariableItemRequest, data: { id: varId, isGlobal: (varId !== "undefined" && varId !== undefined && varId !== "") ? false : true } });
 		vscode.postMessage({ type: requestTypes.getColSettingsRequest, data: { colId: colId, folderId: folderId } });
 		vscode.postMessage({ type: requestTypes.getAllCollectionNameRequest, data: "addtocol" });
+
+		return () => window.removeEventListener("message", handleMessage);
 	}, []);
 
 	useEffect(() => {
@@ -96,25 +101,25 @@ const CollectionSettings = () => {
 		setSelectedTab(tab);
 	}
 
-	function getBody() {
-		return (
-			<div className="col-settings-body">
-				{selectedTab === "Authorization" && variableItem && <AuthPanel settingsMode={true} authTypes={type === SettingsType.Collection ? basicAuthTypes : allAuthTypes} selectedVariable={variableItem} />}
-				{selectedTab === "PreRequest" && <PreFetch settingsMode={true} />}
-				{selectedTab === "Headers" && variableItem && <ParentHeadersPanel selectedVariable={variableItem} />}
-			</div>
-		);
-	}
+	// function getBody() {
+	// 	return (
+	// 		<div className="col-settings-body">
+	// 			{selectedTab === "Authorization" && variableItem && <AuthPanel settingsMode={true} authTypes={type === SettingsType.Collection ? basicAuthTypes : allAuthTypes} selectedVariable={variableItem} />}
+	// 			{selectedTab === "PreRequest" && <PreFetch settingsMode={true} />}
+	// 			{selectedTab === "Headers" && variableItem && <ParentHeadersPanel selectedVariable={variableItem} />}
+	// 		</div>
+	// 	);
+	// }
 
-	function getTabRender() {
-		return (
-			tabOptions.map((tab) => {
-				return (
-					<button key={tab} className={selectedTab === tab ? "sidebar-tab-menu sidebar-tab-menu-settings selected" : "sidebar-tab-menu sidebar-tab-menu-settings"} onClick={() => onSelectedTab(tab)}>{tab}</button>
-				);
-			})
-		);
-	}
+	// function getTabRender() {
+	// 	return (
+	// 		tabOptions.map((tab) => {
+	// 			return (
+	// 				<button key={tab} className={selectedTab === tab ? "sidebar-tab-menu sidebar-tab-menu-settings selected" : "sidebar-tab-menu sidebar-tab-menu-settings"} onClick={() => onSelectedTab(tab)}>{tab}</button>
+	// 			);
+	// 		})
+	// 	);
+	// }
 
 	function onSubmitClick() {
 		let settings: ISettings = {
@@ -126,44 +131,98 @@ const CollectionSettings = () => {
 		vscode.postMessage({ type: requestTypes.saveColSettingsRequest, data: { colId: colId, folderId: folderId, settings: settings } });
 	}
 
-	return (
-		<div className="col-settings-panel">
-			<div className="col-settings-header">⚙️ {type} Settings</div>
+	function renderHeader() {
+		return (
 			<div className="col-settings-name-panel">
 				<span className="addto-title-label">{type} :</span>
 				<span className="addto-title-label">{name}</span>
 			</div>
+		);
+	}
+
+	function renderTabs() {
+		return (
 			<div className="col-settings-panel-tabs">
-				{
-					getTabRender()
-				}
-			</div>
-			{
-				loading ?
-					<>
-						<div id="divSpinner" className="spinner loading"></div>
-						<div className="loading-history-text">{"Loading...."}</div>
-					</>
-					:
-					<div className="sidebar-panel-body">
-						{
-							getBody()
+				{tabOptions.map((tab) => (
+					<button
+						key={tab}
+						className={
+							selectedTab === tab
+								? "sidebar-tab-menu sidebar-tab-menu-settings selected"
+								: "sidebar-tab-menu sidebar-tab-menu-settings"
 						}
-						<div className="button-panel">
-							<button
-								type="submit"
-								className="submit-button"
-								onClick={onSubmitClick}
-							>
-								Submit
-							</button>
-						</div>
-						<div className="message-panel">
-							{isDone && (<span className="success-message">Settings are updated successfully</span>)}
-						</div>
+						onClick={() => onSelectedTab(tab)}
+					>
+						{tab}
+					</button>
+				))}
+			</div>
+		);
+	}
+
+	function renderBody() {
+		return (
+			<div className="sidebar-panel-body">
+				{renderTabs()}
+
+				<div className="col-settings-body">
+					{selectedTab === "Authorization" && variableItem && (
+						<AuthPanel
+							settingsMode={true}
+							authTypes={
+								type === SettingsType.Collection
+									? basicAuthTypes
+									: allAuthTypes
+							}
+							selectedVariable={variableItem}
+						/>
+					)}
+
+					{selectedTab === "PreRequest" && (
+						<PreFetch settingsMode={true} />
+					)}
+
+					{selectedTab === "Headers" && variableItem && (
+						<ParentHeadersPanel
+							selectedVariable={variableItem}
+						/>
+					)}
+				</div>
+			</div>
+		);
+	}
+
+	function renderFooter() {
+		return (
+			<>
+				{isDone && (
+					<div className="reorder-status reorder-status--ok">
+						Settings updated successfully.
 					</div>
-			}
-		</div>
+				)}
+
+				<div className="reorder-btn-panel">
+					<button
+						type="button"
+						className="submit-button reorder-btn"
+						onClick={onSubmitClick}
+					>
+						Save Settings
+					</button>
+				</div>
+			</>
+		);
+	}
+
+	return (
+		<PanelLayout
+			title={`⚙️ ${type} Settings`}
+			loading={loading}
+			header={renderHeader()}
+			footer={renderFooter()}
+		>
+			{renderBody()}
+		</PanelLayout>
 	);
 };
 

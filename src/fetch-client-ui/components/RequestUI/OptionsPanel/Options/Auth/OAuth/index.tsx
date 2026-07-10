@@ -1,19 +1,21 @@
-import React, { useEffect } from "react";
+import "./style.css";
+import { Actions } from "../../../../redux";
+import { AppDispatch } from "../../../../../../store/appStore";
+import { formatDate } from "../../../../../../../fetch-client-core/helpers/dateTime.helper";
+import { grantTypeOpt, clientAuthOpt } from "../../../../../../../fetch-client-core/consts/auth.consts";
+import { IAuth, GrantType, ClientAuth } from "../../../../../../../fetch-client-core/types/auth.types";
+import { InitialRequestHeaders, InitialBody, InitialTest, InitialSetVar, InitialPreFetch } from "../../../../../../../fetch-client-core/consts/initialValues.consts";
+import { IRequestModel } from "../../../../../../../fetch-client-core/types/request.types";
+import { IResponse } from "../../../../../../../fetch-client-core/types/response.types";
+import { IRootState } from "../../../../../../reducer/combineReducer";
+import { ITableData } from "../../../../../../../fetch-client-core/types/common.types";
+import { IVariable } from "../../../../../../../fetch-client-core/types/sidebar.types";
+import { requestTypes, responseTypes } from "../../../../../../../fetch-client-core/consts/requestTypes.consts";
+import { TextEditor } from "../../../../../Common/TextEditor/TextEditor";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
-import { requestTypes, responseTypes } from "../../../../../../../utils/configuration";
-import { formatDate } from "../../../../../../../utils/helper";
-import { IRootState } from "../../../../../../reducer/combineReducer";
-import { ITableData } from "../../../../../Common/Table/types";
-import { TextEditor } from "../../../../../Common/TextEditor/TextEditor";
+import React, { useEffect } from "react";
 import vscode from "../../../../../Common/vscodeAPI";
-import { IResponse } from "../../../../../ResponseUI/redux/types";
-import { IVariable } from "../../../../../SideBar/redux/types";
-import { Actions } from "../../../../redux";
-import { InitialBody, InitialPreFetch, InitialRequestHeaders, InitialSetVar, InitialTest } from "../../../../redux/reducer";
-import { ClientAuth, GrantType, IAuth, IRequestModel } from "../../../../redux/types";
-import { clientAuthOpt, grantTypeOpt } from "../consts";
-import "./style.css";
 
 export interface IOAuthProps {
 	inherit: boolean;
@@ -24,7 +26,7 @@ export interface IOAuthProps {
 
 export const OAuth = (props: IOAuthProps) => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const auth = props.settingAuth ? props.settingAuth : useSelector((state: IRootState) => state.requestData.auth);
 	const { selectedVariable } = useSelector((state: IRootState) => state.variableData);
@@ -75,6 +77,7 @@ export const OAuth = (props: IOAuthProps) => {
 			url: auth.oauth.tokenUrl,
 			name: "tokenGen",
 			createdTime: formatDate(),
+			modifiedTime: formatDate(),
 			method: "post",
 			params: [{ isChecked: false, key: "", value: "" }],
 			auth: {
@@ -128,7 +131,7 @@ export const OAuth = (props: IOAuthProps) => {
 	}
 
 	useEffect(() => {
-		window.addEventListener("message", (event) => {
+		const handleMessage = (event: MessageEvent) => {
 			if (event.data && event.data.type === responseTypes.tokenResponse) {
 				let tokenResponse: IResponse = event.data.response as IResponse;
 				if (!tokenResponse.isError && tokenResponse.status === 200) {
@@ -137,7 +140,10 @@ export const OAuth = (props: IOAuthProps) => {
 					dispatch(Actions.SetOAuthTokenAction(responseData[tokenName] ? responseData[tokenName] : ""));
 				}
 			}
-		});
+		};
+		window.addEventListener("message", handleMessage);
+
+		return () => window.removeEventListener("message", handleMessage);
 	}, []);
 
 	return (
@@ -149,6 +155,7 @@ export const OAuth = (props: IOAuthProps) => {
 						varWords={props.envVar}
 						value={auth.password}
 						focus={false}
+						disabled={true}
 					/>
 				}
 

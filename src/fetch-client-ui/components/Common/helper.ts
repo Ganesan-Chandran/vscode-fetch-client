@@ -1,4 +1,4 @@
-import { ITableData } from "./Table/types";
+import { ITableData } from "../../../fetch-client-core/types/common.types";
 
 export const notesMaxLimit = 2500;
 

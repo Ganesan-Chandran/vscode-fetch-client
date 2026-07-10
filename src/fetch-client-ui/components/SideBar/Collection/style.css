@@ -1,10 +1,10 @@
 summary {
-	word-break  : break-all;
-	padding     : 5px;
-	cursor      : pointer;
-	position    : relative;
+	word-break: break-all;
+	padding: 5px;
+	cursor: pointer;
+	position: relative;
 	padding-left: 15px;
-	font-size   : 14px;
+	font-size: 14px;
 }
 
 summary::-webkit-details-marker {
@@ -12,14 +12,14 @@ summary::-webkit-details-marker {
 }
 
 summary:before {
-	position        : absolute;
-	top             : 50%;
-	transform       : translateY(-50%);
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
 	background-color: transparent;
-	color           : var(--text-color);
-	display         : inline-flex;
-	flex-shrink     : 0;
-	left            : 0.75rem;
+	color: var(--text-color);
+	display: inline-flex;
+	flex-shrink: 0;
+	left: 0.75rem;
 }
 
 summary:hover {
@@ -36,9 +36,9 @@ details[open] summary {
 }
 
 .collection-items {
-	padding-right : 0 !important;
-	min-width     : 220px;
-	padding-top   : 8px;
+	padding-right: 0 !important;
+	min-width: 220px;
+	padding-top: 8px;
 	padding-bottom: 9px;
 }
 
@@ -48,25 +48,25 @@ details[open] summary {
 
 .divider {
 	border-top: 0.3pt solid var(--border-color);
-	margin    : 1px 12px 1px 12px;
-	opacity   : .6;
+	margin: 1px 12px 1px 12px;
+	opacity: .6;
 }
 
 details.folder-details-items>summary {
-	list-style      : none;
-	padding-left    : var(--pl);
+	list-style: none;
+	padding-left: var(--pl);
 	background-color: transparent !important;
 }
 
 details.folder-details-items>summary:before {
-	content     : "🗀";
+	content: "📁";
 	padding-left: var(--b-pl);
-	color       : var(--text-color);
+	color: var(--text-color);
 }
 
 details[open].folder-details-items>summary:before {
-	content: "🗁";
-	color  : var(--text-color);
+	content: "📂";
+	color: var(--text-color);
 }
 
 details.folder-details-items>summary:hover {
@@ -74,39 +74,39 @@ details.folder-details-items>summary:hover {
 }
 
 .add-req-button {
-	color       : currentColor;
-	fill        : currentColor;
-	transform   : scale(0.70);
-	color       : currentColor;
+	color: currentColor;
+	fill: currentColor;
+	transform: scale(0.70);
+	color: currentColor;
 	margin-right: 5px;
-	padding     : 0 3px 0 3px;
-	filter      : contrast(0.50);
+	padding: 0 3px 0 3px;
+	filter: contrast(0.50);
 }
 
 .add-req-button:hover {
 	background-color: var(--list-hover-background-color) !important;
-	border-radius   : 3px;
-	filter          : none;
+	border-radius: 3px;
+	filter: none;
 }
 
 .col-fol-title {
-	width  : 70%;
+	width: 70%;
 	display: inline-flex;
 }
 
 .col-fol-icon-panel {
 	margin-left: 2px;
-	text-align : right;
+	text-align: right;
 }
 
 .col-fol-icon {
 	transform: scale(0.75);
-	padding  : 0 3px 0 3px;
+	padding: 0 3px 0 3px;
 }
 
 .col-fol-icon:hover {
 	background-color: var(--list-hover-background-color);
-	border-radius   : 3px;
+	border-radius: 3px;
 }
 
 details,
@@ -124,28 +124,49 @@ summary:focus-within {
 
 .sub-menu {
 	display: none;
+	position: absolute;
+}
+
+.sub-menu.tools-sub-menu {
+	width: 130px !important;
+	left: -120px;
+}
+
+.sub-menu.new-sub-menu {
+	width: 90px !important;
+	left: -88px;
 }
 
 .parent-menu:hover .sub-menu {
 	display: block;
-	left   : -88px;
-	width  : 90px !important;
-	top    : 0;
+	top: 0;
 }
 
 .parent-menu {
-	padding         : 5px 10px;
-	text-decoration : none;
-	cursor          : pointer;
+	position: relative;
+	padding: 5px 10px;
+	text-decoration: none;
+	cursor: pointer;
 	background-color: var(--background-color);
-	color           : var(--text-color);
-	outline         : none;
-	border          : 3px solid transparent;
-	border-radius   : 0;
-	text-align      : left;
+	color: var(--text-color);
+	outline: none;
+	border: 3px solid transparent;
+	border-radius: 0;
+	text-align: left;
 }
 
 .parent-menu:hover {
 	background-color: var(--button-hover-color);
-	color           : var(--button-text-color);
+	color: var(--button-text-color);
+}
+
+.col-menu-submenu-arrow {
+	float: right;
+	margin-left: 8px;
+	font-size: 16px;
+	line-height: 1;
+}
+
+.parent-menu:hover .col-menu-submenu-arrow {
+	opacity: 1;
 }

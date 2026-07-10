@@ -1,119 +1,189 @@
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
-import React, { useEffect, useRef, useState } from "react";
-import { EditorProps } from ".";
 import "./style.css";
+import { EditorProps } from ".";
+import { syncAceWithVSCodeTheme } from "./themeHelper";
+import * as prettier from "prettier/standalone";
+import * as prettierGraphqlNS from "prettier/plugins/graphql";
+import AceEditor from "react-ace";
+import prettierBabel from "prettier/plugins/babel";
+import prettierEstree from "prettier/plugins/estree";
+import prettierHtml from "prettier/plugins/html";
+import prettierTypescript from "prettier/plugins/typescript";
+import React, { useEffect, useRef, useState } from "react";
+import xmlFormatter from "xml-formatter";
+
+import "ace-builds/src-noconflict/ext-language_tools";
+import "ace-builds/src-noconflict/ext-searchbox";
+import "ace-builds/src-noconflict/mode-c_cpp";
+import "ace-builds/src-noconflict/mode-csharp";
+import "ace-builds/src-noconflict/mode-dart";
+import "ace-builds/src-noconflict/mode-golang";
+import "ace-builds/src-noconflict/mode-graphqlschema";
+import "ace-builds/src-noconflict/mode-graphqlschema";
+import "ace-builds/src-noconflict/mode-html";
+import "ace-builds/src-noconflict/mode-java";
+import "ace-builds/src-noconflict/mode-javascript";
+import "ace-builds/src-noconflict/mode-json";
+import "ace-builds/src-noconflict/mode-kotlin";
+import "ace-builds/src-noconflict/mode-php";
+import "ace-builds/src-noconflict/mode-python";
+import "ace-builds/src-noconflict/mode-rdoc";
+import "ace-builds/src-noconflict/mode-ruby";
+import "ace-builds/src-noconflict/mode-sh";
+import "ace-builds/src-noconflict/mode-swift";
+import "ace-builds/src-noconflict/mode-text";
+import "ace-builds/src-noconflict/mode-typescript";
+import "ace-builds/src-noconflict/mode-xml";
+import "ace-builds/src-noconflict/theme-github_dark";
+import "ace-builds/src-noconflict/theme-github";
+import "ace-builds/src-noconflict/theme-tomorrow_night";
+
+const prettierGraphql = (prettierGraphqlNS as any).default ?? prettierGraphqlNS;
+const languageToAceMode: Record<string, string> = {
+	cpp: "c_cpp",
+	csharp: "csharp",
+	dart: "dart",
+	go: "golang",
+	java: "java",
+	javascript: "javascript",
+	json: "json",
+	kotlin: "kotlin",
+	ruby: "ruby",
+	typescript: "typescript",
+	html: "html",
+	xml: "xml",
+	php: "php",
+	python: "python",
+	shell: "sh",
+	swift: "swift",
+	graphql: "graphqlschema",
+	restructuredtext: "rdoc",
+};
+
+function themeFromCode(theme?: number): string {
+	if (theme === 2) { return "tomorrow_night"; } // vs-dark
+	if (theme === 3) { return "github_dark"; }    // hc-black
+	return "github";                          // vs (light)
+}
+
+async function formatValue(value: string, language: string): Promise<string> {
+	try {
+		switch (language) {
+			case "json": {
+				const parsed = JSON.parse(value);
+				return JSON.stringify(parsed, null, 2);
+			}
+			case "javascript":
+				return await prettier.format(value, {
+					parser: "babel",
+					plugins: [prettierBabel, prettierEstree],
+				});
+			case "typescript":
+				return await prettier.format(value, {
+					parser: "typescript",
+					plugins: [prettierTypescript, prettierEstree],
+				});
+			case "html":
+				return await prettier.format(value, {
+					parser: "html",
+					plugins: [prettierHtml],
+				});
+			case "graphql":
+				return await prettier.format(value, {
+					parser: "graphql",
+					plugins: [prettierGraphql],
+				});
+			case "xml": {
+				return formatXml(value);
+			}
+			default:
+				return value;
+		}
+	} catch {
+		return value;
+	}
+}
+
+function formatXml(xml: string): string {
+	const formatted = xmlFormatter(xml, {
+		indentation: "  ",
+		lineSeparator: "\n",
+		collapseContent: true,
+	});
+
+	return formatted;
+}
 
 const EditorProvider = (props: EditorProps) => {
-
-	const editorElement = useRef<HTMLDivElement>(null);
-
+	const editorRef = useRef<AceEditor | null>(null);
 	const [copyText, setCopyText] = useState("Copy");
-	const [monacoEditor, setMonacoEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
+	const [value, setValue] = useState(props.value || "");
 
 	function onCopyClick() {
-		navigator.clipboard.writeText(props.value)
-			.then(() => {
-				setCopyText("Copied");
-				setTimeout(() => setCopyText("Copy"), 1000);
-			});
+		navigator.clipboard.writeText(value).then(() => {
+			setCopyText("Copied");
+			setTimeout(() => setCopyText("Copy"), 1000);
+		});
 	}
 
 	useEffect(() => {
-		if (editorElement.current) {
-			const tmpEditor = monaco.editor.create(editorElement.current, {
-				minimap: { enabled: false },
-				scrollBeyondLastLine: false,
-				theme: props.theme === 1 ? 'vs' : (props.theme === 2 ? "vs-dark" : "hc-black"),
-				value: props.value,
-				language: props.language,
-				readOnly: props.readOnly,
-				automaticLayout: true,
-				formatOnType: true,
-				formatOnPaste: true,
-				renderLineHighlight: "none",
-				quickSuggestions: false,
-				wordBasedSuggestions: false,
-				scrollbar: {
-					verticalScrollbarSize: 10,
-					horizontalScrollbarSize: 10
-				},
-				wordWrap: "off"
-			});
+		let cancelled = false;
 
-			window.addEventListener("resize", () => {
-				tmpEditor.layout();
-			});
-
-			tmpEditor.onDidChangeModelContent(() => {
-				props.onContentChange && props.onContentChange(tmpEditor.getValue());
-			});
-
-			if (props.value) {
-				formatContent(tmpEditor);
-			}
-
-			setMonacoEditor(tmpEditor);
-
-			return () => {
-				monacoEditor && monacoEditor.dispose();
-			};
-		} else {
-			return null;
-		}
-	}, []);
-
-	useEffect(() => {
-		if (monacoEditor) {
-			const model = monacoEditor.getModel();
-			if (model) {
-				monaco.editor.setModelLanguage(model, props.language);
-				formatContent(monacoEditor);
-			}
-		}
-	}, [props.language, props.format, props.value]);
-
-	useEffect(() => {
-		if (monacoEditor) {
-			if (props.wordWrap) {
-				monacoEditor.updateOptions({ wordWrap: "on" });
+		async function run() {
+			if (props.format && props.value) {
+				const formatted = await formatValue(props.value, props.language);
+				if (!cancelled) {
+					setValue(formatted);
+				}
 			} else {
-				monacoEditor.updateOptions({ wordWrap: "off" });
+				setValue(props.value || "");
 			}
 		}
-	}, [props.wordWrap]);
+
+		run();
+
+		return () => {
+			cancelled = true;
+		};
+	}, [props.value, props.language, props.format]);
 
 	useEffect(() => {
-		if (monacoEditor) {
-			if (props.readOnly) {
-				monacoEditor.setValue(props.value);
-			}
-		}
-	}, [props.value]);
+		syncAceWithVSCodeTheme();
+	}, [props.theme]);
 
-	const formatContent = (monacoEditor: monaco.editor.IStandaloneCodeEditor) => {
-		if (props.format) {
-			monacoEditor.updateOptions({ readOnly: false });
-			setTimeout(() => {
-				monacoEditor
-					.getAction("editor.action.formatDocument")
-					.run()
-					.then(() => {
-						monacoEditor.updateOptions({ readOnly: props.readOnly });
-					});
-			}, 250);
-		}
-	};
+	function handleChange(newValue: string) {
+		setValue(newValue);
+		props.onContentChange && props.onContentChange(newValue);
+	}
+
+	const aceMode = languageToAceMode[props.language] || "text";
+	const aceTheme = themeFromCode(props.theme);
 
 	return (
-		<div className={"editor" + " " + props.className} ref={editorElement}>
+		<div className={"editor" + " " + (props.className || "")}>
 			{props.copyButtonVisible && (
-				<button
-					onClick={onCopyClick}
-					className="copy-button"
-				>
+				<button onClick={onCopyClick} className="copy-button">
 					{copyText}
 				</button>
 			)}
+			<AceEditor
+				ref={editorRef}
+				mode={aceMode}
+				theme={aceTheme}
+				value={value}
+				onChange={handleChange}
+				readOnly={props.readOnly}
+				wrapEnabled={!props.wordWrap}
+				width="100%"
+				height="100%"
+				fontSize={14}
+				showPrintMargin={false}
+				setOptions={{
+					useWorker: false,
+					showLineNumbers: true,
+					tabSize: 2,
+					highlightActiveLine: false,
+				}}
+			/>
 		</div>
 	);
 };

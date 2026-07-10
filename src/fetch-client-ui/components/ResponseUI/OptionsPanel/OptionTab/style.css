@@ -32,7 +32,7 @@
 }
 
 .code-snippet-icon path {
-	fill: var(--text-color);
+	fill: var(--text-color) !important;
 }
 
 .res-menu {
@@ -43,11 +43,11 @@
 }
 
 .res-menu path {
-	fill: var(--text-color);
+	fill: var(--text-color) !important ;
 }
 
 .code-snippet-icon-clicked path {
-	fill: var(--button-background-color);
+	fill: var(--button-background-color) !important;
 }
 
 .save-to-file-button:disabled,
@@ -68,7 +68,7 @@
 }
 
 .code-snippet-icon-disabled path {
-	fill: #666;
+	fill: #666 !important;
 }
 
 .res-drop-down-menu {

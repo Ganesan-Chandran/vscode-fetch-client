@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from "react";
+import "./style.css";
+import { AppDispatch } from "../../store/appStore";
+import { formatDate } from "../../../fetch-client-core/helpers/dateTime.helper";
+import { HandleColSelectionValidation } from "./helper";
+import { ICollections, IFolder, IHistory } from "../../../fetch-client-core/types/sidebar.types";
+import { InitialSettings } from "../../../fetch-client-core/consts/initialValues.consts";
+import { ReponsePanel } from "../ResponseUI/ResponsePanel";
+import { requestTypes, responseTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
+import { ResponseActions } from "../ResponseUI/redux";
 import { useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
-import { requestTypes, responseTypes } from "../../../utils/configuration";
-import { formatDate } from "../../../utils/helper";
+import React, { useEffect, useState } from "react";
 import vscode from "../Common/vscodeAPI";
-import { ResponseActions } from "../ResponseUI/redux";
-import { ReponsePanel } from "../ResponseUI/ResponsePanel";
-import { InitialSettings } from "../SideBar/redux/reducer";
-import { ICollections, IFolder, IHistory } from "../SideBar/redux/types";
-import { HandleColSelectionValidation } from "./helper";
-import "./style.css";
 
 const CurlUI = () => {
 
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
 	const [curl, setCurl] = useState("");
 	const [curlOption, setCurlOption] = useState("import");
@@ -92,7 +93,8 @@ const CurlUI = () => {
 				method: "",
 				name: "",
 				url: "",
-				createdTime: formatDate()
+				createdTime: formatDate(),
+				modifiedTime: formatDate(),
 			};
 
 			if (selectedFolder) {
@@ -100,6 +102,7 @@ const CurlUI = () => {
 					id: selectedFolder === "0" ? uuidv4() : selectedFolder,
 					name: selectedFolder === "0" ? folderName : "",
 					createdTime: formatDate(),
+					modifiedTime: formatDate(),
 					type: "folder",
 					data: [history],
 					settings: InitialSettings
@@ -109,6 +112,7 @@ const CurlUI = () => {
 			let collection: ICollections = {
 				id: selectedCollection === "0" ? uuidv4() : selectedCollection,
 				createdTime: formatDate(),
+				modifiedTime: formatDate(),
 				name: selectedCollection === "0" ? colName : "",
 				data: folder ? [folder] : [history],
 				variableId: "",

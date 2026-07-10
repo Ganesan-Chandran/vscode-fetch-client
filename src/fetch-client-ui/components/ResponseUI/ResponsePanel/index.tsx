@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import "./style.css";
 import { IRootState } from '../../../reducer/combineReducer';
-import TypesGenerator from '../..//Common/TypesGenerator';
 import { NotesEditor } from '../../Common/NotesEditor';
-import { TestResult } from '../../TestUI/TestResult';
+import { PreFetchResponse } from '../OptionsPanel/Options/PreFetchResponse';
 import { ResponseCookies } from "../OptionsPanel/Options/Cookies";
 import { ResponseHeaders } from "../OptionsPanel/Options/Headers";
-import { PreFetchResponse } from '../OptionsPanel/Options/PreFetchResponse';
-import { ResponseSection } from "../OptionsPanel/Options/Response";
 import { ResponseOptionsTab } from "../OptionsPanel/OptionTab";
-import "./style.css";
+import { ResponseSection } from '../OptionsPanel/Options/Response';
+import { TestResult } from '../../TestUI/TestResult';
+import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import TypesGenerator from '../..//Common/TypesGenerator';
 
 export interface ResponsePanelProps {
 	isVerticalLayout: boolean;
@@ -66,3 +66,5 @@ export const ReponsePanel = (props: ResponsePanelProps) => {
 		</div>
 	);
 };
+
+export default ReponsePanel;
