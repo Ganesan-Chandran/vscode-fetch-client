@@ -1,4 +1,4 @@
-import { ActionsParametersMapping } from "../../../consts/test.consts";
+import { ActionsParametersMapping } from "../../../../consts/test.consts";
 import {
 	Auth,
 	BodyEntity,
@@ -9,33 +9,33 @@ import {
 	Settings,
 	TestsEntity,
 	ThunderClient_Schema_1_2,
-} from "../../../types/thunderClient_1_2_types";
-import { formatDate } from "../../dateTime.helper";
-import { IAuth, ClientAuth, GrantType } from "../../../types/auth.types";
+} from "../../../../types/thunderClient_1_2_types";
+import { formatDate } from "../../../dateTime.helper";
+import { IAuth, ClientAuth, GrantType } from "../../../../types/auth.types";
 import {
 	IBodyData,
 	IRequestModel,
 	MethodType,
-} from "../../../types/request.types";
+} from "../../../../types/request.types";
 import {
 	IFolder,
 	ISettings,
 	ICollections,
 	IHistory,
-} from "../../../types/sidebar.types";
+} from "../../../../types/sidebar.types";
 import {
 	InitialRequestHeaders,
 	InitialAuth,
 	InitialBody,
 	InitialPreFetch,
 	InitialSettings,
-} from "../../../consts/initialValues.consts";
-import { deepClone, isFolder } from "../../common.helper";
-import { isJson } from "../../tests.helper";
-import { ITableData } from "../../../types/common.types";
-import { ITest, ISetVar } from "../../../types/prefetch.types";
+} from "../../../../consts/initialValues.consts";
+import { deepClone, isFolder } from "../../../common.helper";
+import { isJson } from "../../../tests.helper";
+import { ITableData } from "../../../../types/common.types";
+import { ITest, ISetVar } from "../../../../types/prefetch.types";
 import { v4 as uuidv4 } from "uuid";
-import { writeLog } from "../../logger/logger";
+import { writeLog } from "../../../logger/logger";
 import { XMLValidator } from "fast-xml-parser";
 
 // ---------------------------------------------------------------------------

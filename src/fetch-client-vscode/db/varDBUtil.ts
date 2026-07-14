@@ -13,13 +13,6 @@ import {
 	pubSubTypes,
 	responseTypes,
 } from "../../fetch-client-core/consts/requestTypes.consts";
-import { RemoveVariable } from "./collectionDBUtil";
-import { ThunderClientVariableSchema_1_2 } from "../../fetch-client-core/types/thunderClient_1_2.variable_types";
-import { v4 as uuidv4 } from "uuid";
-import { VariableImportType } from "../../fetch-client-core/consts/import.consts";
-import { writeLog } from "../../fetch-client-core/helpers/logger/logger";
-import * as vscode from "vscode";
-import fs from "fs";
 import {
 	Var_Repository_Insert,
 	Var_Repository_InsertDuplicate,
@@ -37,6 +30,16 @@ import {
 	Var_Repository_FindByIdRaw,
 	Var_Repository_InsertRaw,
 } from "../../fetch-client-core/db/variableDB.repository";
+import { RemoveVariable } from "./collectionDBUtil";
+import { ThunderClientVariableSchema_1_2 } from "../../fetch-client-core/types/thunderClient_1_2.variable_types";
+import { v4 as uuidv4 } from "uuid";
+import { VariableImportType } from "../../fetch-client-core/consts/import.consts";
+import { writeLog } from "../../fetch-client-core/helpers/logger/logger";
+import * as vscode from "vscode";
+import fs from "fs";
+import { ImportFCVariable } from "../../fetch-client-core/helpers/importers/variables/fetchClient/fcVariableImporter";
+import { ImportPostmanVariables } from "../../fetch-client-core/helpers/importers/variables/postman/postmanVariableImporter";
+import { ImporTCVariable } from "../../fetch-client-core/helpers/importers/variables/thunderClient/tcVariableImporter";
 
 export async function SaveVariable(
 	item: IVariable,
@@ -276,9 +279,9 @@ export async function BulkExportVariables(
 					if (error) {
 						vscode.window.showErrorMessage(
 							"Could not save to '" +
-								path +
-								"'. Error Message : " +
-								error.message,
+							path +
+							"'. Error Message : " +
+							error.message,
 							{ modal: true },
 						);
 						writeLog("error::BulkExport()::FileWrite()" + error.message);
@@ -306,9 +309,9 @@ export async function ExportVariable(
 				if (error) {
 					vscode.window.showErrorMessage(
 						"Could not save to '" +
-							path +
-							"'. Error Message : " +
-							error.message,
+						path +
+						"'. Error Message : " +
+						error.message,
 						{ modal: true },
 					);
 					writeLog("error::ExportVariable()::FileWrite()" + error.message);
@@ -371,7 +374,7 @@ function ValidateData(data: string): VariableImportType | null {
 			);
 			writeLog(
 				"error::ImportVariable::ValidateData() " +
-					"Error Message : Could not import the variable - Empty Data.",
+				"Error Message : Could not import the variable - Empty Data.",
 			);
 			return null;
 		}
@@ -414,8 +417,8 @@ function ValidateData(data: string): VariableImportType | null {
 		);
 		writeLog(
 			"error::ImportVariable::ValidateData() " +
-				"Error Message : Could not import the variable - " +
-				err,
+			"Error Message : Could not import the variable - " +
+			err,
 		);
 		return null;
 	}
@@ -459,81 +462,12 @@ function ImportFetchClientVariable(
 	data: string,
 	decryptKey: string,
 ) {
-	const parsedData = JSON.parse(data);
-	let secretVariables = parsedData.secretVariables;
-	let encryptVariableConfiguration = getVariableEncryptionConfiguration();
-	let reqData: IVariable = {
-		id: uuidv4(),
-		createdTime: formatDate(),
-		modifiedTime: formatDate(),
-		name: parsedData.name,
-		isActive: parsedData.isActive,
-		data: parsedData.data,
-	};
-
-	let fcCryptoEncrypt: FCCipher;
-
-	if (encryptVariableConfiguration) {
-		let key = getVariableEncryptionKey();
-		fcCryptoEncrypt = new FCCipher(key);
-	}
-
-	reqData.data.forEach((item) => {
-		if (secretVariables) {
-			let fcCryptoDecrypt = new FCCipher(decryptKey);
-			item.value = fcCryptoDecrypt.DecryptData(item.value);
-		}
-		if (encryptVariableConfiguration) {
-			item.value = fcCryptoEncrypt.EncryptData(item.value);
-		}
-	});
-
-	ImportVariable(webviewView, reqData);
+	const variable = ImportFCVariable(data, decryptKey);
+	ImportVariable(webviewView, variable);
 }
 
 function ImportPostmanVariable(webviewView: vscode.WebviewView, data: string) {
-	const parsedData = JSON.parse(data) as PostmanVariableSchema_2_1;
-	let varData: ITableData[] = [];
-
-	if (
-		!parsedData?._postman_exported_using?.includes("Postman/") ||
-		!parsedData?._postman_variable_scope?.includes("environment")
-	) {
-		writeLog(
-			"error::ImportPostmanVariable(): - Error Mesaage : Could not import the variable - Invalid data.",
-		);
-		throw new Error("Could not import the variable - Invalid data.");
-	}
-
-	let encryptVariableConfiguration = getVariableEncryptionConfiguration();
-	let fcCrypto: FCCipher;
-
-	if (encryptVariableConfiguration) {
-		let key = getVariableEncryptionKey();
-		fcCrypto = new FCCipher(key);
-	}
-
-	for (let i = 0; i < parsedData.values?.length; i++) {
-		if (parsedData.values[i].key) {
-			varData.push({
-				isChecked: parsedData.values[i].enabled,
-				key: parsedData.values[i].key,
-				value: encryptVariableConfiguration
-					? fcCrypto.EncryptData(parsedData.values[i].value)
-					: parsedData.values[i].value,
-			});
-		}
-	}
-
-	let convertedData: IVariable = {
-		id: uuidv4(),
-		createdTime: formatDate(),
-		modifiedTime: formatDate(),
-		name: parsedData.name,
-		isActive: true,
-		data: varData,
-	};
-
+	const convertedData = ImportPostmanVariables(data);
 	ImportVariable(webviewView, convertedData);
 }
 
@@ -541,36 +475,7 @@ function ImportThunderClientVariable(
 	webviewView: vscode.WebviewView,
 	data: string,
 ) {
-	const parsedData = JSON.parse(data) as ThunderClientVariableSchema_1_2;
-
-	let varData: ITableData[] = [];
-
-	let encryptVariableConfiguration = getVariableEncryptionConfiguration();
-
-	let key = getVariableEncryptionKey();
-	let fcCrypto = new FCCipher(key);
-
-	for (let i = 0; i < parsedData.variables?.length; i++) {
-		if (parsedData.variables[i].name) {
-			varData.push({
-				isChecked: true,
-				key: parsedData.variables[i].name,
-				value: encryptVariableConfiguration
-					? fcCrypto.EncryptData(parsedData.variables[i].value)
-					: parsedData.variables[i].value,
-			});
-		}
-	}
-
-	let convertedData: IVariable = {
-		id: uuidv4(),
-		createdTime: formatDate(),
-		modifiedTime: formatDate(),
-		name: parsedData.environmentName,
-		isActive: true,
-		data: varData,
-	};
-
+	const convertedData = ImporTCVariable(data);
 	ImportVariable(webviewView, convertedData);
 }
 

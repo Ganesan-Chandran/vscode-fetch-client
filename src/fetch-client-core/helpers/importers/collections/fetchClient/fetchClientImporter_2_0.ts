@@ -1,5 +1,5 @@
 import { buildHistoryEntry } from "./utils";
-import { formatDate } from "../../dateTime.helper";
+import { formatDate } from "../../../dateTime.helper";
 import {
 	IAuth,
 	IAwsAuth,
@@ -7,13 +7,13 @@ import {
 	IOAuth,
 	ClientAuth,
 	GrantType,
-} from "../../../types/auth.types";
+} from "../../../../types/auth.types";
 import {
 	ICollections,
 	IFolder,
 	ISettings,
 	IVariable,
-} from "../../../types/sidebar.types";
+} from "../../../../types/sidebar.types";
 import {
 	IExportRequest,
 	IExportFolder,
@@ -27,18 +27,18 @@ import {
 	IExportPreRunRequest,
 	AssertionSource,
 	IFetchClientExportV2,
-} from "../../../types/fetchClient_2_0_types";
+} from "../../../../types/fetchClient_2_0_types";
 import { IImportResult } from "./fetchClientImporter_1_0";
-import { IRequestModel, IBodyData } from "../../../types/request.types";
-import { ITableData } from "../../../types/common.types";
+import { IRequestModel, IBodyData } from "../../../../types/request.types";
+import { ITableData } from "../../../../types/common.types";
 import {
 	ITest,
 	ISetVar,
 	IPreFetch,
 	IRunRequest,
-} from "../../../types/prefetch.types";
+} from "../../../../types/prefetch.types";
 import { v4 as uuidv4 } from "uuid";
-import { writeLog } from "../../logger/logger";
+import { writeLog } from "../../../logger/logger";
 
 /**
  * Returns true when the parsed JSON is a valid Fetch Client v2 export.
@@ -63,6 +63,7 @@ export function isFetchClientV2(
  */
 export function fetchClientV2Importer(
 	parsed: IFetchClientExportV2,
+	preserveIds = false,
 ): IImportResult | null {
 	try {
 		const reqData: IRequestModel[] = [];
@@ -79,10 +80,11 @@ export function fetchClientV2Importer(
 		const idMap = new Map<string, string>(); // old request id → new request id
 		const folderIdMap = new Map<string, string>(); // old folder id → new folder id
 		for (const item of parsed.items) {
+			const id = preserveIds ? item.id : uuidv4();
 			if (item.type === "request") {
-				idMap.set(item.id, uuidv4());
+				idMap.set(item.id, id);
 			} else {
-				folderIdMap.set(item.id, uuidv4());
+				folderIdMap.set(item.id, id);
 			}
 		}
 
@@ -105,7 +107,7 @@ export function fetchClientV2Importer(
 			.filter((item) => item.parentId === undefined)
 			.sort((a, b) => a.order - b.order);
 
-		const newCollectionId = uuidv4();
+		const newCollectionId = preserveIds ? parsed.metadata.id ?? uuidv4() : uuidv4();
 
 		const colData: ICollections = {
 			id: newCollectionId,
@@ -154,7 +156,7 @@ export function fetchClientV2Importer(
 		let variable: IVariable;
 
 		if (parsed.variables) {
-			const newVariableId = uuidv4();
+			const newVariableId = preserveIds ? parsed.variables.id : uuidv4();
 			variable = {
 				id: newVariableId,
 				name: parsed.variables.name,
@@ -180,8 +182,7 @@ export function fetchClientV2Importer(
 		};
 	} catch (err) {
 		writeLog(
-			`error::fetchClientV2Importer() - ${
-				err instanceof Error ? err.message : String(err)
+			`error::fetchClientV2Importer() - ${err instanceof Error ? err.message : String(err)
 			}`,
 		);
 		return null;
@@ -566,19 +567,19 @@ function mapPreRunRequests(
 		.map((r) => {
 			const condition: ITest[] = r.condition
 				? (() => {
-						const { parameter, customParameter } = resolveParameter(
-							r.condition.source,
-							r.condition.path,
-						);
-						return [
-							{
-								parameter,
-								action: r.condition.action,
-								expectedValue: r.condition.expectedValue,
-								...(customParameter !== undefined && { customParameter }),
-							},
-						];
-					})()
+					const { parameter, customParameter } = resolveParameter(
+						r.condition.source,
+						r.condition.path,
+					);
+					return [
+						{
+							parameter,
+							action: r.condition.action,
+							expectedValue: r.condition.expectedValue,
+							...(customParameter !== undefined && { customParameter }),
+						},
+					];
+				})()
 				: [{ parameter: "", action: "", expectedValue: "" }];
 
 			return {

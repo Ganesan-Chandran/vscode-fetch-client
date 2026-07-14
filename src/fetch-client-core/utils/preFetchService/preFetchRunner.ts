@@ -1,24 +1,13 @@
-import { apiFetch, FetchConfig } from "./fetchUtil";
-import {
-	Col_Repository_GetParentSettings,
-	Col_Repository_GetVariableByColId,
-} from "../db/collectionDB.repository";
-import { executeTests, setVariable } from "../helpers/tests.helper";
-import {
-	getVariableEncryptionConfiguration,
-	getVariableEncryptionKey,
-} from "./vscodeConfig";
-import { InitialResponse } from "../consts/initialValues.consts";
-import { IPreFetch, IRunRequest } from "../types/prefetch.types";
-import { IPreFetchResponse, IReponseModel } from "../types/response.types";
-import { IRequestModel } from "../types/request.types";
-import { IVariable, ISettings } from "../types/sidebar.types";
-import { Main_Repository_GetRequestItem } from "../db/mainDB.repository";
-import {
-	Var_Repository_GetVariableByIdSync,
-	Var_Repository_UpdateVariableSync,
-} from "../db/variableDB.repository";
-import { writeLog } from "../helpers/logger/logger";
+import { apiFetch, FetchConfig } from "../fetchUtil";
+import { executeTests } from "../../helpers/tests.helper";
+import { getVariableEncryptionConfiguration, getVariableEncryptionKey, } from "../vscodeConfig";
+import { InitialResponse } from "../../consts/initialValues.consts";
+import { IPreFetch, IRunRequest } from "../../types/prefetch.types";
+import { IPreFetchContextProvider, RequestContext } from "./preFetch.types.ts";
+import { IPreFetchResponse, IReponseModel } from "../../types/response.types";
+import { IRequestModel } from "../../types/request.types";
+import { IVariable } from "../../types/sidebar.types";
+import { writeLog } from "../../helpers/logger/logger";
 
 function createEmptyPreFetchResponse(): IPreFetchResponse {
 	return {
@@ -28,12 +17,6 @@ function createEmptyPreFetchResponse(): IPreFetchResponse {
 		testResults: [],
 		childrenResponse: [],
 	};
-}
-
-interface RequestContext {
-	request: IRequestModel;
-	variable: IVariable | undefined;
-	parentSettings: ISettings;
 }
 
 export class PreFetchRunner {
@@ -55,7 +38,7 @@ export class PreFetchRunner {
 		return this._message;
 	}
 
-	constructor(fetchConfig: FetchConfig, reqId: string) {
+	constructor(fetchConfig: FetchConfig, reqId: string, private readonly contextProvider: IPreFetchContextProvider) {
 		this.fetchConfig = fetchConfig;
 		this.executingRequests = [reqId];
 		this.response = {
@@ -150,13 +133,12 @@ export class PreFetchRunner {
 				return;
 			}
 
-			const context = await this.loadRequestContext(
-				filteredRequests[i],
-				parentName,
-			);
+			const context = await this.loadRequestContext(filteredRequests[i], parentName);
+
 			if (!context) {
 				return;
 			}
+
 			if (!this._allow) {
 				continue;
 			}
@@ -225,7 +207,12 @@ export class PreFetchRunner {
 			this.response.cookies = res.cookies;
 
 			previousRequest = request;
-			updatedVariable = await this.updateVariable(request, variable);
+			updatedVariable = await this.contextProvider.updateVariable(
+				request,
+				variable,
+				this.response,
+				this._encryptionKey,
+			);
 		}
 	};
 
@@ -233,52 +220,18 @@ export class PreFetchRunner {
 		runRequest: IRunRequest,
 		parentName: string,
 	): Promise<RequestContext | undefined> => {
-		const { reqId, parentId, colId } = runRequest;
 		try {
-			const varId = await Col_Repository_GetVariableByColId(colId);
-			const variable = await Var_Repository_GetVariableByIdSync(
-				varId,
+			const context = await this.contextProvider.loadRequestContext(
+				runRequest,
+				parentName,
 				this._encryptionKey,
 			);
-			const parentSettings =
-				parentId === colId
-					? await Col_Repository_GetParentSettings(colId, "")
-					: await Col_Repository_GetParentSettings(colId, parentId);
-			const request = await Main_Repository_GetRequestItem(reqId);
-
-			if (!request) {
-				return undefined;
-			}
-
-			return { request, variable, parentSettings };
+			return context;
 		} catch (err) {
 			writeLog(`error::PreFetchRunner::loadRequestContext: ${err}`);
 			this._allow = false;
 			this._message = `Failed to load Pre-Request data for '${parentName}'`;
 			return undefined;
 		}
-	};
-
-	private updateVariable = async (
-		request: IRequestModel,
-		variable: IVariable | undefined,
-	): Promise<IVariable | undefined> => {
-		if (
-			this.response.response.status !== 0 &&
-			this.response.response.status <= 399 &&
-			request.setvar.length > 1 &&
-			variable?.id
-		) {
-			try {
-				const updated = setVariable(variable, request.setvar, this.response);
-				return await Var_Repository_UpdateVariableSync(
-					updated,
-					this._encryptionKey,
-				);
-			} catch (err) {
-				writeLog(`error::PreFetchRunner::updateVariable: ${err}`);
-			}
-		}
-		return variable;
 	};
 }

@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
-import { Event, Items } from "../../../types/postman_2_1.types";
-import { IRunRequest, ITest, ISetVar } from "../../../types/prefetch.types";
+import { Event, Items } from "../../../../types/postman_2_1.types";
+import { IRunRequest, ITest, ISetVar } from "../../../../types/prefetch.types";
 
 const EMPTY_TEST: ITest = { parameter: "", action: "", expectedValue: "" };
 const EMPTY_SET_VAR: ISetVar = { parameter: "", key: "", variableName: "" };

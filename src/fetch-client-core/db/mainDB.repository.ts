@@ -1,12 +1,11 @@
-import { CheckOpenApiFormat } from "../helpers/importers/openapi/v3/utils";
 import { createAutoDBCache } from "./dbManager";
 import { ExportBuilderV2 } from "../helpers/exporters/fetchClient/fetchClientExporter_2_0";
 import { FetchClientDataProxy } from "../helpers/validators/fetchClientCollectionValidator";
-import { fetchClientImporter } from "../helpers/importers/fetchClient/fetchClientImporter_1_0";
+import { fetchClientImporter } from "../helpers/importers/collections/fetchClient/fetchClientImporter_1_0";
 import {
 	fetchClientV2Importer,
 	isFetchClientV2,
-} from "../helpers/importers/fetchClient/fetchClientImporter_2_0";
+} from "../helpers/importers/collections/fetchClient/fetchClientImporter_2_0";
 import { formatDate } from "../helpers/dateTime.helper";
 import { getCollectionDB, saveCollectionDB } from "./collectionDB.repository";
 import { getExportCollectionConfiguration } from "../utils/vscodeConfig";
@@ -19,19 +18,18 @@ import {
 	INSOMNIA_EXPORT_FORMAT_5,
 	InsomniaExport,
 } from "../types/insomnia.types";
-import { insomniaImporter } from "../helpers/importers/insomnia/insomniaImporter";
+import { insomniaImporter } from "../helpers/importers/collections/insomnia/insomniaImporter";
 import { IRequestModel } from "../types/request.types";
 import { isFolder } from "../helpers/common.helper";
 import { isJson } from "../helpers/tests.helper";
 import { mainDBPath } from "./dbHelper";
-import { openApiImporter } from "../helpers/importers/openapi/v3/openApiImporter";
-import { postmanImporter } from "../helpers/importers/postman/postmanImporter_2_1";
+import { postmanImporter } from "../helpers/importers/collections/postman/postmanImporter_2_1";
 import {
 	PostmanSchema_2_1,
 	POSTMAN_SCHEMA_V2_1,
 } from "../types/postman_2_1.types";
 import { ThunderClient_Schema_1_2 } from "../types/thunderClient_1_2_types";
-import { thunderClientImporter } from "../helpers/importers/thunderClient/thunderClientImporter_1_2";
+import { thunderClientImporter } from "../helpers/importers/collections/thunderClient/thunderClientImporter_1_2";
 import {
 	Var_Repository_FindById,
 	Var_Repository_Insert,
@@ -39,6 +37,8 @@ import {
 import { writeLog } from "../helpers/logger/logger";
 import loki, { Collection } from "lokijs";
 import { ExportBuilderPostman2_1 } from "../helpers/exporters/postman/postmanExporter_2_1";
+import { CheckOpenApiFormat } from "../helpers/importers/collections/openapi/v3/utils";
+import { openApiImporter } from "../helpers/importers/collections/openapi/v3/openApiImporter";
 
 const {
 	getLoadedDB: getMainDB,

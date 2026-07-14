@@ -14,7 +14,7 @@ import {
 	IVariable,
 	IHistory,
 } from "../../fetch-client-core/types/sidebar.types";
-import { PreFetchRunner } from "../../fetch-client-core/utils/preFetchRunner";
+import { PreFetchRunner } from "../../fetch-client-core/utils/preFetchService/preFetchRunner";
 import {
 	pubSubTypes,
 	responseTypes,
@@ -25,6 +25,7 @@ import { SaveResponse } from "../db/responseDBUtil";
 import { pubSub, sideBarProvider, vsCodeLogger } from "../../extension";
 import { writeLog } from "../../fetch-client-core/helpers/logger/logger";
 import * as vscode from "vscode";
+import { DbPreFetchContextProvider } from "../../fetch-client-core/utils/preFetchService/dbPreFetchContextProvider";
 
 export async function ExecuteAPIRequest(
 	message: any,
@@ -130,7 +131,7 @@ async function runPreRequest(
 	]
 > {
 	let request = message.data.reqData as IRequestModel;
-	let preFetchCollectionRunner = new PreFetchRunner(fetchConfig, request.id);
+	let preFetchCollectionRunner = new PreFetchRunner(fetchConfig, request.id, new DbPreFetchContextProvider());
 	await preFetchCollectionRunner.RunPreRequests(
 		preFetch,
 		0,

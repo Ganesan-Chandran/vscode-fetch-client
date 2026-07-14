@@ -386,6 +386,12 @@ function getSourcePath(mode: DbPathOption): string {
 	return getGlobalStorageUri();
 }
 
+const BACKUP_DIR_SUFFIX = "\\backups\\";
+
+function getBackupDir(): string {
+	return `${getGlobalStorageUri() + BACKUP_DIR_SUFFIX}`;
+}
+
 let isUpdatingEncryptionSetting = false;
 
 function registerEventListeners(context: vscode.ExtensionContext): void {
@@ -512,28 +518,7 @@ function registerEventListeners(context: vscode.ExtensionContext): void {
 			}
 
 			if (e.affectsConfiguration("fetch-client.variableEncryptionKey")) {
-				const oldKey = extCache.get("oldKey");
-
-				try {
-					const newKey = getVariableEncryptionKey();
-					if (!newKey) {
-						updateVariableEncryptionKey(oldKey);
-						return;
-					}
-
-					if (newKey === oldKey) {
-						return;
-					}
-
-					if (getVariableEncryptionFCConfiguration()) {
-						UpdateWithAnotherKey(oldKey, newKey);
-					}
-
-					setVariableEncryptionKey(newKey);
-					extCache.set("oldKey", newKey);
-				} catch (error) {
-					updateVariableEncryptionKey(oldKey);
-				}
+				await handleEncryptedKeyChange();
 			}
 
 			if (e.affectsConfiguration("fetch-client.encryptedVariables")) {
@@ -543,14 +528,43 @@ function registerEventListeners(context: vscode.ExtensionContext): void {
 	);
 }
 
-const BACKUP_DIR_SUFFIX = "\\backups\\";
+async function handleEncryptedKeyChange(): Promise<void> {
+	const oldKey = extCache.get("oldKey");
 
-function getBackupDir(): string {
-	return `${getGlobalStorageUri() + BACKUP_DIR_SUFFIX}`;
+	try {
+		const choice = showConfirmationMessage();
+		if (!choice) {
+			return;
+		}
+
+		const newKey = getVariableEncryptionKey();
+		if (!newKey) {
+			updateVariableEncryptionKey(oldKey);
+			return;
+		}
+
+		if (newKey === oldKey) {
+			return;
+		}
+
+		if (getVariableEncryptionFCConfiguration()) {
+			UpdateWithAnotherKey(oldKey, newKey);
+		}
+
+		setVariableEncryptionKey(newKey);
+		extCache.set("oldKey", newKey);
+	} catch (error) {
+		updateVariableEncryptionKey(oldKey);
+	}
 }
 
 async function handleEncryptedVariablesChange(): Promise<void> {
 	if (isUpdatingEncryptionSetting) {
+		return;
+	}
+
+	const choice = showConfirmationMessage();
+	if (!choice) {
 		return;
 	}
 
@@ -594,4 +608,26 @@ async function handleEncryptedVariablesChange(): Promise<void> {
 		await deactivate();
 		await vscode.commands.executeCommand("workbench.action.reloadWindow");
 	}
+}
+
+async function showConfirmationMessage(): Promise<boolean> {
+	const dbPath = getDbPathConfiguration();
+	if (dbPath !== "Default") {
+		const choice = await vscode.window.showWarningMessage(
+			`Fetch Client: The database path is currently set to the workspace or a custom path. Changing this setting may affect other projects/users. Do you want to continue?`,
+			{ modal: true },
+			"Yes",
+			"No",
+		);
+
+		if (!choice) { // Dialog dismissed - signal caller to revert
+			return false;
+		}
+
+		if (choice === "No") {
+			return false;
+		}
+	}
+
+	return true;
 }

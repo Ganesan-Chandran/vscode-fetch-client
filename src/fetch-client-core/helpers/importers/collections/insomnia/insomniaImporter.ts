@@ -1,20 +1,20 @@
-import { deepClone } from "../../common.helper";
-import { formatDate } from "../../dateTime.helper";
-import { IAuth, GrantType, ClientAuth } from "../../../types/auth.types";
+import { deepClone } from "../../../common.helper";
+import { formatDate } from "../../../dateTime.helper";
+import { IAuth, GrantType, ClientAuth } from "../../../../types/auth.types";
 import {
 	ICollections,
 	IVariable,
 	IHistory,
 	IFolder,
 	ISettings,
-} from "../../../types/sidebar.types";
+} from "../../../../types/sidebar.types";
 import {
 	InitialBody,
 	InitialTest,
 	InitialSetVar,
 	InitialPreFetch,
 	InitialAuth,
-} from "../../../consts/initialValues.consts";
+} from "../../../../consts/initialValues.consts";
 import {
 	InsomniaResource,
 	InsomniaExport,
@@ -28,16 +28,16 @@ import {
 	InsomniaWorkspace,
 	INSOMNIA_EXPORT_FORMAT_4,
 	INSOMNIA_EXPORT_FORMAT_5,
-} from "../../../types/insomnia.types";
+} from "../../../../types/insomnia.types";
 import {
 	IRequestModel,
 	MethodType,
 	IBodyData,
-} from "../../../types/request.types";
-import { isJson } from "../../tests.helper";
-import { ITableData } from "../../../types/common.types";
+} from "../../../../types/request.types";
+import { isJson } from "../../../tests.helper";
+import { ITableData } from "../../../../types/common.types";
 import { v4 as uuidv4 } from "uuid";
-import { writeLog } from "../../logger/logger";
+import { writeLog } from "../../../logger/logger";
 import { XMLValidator } from "fast-xml-parser";
 
 export interface InsomniaImportResult {

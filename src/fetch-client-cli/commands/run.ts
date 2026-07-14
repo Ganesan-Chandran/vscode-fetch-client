@@ -1,22 +1,6 @@
-import { cliConfig } from "../config";
-import { ConvertCurlToRequest } from "../../fetch-client-core/utils/curlToRequest";
-import { executeTests } from "../../fetch-client-core/helpers/tests.helper";
-import { ExportFormat } from "../types/export.types";
 import {
-	FetchConfig,
-	apiFetch,
-	updateVariables,
-} from "../../fetch-client-core/utils/fetchUtil";
-import {
-	findParentSettings,
 	Col_Repository_GetAllCollections,
 } from "../../fetch-client-core/db/collectionDB.repository";
-import { formatDate } from "../../fetch-client-core/helpers/dateTime.helper";
-import {
-	getTimeOutConfiguration,
-	getHeadersConfiguration,
-} from "../../fetch-client-core/utils/vscodeConfig";
-import { History_Repository_InsertHistory } from "../../fetch-client-core/db/history.repository";
 import {
 	IFolder,
 	IHistory,
@@ -25,44 +9,30 @@ import {
 	ISettings,
 } from "../../fetch-client-core/types/sidebar.types";
 import {
-	IPreFetchResponse,
-	IReponseModel,
-	ITestResult,
-} from "../../fetch-client-core/types/response.types";
-import { IRequestModel } from "../../fetch-client-core/types/request.types";
-import { ITableData } from "../../fetch-client-core/types/common.types";
-import {
 	Main_Repository_GetRequestItem,
 	Main_Repository_GetCollectionRequests,
 	Main_Repository_SaveRequest,
 } from "../../fetch-client-core/db/mainDB.repository";
-import { PreFetchRunner } from "../../fetch-client-core/utils/preFetchRunner";
-import {
-	printRunResult,
-	printRunSummary,
-	printSection,
-	red,
-	RunResult,
-} from "../utils/display";
+import { cliConfig } from "../config";
+import { CliPreFetchContextProvider } from "../../fetch-client-core/utils/preFetchService/cliPreFetchContextProvider";
+import { CollectionRunContext, RequestLeaf, RunCollectionFileOptions } from "../types/common.types";
+import { ConvertCurlToRequest } from "../../fetch-client-core/utils/curlToRequest";
+import { DbPreFetchContextProvider } from "../../fetch-client-core/utils/preFetchService/dbPreFetchContextProvider";
+import { executeCollection, executeFolder, executeRequest, executeSingleRequest } from "./helper";
+import { ExportFormat } from "../types/export.types";
+import { fetchClientV2Importer } from "../../fetch-client-core/helpers/importers/collections/fetchClient/fetchClientImporter_2_0";
+import { formatDate } from "../../fetch-client-core/helpers/dateTime.helper";
+import { History_Repository_InsertHistory } from "../../fetch-client-core/db/history.repository";
+import { ImportFCVariable } from "../../fetch-client-core/helpers/importers/variables/fetchClient/fcVariableImporter";
+import { IRequestModel } from "../../fetch-client-core/types/request.types";
+import { printRunResult, printRunSummary, printSection, red, } from "../utils/display";
 import { v4 as uuidv4 } from "uuid";
-import {
-	Var_Repository_FindAll,
-	Var_Repository_FindById,
-	Var_Repository_FindByIdSync,
-} from "../../fetch-client-core/db/variableDB.repository";
+import { Var_Repository_FindAll, Var_Repository_FindById, Var_Repository_FindByIdSync, } from "../../fetch-client-core/db/variableDB.repository";
 import { writeConsoleLog, wrtieConsleError } from "../utils/logger";
-import { writeExportReport } from "../utils/export/report";
+import fs from "fs/promises";
 
 function isFolder(item: any): item is IFolder {
 	return item.data !== undefined;
-}
-
-interface RequestLeaf {
-	id: string;
-	name: string;
-	method: string;
-	url: string;
-	folderId: string;
 }
 
 // --- Tree walkers ------------------------------------------------------------
@@ -154,20 +124,19 @@ async function resolveEffectiveForRun(
 	contextName: string,
 	opts: { varId?: string; varName?: string },
 	key: string,
-): Promise<{ effectiveVarId: string; variableData: ITableData[] }> {
+): Promise<{ effectiveVarId: string; variable: IVariable | null }> {
 	if (linkedVarId) {
 		const varSet = await Var_Repository_FindByIdSync(linkedVarId, key);
 		if (opts.varId || opts.varName) {
 			console.info(
 				red(
-					`Info: '${contextName}' is already linked to variable set '${
-						varSet?.name ?? linkedVarId
+					`Info: '${contextName}' is already linked to variable set '${varSet?.name ?? linkedVarId
 					}'. The --var-id/--var-name option has no effect here.`,
 				),
 			);
 		}
 
-		return { effectiveVarId: linkedVarId, variableData: varSet?.data ?? [] };
+		return { effectiveVarId: linkedVarId, variable: varSet };
 	}
 
 	if (opts.varId) {
@@ -176,7 +145,7 @@ async function resolveEffectiveForRun(
 			wrtieConsleError(`Variable set with id '${opts.varId}' not found.`);
 			process.exit(1);
 		}
-		return { effectiveVarId: opts.varId, variableData: varSet?.data ?? [] };
+		return { effectiveVarId: opts.varId, variable: varSet };
 	}
 
 	if (opts.varName) {
@@ -190,166 +159,14 @@ async function resolveEffectiveForRun(
 		if (globalVars && globalVars.length > 0) {
 			return {
 				effectiveVarId: globalVars[0].id,
-				variableData: globalVars[0]?.data ?? [],
+				variable: globalVars[0],
 			};
 		}
 
-		return { effectiveVarId: found.id, variableData: found?.data ?? [] };
+		return { effectiveVarId: found.id, variable: found };
 	}
 
-	return { effectiveVarId: "", variableData: [] };
-}
-
-function resolveSettings(
-	collection: ICollections,
-	folderId: string,
-): ISettings {
-	if (folderId) {
-		return findParentSettings(collection, folderId) ?? collection.settings;
-	}
-
-	return collection.settings;
-}
-
-// --- Execution helpers -------------------------------------------------------
-
-const DEFAULT_FETCH_CONFIG: FetchConfig = {
-	timeOut: getTimeOutConfiguration(),
-	headersCase: getHeadersConfiguration(),
-};
-
-async function executeRequest(
-	request: IRequestModel,
-	variableData: ITableData[],
-	settings: ISettings,
-	varId?: string,
-	parent?: string,
-	key?: string,
-): Promise<RunResult> {
-	const preFetchResponses: IPreFetchResponse[] = [];
-	let isVariableUpdated = false;
-
-	// Run parent (collection/folder) pre-fetch
-	if (settings.preFetch?.requests?.length > 0) {
-		const runner = new PreFetchRunner(DEFAULT_FETCH_CONFIG, request.id);
-		await runner.RunPreRequests(settings.preFetch, 0, request.name, true);
-		preFetchResponses.push(...runner.preFetchResponses);
-		if (!runner.allow) {
-			return {
-				id: request.id,
-				name: request.name || request.url,
-				method: request.method,
-				url: request.url,
-				parent,
-				status: 0,
-				statusText: "Pre-Request Failed",
-				duration: 0,
-				size: 0,
-				responseData: runner.message,
-				isError: true,
-				testResults: [],
-				preFetchResponses,
-			};
-		}
-		isVariableUpdated = true;
-	}
-
-	// Run request-level pre-fetch
-	if (
-		request.preFetch?.requests?.length > 0 &&
-		request.preFetch.requests[0]?.reqId
-	) {
-		const runner = new PreFetchRunner(DEFAULT_FETCH_CONFIG, request.id);
-		await runner.RunPreRequests(request.preFetch, 0, request.name, false);
-		preFetchResponses.push(...runner.preFetchResponses);
-		if (!runner.allow) {
-			return {
-				id: request.id,
-				name: request.name || request.url,
-				method: request.method,
-				url: request.url,
-				parent,
-				status: 0,
-				statusText: "Pre-Request Failed",
-				duration: 0,
-				size: 0,
-				responseData: runner.message,
-				isError: true,
-				testResults: [],
-				preFetchResponses,
-			};
-		}
-		isVariableUpdated = true;
-	}
-
-	// Reload variables from DB if pre-fetch may have updated them
-	if (isVariableUpdated && varId) {
-		const updated = await Var_Repository_FindByIdSync(varId, key);
-
-		if (updated?.data) {
-			variableData = updated.data;
-		}
-	}
-
-	const raw = await apiFetch(
-		request,
-		variableData,
-		settings,
-		null,
-		DEFAULT_FETCH_CONFIG,
-	);
-
-	const responseModel: IReponseModel = {
-		id: request.id,
-		response: {
-			duration: raw.response.duration,
-			isError: raw.response.isError,
-			responseData: raw.response.responseData,
-			responseType: raw.response.responseType,
-			size: raw.response.size as string,
-			status: raw.response.status,
-			statusText: raw.response.statusText,
-		},
-		headers: raw.headers,
-		cookies: raw.cookies,
-		loading: false,
-		testResults: [],
-	};
-
-	let testResults: ITestResult[] = [];
-
-	if (request.tests && request.tests.length > 0) {
-		testResults = executeTests(request.tests, responseModel, variableData);
-	}
-
-	request = updateVariables(request, variableData);
-
-	return {
-		id: request.id,
-		name: request.name || request.url,
-		method: request.method,
-		url: request.url,
-		parent,
-		status: raw.response.status,
-		statusText: raw.response.statusText,
-		duration: raw.response.duration,
-		size:
-			typeof raw.response.size === "number"
-				? raw.response.size
-				: parseInt(raw.response.size, 10) || 0,
-		responseData: raw.response.responseType?.isBinaryFile
-			? ""
-			: raw.response.isError
-				? String(raw.response.responseData)
-				: typeof raw.response.responseData === "string"
-					? raw.response.responseData
-					: (JSON.stringify(raw.response.responseData) ?? ""),
-		responseType: raw.response.responseType,
-		isError: raw.response.isError,
-		testResults,
-		preFetchResponses:
-			preFetchResponses.length > 0 ? preFetchResponses : undefined,
-	};
+	return { effectiveVarId: "", variable: null };
 }
 
 // --- run --req ---------------------------------------------------------------
@@ -402,38 +219,26 @@ export async function runRequest(opts: {
 		process.exit(1);
 	}
 
-	const { effectiveVarId, variableData } = await resolveEffectiveForRun(
+	const { effectiveVarId, variable } = await resolveEffectiveForRun(
 		collection.variableId,
 		request.name || request.url,
 		opts,
 		cliConfig.encryptionKey,
 	);
 
-	const settings = resolveSettings(collection, folderId);
+	const provider = new DbPreFetchContextProvider();
 
-	printSection(`Running: ${request.name || request.url}`);
-
-	const result = await executeRequest(
-		request,
-		variableData,
-		settings,
-		effectiveVarId,
-		collection.name,
-		cliConfig.encryptionKey,
+	await executeSingleRequest(
+		{
+			request,
+			collection,
+			folderId,
+			variable,
+			effectiveVarId,
+		},
+		opts,
+		provider
 	);
-
-	printRunResult(result);
-	printRunSummary([result]);
-
-	if (opts.exportFormat) {
-		const filePath = await writeExportReport(
-			[result],
-			opts.exportFormat,
-			{ scope: "request", name: request.name || request.url },
-			opts.exportPath,
-		);
-		writeConsoleLog(`Report exported to: ${filePath}`);
-	}
 }
 
 // --- run --col ---------------------------------------------------------------
@@ -447,6 +252,7 @@ export async function runCollection(opts: {
 	exportFormat?: ExportFormat;
 	exportPath?: string;
 }): Promise<void> {
+
 	const all: ICollections[] = await Col_Repository_GetAllCollections();
 
 	let targets: ICollections[] = [];
@@ -480,8 +286,7 @@ export async function runCollection(opts: {
 		process.exit(1);
 	}
 
-	const allResults: RunResult[] = [];
-	let count = 0;
+	const contexts: CollectionRunContext[] = [];
 
 	for (const col of targets) {
 		const leaves: RequestLeaf[] = [];
@@ -492,9 +297,7 @@ export async function runCollection(opts: {
 			continue;
 		}
 
-		printSection(`Collection: ${col.name} (${leaves.length} requests)`);
-
-		const { effectiveVarId, variableData } = await resolveEffectiveForRun(
+		const { effectiveVarId, variable } = await resolveEffectiveForRun(
 			col.variableId,
 			col.name,
 			opts,
@@ -509,49 +312,17 @@ export async function runCollection(opts: {
 			requestModels.map((r) => [r.id, r]),
 		);
 
-		for (const leaf of leaves) {
-			const request = reqMap.get(leaf.id);
-
-			if (!request) {
-				continue;
-			}
-
-			const settings = resolveSettings(col, leaf.folderId);
-
-			const result = await executeRequest(
-				request,
-				variableData,
-				settings,
-				effectiveVarId,
-				col.name,
-				cliConfig.encryptionKey,
-			);
-
-			count++;
-			printSection(`Request ${count}`);
-			printRunResult(result);
-			allResults.push(result);
-		}
+		contexts.push({
+			collection: col,
+			leaves,
+			requestMap: reqMap,
+			variable,
+			effectiveVarId,
+		});
 	}
 
-	printRunSummary(allResults);
-
-	if (opts.exportFormat) {
-		if (allResults.length === 0) {
-			writeConsoleLog("Nothing to export — no requests were run.");
-		} else {
-			const exportName = opts.all
-				? "All-Collections"
-				: (targets[0]?.name ?? "Collection");
-			const filePath = await writeExportReport(
-				allResults,
-				opts.exportFormat,
-				{ scope: "collection", name: exportName },
-				opts.exportPath,
-			);
-			writeConsoleLog(`Report exported to: ${filePath}`);
-		}
-	}
+	const provider = new DbPreFetchContextProvider();
+	await executeCollection(contexts, opts, provider);
 }
 
 // --- run --fol ---------------------------------------------------------------
@@ -635,9 +406,7 @@ export async function runFolder(opts: {
 		return;
 	}
 
-	printSection(`Folder: ${match.folder.name} (${leaves.length} requests)`);
-
-	const { effectiveVarId, variableData } = await resolveEffectiveForRun(
+	const { effectiveVarId, variable } = await resolveEffectiveForRun(
 		match.collection.variableId,
 		match.folder.name,
 		opts,
@@ -652,44 +421,20 @@ export async function runFolder(opts: {
 		requestModels.map((r) => [r.id, r]),
 	);
 
-	const allResults: RunResult[] = [];
-	let count = 0;
+	const provider = new DbPreFetchContextProvider();
 
-	for (const leaf of leaves) {
-		const request = reqMap.get(leaf.id);
-
-		if (!request) {
-			continue;
-		}
-
-		const settings = resolveSettings(match.collection, leaf.folderId);
-
-		const result = await executeRequest(
-			request,
-			variableData,
-			settings,
+	await executeFolder(
+		{
+			folder: match.folder,
+			collection: match.collection,
+			leaves,
+			requestMap: reqMap,
+			variable,
 			effectiveVarId,
-			match.folder.name,
-			cliConfig.encryptionKey,
-		);
-
-		count++;
-		printSection(`Request ${count}`);
-		printRunResult(result);
-		allResults.push(result);
-	}
-
-	printRunSummary(allResults);
-
-	if (opts.exportFormat) {
-		const filePath = await writeExportReport(
-			allResults,
-			opts.exportFormat,
-			{ scope: "folder", name: match.folder.name },
-			opts.exportPath,
-		);
-		writeConsoleLog(`Report exported to: ${filePath}`);
-	}
+		},
+		opts,
+		provider
+	);
 }
 
 // --- run --curl --------------------------------------------------------------
@@ -725,4 +470,208 @@ export async function runCurl(curlString: string): Promise<void> {
 
 	printRunResult(result);
 	printRunSummary([result]);
+}
+
+// --- run --file ---------------------------------------------------------------
+
+async function getCollection(opts: RunCollectionFileOptions): Promise<{ collection: ICollections; requests: IRequestModel[]; variable: IVariable; }> {
+	try {
+		await fs.access(opts.file);
+	} catch {
+		wrtieConsleError(`Collection file not found: ${opts.file}`);
+		process.exit(1);
+	}
+
+	// Read collection
+	const parsedData = JSON.parse(await fs.readFile(opts.file, "utf8"));
+	const convertedData = fetchClientV2Importer(parsedData, true);
+	if (!convertedData?.fcCollection || !convertedData?.fcRequests) {
+		wrtieConsleError("Fetch Client import produced incomplete data.");
+		process.exit(1);
+	}
+
+	const collection = convertedData?.fcCollection;
+	const requests = convertedData?.fcRequests;
+	let variable = convertedData.fcVariables;
+
+	if (opts.varFile) {
+		try {
+			await fs.access(opts.varFile);
+		} catch {
+			wrtieConsleError(`Variable file not found: ${opts.varFile}`);
+			process.exit(1);
+		}
+
+		const parsedVarFile = JSON.parse(await fs.readFile(opts.varFile, "utf8"));
+		variable = ImportFCVariable(parsedVarFile, cliConfig.encryptionKey);
+	}
+
+	return { collection, requests, variable };
+}
+
+export async function runCollectionFromFile(opts: RunCollectionFileOptions) {
+
+	const { collection, requests, variable } = await getCollection(opts);
+
+	const leaves: RequestLeaf[] = [];
+	collectLeaves(collection, "", leaves);
+
+	const requestMap = new Map(requests.map((r) => [r.id, r]));
+
+	const provider = new CliPreFetchContextProvider(
+		collection,
+		requestMap,
+		variable,
+	);
+
+	const context: CollectionRunContext = {
+		collection,
+		leaves,
+		requestMap,
+		variable,
+		effectiveVarId: "",
+	};
+
+	await executeCollection(
+		[context],
+		{
+			exportFormat: opts.exportFormat,
+			exportPath: opts.exportPath,
+		},
+		provider
+	);
+}
+
+export async function runFolderFromFile(opts: {
+	file: string;
+	name?: string;
+	id?: string;
+	varFile?: string;
+	exportFormat?: ExportFormat;
+	exportPath?: string;
+}): Promise<void> {
+
+	const { collection, requests, variable } = await getCollection(opts);
+
+	interface FolderMatch {
+		folder: IFolder;
+	}
+
+	const folders: FolderMatch[] = [];
+
+	function collectFolders(folder: IFolder): void {
+		folders.push({ folder });
+
+		for (const item of folder.data ?? []) {
+			if (isFolder(item)) {
+				collectFolders(item);
+			}
+		}
+	}
+
+	for (const item of collection.data ?? []) {
+		if (isFolder(item)) {
+			collectFolders(item);
+		}
+	}
+
+	let match: FolderMatch | undefined;
+
+	if (opts.id) {
+		match = folders.find(f => f.folder.id === opts.id);
+	} else if (opts.name) {
+		match = folders.find(
+			f => f.folder.name.toLowerCase() === opts.name!.toLowerCase(),
+		);
+	} else {
+		wrtieConsleError("Provide --name or --id.");
+		process.exit(1);
+	}
+
+	if (!match) {
+		wrtieConsleError("Folder not found.");
+		process.exit(1);
+	}
+
+	const leaves: RequestLeaf[] = [];
+	collectLeaves(match.folder, match.folder.id, leaves);
+
+	const requestMap = new Map(requests.map((r) => [r.id, r]));
+
+	const provider = new CliPreFetchContextProvider(
+		collection,
+		requestMap,
+		variable,
+	);
+
+	await executeFolder(
+		{
+			folder: match.folder,
+			collection,
+			leaves,
+			requestMap,
+			variable,
+			effectiveVarId: ""
+		},
+		opts,
+		provider
+	);
+}
+
+export async function runRequestFromFile(opts: {
+	file: string;
+	name?: string;
+	id?: string;
+	varFile?: string;
+	exportFormat?: ExportFormat;
+	exportPath?: string;
+}) {
+	const { collection, requests, variable } = await getCollection(opts);
+
+	const request =
+		opts.id
+			? requests.find(r => r.id === opts.id)
+			: requests.find(r =>
+				r.name.toLowerCase() === opts.name!.toLowerCase());
+
+	if (!request) {
+		wrtieConsleError("Request not found.");
+		process.exit(1);
+	}
+
+	const folderId = findRequestFolderId(
+		collection,
+		request.id,
+	);
+
+	const requestMap = new Map(requests.map((r) => [r.id, r]));
+
+	const provider = new CliPreFetchContextProvider(
+		collection,
+		requestMap,
+		variable,
+	);
+
+	await executeSingleRequest(
+		{
+			request,
+			collection,
+			folderId,
+			variable,
+			effectiveVarId: "",
+			requestMap
+		},
+		opts,
+		provider
+	);
+}
+
+function findRequestFolderId(
+	collection: ICollections,
+	requestId: string,
+): string {
+	const leaves: RequestLeaf[] = [];
+	collectLeaves(collection, "", leaves);
+	const leaf = leaves.find((l) => l.id === requestId);
+	return leaf?.folderId ?? "";
 }

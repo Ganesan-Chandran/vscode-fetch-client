@@ -15,13 +15,13 @@ import {
 	ICollections,
 	ISettings,
 } from "../../fetch-client-core/types/sidebar.types";
-import { InitialSettings } from "../consts/initialValues.consts";
 import { IRequestModel } from "../../fetch-client-core/types/request.types";
 import { isFolder } from "../helpers/common.helper";
 import { pubSub } from "../../extension";
 import { pubSubTypes } from "../../fetch-client-core/consts/requestTypes.consts";
 import { v4 as uuidv4 } from "uuid";
 import { writeLog } from "../helpers/logger/logger";
+import { defaultSettings, findParentSettings, resolveParentSettings } from "../helpers/settings.helper";
 
 const {
 	getLoadedDB: getCollectionDB,
@@ -35,10 +35,6 @@ export {
 	flushCollectionDB,
 	invalidateCollectionDB,
 };
-
-export function defaultSettings(): typeof InitialSettings {
-	return JSON.parse(JSON.stringify(InitialSettings));
-}
 
 export function findItem(source: { data: any[] }, id: string): any | null {
 	for (const entry of source.data) {
@@ -67,39 +63,6 @@ export function findParent(source: { data: any[] }, id: string): any | null {
 			}
 		}
 	}
-	return null;
-}
-
-export function findParentSettings(
-	source: any,
-	id: string,
-	prevSettings: any = null,
-): any | null {
-	let curSettings = source.settings ?? null;
-	if (curSettings?.auth?.authType === "inherit") {
-		curSettings = prevSettings;
-	}
-
-	const directMatch = source.data.find((el: any) => el.id === id);
-	if (directMatch) {
-		if (!directMatch.settings) {
-			return curSettings;
-		}
-		if (directMatch.settings.auth?.authType === "inherit") {
-			directMatch.settings.auth = curSettings?.auth;
-		}
-		return directMatch.settings;
-	}
-
-	for (const entry of source.data) {
-		if (isFolder(entry)) {
-			const result = findParentSettings(entry, id, curSettings);
-			if (result) {
-				return result;
-			}
-		}
-	}
-
 	return null;
 }
 
@@ -818,12 +781,7 @@ export async function Col_Repository_GetParentSettings(
 		return null;
 	}
 
-	if (folderId) {
-		return (findParentSettings(colItem, folderId) ??
-			defaultSettings()) as ISettings;
-	}
-
-	return (colItem.settings ?? defaultSettings()) as ISettings;
+	return resolveParentSettings(colItem, folderId);
 }
 
 export async function Col_Repository_SaveCollectionSettings(

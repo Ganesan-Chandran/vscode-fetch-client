@@ -9,33 +9,33 @@ import {
 	RequestObject,
 	URLObject,
 	Variable,
-} from "../../../types/postman_2_1.types";
-import { formatDate } from "../../dateTime.helper";
-import { IAuth, ClientAuth, GrantType } from "../../../types/auth.types";
+} from "../../../../types/postman_2_1.types";
+import { formatDate } from "../../../dateTime.helper";
+import { IAuth, ClientAuth, GrantType } from "../../../../types/auth.types";
 import {
 	ICollections,
 	IVariable,
 	IHistory,
 	IFolder,
 	ISettings,
-} from "../../../types/sidebar.types";
+} from "../../../../types/sidebar.types";
 import {
 	InitialAuth,
 	InitialBody,
 	InitialPreFetch,
 	InitialSetVar,
 	InitialTest,
-} from "../../../consts/initialValues.consts";
+} from "../../../../consts/initialValues.consts";
 import {
 	IRequestModel,
 	IBodyData,
 	MethodType,
-} from "../../../types/request.types";
-import { isJson } from "../../tests.helper";
-import { ITableData } from "../../../types/common.types";
+} from "../../../../types/request.types";
+import { isJson } from "../../../tests.helper";
+import { ITableData } from "../../../../types/common.types";
 import { PostmanScriptParser } from "./postmanScript.helper";
 import { v4 as uuidv4 } from "uuid";
-import { writeLog } from "../../logger/logger";
+import { writeLog } from "../../../logger/logger";
 import { XMLValidator } from "fast-xml-parser";
 
 export interface PostmanImportResult {
