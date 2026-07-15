@@ -165,7 +165,7 @@ export async function executeRequest(
   };
 }
 
-function resolveSettings(
+export function resolveSettings(
   collection: ICollections,
   folderId: string,
 ): ISettings {

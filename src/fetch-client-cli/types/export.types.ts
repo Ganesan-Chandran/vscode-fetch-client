@@ -10,6 +10,12 @@ export const SUPPORTED_EXPORT_FORMATS: readonly ExportFormat[] = [
 	"nunit",
 ] as const;
 
+export const PERF_EXPORT_FORMATS: ExportFormat[] = ["json", "csv"];
+
+export function isSupportedPerfExportFormat(value: string): value is "json" | "csv" {
+	return PERF_EXPORT_FORMATS.includes(value as ExportFormat);
+}
+
 export function isSupportedExportFormat(value: string): value is ExportFormat {
 	return (SUPPORTED_EXPORT_FORMATS as readonly string[]).includes(
 		value.toLowerCase(),

@@ -8,6 +8,10 @@
 	overflow: hidden;
 }
 
+.perf-results-panel {
+	padding: 5px;
+}
+
 .perf-settings-panel {
 	display: flex;
 	flex-direction: column;
@@ -85,7 +89,7 @@
 
 .perf-cards-grid {
 	display: grid;
-	grid-template-columns: repeat(4, minmax(110px, 1fr));
+	grid-template-columns: repeat(6, minmax(110px, 1fr));
 	gap: 10px;
 }
 
@@ -145,4 +149,104 @@
 	font-style: italic;
 	padding: 20px 0;
 	text-align: center;
+}
+
+.perf-status-banner {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 12px 16px;
+	margin-bottom: 5px;
+	border-radius: 6px;
+	border: 1px solid var(--vscode-panel-border);
+}
+
+.perf-status-banner.running {
+	background: rgba(60, 180, 75, 0.15);
+	border-color: #4caf50;
+}
+
+.perf-status-banner.completed {
+	background: rgba(33, 150, 243, 0.15);
+	border-color: #2196f3;
+}
+
+.perf-status-banner.cancelled {
+	background: rgba(255, 152, 0, 0.15);
+	border-color: #ff9800;
+}
+
+.perf-status-banner.idle {
+	background: rgba(120, 120, 120, 0.1);
+}
+
+.perf-status-left {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.perf-status-icon {
+	font-size: 26px;
+}
+
+.perf-status-title {
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.perf-status-subtitle {
+	margin-top: 4px;
+	font-size: 12px;
+	opacity: .85;
+}
+
+.perf-progress {
+	height: 8px;
+	width: 100%;
+	background: var(--vscode-editorWidget-border);
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.perf-progress-fill {
+	height: 100%;
+	background: #4caf50;
+	transition: width .3s ease;
+}
+
+.perf-live-stats {
+	display: flex;
+	gap: 18px;
+	margin-bottom: 18px;
+}
+
+.perf-live-stats div {
+	padding: 10px 14px;
+	border-radius: 6px;
+	background: var(--vscode-sideBar-background);
+	min-width: 140px;
+}
+
+.perf-live-stats label {
+	display: block;
+	font-size: 11px;
+	opacity: .7;
+	margin-bottom: 4px;
+}
+
+.perf-live-stats span {
+	font-size: 18px;
+	font-weight: 600;
+}
+
+.perf-result-tabs {
+	display: flex;
+	gap: 6px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+.req-breakdown-tbl {
+	margin-top: 10px;
 }

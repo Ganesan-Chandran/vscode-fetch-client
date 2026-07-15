@@ -5,10 +5,9 @@ import {
 	computeMetrics,
 	exportPerfCSV,
 	exportPerfJson,
-} from "./perfHelper";
-import { computeVUsForWave, shouldStopTest } from "./perfEngine";
+} from "../../../../fetch-client-core/utils/performanceTestService/perfHelper";
 import { getMethodClassName } from "../../SideBar/util";
-import { IPerfConfig, IPerfResultPoint } from "./perfTypes";
+import { IPerfConfig, IPerfResultPoint } from "../../../../fetch-client-core/types/perfTest.types";
 import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
 import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";
 import { PerformanceTestSettings } from "./PerformanceTestSettings";
@@ -17,6 +16,7 @@ import {
 	responseTypes,
 } from "../../../../fetch-client-core/consts/requestTypes.consts";
 import { ResponseTimeChart } from "./ResponseTimeChart";
+import { shouldStopTest, computeVUsForWave } from "../../../../fetch-client-core/utils/performanceTestService/perfEngine";
 import PanelLayout from "../../Common/Layout/panelLayout";
 import React, { useEffect, useRef, useState } from "react";
 import vscode from "../../Common/vscodeAPI";
@@ -71,6 +71,7 @@ const PerformanceTest = () => {
 	};
 
 	const [selectedTab, setSelectedTab] = useState("Setup");
+	const [resultTab, setResultTab] = useState<"Overall" | "Request Breakdown">("Overall");
 	const [running, setRunning] = useState(false);
 	const [done, setDone] = useState(false);
 	const [cancelled, setCancelled] = useState(false);
@@ -221,6 +222,7 @@ const PerformanceTest = () => {
 		setDone(false);
 		setCancelled(false);
 		setSelectedTab("Results");
+		setResultTab("Overall");
 
 		refTicker.current = setInterval(() => {
 			setElapsedDisplay(Date.now() - refTestStartTime.current);
@@ -503,75 +505,168 @@ const PerformanceTest = () => {
 		);
 	}
 
+	const progress = (() => {
+		if (!running && !done) {
+			return 0;
+		}
+		if (config.loadModel === "fixed") {
+			return Math.min(
+				100,
+				(refWaveIndex.current / config.iterations) * 100,
+			);
+		}
+		return Math.min(
+			100,
+			(elapsedDisplay / (config.testDurationSec * 1000)) * 100,
+		);
+	})();
+
+	function renderResultTabs() {
+		return (
+			<div className="perf-result-tabs">
+				{["Overall", "Request Breakdown"].map((tab) => (
+					<button
+						key={tab}
+						className={
+							resultTab === tab
+								? "tab-menu selected"
+								: "tab-menu"
+						}
+						onClick={() =>
+							setResultTab(tab as "Overall" | "Request Breakdown")
+						}
+					>
+						{tab}
+					</button>
+				))}
+			</div>
+		);
+	}
+
 	function renderResults() {
 		const elapsedSec = elapsedDisplay / 1000;
 		const metrics = computeMetrics(results, elapsedSec);
 		const breakdown = computeEndpointBreakdown(results, elapsedSec);
 		const showBreakdown = breakdown.length > 1;
+		const showOverall = resultTab === "Overall";
+		const showRequestBreakdown = resultTab === "Request Breakdown";
 
 		return (
 			<div className="perf-results-panel">
-				<div className="perf-status-row">
-					<span className="perf-status-label">
-						{running
-							? "Running"
-							: done
-								? cancelled
-									? "Cancelled"
-									: "Completed"
-								: "Not started"}
-					</span>
-					<span className="perf-status-label">Virtual Users: {currentVUs}</span>
-					<span className="perf-status-label">
-						Elapsed: {elapsedSec.toFixed(1)}s
-					</span>
-				</div>
+				{renderResultTabs()}
+				{showOverall && (
+					<>
+						<div
+							className={
+								running
+									? "perf-status-banner running"
+									: done
+										? cancelled
+											? "perf-status-banner cancelled"
+											: "perf-status-banner completed"
+										: "perf-status-banner idle"
+							}
+						>
+							<div className="perf-status-left">
+								<span className="perf-status-icon">
+									{running
+										? "⏳"
+										: done
+											? cancelled
+												? "🟠"
+												: "✅"
+											: "⚪"}
+								</span>
 
-				<div className="perf-cards-grid">
-					<div className="perf-card">
-						<label>Total Requests</label>
-						<span>{metrics.total}</span>
-					</div>
-					<div className="perf-card perf-card-success">
-						<label>Success</label>
-						<span>{metrics.success}</span>
-					</div>
-					<div className="perf-card perf-card-error">
-						<label>Failed</label>
-						<span>{metrics.failed}</span>
-					</div>
-					<div className="perf-card">
-						<label>Error Rate</label>
-						<span>{metrics.errorRate.toFixed(1)}%</span>
-					</div>
-					<div className="perf-card">
-						<label>Avg</label>
-						<span>{metrics.avg.toFixed(0)} ms</span>
-					</div>
-					<div className="perf-card">
-						<label>P95</label>
-						<span>{metrics.p95.toFixed(0)} ms</span>
-					</div>
-					<div className="perf-card">
-						<label>P99</label>
-						<span>{metrics.p99.toFixed(0)} ms</span>
-					</div>
-					<div className="perf-card">
-						<label>Throughput</label>
-						<span>{metrics.rps.toFixed(1)} req/s</span>
-					</div>
-				</div>
+								<div>
+									<div className="perf-status-title">
+										{running
+											? "Performance Test Running..."
+											: done
+												? cancelled
+													? "Performance Test Cancelled"
+													: "Performance Test Completed"
+												: "Performance Test Not Started"}
+									</div>
 
-				<div className="perf-chart-container">
-					<label className="perf-settings-title">Response Time Trend</label>
-					<ResponseTimeChart points={results.map((r) => r.duration)} />
-				</div>
+									<div className="perf-status-subtitle">
+										Virtual Users : {currentVUs}
+										&nbsp;&nbsp;|&nbsp;&nbsp;
+										Elapsed : {elapsedSec.toFixed(1)} sec
+										{running && (
+											<>
+												&nbsp;&nbsp;|&nbsp;&nbsp;
+												Wave : {refWaveIndex.current + 1}
+											</>
+										)}
+									</div>
+								</div>
+							</div>
 
-				{showBreakdown && (
+							{(running || done) && (
+								<div className="perf-progress">
+									<div
+										className="perf-progress-fill"
+										style={{ width: `${progress}%` }}
+									/>
+								</div>
+							)}
+						</div>
+
+						<div className="perf-cards-grid">
+							<div className="perf-card">
+								<label>Processed Requests</label>
+								<span>{metrics.total}</span>
+							</div>
+							<div className="perf-card">
+								<label>Current Wave</label>
+								<span>{refWaveIndex.current}</span>
+							</div>
+							<div className="perf-card">
+								<label>Active VUs</label>
+								<span>{currentVUs}</span>
+							</div>
+							<div className="perf-card perf-card-success">
+								<label>Success</label>
+								<span>{metrics.success}</span>
+							</div>
+							<div className="perf-card perf-card-error">
+								<label>Failed</label>
+								<span>{metrics.failed}</span>
+							</div>
+							<div className="perf-card">
+								<label>Error Rate</label>
+								<span>{metrics.errorRate.toFixed(1)}%</span>
+							</div>
+							<div className="perf-card">
+								<label>Avg</label>
+								<span>{metrics.avg.toFixed(0)} ms</span>
+							</div>
+							<div className="perf-card">
+								<label>P95</label>
+								<span>{metrics.p95.toFixed(0)} ms</span>
+							</div>
+							<div className="perf-card">
+								<label>P99</label>
+								<span>{metrics.p99.toFixed(0)} ms</span>
+							</div>
+							<div className="perf-card">
+								<label>Throughput</label>
+								<span>{metrics.rps.toFixed(1)} req/s</span>
+							</div>
+						</div>
+
+						<div className="perf-chart-container">
+							<label className="perf-settings-title">Response Time Trend</label>
+							<ResponseTimeChart points={results.map((r) => r.duration)} />
+						</div>
+					</>
+				)}
+				{showRequestBreakdown && showBreakdown && (
 					<div className="perf-tbl-panel">
 						<label className="perf-settings-title">Breakdown by Request</label>
 						<table
-							className="runall-tbl center"
+							className="runall-tbl req-breakdown-tbl center"
 							cellPadding={0}
 							cellSpacing={0}
 						>
@@ -623,7 +718,7 @@ const PerformanceTest = () => {
 					onClick={onStartClick}
 					disabled={running || isDisabled()}
 				>
-					Start Test
+					{running ? "⏳ Running..." : "Start Test"}
 				</button>
 				<button
 					type="button"
@@ -631,7 +726,7 @@ const PerformanceTest = () => {
 					onClick={onCancelClick}
 					disabled={!running}
 				>
-					Stop
+					{running ? "Stop Test" : "Stop"}
 				</button>
 				<div className="runall-dropdown">
 					<button

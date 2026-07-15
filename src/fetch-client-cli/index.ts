@@ -20,6 +20,7 @@ import {
 	SUPPORTED_EXPORT_FORMATS,
 	ExportFormat,
 } from "./types/export.types";
+import { perfCollection, perfCollectionFromFile, perfFolder, perfFolderFromFile, perfRequest, perfRequestFromFile } from "./commands/perf";
 
 // - Version / package info -
 
@@ -95,6 +96,37 @@ fc-cli run --col <name/id> --var-id <uuid>                      Same as: fc-cli 
 fc-cli run --col <name/id> --var-name <name>                    Same as: fc-cli run --col <name/id> --var <name>
 fc-cli list --var --name <name>                                 Same as: fc-cli list --var <name>
 fc-cli list --var --id <uuid>                                   Same as: fc-cli list --var <uuid>
+
+── PERF ────────────────────────────────────────────────────────────────────────────────────────────
+ 
+fc-cli perf --req <name/id>                                       Load-test a single request
+fc-cli perf --col <name/id>                                       Load-test a whole collection
+fc-cli perf --fol <name/id>                                       Load-test a folder
+fc-cli perf --col <name/id> --var <name/id>                       Override variable set (same priority rule as run)
+fc-cli perf --file <collection.json>                              Load-test an exported collection
+fc-cli perf --file <collection.json> --fol <name/id>              Load-test a folder within it
+fc-cli perf --file <collection.json> --req <name/id>              Load-test a request within it
+fc-cli perf --file <collection.json> --var-file <vars.json>       Override embedded variables
+                                                                   Note: --var/--var-id/--var-name are not
+                                                                   supported with --file (matches 'run --file').
+ 
+--load-model <fixed|duration|rampup|combined>   [default: fixed]      Load pattern to use
+--vus <n>                                       [default: 5]          Virtual users. Max 50.
+                                                                       (target VUs for rampup/combined)
+--iterations <n>                                [default: 10]         Waves per VU. Fixed model only. Max 1000.
+--duration <sec>                                [default: 30]         Hold/test duration. duration/combined only. Max 3600.
+--rampup-duration <sec>                         [default: 20]         Ramp-up window. rampup/combined only. Max 3600.
+--rampup-steps <n>                              [default: 5]          Steps within ramp-up. rampup/combined only.
+                                                                       Cannot exceed --vus (auto-clamped).
+--think-time <ms>                               [default: 0]          Delay between waves. Max 300000.
+--export <json|csv>                             [default: none]       Export a perf report after the test
+--export-path <dir>                             [default: fetch-client-exports folder]
+ 
+Before running, the CLI prints the resolved configuration showing which values you
+set explicitly (user) vs. which fell back to defaults, plus any warnings about
+invalid, out-of-range, or irrelevant flags for the chosen load model.
+ 
+Press Ctrl+C once to stop gracefully and print results so far; press it again to force-quit.
  
 ── CHECK ───────────────────────────────────────────────────────────────────────────────────────────
  
@@ -140,6 +172,13 @@ interface ParsedArgs {
 	reqValue?: string;
 	/** Inline value passed directly after --var, e.g. `--var myVariableSet` */
 	varValue?: string;
+	loadModel?: string;
+	vus?: string;
+	iterations?: string;
+	duration?: string;
+	rampupDuration?: string;
+	rampupSteps?: string;
+	thinkTime?: string;
 }
 
 const VALUE_FLAGS = new Set([
@@ -152,6 +191,13 @@ const VALUE_FLAGS = new Set([
 	"--var-name",
 	"--export",
 	"--export-path",
+	"--load-model",
+	"--vus",
+	"--iterations",
+	"--duration",
+	"--rampup-duration",
+	"--rampup-steps",
+	"--think-time",
 ]);
 
 /** Flags that support an inline `--flag <value>` shorthand for name/id. */
@@ -351,6 +397,10 @@ async function main(): Promise<void> {
 			checkDbFiles();
 			break;
 
+		case "perf":
+			await handlePerf(argv);
+			break;
+
 		default:
 			wrtieConsleError(
 				`Unknown command: '${command}'. Run 'fc-cli --help' for usage.`,
@@ -539,6 +589,70 @@ async function handleRun(argv: ParsedArgs): Promise<void> {
 		"Specify --req, --col, --fol, or --curl after 'run'. Run 'fc-cli --help' for usage.",
 	);
 
+	process.exit(1);
+}
+
+// -- handlePerf --
+
+async function handlePerf(argv: ParsedArgs): Promise<void> {
+	const perfOpts = {
+		exportFormat: argv.export,
+		exportPath: argv.exportPath,
+		loadModel: argv.loadModel,
+		vus: argv.vus,
+		iterations: argv.iterations,
+		duration: argv.duration,
+		rampupDuration: argv.rampupDuration,
+		rampupSteps: argv.rampupSteps,
+		thinkTime: argv.thinkTime,
+	};
+
+	if (argv.file) {
+		if (argv.col || argv.all) {
+			wrtieConsleError("'--col' and '--all' cannot be used with '--file'.");
+			process.exit(1);
+		}
+
+		if (argv.req) {
+			const { name, id } = resolveEntityFilter(argv.name, argv.id, argv.reqValue);
+			await perfRequestFromFile({ ...perfOpts, file: argv.file, name, id, varFile: argv.varFile });
+			return;
+		}
+
+		if (argv.fol) {
+			const { name, id } = resolveEntityFilter(argv.name, argv.id, argv.folValue);
+			await perfFolderFromFile({ ...perfOpts, file: argv.file, name, id, varFile: argv.varFile });
+			return;
+		}
+
+		await perfCollectionFromFile({ ...perfOpts, file: argv.file, varFile: argv.varFile });
+		return;
+	}
+
+	if (argv.req) {
+		const { name, id } = resolveEntityFilter(argv.name, argv.id, argv.reqValue);
+		const { varId, varName } = resolveVarOverride(argv.varId, argv.varName, argv.varValue);
+		await perfRequest({ ...perfOpts, name, id, varId, varName });
+		return;
+	}
+
+	if (argv.col) {
+		const { name, id } = resolveEntityFilter(argv.name, argv.id, argv.colValue);
+		const { varId, varName } = resolveVarOverride(argv.varId, argv.varName, argv.varValue);
+		await perfCollection({ ...perfOpts, name, id, varId, varName });
+		return;
+	}
+
+	if (argv.fol) {
+		const { name, id } = resolveEntityFilter(argv.name, argv.id, argv.folValue);
+		const { varId, varName } = resolveVarOverride(argv.varId, argv.varName, argv.varValue);
+		await perfFolder({ ...perfOpts, name, id, varId, varName });
+		return;
+	}
+
+	wrtieConsleError(
+		"Specify --req, --col, --fol, or --file after 'perf'. Run 'fc-cli --help' for usage.",
+	);
 	process.exit(1);
 }
 

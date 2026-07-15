@@ -69,7 +69,7 @@ export function buildExportReport(
 	};
 }
 
-function slugify(value: string): string {
+export function slugify(value: string): string {
 	const slug = value
 		.trim()
 		.toLowerCase()
@@ -79,7 +79,7 @@ function slugify(value: string): string {
 	return slug || "report";
 }
 
-function timestampForFilename(): string {
+export function timestampForFilename(): string {
 	return new Date().toISOString().replace(/[:.]/g, "-");
 }
 
@@ -112,7 +112,7 @@ function renderReport(report: ExportReport, format: ExportFormat): string {
  * resolveDbPath() always returns a directory (custom path, workspace path, or the
  * default VS Code global-storage path are all directories) — never a file path.
  */
-async function resolveExportDirectory(customPath?: string): Promise<string> {
+export async function resolveExportDirectory(customPath?: string): Promise<string> {
 	if (customPath) {
 		return path.resolve(customPath);
 	}
@@ -137,5 +137,22 @@ export async function writeExportReport(
 
 	await fs.writeFile(filePath, content, "utf-8");
 
+	return filePath;
+}
+
+export async function writeReportFile(
+	content: string,
+	extension: string,
+	fileNameParts: { scope: string; name: string; format: string },
+	customExportPath?: string,
+): Promise<string> {
+	const directory = await resolveExportDirectory(customExportPath);
+	await fs.mkdir(directory, { recursive: true });
+
+	const fileName =
+		`${fileNameParts.scope}-${slugify(fileNameParts.name)}-${fileNameParts.format}-${timestampForFilename()}.${extension}`;
+	const filePath = path.join(directory, fileName);
+
+	await fs.writeFile(filePath, content, "utf-8");
 	return filePath;
 }

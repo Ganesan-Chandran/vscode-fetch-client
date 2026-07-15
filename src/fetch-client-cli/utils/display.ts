@@ -9,6 +9,8 @@ import {
 } from "../../fetch-client-core/types/response.types";
 import { ITableData } from "../../fetch-client-core/types/common.types";
 import { writeConsoleLog } from "./logger";
+import { IPerfMetrics, IPerfEndpointMetrics, IPerfResultPoint, IPerfConfig } from "../../fetch-client-core/types/perfTest.types";
+import { PerfConfigFieldSource } from "./performance/perfConfig";
 
 // === ANSI colour helpers ====================================================
 
@@ -384,14 +386,14 @@ export function printRunSummary(results: RunResult[]): void {
 	writeConsoleLog(separator);
 	writeConsoleLog(
 		fit("Id", 38) +
-			fit("Name", 22) +
-			fit("Method", 8) +
-			fit("URL", 35) +
-			fit("Location", 18) +
-			fit("Status", 8) +
-			fit("Duration", 11) +
-			fit("Pre", 7) +
-			fit("Test", 7),
+		fit("Name", 22) +
+		fit("Method", 8) +
+		fit("URL", 35) +
+		fit("Location", 18) +
+		fit("Status", 8) +
+		fit("Duration", 11) +
+		fit("Pre", 7) +
+		fit("Test", 7),
 	);
 	writeConsoleLog(separator);
 
@@ -411,14 +413,14 @@ export function printRunSummary(results: RunResult[]): void {
 
 		writeConsoleLog(
 			fitAnsi(`${icon} ${r.id}`, 40) +
-				fitAnsi(cyan(r.name), 22) +
-				fitAnsi(methodBadge(r.method.toUpperCase()), 8) +
-				fitAnsi(dim(shortUrl(r.url)), 35) +
-				fitAnsi(yellow(r.parent ?? "-"), 18) +
-				fitAnsi(statusBadge(r.status), 8) +
-				fitAnsi(dim(`${r.duration} ms`), 11) +
-				fitAnsi(pre, 7) +
-				fitAnsi(test, 7),
+			fitAnsi(cyan(r.name), 22) +
+			fitAnsi(methodBadge(r.method.toUpperCase()), 8) +
+			fitAnsi(dim(shortUrl(r.url)), 35) +
+			fitAnsi(yellow(r.parent ?? "-"), 18) +
+			fitAnsi(statusBadge(r.status), 8) +
+			fitAnsi(dim(`${r.duration} ms`), 11) +
+			fitAnsi(pre, 7) +
+			fitAnsi(test, 7),
 		);
 	}
 
@@ -550,4 +552,129 @@ function formatBytes(bytes: number): string {
 		return `${(bytes / 1024).toFixed(1)} KB`;
 	}
 	return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
+// ── Performance test progress / summary ────────────────────────────────
+
+export function printPerfProgress(
+	results: IPerfResultPoint[],
+	elapsedMs: number,
+	wave: number,
+	isTTY: boolean,
+): void {
+	const total = results.length;
+	const errors = results.filter((r) => r.isError).length;
+	const elapsedSec = (elapsedMs / 1000).toFixed(1);
+
+	const line = `Wave ${bold(String(wave))} │ Sent ${cyan(String(total))} │ Errors ${errors > 0 ? red(String(errors)) : dim("0")} │ Elapsed ${dim(`${elapsedSec}s`)}`;
+
+	if (isTTY) {
+		process.stderr.write(`\r\x1b[K  ${line}`);
+	} else {
+		writeConsoleLog(`[perf] Wave ${wave} sent=${total} errors=${errors} elapsed=${elapsedSec}s`);
+	}
+}
+
+export function printPerfConfigSummary(
+	testName: string,
+	scopeLabel: string,
+	config: IPerfConfig,
+	userProvided: PerfConfigFieldSource,
+	warnings: string[],
+): void {
+	printSection("Performance Test Configuration");
+
+	writeConsoleLog(`Target    : ${cyan(scopeLabel)} ${dim(`"${testName}"`)}`);
+	writeConsoleLog("");
+
+	function row(label: string, flag: string, value: string | number, provided: boolean) {
+		const tag = provided ? green("(user)") : dim("(default)");
+		writeConsoleLog(`  ${fit(label, 20)}${fit(String(value), 12)}${fit(flag, 22)}${tag}`);
+	}
+
+	row("Load Model", "--load-model", config.loadModel, userProvided.loadModel);
+	row("Virtual Users", "--vus", config.targetVUs, userProvided.targetVUs);
+
+	if (config.loadModel === "fixed") {
+		row("Iterations/VU", "--iterations", config.iterations, userProvided.iterations);
+	}
+	if (config.loadModel === "duration" || config.loadModel === "combined") {
+		row("Duration (sec)", "--duration", config.testDurationSec, userProvided.testDurationSec);
+	}
+	if (config.loadModel === "rampup" || config.loadModel === "combined") {
+		row("Ramp-up (sec)", "--rampup-duration", config.rampUpDurationSec, userProvided.rampUpDurationSec);
+		row("Ramp-up Steps", "--rampup-steps", config.rampSteps, userProvided.rampSteps);
+	}
+
+	row("Think-time (ms)", "--think-time", config.thinkTimeMs, userProvided.thinkTimeMs);
+
+	writeConsoleLog("");
+
+	if (warnings.length > 0) {
+		for (const w of warnings) {
+			writeConsoleLog(`  ${yellow("⚠")} ${w}`);
+		}
+		writeConsoleLog("");
+	}
+}
+
+export function printPerfSummary(
+	metrics: IPerfMetrics,
+	breakdown: IPerfEndpointMetrics[],
+	status: "Completed" | "Cancelled",
+): void {
+	process.stderr.write("\n");
+
+	const statusLabel = status === "Completed" ? green(bold(status)) : yellow(bold(status));
+	printSection(`Performance Test ${status}`);
+
+	writeConsoleLog(`Status    : ${statusLabel}`);
+	writeConsoleLog(
+		`Requests  : ${green(String(metrics.success))} success, ${metrics.failed > 0 ? red(String(metrics.failed)) : dim("0")} failed, ${dim(String(metrics.total))} total (${metrics.errorRate.toFixed(1)}% error rate)`,
+	);
+	writeConsoleLog(
+		`Latency   : avg ${dim(`${metrics.avg.toFixed(0)}ms`)}  min ${dim(`${metrics.min.toFixed(0)}ms`)}  max ${dim(`${metrics.max.toFixed(0)}ms`)}  p50 ${dim(`${metrics.p50.toFixed(0)}ms`)}  p90 ${dim(`${metrics.p90.toFixed(0)}ms`)}  p95 ${dim(`${metrics.p95.toFixed(0)}ms`)}  p99 ${dim(`${metrics.p99.toFixed(0)}ms`)}`,
+	);
+	writeConsoleLog(
+		`Throughput: ${cyan(metrics.rps.toFixed(1))} req/s over ${dim(`${metrics.elapsedSec.toFixed(1)}s`)}`,
+	);
+	writeConsoleLog("");
+
+	if (breakdown.length <= 1) {
+		return;
+	}
+
+	printSection("Breakdown by Request");
+
+	const separator = "-".repeat(150);
+	writeConsoleLog(separator);
+	writeConsoleLog(
+		fit("Request", 30) +
+		fit("Method", 8) +
+		fit("Total", 8) +
+		fit("Failed", 8) +
+		fit("Error %", 9) +
+		fit("Avg", 10) +
+		fit("P95", 10) +
+		fit("P99", 10) +
+		fit("RPS", 8),
+	);
+	writeConsoleLog(separator);
+
+	for (const b of breakdown) {
+		writeConsoleLog(
+			fitAnsi(cyan(b.requestName), 30) +
+			fitAnsi(methodBadge(b.method.toUpperCase()), 8) +
+			fitAnsi(dim(String(b.total)), 8) +
+			fitAnsi(b.failed > 0 ? red(String(b.failed)) : dim("0"), 8) +
+			fitAnsi(dim(`${b.errorRate.toFixed(1)}%`), 9) +
+			fitAnsi(dim(`${b.avg.toFixed(0)}ms`), 10) +
+			fitAnsi(dim(`${b.p95.toFixed(0)}ms`), 10) +
+			fitAnsi(dim(`${b.p99.toFixed(0)}ms`), 10) +
+			fitAnsi(dim(b.rps.toFixed(1)), 8),
+		);
+	}
+
+	writeConsoleLog(separator);
+	writeConsoleLog("");
 }

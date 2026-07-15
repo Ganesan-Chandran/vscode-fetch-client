@@ -1,10 +1,10 @@
-import { formatDate } from "../../../../fetch-client-core/helpers/dateTime.helper";
+import { formatDate } from "../../helpers/dateTime.helper";
 import {
 	IPerfConfig,
 	IPerfEndpointMetrics,
 	IPerfMetrics,
 	IPerfResultPoint,
-} from "./perfTypes";
+} from "../../types/perfTest.types";
 import { percentile } from "./perfEngine";
 
 export function computeMetrics(

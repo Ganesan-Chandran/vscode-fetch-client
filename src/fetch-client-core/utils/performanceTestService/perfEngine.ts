@@ -1,4 +1,4 @@
-import { LoadModel } from "./perfTypes";
+import { LoadModel } from "../../types/perfTest.types";
 
 export function computeVUsForWave(
 	loadModel: LoadModel,
