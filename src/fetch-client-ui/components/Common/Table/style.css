@@ -50,8 +50,18 @@
 
 .delete-button {
 	cursor: pointer;
-	height: 16px;
-	width: 16px;
+	height: 15px;
+	width: 15px;
+	padding: 5px;
+	border-radius: 4px;
+	box-sizing: content-box;
+	opacity: 0.6;
+	transition: opacity 0.12s ease, background-color 0.12s ease;
+}
+
+.delete-button:hover {
+	opacity: 1;
+	background-color: rgba(240, 83, 72, 0.12);
 }
 
 .delete-button path {
@@ -66,14 +76,14 @@
 	color: var(--input-unchecked);
 }
 
-.option-table > tbody > tr:hover,
-.option-table > tbody > tr:focus {
+.option-table>tbody>tr:hover,
+.option-table>tbody>tr:focus {
 	background-color: var(--list-hover-background-color);
 	border: var(--border-size) solid var(--border-color);
 }
 
-.option-table > tbody > tr:hover .DraftEditor-editorContainer,
-.option-table > tbody > tr:focus .DraftEditor-editorContainer {
+.option-table>tbody>tr:hover .DraftEditor-editorContainer,
+.option-table>tbody>tr:focus .DraftEditor-editorContainer {
 	background-color: var(--list-hover-background-color);
 }
 
@@ -90,12 +100,26 @@
 }
 
 .file-select {
-	width: 52px;
+	width: auto;
+	min-width: 52px;
 	margin-left: 5px;
+	padding: 3px 10px;
+	border: var(--border-size) solid var(--border-color);
+	border-radius: 4px;
+	background-color: transparent;
+	color: var(--text-color);
+	cursor: pointer;
+	font-size: calc(var(--font-size) - 1px);
+	transition: background-color 0.12s ease;
+}
+
+.file-select:hover {
+	background-color: var(--list-hover-background-color);
 }
 
 .file-name {
-	margin-left: 5px;
+	margin-left: 8px;
+	opacity: 0.8;
 }
 
 .password-textbox {

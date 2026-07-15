@@ -122,6 +122,14 @@ export const FormDataBody = () => {
 		if (localbody.formdata) {
 			let localFormData = [...localbody.formdata];
 			localFormData.splice(index, 1);
+			if (localFormData.length === 0) {
+				localFormData.push({
+					isChecked: false,
+					key: "",
+					value: "",
+					type: "Text",
+				});
+			}
 			localbody.formdata = localFormData;
 			dispatch(Actions.SetRequestBodyAction(localbody));
 		}

@@ -81,6 +81,14 @@ export const UrlEncoded = () => {
 		if (localbody.urlencoded) {
 			let localUrlEncoded = [...localbody.urlencoded];
 			localUrlEncoded.splice(index, 1);
+			if (localUrlEncoded.length === 0) {
+				localUrlEncoded.push({
+					isChecked: false,
+					key: "",
+					value: "",
+					type: "Text",
+				});
+			}
 			localbody.urlencoded = localUrlEncoded;
 			dispatch(Actions.SetRequestBodyAction(localbody));
 		}
