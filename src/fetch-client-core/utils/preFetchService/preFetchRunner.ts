@@ -16,6 +16,7 @@ function createEmptyPreFetchResponse(): IPreFetchResponse {
 		resStatus: 0,
 		testResults: [],
 		childrenResponse: [],
+		isParentReq: false
 	};
 }
 
@@ -102,8 +103,7 @@ export class PreFetchRunner {
 					? this.preFetchResponses[i]
 					: parentPreFetchResponse!.childrenResponse[i];
 
-			// Evaluate conditions gating this request (skip for the first request)
-			if (i > 0 && previousRequest?.id) {
+			if (i === 0 || (i > 0 && previousRequest?.id)) {
 				const conditions = filteredRequests[i].condition.filter(
 					(c) => c.parameter && c.action,
 				);
@@ -122,7 +122,7 @@ export class PreFetchRunner {
 							parentPreFetchResponse!.reqId = "-1";
 						}
 						this._allow = false;
-						this._message = `'Condition ${i}' failed in 'Pre-Request ${i}' in the Request '${parentName}'`;
+						this._message = `'Condition(s) failed in 'Pre-Request ${i + 1}' in the Request '${parentName}'`;
 						return;
 					}
 				}

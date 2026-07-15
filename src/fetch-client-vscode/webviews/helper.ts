@@ -56,6 +56,9 @@ export async function ExecuteAPIRequest(
 					fetchConfig,
 					webview,
 				);
+
+			parentPreFetchResponse.forEach(item => item.isParentReq = true);
+
 			if (!runMainRequest || !continueRequest) {
 				webview?.postMessage({
 					type: responseTypes.preFetchResponse,
@@ -83,6 +86,7 @@ export async function ExecuteAPIRequest(
 				fetchConfig,
 				webview,
 			);
+			preFetchResponse.forEach(item => item.isParentReq = false);
 			preFetchResponse = [...parentPreFetchResponse, ...preFetchResponse];
 			webview?.postMessage({
 				type: responseTypes.preFetchResponse,
@@ -132,12 +136,7 @@ async function runPreRequest(
 > {
 	let request = message.data.reqData as IRequestModel;
 	let preFetchCollectionRunner = new PreFetchRunner(fetchConfig, request.id, new DbPreFetchContextProvider());
-	await preFetchCollectionRunner.RunPreRequests(
-		preFetch,
-		0,
-		request.name,
-		isParentPreRequest,
-	);
+	await preFetchCollectionRunner.RunPreRequests(preFetch, 0, request.name, isParentPreRequest,);
 	if (preFetchCollectionRunner.message) {
 		if (fetchConfig.runMainRequest === true) {
 			setTimeout(() => {

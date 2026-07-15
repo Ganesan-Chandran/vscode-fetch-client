@@ -18,7 +18,7 @@ export class DbPreFetchContextProvider
 		const { reqId, parentId, colId } = runRequest;
 
 		const varId = await Col_Repository_GetVariableByColId(colId);
-		const variable = await Var_Repository_GetVariableByIdSync(varId, encryptionKey,);
+		const variable = await Var_Repository_GetVariableByIdSync(varId, encryptionKey);
 
 		const parentSettings = parentId === colId
 			? await Col_Repository_GetParentSettings(colId, "")
