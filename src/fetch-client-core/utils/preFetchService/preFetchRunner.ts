@@ -5,8 +5,6 @@ import { InitialResponse } from "../../consts/initialValues.consts";
 import { IPreFetch, IRunRequest } from "../../types/prefetch.types";
 import { IPreFetchContextProvider, RequestContext } from "./preFetch.types.ts";
 import { IPreFetchResponse, IReponseModel } from "../../types/response.types";
-import { IRequestModel } from "../../types/request.types";
-import { IVariable } from "../../types/sidebar.types";
 import { writeLog } from "../../helpers/logger/logger";
 
 function createEmptyPreFetchResponse(): IPreFetchResponse {
@@ -85,10 +83,6 @@ export class PreFetchRunner {
 			(r) => r.reqId && r.reqId !== "undefined",
 		);
 
-		// Tracks the last successfully loaded request for condition evaluation on the next iteration
-		let previousRequest: IRequestModel | undefined;
-		let updatedVariable: IVariable | undefined;
-
 		for (let i = 0; i < filteredRequests.length && this._allow; i++) {
 			const responseSlot = createEmptyPreFetchResponse();
 
@@ -103,36 +97,13 @@ export class PreFetchRunner {
 					? this.preFetchResponses[i]
 					: parentPreFetchResponse!.childrenResponse[i];
 
-			if (i === 0 || (i > 0 && previousRequest?.id)) {
-				const conditions = filteredRequests[i].condition.filter(
-					(c) => c.parameter && c.action,
-				);
-				if (conditions.length > 0) {
-					const testResults = executeTests(
-						conditions,
-						this.response,
-						updatedVariable?.data,
-					);
-					const failedIndex = testResults.findIndex((t) => t.result === false);
-
-					targetResponse.testResults = testResults;
-					if (failedIndex !== -1) {
-						targetResponse.reqId = "-1";
-						if (parentIndex !== -1) {
-							parentPreFetchResponse!.reqId = "-1";
-						}
-						this._allow = false;
-						this._message = `'Condition(s) failed in 'Pre-Request ${i + 1}' in the Request '${parentName}'`;
-						return;
-					}
-				}
-			}
-
 			const { reqId } = filteredRequests[i];
 			if (!reqId) {
 				return;
 			}
 
+			// Loaded BEFORE condition evaluation so every pre-request - including
+			// the first - has access to its own collection's variable scope.
 			const context = await this.loadRequestContext(filteredRequests[i], parentName);
 
 			if (!context) {
@@ -143,9 +114,35 @@ export class PreFetchRunner {
 				continue;
 			}
 
-			const { request, variable, parentSettings } = context;
+			const { request } = context;
+
+			let { variable, parentSettings } = context;
 
 			targetResponse.name = request.name;
+
+			const conditions = filteredRequests[i].condition.filter(
+				(c) => c.parameter && c.action,
+			);
+
+			if (conditions.length > 0) {
+				const testResults = executeTests(
+					conditions,
+					this.response,
+					variable?.data,
+				);
+				const failedIndex = testResults.findIndex((t) => t.result === false);
+
+				targetResponse.testResults = testResults;
+				if (failedIndex !== -1) {
+					targetResponse.reqId = "-1";
+					if (parentIndex !== -1) {
+						parentPreFetchResponse!.reqId = "-1";
+					}
+					this._allow = false;
+					this._message = `'Condition(s) failed in 'Pre-Request ${i + 1}' in the Request '${parentName}'`;
+					return;
+				}
+			}
 
 			const hasNestedPreFetch =
 				(request.preFetch?.requests?.length ?? 0) > 0 &&
@@ -168,6 +165,12 @@ export class PreFetchRunner {
 				const execIdx = this.executingRequests.indexOf(reqId);
 				if (execIdx !== -1) {
 					this.executingRequests.splice(execIdx, 1);
+				}
+
+				const refreshedContext = await this.loadRequestContext(filteredRequests[i], parentName);
+				if (refreshedContext) {
+					variable = refreshedContext.variable;
+					parentSettings = refreshedContext.parentSettings;
 				}
 			}
 
@@ -206,8 +209,7 @@ export class PreFetchRunner {
 			this.response.headers = res.headers;
 			this.response.cookies = res.cookies;
 
-			previousRequest = request;
-			updatedVariable = await this.contextProvider.updateVariable(
+			await this.contextProvider.updateVariable(
 				request,
 				variable,
 				this.response,

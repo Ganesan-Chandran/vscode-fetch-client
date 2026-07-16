@@ -40,6 +40,11 @@ export const preConditionActions = {
 			{ name: "select", value: "" },
 			{ name: "empty", value: "empty" },
 			{ name: "notEmpty", value: "notEmpty" },
+			{ name: "equal", value: "equal" },
+			{ name: "notEqual", value: "notEqual" },
+			{ name: "contains", value: "contains" },
+			{ name: "regex", value: "regex" },
+			{ name: "expression", value: "expression" }
 		],
 	},
 };

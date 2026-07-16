@@ -5,6 +5,7 @@ import { ITableData } from "../types/common.types";
 import { IVariable } from "../types/sidebar.types";
 import { ParametersModelMapping } from "../consts/test.consts";
 import { replaceDataWithVariable } from "./variable.helper";
+import { evaluateExpression } from "./expression.helper";
 
 export function setVariable(
 	variable: IVariable,
@@ -92,6 +93,30 @@ export function setVariable(
 	return variable;
 }
 
+function formatExpressionValue(value: any): string {
+	if (value === null || value === undefined) {
+		return "null";
+	}
+
+	// Already a number
+	if (typeof value === "number") {
+		return value.toString();
+	}
+
+	// Boolean
+	if (typeof value === "boolean") {
+		return value.toString();
+	}
+
+	// Numeric string
+	if (typeof value === "string" && value.trim() !== "" && !isNaN(Number(value))) {
+		return value.trim();
+	}
+
+	// Everything else should be quoted
+	return JSON.stringify(value);
+}
+
 export function executeTests(
 	testData: ITest[],
 	responseValue: IReponseModel,
@@ -152,17 +177,24 @@ export function executeTests(
 				mapping.replace("responseData.", ""),
 			);
 		} else if (mapping.includes("variable")) {
-			let item = variableData?.find(
-				(t) =>
-					t.key ===
-					tests[i].expectedValue.replace("{{", "").replace("}}", "").trim(),
-			);
-			actualValue = item?.value;
+			if (tests[i].action === "expression") {
+				actualValue = tests[i].expectedValue.replace(
+					/\{\{\s*([^}]+?)\s*\}\}/g,
+					(_, variableName) => {
+						const variable = variableData?.find(
+							(v) => v.key === variableName.trim(),
+						);
+
+						return formatExpressionValue(variable?.value);
+					},
+				);
+			}
+			else {
+				const item = variableData?.find((t) => t.key === tests[i].expectedValue.replace("{{", "").replace("}}", "").trim());
+				actualValue = item?.value;
+			}
 		} else {
-			actualValue = findHeader(
-				responseValue.headers,
-				mapping.replace("headers.", ""),
-			);
+			actualValue = findHeader(responseValue.headers, mapping.replace("headers.", ""));
 		}
 
 		if (tests[i].action === "length") {
@@ -267,6 +299,8 @@ function executeTestCase(
 			return (
 				actualValue !== "" && actualValue !== null && actualValue !== undefined
 			);
+		case "expression":
+			return evaluateExpression(actualValue?.toString());
 	}
 
 	return false;

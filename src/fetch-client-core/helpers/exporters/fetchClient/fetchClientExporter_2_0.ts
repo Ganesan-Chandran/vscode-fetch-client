@@ -32,11 +32,6 @@ export function ExportBuilderV2(
 ): IFetchClientExportV2 {
 	const items: IExportItem[] = [];
 
-	console.log("col:", col);
-	console.log("hisId:", hisId);
-	console.log("folderId:", folderId);
-	console.log("variable:", variable);
-
 	if (hisId) {
 		// Export a single request, optionally scoped inside a folder wrapper
 		const requests = apiRequests
@@ -622,10 +617,7 @@ function resolveContentType(ext: string, contentTypeOption: string): string {
  * if preferred.
  */
 function findItem(source: { data?: any[] }, id: string): IFolder | IHistory | undefined {
-	console.log("id:", id);
-	console.log("data:", source.data);
 	for (const item of source.data ?? []) {
-		console.log("item:", item);
 		if (item.id === id) {
 			return item;
 		}
