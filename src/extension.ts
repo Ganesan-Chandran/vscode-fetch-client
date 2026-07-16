@@ -341,6 +341,11 @@ function registerProviders(context: vscode.ExtensionContext): void {
 		vscode.window.registerWebviewViewProvider(
 			SideBarProvider.viewType,
 			sideBarProvider,
+			{
+				webviewOptions: {
+					retainContextWhenHidden: true,
+				},
+			}
 		),
 		AddToColUI(context.extensionUri),
 		VariableUI(context.extensionUri),
