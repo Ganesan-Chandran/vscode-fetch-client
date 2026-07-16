@@ -248,7 +248,7 @@
             "default": false,
             "scope": "resource",
             "order": 11,
-            "markdownDescription": "By Default `main request will run` even if pre-request(s)/pre-condition(s) are getting failed. If it is disabled, `main request won't run` if any pre-request/pre-condition are failed."
+            "markdownDescription": "By default, the `main request will not run` if any pre-request or pre-condition fails. Enable this option to `allow the main request to run` even if one or more pre-requests or pre-conditions fail."
           },
           "fetch-client.responseLimit": {
             "type": "number",
