@@ -12,6 +12,9 @@ export interface IVariableProps {
 	filterCondition: string;
 	isLoading: boolean;
 	sort: number;
+	selectedItem: {
+		varId: string;
+	};
 }
 
 export const VariableSection = (props: IVariableProps) => {
@@ -165,6 +168,10 @@ export const VariableSection = (props: IVariableProps) => {
 		e.stopPropagation();
 		openContextMenu(index);
 	}
+
+	useEffect(() => {
+			setSelectedItem(props.selectedItem.varId);
+		}, [props.selectedItem]);
 
 	function getVariableItems(item: IVariable, index: number) {
 		return (

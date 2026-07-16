@@ -37,6 +37,7 @@ const SideBar = () => {
 		colId: "",
 		foldId: "",
 		itemId: "",
+		varId: ""
 	});
 	const [colSort, setColSort] = useState(0);
 	const [varSort, setVarSort] = useState(0);
@@ -46,6 +47,7 @@ const SideBar = () => {
 		colId: string;
 		foldId: string;
 		itemId: string;
+		varId: string;
 	}) => {
 		refSelectedItem.current = data;
 		_setSelectedItem(refSelectedItem.current);
@@ -383,6 +385,7 @@ const SideBar = () => {
 					colId: event.data.colId,
 					foldId: event.data.folId,
 					itemId: event.data.id,
+					varId: event.data.varId
 				});
 			} else if (
 				event.data &&
@@ -393,6 +396,7 @@ const SideBar = () => {
 						colId: "",
 						foldId: "",
 						itemId: "",
+						varId: ""
 					});
 				}
 			} else if (
@@ -580,6 +584,7 @@ const SideBar = () => {
 							<VariableSection
 								filterCondition={filterCondititon?.toLowerCase()}
 								isLoading={isVarLoading}
+								selectedItem={selectedItem}
 								sort={varSort}
 							/>
 						</React.Suspense>

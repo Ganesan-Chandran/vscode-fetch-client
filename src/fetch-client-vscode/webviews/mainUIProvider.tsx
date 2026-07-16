@@ -173,6 +173,7 @@ export class WebAppPanel {
 						colId: colId,
 						folId: folderId,
 						id: id,
+						varId: ""
 					});
 				}
 			},
@@ -404,6 +405,7 @@ export class WebAppPanel {
 			id: id,
 			colId: colId,
 			folderId: folderId,
+			varId: ""
 		});
 
 		if (WebAppPanel.currentPanel === this) {

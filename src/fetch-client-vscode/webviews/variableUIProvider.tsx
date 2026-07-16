@@ -10,45 +10,140 @@ import { requestTypes } from "../../fetch-client-core/consts/requestTypes.consts
 import { sideBarProvider } from "../../extension";
 import * as vscode from "vscode";
 
+export class VariablePanel {
+	public static currentPanel: VariablePanel | undefined;
+	private static readonly panels = new Map<string, VariablePanel>();
+	private readonly _panel: vscode.WebviewPanel;
+	private readonly _extensionUri: vscode.Uri;
+	private _disposables: vscode.Disposable[] = [];
+	private _currentId: string | undefined;
+
+	public static createOrShow(extensionUri: vscode.Uri, id?: string) {
+		const column = vscode.window.activeTextEditor
+			? vscode.window.activeTextEditor.viewColumn
+			: undefined;
+
+		const panelKey = id ?? "__new__";
+
+		if (VariablePanel.panels.has(panelKey)) {
+			const existing = VariablePanel.panels.get(panelKey);
+			existing._panel.reveal(column);
+			VariablePanel.currentPanel = existing;
+			return;
+		}
+
+		const panel = vscode.window.createWebviewPanel(
+			"fetch-client",
+			"Fetch Client - Variable",
+			vscode.ViewColumn.One,
+			{ enableScripts: true, retainContextWhenHidden: true },
+		);
+
+		const iconUri = vscode.Uri.joinPath(
+			extensionUri,
+			"icons/fetch-client.png",
+		);
+		panel.iconPath = iconUri;
+
+		VariablePanel.currentPanel = new VariablePanel(panel, extensionUri, id);
+	}
+
+	public static kill() {
+		VariablePanel.panels.forEach((p) => p._panel.dispose());
+		VariablePanel.panels.clear();
+		VariablePanel.currentPanel = undefined;
+	}
+
+	private constructor(
+		panel: vscode.WebviewPanel,
+		extensionUri: vscode.Uri,
+		id?: string,
+	) {
+		this._panel = panel;
+		this._extensionUri = extensionUri;
+		this._currentId = id;
+
+		const panelKey = id ?? "__new__";
+		VariablePanel.panels.set(panelKey, this);
+
+		this._panel.webview.html = buildWebviewHtml(
+			this._panel.webview,
+			this._extensionUri,
+			`newvar@:@${id}`,
+		);
+
+		this._panel.onDidDispose(
+			() => {
+				const key = this._currentId ?? "__new__";
+				VariablePanel.panels.delete(key);
+				this.dispose(this._currentId);
+			},
+			null,
+			this._disposables,
+		);
+
+		this._panel.onDidChangeViewState(
+			(event) => {
+				if (event.webviewPanel.active) {
+					sideBarProvider.view.webview.postMessage({
+						type: requestTypes.selectItemRequest,
+						colId: "",
+						folId: "",
+						id: "",
+						varId: id,
+					});
+				}
+			},
+			null,
+			this._disposables,
+		);
+
+		this._panel.webview.onDidReceiveMessage((reqData: any) => {
+			if (reqData.type === requestTypes.getVariableItemRequest) {
+				GetVariableById(
+					reqData.data.id,
+					reqData.data.isGlobal,
+					this._panel.webview,
+				);
+				GetCollectionsByVariable(reqData.data.id, this._panel.webview);
+			} else if (reqData.type === requestTypes.updateVariableRequest) {
+				UpdateVariable(reqData.data, this._panel.webview);
+			} else if (reqData.type === requestTypes.saveVariableRequest) {
+				SaveVariable(
+					reqData.data,
+					this._panel.webview,
+					sideBarProvider.view,
+				);
+			} else if (reqData.type === requestTypes.getAllVariableRequest) {
+				GetAllVariable(this._panel.webview);
+			}
+		});
+	}
+
+	public dispose(id?: string) {
+		sideBarProvider.view.webview.postMessage({
+			type: requestTypes.closeItemRequest,
+			id: "",
+			colId: "",
+			folderId: "",
+			varId: id,
+		});
+
+		if (VariablePanel.currentPanel === this) {
+			VariablePanel.currentPanel = undefined;
+		}
+
+		this._panel.dispose();
+		this._disposables.forEach((d) => d.dispose());
+		this._disposables = [];
+	}
+}
+
 export const VariableUI = (extensionUri: vscode.Uri) => {
 	const disposable = vscode.commands.registerCommand(
 		"fetch-client.newVar",
 		(id?: string) => {
-			const varPanel = vscode.window.createWebviewPanel(
-				"fetch-client",
-				"Fetch Client - Variable",
-				vscode.ViewColumn.One,
-				{ enableScripts: true, retainContextWhenHidden: true },
-			);
-
-			const iconUri = vscode.Uri.joinPath(
-				extensionUri,
-				"icons/fetch-client.png",
-			);
-			varPanel.iconPath = iconUri;
-
-			varPanel.webview.html = buildWebviewHtml(
-				varPanel.webview,
-				extensionUri,
-				`newvar@:@${id}`,
-			);
-
-			varPanel.webview.onDidReceiveMessage((reqData: any) => {
-				if (reqData.type === requestTypes.getVariableItemRequest) {
-					GetVariableById(
-						reqData.data.id,
-						reqData.data.isGlobal,
-						varPanel.webview,
-					);
-					GetCollectionsByVariable(reqData.data.id, varPanel.webview);
-				} else if (reqData.type === requestTypes.updateVariableRequest) {
-					UpdateVariable(reqData.data, varPanel.webview);
-				} else if (reqData.type === requestTypes.saveVariableRequest) {
-					SaveVariable(reqData.data, varPanel.webview, sideBarProvider.view);
-				} else if (reqData.type === requestTypes.getAllVariableRequest) {
-					GetAllVariable(varPanel.webview);
-				}
-			});
+			VariablePanel.createOrShow(extensionUri, id);
 		},
 	);
 
