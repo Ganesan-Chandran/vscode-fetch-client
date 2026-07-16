@@ -33,6 +33,9 @@ const ReOrder = React.lazy(
 const PerformanceTest = React.lazy(
 	() => import("./components/Collection/Testing/PerformanceTest"),
 );
+const DataDrivenTest = React.lazy(
+	() => import("./components/Collection/Testing/DataDrivenTest"),
+);
 
 function ErrorFallback({ error }) {
 	const errorData =
@@ -117,6 +120,8 @@ function renderUI() {
 		return <AutoRequestUI />;
 	} else if (document.title.includes("perftest")) {
 		return <PerformanceTest />;
+	} else if (document.title.includes("datadriventest")) {
+		return <DataDrivenTest />;
 	} else {
 		return <MainUI />;
 	}
