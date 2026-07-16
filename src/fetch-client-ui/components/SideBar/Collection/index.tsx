@@ -581,6 +581,22 @@ export const CollectionBar = (props: ICollectionProps) => {
 		setCurrentHeadIndex("");
 	}
 
+	function onDataDrivenTest(
+		evt: React.MouseEvent<HTMLElement>,
+		colId: string,
+		folderId: string,
+		name: string,
+		varId: string,
+	) {
+		evt.preventDefault();
+		evt.stopPropagation();
+		vscode.postMessage({
+			type: requestTypes.runDataDrivenTestUIOpenRequest,
+			data: { colId: colId, folderId: folderId, name: name, varId: varId },
+		});
+		setCurrentHeadIndex("");
+	}
+
 	function onReOrderItems(
 		evt: React.MouseEvent<HTMLElement>,
 		colId: string,
@@ -902,7 +918,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 									</button>
 									<button
 										onClick={(e) =>
-											onPerfTest(
+											onDataDrivenTest(
 												e,
 												cols.id,
 												item.id,
@@ -1262,7 +1278,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 									</button>
 									<button
 										onClick={(e) =>
-											onPerfTest(e, item.id, "", item.name, item.variableId)
+											onDataDrivenTest(e, item.id, "", item.name, item.variableId)
 										}
 									>
 										Data-Driven Test

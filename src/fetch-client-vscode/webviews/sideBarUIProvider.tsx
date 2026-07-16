@@ -61,6 +61,7 @@ import {
 	OpenColSettings,
 	OpenCopyToColUI,
 	OpenCurlUI,
+	OpenDataDrivenTestUI,
 	OpenExistingItem,
 	OpenPerfTestUI,
 	OpenReOrderUI,
@@ -533,6 +534,14 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					break;
 				case requestTypes.runPerfTestUIOpenRequest:
 					OpenPerfTestUI(
+						reqData.data.colId,
+						reqData.data.folderId,
+						reqData.data.name,
+						reqData.data.varId,
+					);
+					break;
+				case requestTypes.runDataDrivenTestUIOpenRequest:
+					OpenDataDrivenTestUI(
 						reqData.data.colId,
 						reqData.data.folderId,
 						reqData.data.name,

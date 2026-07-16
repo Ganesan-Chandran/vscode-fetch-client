@@ -179,6 +179,22 @@ export function OpenPerfTestUI(
 	);
 }
 
+export function OpenDataDrivenTestUI(
+	colId: string,
+	folderId: string,
+	name: string,
+	varId: string,
+): void {
+	vscode.commands.executeCommand(
+		"fetch-client.addToCol",
+		colId,
+		folderId,
+		name,
+		"datadriventest",
+		varId,
+	);
+}
+
 export function OpenCookieUI(id?: string): void {
 	vscode.commands.executeCommand("fetch-client.manageCookies", id);
 }
