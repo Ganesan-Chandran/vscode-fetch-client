@@ -900,6 +900,19 @@ export const CollectionBar = (props: ICollectionProps) => {
 									>
 										Performance Test
 									</button>
+									<button
+										onClick={(e) =>
+											onPerfTest(
+												e,
+												cols.id,
+												item.id,
+												cols.name + " \\ " + item.name,
+												cols.variableId,
+											)
+										}
+									>
+										Data-Driven Test
+									</button>
 								</div>
 							</div>
 							<button onClick={(e) => onReOrderItems(e, cols.id, item.id)}>
@@ -1246,6 +1259,13 @@ export const CollectionBar = (props: ICollectionProps) => {
 										}
 									>
 										Performance Test
+									</button>
+									<button
+										onClick={(e) =>
+											onPerfTest(e, item.id, "", item.name, item.variableId)
+										}
+									>
+										Data-Driven Test
 									</button>
 								</div>
 							</div>
