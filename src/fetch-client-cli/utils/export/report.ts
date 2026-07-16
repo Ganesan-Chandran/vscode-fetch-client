@@ -110,7 +110,7 @@ function renderReport(report: ExportReport, format: ExportFormat): string {
  * - Otherwise, uses a "fetch-client-exports" folder alongside the DB storage directory.
  *
  * resolveDbPath() always returns a directory (custom path, workspace path, or the
- * default VS Code global-storage path are all directories) — never a file path.
+ * default VS Code global-storage path are all directories) - never a file path.
  */
 export async function resolveExportDirectory(customPath?: string): Promise<string> {
 	if (customPath) {

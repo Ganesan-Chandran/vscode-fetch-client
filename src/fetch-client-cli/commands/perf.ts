@@ -153,7 +153,7 @@ export async function perfRequest(opts: PerfCommandOptions): Promise<void> {
 	);
 }
 
-// --- File-backed perf (new — mirrors run --file) ------------------------------
+// --- File-backed perf (new - mirrors run --file) ------------------------------
 
 export async function perfCollectionFromFile(opts: PerfFileCommandOptions): Promise<void> {
 	const exportFormat = validateExportFormat(opts.exportFormat);

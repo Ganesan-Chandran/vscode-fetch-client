@@ -32,7 +32,6 @@ export async function runDataDrivenTest(
 	const startTime = formatDate();
 	let stopped = false;
 
-	// FIX #8: caller already sliced to maxRows; don't slice again
 	const rowsToRun = dataRows;
 
 	for (
@@ -42,7 +41,6 @@ export async function runDataDrivenTest(
 	) {
 		const rowData = rowsToRun[rowIndex];
 
-		// Build row-specific variable: deep-clone the base variable, then overlay row data
 		const rowVariable: IVariable = baseVariable
 			? JSON.parse(JSON.stringify(baseVariable))
 			: {
@@ -54,7 +52,6 @@ export async function runDataDrivenTest(
 					data: [],
 				};
 
-		// Upsert each CSV/JSON column into the variable data
 		for (const [key, value] of Object.entries(rowData)) {
 			const idx = rowVariable.data.findIndex((d) => d.key === key);
 			if (idx !== -1) {
@@ -69,7 +66,6 @@ export async function runDataDrivenTest(
 			}
 		}
 
-		// One provider instance per row so setvar propagates across requests in the same row
 		const provider = new CliPreFetchContextProvider(
 			collection,
 			requestMap,
@@ -81,7 +77,6 @@ export async function runDataDrivenTest(
 				break;
 			}
 
-			// Run collection/folder-level pre-fetch (isCollectionPreRequest=true)
 			if ((parentSettings?.preFetch?.requests?.length ?? 0) > 0) {
 				const colRunner = new PreFetchRunner(fetchConfig, req.id, provider);
 				await colRunner.RunPreRequests(
@@ -92,7 +87,6 @@ export async function runDataDrivenTest(
 				);
 			}
 
-			// Run request-level pre-fetch
 			if (
 				(req.preFetch?.requests?.length ?? 0) > 0 &&
 				req.preFetch.requests[0]?.reqId
@@ -125,7 +119,6 @@ export async function runDataDrivenTest(
 				}
 			}
 
-			// Get variable updated by pre-fetch (setvar results)
 			const currentVariable = provider.getVariable() ?? rowVariable;
 
 			const start = Date.now();
@@ -144,7 +137,6 @@ export async function runDataDrivenTest(
 				const statusText = res?.response?.statusText ?? "";
 				const isError = !res || status === 0 || status >= 400;
 
-				// Run tests
 				let testTotal = 0;
 				let testPassed = 0;
 				if (req.tests?.length > 0) {

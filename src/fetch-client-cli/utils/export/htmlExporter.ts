@@ -89,7 +89,7 @@ export function toHtml(report: ExportReport): string {
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Fetch Client Report — ${escapeHtml(context.name)}</title>
+<title>Fetch Client Report - ${escapeHtml(context.name)}</title>
 <style>
 	:root { color-scheme: light dark; }
 	body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 2rem; background: #0f1115; color: #e6e6e6; }
@@ -122,7 +122,7 @@ export function toHtml(report: ExportReport): string {
 </head>
 <body>
 	<h1>Fetch Client Report</h1>
-	<p class="subtitle">${escapeHtml(context.scope)}: ${escapeHtml(context.name)} — generated ${escapeHtml(summary.generatedAt)}</p>
+	<p class="subtitle">${escapeHtml(context.scope)}: ${escapeHtml(context.name)} - generated ${escapeHtml(summary.generatedAt)}</p>
 
 	<div class="summary">
 		<div class="stat"><div class="value">${summary.totalRequests}</div><div class="label">Requests</div></div>

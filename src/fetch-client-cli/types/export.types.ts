@@ -77,9 +77,7 @@ export interface ExportRequestResult {
 	statusText: string;
 	durationMs: number;
 	sizeBytes: number;
-	/** HTTP-level outcome only (matches the CLI's run summary criteria). */
 	outcome: ExportOutcome;
-	/** Response/error body — present whenever outcome !== 'Passed'. */
 	details?: string;
 	tests: ExportTestResult[];
 	preFetch: ExportPreFetchStep[];

@@ -37,7 +37,6 @@ const DataDrivenTest = () => {
 	const [varId, setVarId] = useState("");
 	const [loading, setLoading] = useState(false);
 
-	// Request list
 	const [req, setReq] = useState<IRequestModel[]>([]);
 	const refReq = useRef(req);
 	useEffect(() => { refReq.current = req; }, [req]);
@@ -46,7 +45,6 @@ const DataDrivenTest = () => {
 	const refSelectedReq = useRef(selectedReq);
 	useEffect(() => { refSelectedReq.current = selectedReq; }, [selectedReq]);
 
-	// Data file
 	const [fileFormat, setFileFormat] = useState<DataFileFormat>("csv");
 	const refFileFormat = useRef(fileFormat);
 	useEffect(() => { refFileFormat.current = fileFormat; }, [fileFormat]);
@@ -56,7 +54,7 @@ const DataDrivenTest = () => {
 	useEffect(() => { refCsvSeparator.current = csvSeparator; }, [csvSeparator]);
 
 	const [fileName, setFileName] = useState("");
-	// FIX #1: Store raw file content so re-parsing on format/separator change doesn't need a new dialog
+
 	const [rawFileContent, setRawFileContent] = useState("");
 	const refRawFileContent = useRef(rawFileContent);
 	useEffect(() => { refRawFileContent.current = rawFileContent; }, [rawFileContent]);
@@ -65,27 +63,22 @@ const DataDrivenTest = () => {
 	const refParseResult = useRef(parseResult);
 	useEffect(() => { refParseResult.current = parseResult; }, [parseResult]);
 
-	// FIX #6: track file load error separately from parse errors
 	const [fileLoadError, setFileLoadError] = useState("");
 
-	// Config
-	const [maxRows, setMaxRows] = useState(100);
+	const maxRows = 100;
 	const [stopOnRowFailure, setStopOnRowFailure] = useState(false);
 
-	// Validation
 	const [validationResult, setValidationResult] = useState<IValidationResult | null>(null);
 
-	// Execution
+
 	const [running, setRunning] = useState(false);
 	const refRunning = useRef(running);
 	useEffect(() => { refRunning.current = running; }, [running]);
 
 	const [done, setDone] = useState(false);
 	const [cancelled, setCancelled] = useState(false);
-	// FIX #4: track total expected rows for progress display
 	const [expectedRowCount, setExpectedRowCount] = useState(0);
 
-	// Results
 	const [results, _setResults] = useState<IDataDrivenRowResult[]>([]);
 	const refResults = useRef(results);
 	const setResults = (data: IDataDrivenRowResult[]) => {
@@ -94,10 +87,8 @@ const DataDrivenTest = () => {
 	};
 	const [finalResult, setFinalResult] = useState<IDataDrivenResult | null>(null);
 
-	// UI
 	const [selectedTab, setSelectedTab] = useState<"Setup" | "Results">("Setup");
 
-	// ── Init ──────────────────────────────────────────────────────────────────
 	useEffect(() => {
 		const parts = document.title.split("@:@");
 		const colIdVal = parts[1]?.trim();
@@ -120,7 +111,6 @@ const DataDrivenTest = () => {
 				setLoading(false);
 			} else if (event.data.type === responseTypes.selectFileResponse) {
 				const { path, fileData, error } = event.data as { path: string; fileData: string; error?: string };
-				// FIX #6: handle explicit load error from extension host
 				if (error) {
 					setFileLoadError(error);
 					setFileName("");
@@ -130,7 +120,6 @@ const DataDrivenTest = () => {
 					return;
 				}
 				if (!path || !fileData) {
-					// Dialog was dismissed without selecting a file — do nothing
 					return;
 				}
 				setFileLoadError("");
@@ -152,7 +141,6 @@ const DataDrivenTest = () => {
 					setFinalResult(event.data.data as IDataDrivenResult);
 				}
 				setRunning(false);
-				// FIX #3: always mark done (even after cancel with partial results)
 				setDone(true);
 				setSelectedTab("Results");
 			}
@@ -160,7 +148,6 @@ const DataDrivenTest = () => {
 
 		window.addEventListener("message", handleMessage);
 
-		// Load requests for this collection/folder
 		vscode.postMessage({
 			type: requestTypes.getCollectionsByIdRequest,
 			data: {
@@ -174,7 +161,6 @@ const DataDrivenTest = () => {
 		return () => window.removeEventListener("message", handleMessage);
 	}, []);
 
-	// ── Helpers ───────────────────────────────────────────────────────────────
 	const getSelectedRequests = () =>
 		req.filter((_, i) => selectedReq[i]);
 
@@ -188,7 +174,6 @@ const DataDrivenTest = () => {
 		parseResult.rowCount > 0 &&
 		getSelectedRequests().length > 0;
 
-	// FIX #1/#2: re-parse stored content, never re-open dialog
 	const reparseCurrentFile = useCallback((fmt: DataFileFormat, sep: CsvSeparator) => {
 		const raw = refRawFileContent.current;
 		if (!raw) { return; }
@@ -197,7 +182,6 @@ const DataDrivenTest = () => {
 		setValidationResult(null);
 	}, []);
 
-	// ── Actions ───────────────────────────────────────────────────────────────
 	function onBrowseFile() {
 		vscode.postMessage({ type: requestTypes.selectFileRequest });
 	}
@@ -205,14 +189,12 @@ const DataDrivenTest = () => {
 	function onFileFormatChange(f: DataFileFormat) {
 		setFileFormat(f);
 		refFileFormat.current = f;
-		// FIX #2: re-parse stored content instead of reopening dialog
 		reparseCurrentFile(f, refCsvSeparator.current);
 	}
 
 	function onSeparatorChange(s: CsvSeparator) {
 		setCsvSeparator(s);
 		refCsvSeparator.current = s;
-		// FIX #1: re-parse stored content with new separator
 		reparseCurrentFile(refFileFormat.current, s);
 	}
 
@@ -241,7 +223,6 @@ const DataDrivenTest = () => {
 
 		const selected = getSelectedRequests();
 		const limitedRows = parseResult.rows.slice(0, maxRows);
-		// FIX #4: store expected total so progress indicator can show "X / Y"
 		setExpectedRowCount(limitedRows.length);
 
 		const config: IDataDrivenConfig = {
@@ -259,7 +240,6 @@ const DataDrivenTest = () => {
 				folderId,
 				varId,
 				selectedRequestIds: selected.map((r) => r.id),
-				// FIX #8: slice here only; runner should not slice again
 				dataRows: limitedRows,
 				config,
 				testName: sourceColName,
@@ -271,7 +251,6 @@ const DataDrivenTest = () => {
 		vscode.postMessage({ type: requestTypes.runDataDrivenCancelRequest });
 		setRunning(false);
 		setCancelled(true);
-		// FIX #3: transition to done with partial results so export is available
 		setDone(true);
 	}
 
@@ -293,7 +272,6 @@ const DataDrivenTest = () => {
 	}
 
 	function onExportJson() {
-		// FIX #3: export partial results when cancelled
 		const result = finalResult ?? buildPartialResult();
 		const config: IDataDrivenConfig = {
 			fileFormat,
@@ -306,12 +284,11 @@ const DataDrivenTest = () => {
 		vscode.postMessage({
 			type: requestTypes.exportRunTestJsonRequest,
 			name: sourceColName,
-			data: json,
+			data: JSON.parse(json),
 		});
 	}
 
 	function onExportCSV() {
-		// FIX #3: export partial results when cancelled
 		const result = finalResult ?? buildPartialResult();
 		const csv = exportDataDrivenCSV(result);
 		vscode.postMessage({
@@ -321,7 +298,6 @@ const DataDrivenTest = () => {
 		});
 	}
 
-	// ── Render helpers ────────────────────────────────────────────────────────
 	function renderStatusBadge(status: number) {
 		let cls = "dd-status-badge";
 		if (status === 0) { cls += " dd-badge-error"; }
@@ -344,7 +320,12 @@ const DataDrivenTest = () => {
 	function renderSetupTab() {
 		return (
 			<div className="dd-setup-panel">
-				{/* Settings */}
+				<div className="dd-settings-section">
+				<div className="perf-settings-option">
+					<label className="perf-settings-title">Collection</label>
+					<span className="col-name-text">{sourceColName}</span>
+				</div>
+			</div>
 				<DataDrivenTestSettings
 					fileFormat={fileFormat}
 					csvSeparator={csvSeparator}
@@ -356,12 +337,10 @@ const DataDrivenTest = () => {
 					disabled={running}
 					onFileFormatChange={onFileFormatChange}
 					onSeparatorChange={onSeparatorChange}
-					onMaxRowsChange={setMaxRows}
 					onStopOnRowFailureChange={setStopOnRowFailure}
 					onBrowseFile={onBrowseFile}
 				/>
 
-				{/* Request list */}
 				{req.length > 0 && (
 					<div className="dd-req-panel">
 						<div className="dd-section-title">
@@ -420,7 +399,6 @@ const DataDrivenTest = () => {
 					</div>
 				)}
 
-				{/* Validation result */}
 				{validationResult && (
 					<div
 						className={
@@ -451,9 +429,8 @@ const DataDrivenTest = () => {
 					</div>
 				)}
 
-				{/* Notes */}
 				<div className="dd-notes-panel">
-					<div className="dd-notes-title">Notes &amp; Assumptions</div>
+					<div className="dd-notes-title">Notes</div>
 					<ul className="dd-notes-list">
 						<li>Maximum <strong>100 data rows</strong> are supported per run.</li>
 						<li>
@@ -463,7 +440,7 @@ const DataDrivenTest = () => {
 						</li>
 						<li>
 							Variables set by pre-requests (setvar) must have an <strong>empty
-							column</strong> in your CSV / JSON — the runner will fill the value
+							column</strong> in your CSV / JSON - the runner will fill the value
 							at runtime.
 						</li>
 						<li>
@@ -496,19 +473,16 @@ const DataDrivenTest = () => {
 			(r) => !r.isError && (r.testTotal === 0 || r.testPassed === r.testTotal),
 		).length;
 		const failed = results.length - passed;
-		// FIX #4: show progress counter; use finalResult.totalRows when available
 		const totalRowsKnown = finalResult?.totalRows ?? expectedRowCount;
 
 		return (
 			<div className="dd-results-panel">
-				{/* Summary */}
 				<div className="dd-summary-row">
 					<span className="dd-summary-item">
 						Rows: <strong>{totalRowsKnown}</strong>
 					</span>
 					<span className="dd-summary-item">
 						Requests: <strong>{results.length}</strong>
-						{/* FIX #4: progress counter while running */}
 						{running && expectedRowCount > 0 && (
 							<span className="dd-progress-hint">
 								{" "}(row {Math.ceil(results.length / Math.max(1, getSelectedRequests().length))} / {expectedRowCount})
@@ -531,7 +505,6 @@ const DataDrivenTest = () => {
 					)}
 				</div>
 
-				{/* Results table */}
 				<div className="dd-table-wrapper">
 					<table className="dd-results-table">
 						<thead>
@@ -581,13 +554,12 @@ const DataDrivenTest = () => {
 					</table>
 				</div>
 
-				{/* FIX #3: show export when done OR cancelled with partial results */}
 				{done && results.length > 0 && (
 					<div className="dd-export-row">
-						<button className="submit-button" onClick={onExportJson}>
+						<button className="submit-button dd-export-btn" onClick={onExportJson}>
 							Export JSON
 						</button>
-						<button className="submit-button" onClick={onExportCSV}>
+						<button className="submit-button dd-export-btn" onClick={onExportCSV}>
 							Export CSV
 						</button>
 					</div>
@@ -596,7 +568,6 @@ const DataDrivenTest = () => {
 		);
 	}
 
-	// ── Main render ───────────────────────────────────────────────────────────
 	const tabTitle = (
 		<div className="dd-tab-bar">
 			{(["Setup", "Results"] as const).map((tab) => (
@@ -635,7 +606,7 @@ const DataDrivenTest = () => {
 				</>
 			)}
 			{running && (
-				<button className="cancel-button" onClick={onCancel}>
+				<button className="submit-button cancel-button" onClick={onCancel}>
 					Cancel
 				</button>
 			)}
@@ -644,11 +615,7 @@ const DataDrivenTest = () => {
 
 	return (
 		<PanelLayout
-			title={
-				<div className="dd-header">
-					<span>Data-Driven Test — {sourceColName}</span>
-				</div>
-			}
+			title={`📊 Data-Driven Test`}
 			loading={loading}
 			footer={footer}
 		>

@@ -11,7 +11,7 @@ function escapeXml(value: string | number | undefined | null): string {
 		.replace(/'/g, "&apos;");
 }
 
-/** Combines HTTP outcome + assertion results — this is what "passing a test" means. */
+/** Combines HTTP outcome + assertion results - this is what "passing a test" means. */
 function testCaseResult(r: ExportRequestResult): "Passed" | "Failed" {
 	const httpOk = r.outcome === "Passed";
 	const testsOk = r.tests.every((t) => t.passed);
@@ -51,7 +51,7 @@ function renderTestCase(r: ExportRequestResult, id: number): string {
 
 /**
  * NUnit3 test-run XML. Totals here are computed from each test-case's combined
- * HTTP + assertion result (testCaseResult), NOT from the HTTP-only summary —
+ * HTTP + assertion result (testCaseResult), NOT from the HTTP-only summary -
  * otherwise a request that returns 200 but fails a test would make the suite
  * header say "passed" while its own test-case says "Failed".
  */

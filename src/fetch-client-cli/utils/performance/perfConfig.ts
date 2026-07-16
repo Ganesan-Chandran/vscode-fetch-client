@@ -68,13 +68,13 @@ function parseNumericFlag(
 	const parsed = Number(raw);
 
 	if (isNaN(parsed)) {
-		warnings.push(`'${flagName} ${raw}' is not a number — using default (${fallback}).`);
+		warnings.push(`'${flagName} ${raw}' is not a number - using default (${fallback}).`);
 		return { value: fallback, wasProvided: false };
 	}
 
 	const clamped = clamp(parsed, min, max);
 	if (clamped !== parsed) {
-		warnings.push(`'${flagName} ${raw}' is out of range (${min}-${max}) — clamped to ${clamped}.`);
+		warnings.push(`'${flagName} ${raw}' is out of range (${min}-${max}) - clamped to ${clamped}.`);
 	}
 
 	return { value: clamped, wasProvided: true };

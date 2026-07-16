@@ -88,7 +88,7 @@ export function extractSetVarNames(req: IRequestModel): Set<string> {
 /**
  * Validate that all {{variable}} placeholders used in the selected requests
  * (and their pre-requests' setvar outputs) are present as columns in the
- * data file. Values may be empty — they will be filled at runtime by pre-req.
+ * data file. Values may be empty - they will be filled at runtime by pre-req.
  */
 export function validateVariables(
 	requests: IRequestModel[],

@@ -7,7 +7,7 @@ function summarizeStep(step: ExportPreFetchStep, depth: number): string {
 	return [label, ...childSummaries].join(" | ");
 }
 
-/** One-line, delimiter-safe summary of a pre-fetch chain — used by CSV and NUnit. */
+/** One-line, delimiter-safe summary of a pre-fetch chain - used by CSV and NUnit. */
 export function summarizePreFetch(steps: ExportPreFetchStep[]): string {
 	if (steps.length === 0) {
 		return "";

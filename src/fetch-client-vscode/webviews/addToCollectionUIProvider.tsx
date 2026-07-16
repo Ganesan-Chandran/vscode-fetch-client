@@ -162,7 +162,7 @@ export const AddToColUI = (extensionUri: vscode.Uri) => {
 						vscode.Uri.file(
 							`fetch-client-collection-report-${message.name?.replace(/[/\\?%*:|"<>]/g, "-")}.json`,
 						),
-						JSON.stringify(message.data),
+						JSON.stringify(message.data, null, "\t"),
 						"exportRunTestJsonRequest",
 						{ filters: { "Json Files": ["json"] } },
 					);
@@ -243,7 +243,7 @@ export const AddToColUI = (extensionUri: vscode.Uri) => {
 							});
 						}
 					}
-					// If dialog dismissed (no uris), send nothing — UI treats missing response as cancel
+					// If dialog dismissed (no uris), send nothing - UI treats missing response as cancel
 				} else if (message.type === requestTypes.runDataDrivenRunRequest) {
 					// Cancel any existing run on this panel
 					const existing = dataDrivenCancelRefs.get(colPanel);
