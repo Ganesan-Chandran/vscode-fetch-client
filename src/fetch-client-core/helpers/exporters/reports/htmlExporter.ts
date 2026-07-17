@@ -1,8 +1,4 @@
-import {
-	ExportPreFetchStep,
-	ExportReport,
-	ExportRequestResult,
-} from "../../types/export.types";
+import { ExportPreFetchStep, ExportReport, ExportRequestResult } from "../../../types/export.types";
 
 function escapeHtml(value: string | number | undefined | null): string {
 	const str = value === undefined || value === null ? "" : String(value);
@@ -81,15 +77,60 @@ function renderRequestCard(r: ExportRequestResult): string {
 	</section>`;
 }
 
-export function toHtml(report: ExportReport): string {
-	const { context, summary } = report;
-	const requestCards = report.results.map(renderRequestCard).join("\n");
+function renderIteration(report: ExportReport, iteration: number): string {
+	const { summary } = report;
+
+	const requestCards = report.results
+		.map(renderRequestCard)
+		.join("\n");
+
+	return `
+<section class="iteration">
+    <h4>Iteration ${iteration}</h4>   
+
+    <div class="summary">
+        <div class="stat">
+            <div class="value">${summary.totalRequests}</div>
+            <div class="label">Requests</div>
+        </div>
+
+        <div class="stat">
+            <div class="value">${summary.passedRequests}</div>
+            <div class="label">Passed</div>
+        </div>
+
+        <div class="stat">
+            <div class="value">${summary.failedRequests}</div>
+            <div class="label">Failed</div>
+        </div>
+
+        <div class="stat">
+            <div class="value">${summary.totalDurationMs} ms</div>
+            <div class="label">Total Duration</div>
+        </div>
+
+        <div class="stat">
+            <div class="value">${summary.passedTests}/${summary.totalTests}</div>
+            <div class="label">Tests Passed</div>
+        </div>
+    </div>
+
+    ${requestCards}
+		<br/>
+</section>`;
+}
+
+export function toHtml(reports: ExportReport[]): string {
+	const { context, summary } = reports[0];
+	const iterationsHtml = reports
+		.map((report, index) => renderIteration(report, index + 1))
+		.join("\n");
 
 	return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Fetch Client Report - ${escapeHtml(context.name)}</title>
+<title>Fetch Client Report</title>
 <style>
 	:root { color-scheme: light dark; }
 	body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 2rem; background: #0f1115; color: #e6e6e6; }
@@ -118,21 +159,20 @@ export function toHtml(report: ExportReport): string {
 	.badge-pass { background: #14361f; color: #4ade80; }
 	.badge-fail { background: #3a1414; color: #f87171; }
 	.method { font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.8rem; background: #2c313b; }
+	.iteration { margin-bottom: 4rem; padding-bottom: 3rem; border-bottom: 2px solid #333; }
+	.iteration:last-child { border-bottom: none; }
+	.iteration h2 { margin-top: 0; color: #fff; }
 </style>
 </head>
 <body>
-	<h1>Fetch Client Report</h1>
-	<p class="subtitle">${escapeHtml(context.scope)}: ${escapeHtml(context.name)} - generated ${escapeHtml(summary.generatedAt)}</p>
-
-	<div class="summary">
-		<div class="stat"><div class="value">${summary.totalRequests}</div><div class="label">Requests</div></div>
-		<div class="stat"><div class="value">${summary.passedRequests}</div><div class="label">Passed</div></div>
-		<div class="stat"><div class="value">${summary.failedRequests}</div><div class="label">Failed</div></div>
-		<div class="stat"><div class="value">${summary.totalDurationMs} ms</div><div class="label">Total duration</div></div>
-		<div class="stat"><div class="value">${summary.passedTests}/${summary.totalTests}</div><div class="label">Tests passed</div></div>
-	</div>
-
-	${requestCards}
+    <h1>Fetch Client Report</h1>
+		<p class="subtitle">
+        ${escapeHtml(context.scope).toLocaleUpperCase()}:
+        ${escapeHtml(context.name)}
+        -
+        generated ${escapeHtml(summary.generatedAt)}
+    </p>
+    ${iterationsHtml}
 </body>
 </html>
 `;

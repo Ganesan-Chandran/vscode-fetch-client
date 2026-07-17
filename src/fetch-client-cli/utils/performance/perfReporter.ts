@@ -1,9 +1,9 @@
 import { computeMetrics, computeEndpointBreakdown, exportPerfJson, exportPerfCSV } from "../../../fetch-client-core/utils/performanceTestService/perfHelper";
+import { ExportFormat } from "../../../fetch-client-core/consts/export.consts";
 import { IPerfConfig, IPerfResultPoint, IPerfMetrics, IPerfEndpointMetrics } from "../../../fetch-client-core/types/perfTest.types";
 import { printPerfSummary } from "../display";
-import { writeReportFile } from "../export/report";
 import { writeConsoleLog } from "../logger";
-import { ExportFormat } from "../../types/export.types";
+import { writeReportFile } from "../export/report";
 
 export interface PerfFinalizeOptions {
 	exportFormat?: ExportFormat;

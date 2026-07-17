@@ -12,7 +12,7 @@ import {
 import { ConvertCurlToRequest } from "../../fetch-client-core/utils/curlToRequest";
 import { DbPreFetchContextProvider } from "../../fetch-client-core/utils/preFetchService/dbPreFetchContextProvider";
 import { executeCollection, executeFolder, executeRequest, executeSingleRequest } from "./helper";
-import { ExportFormat } from "../types/export.types";
+import { ExportFormat } from "../../fetch-client-core/consts/export.consts";
 import { formatDate } from "../../fetch-client-core/helpers/dateTime.helper";
 import { History_Repository_InsertHistory } from "../../fetch-client-core/db/history.repository";
 import { IHistory, ISettings } from "../../fetch-client-core/types/sidebar.types";

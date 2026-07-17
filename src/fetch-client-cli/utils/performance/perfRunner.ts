@@ -1,7 +1,7 @@
 import { cliConfig } from "../../config";
 import { computeVUsForWave, shouldStopTest } from "../../../fetch-client-core/utils/performanceTestService/perfEngine";
 import { executeRequest, resolveSettings } from "../../commands/helper";
-import { ExportFormat } from "../../types/export.types";
+import { ExportFormat } from "../../../fetch-client-core/consts/export.consts";
 import { finalizePerfTest } from "./perfReporter";
 import { ICollections, IVariable } from "../../../fetch-client-core/types/sidebar.types";
 import { IPerfConfig, IPerfResultPoint } from "../../../fetch-client-core/types/perfTest.types";

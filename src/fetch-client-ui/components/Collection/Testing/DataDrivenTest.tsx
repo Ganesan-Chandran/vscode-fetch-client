@@ -283,7 +283,7 @@ const DataDrivenTest = () => {
 		const json = exportDataDrivenJson(result, config, sourceColName);
 		vscode.postMessage({
 			type: requestTypes.exportRunTestJsonRequest,
-			name: sourceColName,
+			name: `${sourceColName}-ddTest`,
 			data: JSON.parse(json),
 		});
 	}
@@ -293,7 +293,7 @@ const DataDrivenTest = () => {
 		const csv = exportDataDrivenCSV(result);
 		vscode.postMessage({
 			type: requestTypes.exportRunTestCSVRequest,
-			name: sourceColName,
+			name: `${sourceColName}-ddTest`,
 			data: csv,
 		});
 	}
@@ -321,11 +321,11 @@ const DataDrivenTest = () => {
 		return (
 			<div className="dd-setup-panel">
 				<div className="dd-settings-section">
-				<div className="perf-settings-option">
-					<label className="perf-settings-title">Collection</label>
-					<span className="col-name-text">{sourceColName}</span>
+					<div className="perf-settings-option">
+						<label className="perf-settings-title">Collection</label>
+						<span className="col-name-text">{sourceColName}</span>
+					</div>
 				</div>
-			</div>
 				<DataDrivenTestSettings
 					fileFormat={fileFormat}
 					csvSeparator={csvSeparator}
@@ -440,7 +440,7 @@ const DataDrivenTest = () => {
 						</li>
 						<li>
 							Variables set by pre-requests (setvar) must have an <strong>empty
-							column</strong> in your CSV / JSON - the runner will fill the value
+								column</strong> in your CSV / JSON - the runner will fill the value
 							at runtime.
 						</li>
 						<li>

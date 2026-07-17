@@ -1,7 +1,7 @@
 import { cliConfig } from "../config";
 import { CollectionRunContext, FolderRunContext, RequestRunContext } from "../types/common.types";
 import { executeTests } from "../../fetch-client-core/helpers/tests.helper";
-import { ExportFormat } from "../types/export.types";
+import { ExportFormat } from "../../fetch-client-core/consts/export.consts";
 import { FetchConfig, apiFetch, updateVariables } from "../../fetch-client-core/utils/fetchUtil";
 import { findParentSettings } from "../../fetch-client-core/helpers/settings.helper";
 import { getTimeOutConfiguration, getHeadersConfiguration } from "../../fetch-client-core/utils/vscodeConfig";
@@ -11,7 +11,8 @@ import { IPreFetchResponse, IReponseModel, ITestResult } from "../../fetch-clien
 import { IRequestModel } from "../../fetch-client-core/types/request.types";
 import { ITableData } from "../../fetch-client-core/types/common.types";
 import { PreFetchRunner } from "../../fetch-client-core/utils/preFetchService/preFetchRunner";
-import { RunResult, printSection, printRunResult, printRunSummary } from "../utils/display";
+import { printSection, printRunResult, printRunSummary } from "../utils/display";
+import { RunResult } from "../../fetch-client-core/types/cli.types";
 import { Var_Repository_FindByIdSync } from "../../fetch-client-core/db/variableDB.repository";
 import { writeConsoleLog } from "../utils/logger";
 import { writeExportReport } from "../utils/export/report";

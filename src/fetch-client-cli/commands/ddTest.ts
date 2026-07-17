@@ -16,7 +16,6 @@ import {
 } from "./lookup";
 import { cliConfig } from "../config";
 import { resolveSettings } from "./helper";
-import { ExportFormat } from "../types/export.types";
 import {
 	exportDataDrivenCSV,
 	exportDataDrivenJson,
@@ -33,12 +32,13 @@ import {
 	IDataDrivenConfig,
 	IDataDrivenRowResult,
 } from "../../fetch-client-core/utils/dataDrivenTestService/dataDriven.types";
-import { getTimeOutConfiguration, getHeadersConfiguration } from "../../fetch-client-core/utils/vscodeConfig";
+import { bold, dim, green, methodBadge, printSection, red, statusBadge, yellow } from "../utils/display";
+import { ExportFormat } from "../../fetch-client-core/consts/export.consts";
 import { FetchConfig } from "../../fetch-client-core/utils/fetchUtil";
+import { getTimeOutConfiguration, getHeadersConfiguration } from "../../fetch-client-core/utils/vscodeConfig";
 import { ICollections, IVariable } from "../../fetch-client-core/types/sidebar.types";
 import { IRequestModel } from "../../fetch-client-core/types/request.types";
 import { writeConsoleLog, wrtieConsleError } from "../utils/logger";
-import { bold, dim, green, methodBadge, printSection, red, statusBadge, yellow } from "../utils/display";
 
 export interface DataDrivenCliOptions {
 	col?: boolean;

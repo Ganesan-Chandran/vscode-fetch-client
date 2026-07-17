@@ -27,6 +27,7 @@ export const requestTypes = {
 	downloadLargeFileRequest: "downloadLargeFileRequest",
 	duplicateCollectionsRequest: "duplicateCollectionsRequest",
 	duplicateVariableRequest: "duplicateVariableRequest",
+	exportData: "exportData",
 	exportRequest: "exportRequest",
 	exportRunTestCSVRequest: "exportRunTestCSVRequest",
 	exportRunTestJsonRequest: "exportRunTestJsonRequest",

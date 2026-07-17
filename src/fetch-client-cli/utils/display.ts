@@ -1,16 +1,10 @@
-import {
-	ICollections,
-	IFolder,
-	IHistory,
-} from "../../fetch-client-core/types/sidebar.types";
-import {
-	IPreFetchResponse,
-	ITestResult,
-} from "../../fetch-client-core/types/response.types";
-import { ITableData } from "../../fetch-client-core/types/common.types";
-import { writeConsoleLog } from "./logger";
+import { ICollections, IFolder, IHistory } from "../../fetch-client-core/types/sidebar.types";
 import { IPerfMetrics, IPerfEndpointMetrics, IPerfResultPoint, IPerfConfig } from "../../fetch-client-core/types/perfTest.types";
+import { IPreFetchResponse } from "../../fetch-client-core/types/response.types";
+import { ITableData } from "../../fetch-client-core/types/common.types";
 import { PerfConfigFieldSource } from "./performance/perfConfig";
+import { RunResult } from "../../fetch-client-core/types/cli.types";
+import { writeConsoleLog } from "./logger";
 
 // === ANSI colour helpers ====================================================
 
@@ -285,23 +279,6 @@ export function printFolderTree(folder: IFolder, collectionName: string): void {
 }
 
 // ── Request execution result ───────────────────────────────────────────
-
-export interface RunResult {
-	id: string;
-	name: string;
-	method: string;
-	url: string;
-	parent?: string;
-	status: number;
-	statusText: string;
-	duration: number;
-	size: number;
-	responseData: string;
-	responseType?: { isBinaryFile: boolean; format: string };
-	isError: boolean;
-	testResults: ITestResult[];
-	preFetchResponses?: IPreFetchResponse[];
-}
 
 export function printPreFetchInfo(
 	responses: IPreFetchResponse[],

@@ -1,4 +1,4 @@
-import { ExportPreFetchStep } from "../../types/export.types";
+import { ExportPreFetchStep } from "../../../types/export.types";
 
 function summarizeStep(step: ExportPreFetchStep, depth: number): string {
 	const marker = depth > 0 ? `${">".repeat(depth)} ` : "";

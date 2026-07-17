@@ -11,17 +11,14 @@ setVariableEncryptionConfiguration(cliConfig.encryptionEnabled);
 setVariableEncryptionKey(cliConfig.encryptionKey);
 
 // - 2. Lazy-import command handlers (DB repos are only called inside them) -
-import { listCollections, listFolders, listVariables } from "./commands/list";
-import { runCollection, runFolder, runRequest, runCurl, runCollectionFromFile, runFolderFromFile, runRequestFromFile } from "./commands/run";
 import { checkDbFiles } from "./commands/check";
-import { writeConsoleLog, wrtieConsleError } from "./utils/logger";
-import {
-	isSupportedExportFormat,
-	SUPPORTED_EXPORT_FORMATS,
-	ExportFormat,
-} from "./types/export.types";
+import { ExportFormat, SUPPORTED_EXPORT_FORMATS } from "../fetch-client-core/consts/export.consts";
+import { isSupportedExportFormat } from "./types/export.types";
+import { listCollections, listFolders, listVariables } from "./commands/list";
 import { perfCollection, perfCollectionFromFile, perfFolder, perfFolderFromFile, perfRequest, perfRequestFromFile } from "./commands/perf";
+import { runCollection, runFolder, runRequest, runCurl, runCollectionFromFile, runFolderFromFile, runRequestFromFile } from "./commands/run";
 import { runDataDrivenCli } from "./commands/ddTest";
+import { writeConsoleLog, wrtieConsleError } from "./utils/logger";
 
 // - Version / package info -
 

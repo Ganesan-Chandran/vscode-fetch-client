@@ -1,7 +1,8 @@
-import { ExportReport } from "../../types/export.types";
+import { ExportReport } from "../../../types/export.types";
 import { summarizePreFetch } from "./preFetchSummary";
 
 const HEADERS = [
+	"Iteration",
 	"Name",
 	"Method",
 	"URL",
@@ -38,14 +39,27 @@ function toRow(
  * no tests still get a single row. Pre-fetch chain is summarized into one column
  * (full tree detail is available in the JSON/XML exports).
  */
-export function toCsv(report: ExportReport): string {
+export function toCsv(reports: ExportReport[]): string {
 	const rows: string[] = [toRow(HEADERS)];
 
+	reports.forEach((report, iteration) => {
+		appendReportRows(rows, report, iteration + 1);
+	});
+
+	return rows.join("\n") + "\n";
+}
+
+function appendReportRows(
+	rows: string[],
+	report: ExportReport,
+	iteration: number,
+): void {
 	for (const r of report.results) {
 		const testsPassed = r.tests.filter((t) => t.passed).length;
 		const preFetchSummary = summarizePreFetch(r.preFetch);
 
-		const baseRow: Array<string | number | boolean | undefined | null> = [
+		const baseRow = [
+			iteration,
 			r.name,
 			r.method,
 			r.url,
@@ -77,6 +91,4 @@ export function toCsv(report: ExportReport): string {
 			);
 		}
 	}
-
-	return rows.join("\n") + "\n";
 }

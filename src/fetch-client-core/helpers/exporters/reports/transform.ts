@@ -1,14 +1,10 @@
-import {
-	ExportOutcome,
-	ExportTestResult,
-	ExportPreFetchStep,
-	ExportRequestResult,
-} from "../../types/export.types";
+import { RunResult } from "../../../types/cli.types";
+import { ExportOutcome, ExportTestResult, ExportPreFetchStep, ExportRequestResult } from "../../../types/export.types";
 import {
 	IPreFetchResponse,
 	ITestResult,
-} from "../../../fetch-client-core/types/response.types";
-import { RunResult } from "../display";
+} from "../../../types/response.types";
+
 
 function computeOutcome(r: RunResult): ExportOutcome {
 	if (r.isError) {

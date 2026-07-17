@@ -175,6 +175,25 @@ export const AddToColUI = (extensionUri: vscode.Uri) => {
 						"exportRunTestCSVRequest",
 						{ filters: { CSV: ["csv"] } },
 					);
+				} else if (message.type === requestTypes.exportData) {
+					const format = (message.format?.toString() ?? "").toUpperCase();
+					if (format === "") {
+						return;
+					}
+					let fileExt: string;
+					if (format === "HTML") {
+						fileExt = "html";
+					} else if (format === "XML") {
+						fileExt = "xml";
+					}
+					await saveToFile(
+						vscode.Uri.file(
+							`fetch-client-collection-report-${message.name?.replace(/[/\\?%*:|"<>]/g, "-")}.${fileExt}`,
+						),
+						message.data.toString(),
+						"requestTypes.exportData",
+						{ filters: { format: [`${fileExt}`] } },
+					);
 				} else if (message.type === requestTypes.saveColSettingsRequest) {
 					SaveCollectionSettings(
 						colPanel.webview,
