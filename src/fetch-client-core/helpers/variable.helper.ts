@@ -44,7 +44,7 @@ export function replaceValueWithVariable(
 		varData,
 	);
 
-	if (request.auth.aws) {
+	if (request.auth?.aws) {
 		request.auth.aws.accessKey = replaceDataWithVariable(
 			request.auth.aws.accessKey,
 			varData,
@@ -65,6 +65,20 @@ export function replaceValueWithVariable(
 			request.auth.aws.sessionToken,
 			varData,
 		);
+	}
+
+	if (request.auth?.oauth) {
+		request.auth.oauth.username = replaceDataWithVariable(request.auth.oauth.username, varData);
+		request.auth.oauth.tokenUrl = replaceDataWithVariable(request.auth.oauth.tokenUrl, varData);
+		request.auth.oauth.tokenName = replaceDataWithVariable(request.auth.oauth.tokenName, varData);
+		request.auth.oauth.scope = replaceDataWithVariable(request.auth.oauth.scope, varData);
+		request.auth.oauth.password = replaceDataWithVariable(request.auth.oauth.password, varData);
+		request.auth.oauth.clientSecret = replaceDataWithVariable(request.auth.oauth.clientSecret, varData);
+		request.auth.oauth.clientId = replaceDataWithVariable(request.auth.oauth.clientId, varData);
+		if (request.auth?.oauth?.advancedOpt) {
+			request.auth.oauth.advancedOpt.audience = replaceDataWithVariable(request.auth.oauth.advancedOpt?.audience, varData);
+			request.auth.oauth.advancedOpt.resource = replaceDataWithVariable(request.auth.oauth.advancedOpt?.resource, varData);
+		}
 	}
 
 	if (

@@ -49,6 +49,18 @@ export function extractVariablesFromRequest(req: IRequestModel): Set<string> {
 		extractFromString(req.auth.aws.sessionToken, vars);
 	}
 
+	if (req.auth?.oauth) {
+		extractFromString(req.auth.oauth.username, vars);
+		extractFromString(req.auth.oauth.tokenUrl, vars);
+		extractFromString(req.auth.oauth.tokenName, vars);
+		extractFromString(req.auth.oauth.scope, vars);
+		extractFromString(req.auth.oauth.password, vars);
+		extractFromString(req.auth.oauth.clientSecret, vars);
+		extractFromString(req.auth.oauth.clientId, vars);
+		extractFromString(req.auth.oauth.advancedOpt?.audience, vars);
+		extractFromString(req.auth.oauth.advancedOpt?.resource, vars);
+	}
+
 	const body = req.body;
 	if (body) {
 		if (body.bodyType === "raw") {

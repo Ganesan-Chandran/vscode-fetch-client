@@ -26,13 +26,13 @@ const C = {
 	blueBg: "\x1b[44m",
 };
 
-function bold(s: string) {
+export function bold(s: string) {
 	return `${C.bold}${s}${C.reset}`;
 }
-function dim(s: string) {
+export function dim(s: string) {
 	return `${C.dim}${s}${C.reset}`;
 }
-function green(s: string) {
+export function green(s: string) {
 	return `${C.green}${s}${C.reset}`;
 }
 export function red(s: string) {
@@ -41,7 +41,7 @@ export function red(s: string) {
 export function yellow(s: string) {
 	return `${C.yellow}${s}${C.reset}`;
 }
-function cyan(s: string) {
+export function cyan(s: string) {
 	return `${C.cyan}${s}${C.reset}`;
 }
 

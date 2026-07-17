@@ -21,6 +21,7 @@ import {
 	ExportFormat,
 } from "./types/export.types";
 import { perfCollection, perfCollectionFromFile, perfFolder, perfFolderFromFile, perfRequest, perfRequestFromFile } from "./commands/perf";
+import { runDataDrivenCli } from "./commands/ddTest";
 
 // - Version / package info -
 
@@ -128,6 +129,28 @@ invalid, out-of-range, or irrelevant flags for the chosen load model.
  
 Press Ctrl+C once to stop gracefully and print results so far; press it again to force-quit.
  
+── DATA-DRIVEN TEST ────────────────────────────────────────────────────────────────────────────────
+
+fc-cli dd --col <name/id> --data <file.csv|file.json>              Run every request in a collection once per data row
+fc-cli dd --fol <name/id> --data <file.csv|file.json>              Run every request in a folder once per data row
+fc-cli dd --req <name/id>[,<name/id>...] --data <file>              Run specific requests (must be in the same collection)
+fc-cli dd --col <name/id> --req <name/id>[,...] --data <file>      Restrict a collection/folder run to specific requests
+fc-cli dd --file <collection.json> --data <file>                   Run against an exported collection
+fc-cli dd --file <collection.json> --fol <name/id> --data <file>   Restrict to a folder within the file
+
+--data <file>                                   (required)            CSV or JSON data file, one row per iteration
+--dd-format <csv|json>                          [default: inferred from --data extension]
+--dd-separator <,|;|tab>                        [default: ,]           CSV column separator
+--stop-on-fail                                                        Stop the run as soon as a row fails
+--validate                                                            Check that all {{variables}} used are present as
+                                                                       columns in the data file, then exit without running
+--var <name/id>                                                      Variable set to merge under the row data (row data wins)
+--export <json|csv>                             [default: none]       Export a data-driven report after the run
+--export-path <dir>                             [default: ./fetch-client-exports]
+
+Maximum 100 data rows per run. Requests run sequentially per row, in collection/folder order.
+Press Ctrl+C once to stop gracefully and print results so far; press it again to force-quit.
+
 ── CHECK ───────────────────────────────────────────────────────────────────────────────────────────
  
 fc-cli check                                                    Check if all DB files exist
@@ -179,6 +202,11 @@ interface ParsedArgs {
 	rampupDuration?: string;
 	rampupSteps?: string;
 	thinkTime?: string;
+	data?: string;
+	ddFormat?: string;
+	ddSeparator?: string;
+	stopOnFail: boolean;
+	validate: boolean;
 }
 
 const VALUE_FLAGS = new Set([
@@ -198,6 +226,9 @@ const VALUE_FLAGS = new Set([
 	"--rampup-duration",
 	"--rampup-steps",
 	"--think-time",
+	"--data",
+	"--dd-format",
+	"--dd-separator",
 ]);
 
 /** Flags that support an inline `--flag <value>` shorthand for name/id. */
@@ -217,6 +248,8 @@ function parseArgs(argv: string[]): ParsedArgs {
 		all: false,
 		help: false,
 		version: false,
+		stopOnFail: false,
+		validate: false,
 	};
 
 	for (let i = 0; i < argv.length; i++) {
@@ -268,6 +301,16 @@ function parseArgs(argv: string[]): ParsedArgs {
 
 		if (arg === "--all") {
 			result.all = true;
+			continue;
+		}
+
+		if (arg === "--stop-on-fail") {
+			result.stopOnFail = true;
+			continue;
+		}
+
+		if (arg === "--validate") {
+			result.validate = true;
 			continue;
 		}
 
@@ -399,6 +442,10 @@ async function main(): Promise<void> {
 
 		case "perf":
 			await handlePerf(argv);
+			break;
+
+		case "dd":
+			await handleDataDriven(argv);
 			break;
 
 		default:
@@ -654,6 +701,62 @@ async function handlePerf(argv: ParsedArgs): Promise<void> {
 		"Specify --req, --col, --fol, or --file after 'perf'. Run 'fc-cli --help' for usage.",
 	);
 	process.exit(1);
+}
+
+// - dd -
+
+async function handleDataDriven(argv: ParsedArgs): Promise<void> {
+	if (argv.export && argv.export !== "json" && argv.export !== "csv") {
+		wrtieConsleError(
+			`Invalid --export format '${argv.export}' for 'dd'. Supported formats: json, csv.`,
+		);
+		process.exit(1);
+	}
+
+	if (!argv.data) {
+		wrtieConsleError("'fc-cli dd' requires --data <file.csv|file.json>.");
+		process.exit(1);
+	}
+
+	if (!argv.file && !argv.col && !argv.fol && !argv.req) {
+		wrtieConsleError(
+			"'fc-cli dd' requires --col <name/id>, --fol <name/id>, --req <name/id>[,...], or --file <collection.json>. Run 'fc-cli --help' for usage.",
+		);
+		process.exit(1);
+	}
+
+	if (argv.req && !argv.reqValue) {
+		wrtieConsleError(
+			"'fc-cli dd --req' needs an inline value, e.g. 'fc-cli dd --req \"Login,Get Users\" --data rows.csv'.",
+		);
+		process.exit(1);
+	}
+
+	const { name, id } = resolveEntityFilter(
+		argv.name,
+		argv.id,
+		argv.fol ? argv.folValue : argv.colValue,
+	);
+	const { varId, varName } = resolveVarOverride(argv.varId, argv.varName, argv.varValue);
+
+	await runDataDrivenCli({
+		col: argv.col,
+		fol: argv.fol,
+		name,
+		id,
+		file: argv.file,
+		varFile: argv.varFile,
+		varId,
+		varName,
+		dataFile: argv.data,
+		format: argv.ddFormat,
+		separator: argv.ddSeparator,
+		stopOnFailure: argv.stopOnFail,
+		req: argv.reqValue,
+		validateOnly: argv.validate,
+		exportFormat: argv.export as ExportFormat | undefined,
+		exportPath: argv.exportPath,
+	});
 }
 
 // - Entry -

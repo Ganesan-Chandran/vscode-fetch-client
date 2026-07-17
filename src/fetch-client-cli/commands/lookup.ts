@@ -466,3 +466,66 @@ export function findRequestFolderId(collection: ICollections, requestId: string)
 	const leaf = leaves.find((l) => l.id === requestId);
 	return leaf?.folderId ?? "";
 }
+
+// --- Multi-request resolution (used by `dd --req a,b,c` without --col/--fol) -
+
+/**
+ * Resolves a list of request identifiers (names or ids, matched across every
+ * collection) down to a single owning collection plus that collection's full
+ * requestMap (needed so pre-fetch chains referencing other requests still resolve).
+ * All identifiers must belong to the same collection.
+ */
+export async function resolveRequestsAcrossCollections(identifiers: string[]): Promise<{
+	collection: ICollections;
+	leaves: RequestLeaf[];
+	requestMap: Map<string, IRequestModel>;
+	missing: string[];
+}> {
+	const all: ICollections[] = await Col_Repository_GetAllCollections();
+
+	const matches: { leaf: RequestLeaf; collection: ICollections }[] = [];
+	const missing: string[] = [];
+
+	for (const ident of identifiers) {
+		const found = isUuid(ident) ? findLeafById(all, ident) : findLeafByName(all, ident);
+		if (found) {
+			matches.push(found);
+		} else {
+			missing.push(ident);
+		}
+	}
+
+	if (matches.length === 0) {
+		wrtieConsleError(`None of the --req requests were found: ${identifiers.join(", ")}`);
+		process.exit(1);
+	}
+
+	const collectionIds = new Set(matches.map((m) => m.collection.id));
+	if (collectionIds.size > 1) {
+		wrtieConsleError(
+			"All requests passed to '--req' must belong to the same collection for a data-driven run.",
+		);
+		process.exit(1);
+	}
+
+	const collection = matches[0].collection;
+	const allLeaves: RequestLeaf[] = [];
+	collectLeaves(collection, "", allLeaves);
+
+	const reqIds = allLeaves.map((l) => l.id);
+	const requestModels = await Main_Repository_GetCollectionRequests(reqIds);
+	const requestMap = new Map<string, IRequestModel>(
+		requestModels.map((r) => [r.id, r]),
+	);
+
+	const selectedLeaves = matches.map((m) => m.leaf);
+
+	return { collection, leaves: selectedLeaves, requestMap, missing };
+}
+
+/** Matches standard UUIDs (used to decide whether a --req identifier is a name or an id). */
+const UUID_PATTERN_LOCAL = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isUuid(value: string): boolean {
+	return UUID_PATTERN_LOCAL.test(value);
+}
