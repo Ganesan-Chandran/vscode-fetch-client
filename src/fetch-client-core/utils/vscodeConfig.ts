@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { responseTypes } from "../consts/requestTypes.consts";
 import { getExtLocalDbPath } from "../db/dbHelper";
+import { ITlsCertificate } from "../types/common.types";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -30,6 +31,8 @@ interface ThemeResponse {
 
 let variableEncryptionConfiguration = false;
 let variableEncryptionKeyCache = "";
+let SSLCheck = true;
+let tlsCertificates: ITlsCertificate[] = null;
 
 // ---------------------------------------------------------------------------
 // Internal helper
@@ -71,6 +74,10 @@ export function getVSCodeTheme(): ThemeResponse {
 
 export function getSSLConfiguration(): boolean {
 	return getFetchClientConfiguration().get<boolean>("SSLCheck", true);
+}
+
+export function getTlsCertificate(): ITlsCertificate[] {
+	return getFetchClientConfiguration().get<ITlsCertificate[]>("tlsConfiguration", []);
 }
 
 export function getHistoryLimitConfiguration(): string {
@@ -202,6 +209,27 @@ export function getVariableEncryptionConfiguration(): boolean {
 
 export function setVariableEncryptionKey(key: string): void {
 	variableEncryptionKeyCache = key;
+}
+
+// ---------------------------------------------------------------------------
+// SSL and TLS configuration
+// ---------------------------------------------------------------------------
+
+export function setSSLCheck(enabled: boolean): void {
+	SSLCheck = enabled;
+}
+
+export function setTLSCertificates(config: ITlsCertificate[]): void {
+	tlsCertificates = config;
+}
+
+
+export function getSSLCheck(): boolean {
+	return SSLCheck;
+}
+
+export function getTLSCertificates(): ITlsCertificate[] {
+	return tlsCertificates;
 }
 
 // ---------------------------------------------------------------------------

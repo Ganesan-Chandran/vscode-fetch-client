@@ -1,6 +1,8 @@
 import { cliConfig } from "./config";
 import { setGlobalStorageUri } from "../fetch-client-core/db/dbHelper";
 import {
+	setSSLCheck,
+	setTLSCertificates,
 	setVariableEncryptionConfiguration,
 	setVariableEncryptionKey,
 } from "../fetch-client-core/utils/vscodeConfig";
@@ -9,6 +11,8 @@ import {
 setGlobalStorageUri(cliConfig.dbPath);
 setVariableEncryptionConfiguration(cliConfig.encryptionEnabled);
 setVariableEncryptionKey(cliConfig.encryptionKey);
+setSSLCheck(cliConfig.sslCheck);
+setTLSCertificates(cliConfig.tlsCertificate);
 
 // - 2. Lazy-import command handlers (DB repos are only called inside them) -
 import { checkDbFiles } from "./commands/check";

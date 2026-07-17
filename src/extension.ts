@@ -37,8 +37,13 @@ import {
 	getCustomDbPathConfiguration,
 	getDbPathConfiguration,
 	getSaveToWorkspaceConfiguration,
+	getSSLConfiguration,
+	getTlsCertificate,
+	getTLSCertificates,
 	getVariableEncryptionFCConfiguration,
 	getVariableEncryptionKey,
+	setSSLCheck,
+	setTLSCertificates,
 	setVariableEncryptionConfiguration,
 	setVariableEncryptionKey,
 	updateDbPathConfiguration,
@@ -71,6 +76,7 @@ import { VSCodeLogger } from "./fetch-client-vscode/logger/vsCodeLogger";
 import * as vscode from "vscode";
 import fs from "fs";
 import path from "path";
+import { clearHttpsAgentCache } from "./fetch-client-core/utils/httpsAgent";
 
 export let pubSub: PubSub<IPubSubMessage>;
 export let vsCodeLogger: VSCodeLogger;
@@ -237,6 +243,8 @@ export async function activate(
 ): Promise<void> {
 	setGlobalStorageUri(context.globalStorageUri.fsPath);
 	setVariableEncryptionConfiguration(getVariableEncryptionFCConfiguration());
+	setSSLCheck(getSSLConfiguration());
+	setTLSCertificates(getTLSCertificates());
 
 	extensionUri = context.extensionUri;
 	pubSub = new PubSub<IPubSubMessage>();
@@ -376,7 +384,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
 		vscode.commands.registerCommand("fetch-client.documentation", () => {
 			vscode.env.openExternal(
 				vscode.Uri.parse(
-					"https://github.com/Ganesan-Chandran/vscode-fetch-client/wiki",
+					"https://fetchclient.github.io",
 				),
 			);
 		}),
@@ -544,6 +552,16 @@ function registerEventListeners(context: vscode.ExtensionContext): void {
 
 			if (e.affectsConfiguration("fetch-client.encryptedVariables")) {
 				await handleEncryptedVariablesChange();
+			}
+
+			if (e.affectsConfiguration("fetch-client.SSLCheck")) {
+				clearHttpsAgentCache();
+				setSSLCheck(getSSLConfiguration());
+			}
+
+			if (e.affectsConfiguration("fetch-client.tlsConfiguration")) {
+				clearHttpsAgentCache();
+				setTLSCertificates(getTlsCertificate());
 			}
 		}),
 	);

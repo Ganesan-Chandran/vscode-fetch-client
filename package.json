@@ -179,6 +179,56 @@
             "scope": "resource",
             "markdownDescription": "Enable `Strict SSL Check` for API Request"
           },
+          "fetch-client.tlsConfiguration": {
+            "type": "array",
+            "default": [],
+            "scope": "application",
+            "order": 4,
+            "markdownDescription": "Configure client TLS certificates (mTLS) for HTTPS hosts. Certificates are automatically selected based on the request hostname.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "host",
+                "type"
+              ],
+              "properties": {
+                "host": {
+                  "type": "string",
+                  "markdownDescription": "HTTPS host name or wildcard used to select the certificate (e.g. `api.company.com` or `*.company.com`)."
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "pem",
+                    "pfx"
+                  ],
+                  "markdownDescription": "Certificate format."
+                },
+                "certPath": {
+                  "type": "string",
+                  "markdownDescription": "Absolute path to the client certificate (.crt/.pem). Required for PEM. Example: `C:\\certs\\client.pem`"
+                },
+                "keyPath": {
+                  "type": "string",
+                  "markdownDescription": "Absolute path to the private key (.key). Required for PEM. Example: `C:\\certs\\client.key`"
+                },
+                "pfxPath": {
+                  "type": "string",
+                  "markdownDescription": "Absolute path to the PFX/PKCS#12 file. Required for PFX."
+                },
+                "passphrase": {
+                  "type": "string",
+                  "markdownDescription": "Passphrase for the private key or PFX file (if required). **Stored in plain text in `settings.json`.**"
+                },
+                "enabled": {
+                  "type": "boolean",
+                  "default": true,
+                  "markdownDescription": "Enable or disable this certificate. Defaults to `true`."
+                }
+              }
+            }
+          },
           "fetch-client.historyLimit": {
             "type": "string",
             "default": "25",
@@ -190,7 +240,7 @@
               "100"
             ],
             "scope": "resource",
-            "order": 4,
+            "order": 5,
             "markdownDescription": "Select the number of items to be displayed in the history"
           },
           "fetch-client.historyView": {
@@ -201,14 +251,14 @@
               "Folder"
             ],
             "scope": "resource",
-            "order": 5,
+            "order": 6,
             "markdownDescription": "View mode of the history items"
           },
           "fetch-client.timeOut": {
             "type": "number",
             "default": 120000,
             "scope": "resource",
-            "order": 6,
+            "order": 7,
             "markdownDescription": "Select the request timeout (`in milliseconds`). 0 means no timeout"
           },
           "fetch-client.defaultProtocol": {
@@ -219,29 +269,22 @@
               "https"
             ],
             "scope": "resource",
-            "order": 7,
+            "order": 8,
             "markdownDescription": "Select which protocol to be added with url (if url has no protocol)."
           },
           "fetch-client.headersCaseSensitive": {
             "type": "boolean",
             "default": true,
             "scope": "resource",
-            "order": 8,
+            "order": 9,
             "markdownDescription": "By Default headers will send `same as in request`. If it is disabled, header will send in `lowercase`."
           },
           "fetch-client.separateRequestTab": {
             "type": "boolean",
             "default": false,
             "scope": "resource",
-            "order": 9,
-            "markdownDescription": "By Default request will be open in `same tab`. If it is enabled, request will be open in `separate tab`."
-          },
-          "fetch-client.log": {
-            "type": "boolean",
-            "default": false,
-            "scope": "resource",
             "order": 10,
-            "markdownDescription": "By Default `request details` will be logged. If it is enabled, both `request and response` details will be logged."
+            "markdownDescription": "By Default request will be open in `same tab`. If it is enabled, request will be open in `separate tab`."
           },
           "fetch-client.runMainRequest": {
             "type": "boolean",
@@ -325,6 +368,13 @@
             "scope": "resource",
             "markdownDescription": "Save the response data (File response won't be saved).",
             "order": 20
+          },
+          "fetch-client.log": {
+            "type": "boolean",
+            "default": false,
+            "scope": "resource",
+            "order": 21,
+            "markdownDescription": "By Default `request details` will be logged. If it is enabled, both `request and response` details will be logged."
           }
         }
       }

@@ -1,6 +1,6 @@
 import { access } from "fs/promises";
 import { createReadStream } from "fs";
-import { getSSLConfiguration, getProtocolConfiguration } from "./vscodeConfig";
+import { getProtocolConfiguration } from "./vscodeConfig";
 import { IReqSettings } from "../types/prefetch.types";
 import { IRequestModel } from "../types/request.types";
 import { ISettings } from "../types/sidebar.types";
@@ -20,9 +20,9 @@ import {
 import { Request as awsRequest, sign } from "aws4";
 import { responseTypes } from "../consts/requestTypes.consts";
 import { writeLog } from "../helpers/logger/logger";
-import * as https from "https";
 import axios, { AxiosRequestConfig, CancelTokenSource } from "axios";
 import FormData from "form-data";
+import { getHttpsAgent } from "./httpsAgent";
 
 export interface FetchConfig {
 	timeOut: number;
@@ -177,11 +177,6 @@ export const apiFetch = async (
 				);
 		}
 
-		// --- SSL ---
-		(
-			https.globalAgent as { options: { rejectUnauthorized?: boolean } }
-		).options.rejectUnauthorized = getSSLConfiguration();
-
 		// Use a per-request instance to prevent interceptors from stacking on the global instance
 		const instance = axios.create({ withCredentials: true });
 		let startTime = 0;
@@ -198,6 +193,9 @@ export const apiFetch = async (
 			? request.url
 			: `${getProtocolConfiguration()}://${request.url}`;
 		request.url = url;
+
+		// --- SSL ---
+		const httpsAgent = await getHttpsAgent(url);
 
 		let requestConfig: AxiosRequestConfig;
 
@@ -245,6 +243,7 @@ export const apiFetch = async (
 				responseType: "arraybuffer",
 				maxContentLength: Infinity,
 				maxBodyLength: Infinity,
+				httpsAgent
 			};
 		} else {
 			requestConfig = {
@@ -254,9 +253,9 @@ export const apiFetch = async (
 				auth:
 					request.auth.authType === "basic"
 						? {
-								username: request.auth.userName,
-								password: request.auth.password,
-							}
+							username: request.auth.userName,
+							password: request.auth.password,
+						}
 						: undefined,
 				data: reqData,
 				validateStatus: () => true,
@@ -265,6 +264,7 @@ export const apiFetch = async (
 				responseType: "arraybuffer",
 				maxContentLength: Infinity,
 				maxBodyLength: Infinity,
+				httpsAgent
 			};
 		}
 

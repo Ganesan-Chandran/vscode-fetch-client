@@ -3,6 +3,7 @@ import { homedir } from "os";
 import { ICliConfig } from "./types/common.types";
 import { join, resolve } from "path";
 import { wrtieConsleError } from "./utils/logger";
+import { ITlsCertificate } from "../fetch-client-core/types/common.types";
 
 const PUBLISHER = "GanesanChandran";
 const EXT_NAME = "fetch-client";
@@ -24,7 +25,13 @@ export function getCliConfig(): ICliConfig {
 		dbPath: null,
 		encryptionEnabled: null,
 		encryptionKey: null,
+		sslCheck: false,
+		tlsCertificate: []
 	};
+
+	if (process.env.FC_SSL_CHECK !== undefined) {
+		cliConfig.sslCheck = process.env.FC_SSL_CHECK.toLowerCase() === "true";
+	}
 
 	if (process.env.FC_DB_PATH) {
 		cliConfig.dbPath = process.env.FC_DB_PATH;
@@ -43,6 +50,8 @@ export function getCliConfig(): ICliConfig {
 			cliConfig.dbPath = resolveDbPath(settings);
 			cliConfig.encryptionEnabled = resolveEncryptionEnabled(settings);
 			cliConfig.encryptionKey = resolveEncryptionKey(settings);
+			cliConfig.sslCheck = resolveSSLCheck(settings);
+			cliConfig.tlsCertificate = resolveTLSConfiguration(settings);
 		} else {
 			wrtieConsleError(
 				"Database path and encryption configuration not found. If you are running the CLI standalone, set the database path and encryption configuration using environment variables.",
@@ -175,4 +184,21 @@ export function resolveEncryptionKey(
 ): string {
 	const key = settings["fetch-client.variableEncryptionKey"];
 	return typeof key === "string" ? key : "";
+}
+
+export function resolveSSLCheck(
+	settings: Record<string, unknown>,
+): boolean {
+	const value = settings["fetch-client.SSLCheck"];
+	return typeof value === "boolean" ? value : true;
+}
+
+export function resolveTLSConfiguration(
+	settings: Record<string, unknown>,
+): ITlsCertificate[] {
+	const value = settings["fetch-client.tlsConfiguration"];
+
+	return Array.isArray(value)
+		? (value as ITlsCertificate[])
+		: [];
 }
