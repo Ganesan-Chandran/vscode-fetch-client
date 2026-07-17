@@ -43,7 +43,7 @@ export interface IOAuthProps {
 export const OAuth = (props: IOAuthProps) => {
 	const dispatch = useDispatch<AppDispatch>();
 
-	const auth = props.settingAuth
+	const auth = (props.inherit === true && props.settingAuth)
 		? props.settingAuth
 		: useSelector((state: IRootState) => state.requestData.auth);
 	const { selectedVariable } = useSelector(
@@ -88,6 +88,8 @@ export const OAuth = (props: IOAuthProps) => {
 		} else if (type === "resource") {
 			localAuth.oauth.advancedOpt.resource = value;
 		}
+
+		console.log(localAuth);
 
 		dispatch(Actions.SetRequestAuthAction(localAuth));
 	};

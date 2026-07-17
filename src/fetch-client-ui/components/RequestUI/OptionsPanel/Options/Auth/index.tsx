@@ -496,6 +496,7 @@ export const AuthPanel = (props: IAuthProps) => {
 						envVar={envVar}
 						selectedVariable={props.selectedVariable}
 						settingAuth={parentSettings?.auth}
+						inherit={isInherit}
 					/>
 				);
 			case "oauth2":

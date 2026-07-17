@@ -138,6 +138,19 @@ export function replaceAuthSettingsInRequest(
 			request.auth.aws.region = settings.auth.aws.region;
 			request.auth.aws.sessionToken = settings.auth.aws.sessionToken;
 		}
+		if (request.auth.oauth && settings.auth.oauth) {
+			request.auth.oauth.clientAuth = settings.auth.oauth.clientAuth;
+			request.auth.oauth.clientId = settings.auth.oauth.clientId;
+			request.auth.oauth.clientSecret = settings.auth.oauth.clientSecret;
+			request.auth.oauth.grantType = settings.auth.oauth.grantType;
+			request.auth.oauth.password = settings.auth.oauth.password;
+			request.auth.oauth.scope = settings.auth.oauth.scope;
+			request.auth.oauth.tokenName = settings.auth.oauth.tokenName;
+			request.auth.oauth.tokenUrl = settings.auth.oauth.tokenUrl;
+			request.auth.oauth.username = settings.auth.oauth.username;
+			request.auth.oauth.advancedOpt.audience = settings.auth.oauth?.advancedOpt?.audience;
+			request.auth.oauth.advancedOpt.resource = settings.auth.oauth?.advancedOpt?.resource;
+		}
 	}
 
 	return request;
