@@ -92,6 +92,14 @@ const SideBar = () => {
 		setMenuShow(false);
 	}
 
+	function onSecretMangerOpen(evt: any) {
+		evt.preventDefault();
+		vscode.postMessage({
+			type: requestTypes.secretManagerUIOpen
+		});
+		setMenuShow(false);
+	}
+
 	function onImportCurl(evt: any) {
 		evt.preventDefault();
 		vscode.postMessage({ type: requestTypes.importCurlRequest });
@@ -498,6 +506,8 @@ const SideBar = () => {
 				<button onClick={(e) => onVariableSort(e)}>
 					Sort {varSort === 0 || varSort === 2 ? "(A-Z)" : "(Z-A)"}
 				</button>
+				<hr />
+				<button onClick={(e) => onSecretMangerOpen(e)}>Secret Manager</button>
 			</>
 		);
 	}

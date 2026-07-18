@@ -375,6 +375,20 @@
             "scope": "resource",
             "order": 21,
             "markdownDescription": "By Default `request details` will be logged. If it is enabled, both `request and response` details will be logged."
+          },
+          "fetch-client.secretsCacheDuration": {
+            "type": "number",
+            "default": 0,
+            "scope": "resource",
+            "order": 22,
+            "markdownDescription": "Duration (in milliseconds) to cache secret values fetched from AWS Secrets Manager. Set to `0` to keep cached values indefinitely until manually cleared."
+          },
+          "fetch-client.awsDefaultRegion": {
+            "type": "string",
+            "default": "",
+            "scope": "resource",
+            "order": 23,
+            "markdownDescription": "Fallback AWS region to use when a profile in `~/.aws/config` doesn't specify its own `region`. Leave blank to require each profile to declare its own region."
           }
         }
       }
@@ -522,7 +536,11 @@
     "worker-loader": "3.0.8"
   },
   "dependencies": {
+    "@aws-sdk/client-secrets-manager": "3.1089.0",
+    "@aws-sdk/client-sts": "3.1089.0",
+    "@aws-sdk/credential-provider-ini": "3.973.4",
     "@reduxjs/toolkit": "2.12.0",
+    "@smithy/shared-ini-file-loader": "4.6.10",
     "ace-builds": "1.44.0",
     "aws4": "1.13.2",
     "axios": "1.17.0",

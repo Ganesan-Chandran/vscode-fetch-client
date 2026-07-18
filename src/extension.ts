@@ -119,8 +119,8 @@ export function OpenAddToColUI(id: string): void {
 	);
 }
 
-export function OpenVariableUI(id?: string, type?: string): void {
-	vscode.commands.executeCommand("fetch-client.newVar", id, type);
+export function OpenVariableUI(id?: string): void {
+	vscode.commands.executeCommand("fetch-client.newVar", "newvar", id);
 }
 
 export function OpenCopyToColUI(id: string, name: string): void {
@@ -215,6 +215,10 @@ export function OpenBulkExportUI(type: string): void {
 
 export function OpenAutoRequestUI(): void {
 	vscode.commands.executeCommand("fetch-client.autoRequest");
+}
+
+export function OpenSecretMangerUI(): void {
+	vscode.commands.executeCommand("fetch-client.newVar", "scmanager");
 }
 
 export function OpenColSettings(

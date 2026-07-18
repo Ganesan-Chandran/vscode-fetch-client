@@ -179,6 +179,10 @@ export function getExportCollectionConfiguration(): boolean {
 	);
 }
 
+export function getSecretCacheTtlMs(): number {
+  return getFetchClientConfiguration().get<number>("secretsCacheDuration", 0);
+}
+
 export function updateVariableEncryptionKey(key: string) {
 	return getFetchClientConfiguration().update(
 		"variableEncryptionKey",

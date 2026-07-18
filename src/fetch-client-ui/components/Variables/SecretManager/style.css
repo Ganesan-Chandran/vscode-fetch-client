@@ -1,0 +1,116 @@
+/* AwsConnectivity/style.css */
+
+.aws-selectors-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+	width: 350px;
+}
+
+.aws-selectors-row .addto-label {
+	margin-left: 4px;
+}
+
+.aws-selectors-row .addto-label:first-child {
+	margin-left: 0;
+}
+
+.aws-results-wrapper {
+	flex: 1;
+	overflow: auto;
+	min-height: 0;
+	border: 1px solid var(--vscode-editorGroup-border);
+	border-radius: 4px;
+}
+
+.aws-results-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: var(--vscode-font-size);
+}
+
+.aws-results-table thead td {
+	position: sticky;
+	top: 0;
+	background: var(--vscode-sideBar-background);
+	font-weight: 600;
+	padding: 6px 10px;
+	border-bottom: 1px solid var(--vscode-editorGroup-border);
+	text-align: left;
+}
+
+.aws-results-table tbody td {
+	padding: 6px 10px;
+	border-bottom: 1px solid var(--vscode-editorGroup-border);
+	vertical-align: middle;
+}
+
+.aws-results-table tbody tr:last-child td {
+	border-bottom: none;
+}
+
+.aws-results-table tbody tr:hover {
+	background: var(--vscode-list-hoverBackground);
+}
+
+.aws-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-weight: 500;
+}
+
+.aws-status--ok {
+	color: var(--vscode-testing-iconPassed, #3fb950);
+}
+
+.aws-status--fail {
+	color: var(--vscode-testing-iconFailed, #f85149);
+}
+
+.aws-status-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	display: inline-block;
+	flex-shrink: 0;
+}
+
+.aws-status-dot--ok {
+	background: var(--vscode-testing-iconPassed, #3fb950);
+}
+
+.aws-status-dot--fail {
+	background: var(--vscode-testing-iconFailed, #f85149);
+}
+
+.aws-detail-cell {
+	color: var(--vscode-descriptionForeground);
+	font-size: 0.9em;
+	max-width: 320px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.aws-cache-badge {
+	display: inline-block;
+	padding: 1px 6px;
+	border-radius: 3px;
+	font-size: 0.75em;
+	background: var(--vscode-badge-background);
+	color: var(--vscode-badge-foreground);
+	margin-left: 6px;
+}
+
+.aws-empty-state {
+	padding: 16px;
+	text-align: center;
+	color: var(--vscode-descriptionForeground);
+}
+
+.check-btn{
+	width: fit-content;
+	margin-right: 10px;
+}

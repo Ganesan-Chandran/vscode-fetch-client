@@ -66,6 +66,7 @@ import {
 	OpenPerfTestUI,
 	OpenReOrderUI,
 	OpenRunAllUI,
+	OpenSecretMangerUI,
 	OpenVariableUI,
 	pubSub,
 	vsCodeLogger,
@@ -547,6 +548,9 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 						reqData.data.name,
 						reqData.data.varId,
 					);
+					break;
+				case requestTypes.secretManagerUIOpen:
+					OpenSecretMangerUI();
 					break;
 			}
 		});

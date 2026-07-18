@@ -89,8 +89,6 @@ export const OAuth = (props: IOAuthProps) => {
 			localAuth.oauth.advancedOpt.resource = value;
 		}
 
-		console.log(localAuth);
-
 		dispatch(Actions.SetRequestAuthAction(localAuth));
 	};
 

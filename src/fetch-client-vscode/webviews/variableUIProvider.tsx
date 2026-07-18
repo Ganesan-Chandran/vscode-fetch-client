@@ -6,9 +6,10 @@ import {
 	UpdateVariable,
 } from "../db/varDBUtil";
 import { GetCollectionsByVariable } from "../db/collectionDBUtil";
-import { requestTypes } from "../../fetch-client-core/consts/requestTypes.consts";
+import { requestTypes, responseTypes } from "../../fetch-client-core/consts/requestTypes.consts";
 import { sideBarProvider } from "../../extension";
 import * as vscode from "vscode";
+import { handleAwsCheckConnectivity, handleAwsFetchAndCache } from "../../fetch-client-core/utils/secretMangerService/awsConnectivityService";
 
 export class VariablePanel {
 	public static currentPanel: VariablePanel | undefined;
@@ -18,12 +19,12 @@ export class VariablePanel {
 	private _disposables: vscode.Disposable[] = [];
 	private _currentId: string | undefined;
 
-	public static createOrShow(extensionUri: vscode.Uri, id?: string) {
+	public static createOrShow(extensionUri: vscode.Uri, type: string, id?: string) {
 		const column = vscode.window.activeTextEditor
 			? vscode.window.activeTextEditor.viewColumn
 			: undefined;
 
-		const panelKey = id ?? "__new__";
+		const panelKey = id ?? "__new__" + type;
 
 		if (VariablePanel.panels.has(panelKey)) {
 			const existing = VariablePanel.panels.get(panelKey);
@@ -45,7 +46,7 @@ export class VariablePanel {
 		);
 		panel.iconPath = iconUri;
 
-		VariablePanel.currentPanel = new VariablePanel(panel, extensionUri, id);
+		VariablePanel.currentPanel = new VariablePanel(panel, extensionUri, type, id);
 	}
 
 	public static kill() {
@@ -57,24 +58,25 @@ export class VariablePanel {
 	private constructor(
 		panel: vscode.WebviewPanel,
 		extensionUri: vscode.Uri,
+		type: string,
 		id?: string,
 	) {
 		this._panel = panel;
 		this._extensionUri = extensionUri;
 		this._currentId = id;
 
-		const panelKey = id ?? "__new__";
+		const panelKey = id ?? "__new__" + type;
 		VariablePanel.panels.set(panelKey, this);
 
 		this._panel.webview.html = buildWebviewHtml(
 			this._panel.webview,
 			this._extensionUri,
-			`newvar@:@${id}`,
+			`${type}@:@${id}`,
 		);
 
 		this._panel.onDidDispose(
 			() => {
-				const key = this._currentId ?? "__new__";
+				const key = this._currentId ?? "__new__" + type;
 				VariablePanel.panels.delete(key);
 				this.dispose(this._currentId);
 			},
@@ -98,7 +100,7 @@ export class VariablePanel {
 			this._disposables,
 		);
 
-		this._panel.webview.onDidReceiveMessage((reqData: any) => {
+		this._panel.webview.onDidReceiveMessage(async (reqData: any) => {
 			if (reqData.type === requestTypes.getVariableItemRequest) {
 				GetVariableById(
 					reqData.data.id,
@@ -116,6 +118,18 @@ export class VariablePanel {
 				);
 			} else if (reqData.type === requestTypes.getAllVariableRequest) {
 				GetAllVariable(this._panel.webview);
+			} else if (reqData.type === requestTypes.awsCheckConnectivityRequest) {
+				const results = await handleAwsCheckConnectivity(reqData.data.targets);
+				this._panel.webview.postMessage({
+					type: responseTypes.awsCheckConnectivityResponse,
+					results,
+				});
+			} else if (reqData.type === requestTypes.awsFetchAndCacheRequest) {
+				const results = await handleAwsFetchAndCache(reqData.data.targets);
+				this._panel.webview.postMessage({
+					type: responseTypes.awsFetchAndCacheResponse,
+					results,
+				});
 			}
 		});
 	}
@@ -142,8 +156,8 @@ export class VariablePanel {
 export const VariableUI = (extensionUri: vscode.Uri) => {
 	const disposable = vscode.commands.registerCommand(
 		"fetch-client.newVar",
-		(id?: string) => {
-			VariablePanel.createOrShow(extensionUri, id);
+		(type: string, id?: string) => {
+			VariablePanel.createOrShow(extensionUri, type, id);
 		},
 	);
 
