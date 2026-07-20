@@ -6,6 +6,7 @@ import {
 	IAdvancedOAuth,
 	IOAuth,
 	ClientAuth,
+	CodeChallengeMethod,
 	GrantType,
 } from "../../../../types/auth.types";
 import {
@@ -381,6 +382,8 @@ function mapAuth(exportAuth: IExportAuth): IAuth {
 				resource: creds.advanced?.resource ?? "",
 			};
 			const oauth: IOAuth = {
+				authorizationUrl: creds.authorizationUrl ?? "",
+				codeChallengeMethod: (creds.codeChallengeMethod as CodeChallengeMethod) ?? CodeChallengeMethod.S256,
 				clientAuth: creds.clientAuth as ClientAuth,
 				clientId: creds.clientId,
 				clientSecret: creds.clientSecret,

@@ -67,6 +67,7 @@ export async function replaceValueWithVariable(
 	}
 
 	if (request.auth?.oauth) {
+		request.auth.oauth.authorizationUrl = await replaceDataWithVariable(request.auth.oauth.authorizationUrl, varData);
 		request.auth.oauth.username = await replaceDataWithVariable(request.auth.oauth.username, varData);
 		request.auth.oauth.tokenUrl = await replaceDataWithVariable(request.auth.oauth.tokenUrl, varData);
 		request.auth.oauth.tokenName = await replaceDataWithVariable(request.auth.oauth.tokenName, varData);
@@ -138,6 +139,7 @@ export function replaceAuthSettingsInRequest(
 			request.auth.aws.sessionToken = settings.auth.aws.sessionToken;
 		}
 		if (request.auth.oauth && settings.auth.oauth) {
+			request.auth.oauth.authorizationUrl = settings.auth.oauth.authorizationUrl;
 			request.auth.oauth.clientAuth = settings.auth.oauth.clientAuth;
 			request.auth.oauth.clientId = settings.auth.oauth.clientId;
 			request.auth.oauth.clientSecret = settings.auth.oauth.clientSecret;

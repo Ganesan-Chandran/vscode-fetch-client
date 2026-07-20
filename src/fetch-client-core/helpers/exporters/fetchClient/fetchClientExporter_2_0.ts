@@ -346,6 +346,8 @@ function mapAuth(auth: IAuth): IExportAuth {
 			return {
 				type: "oauth2",
 				credentials: {
+					authorizationUrl: o.authorizationUrl,
+					...(o.grantType === "authorization_code_pkce" && { codeChallengeMethod: o.codeChallengeMethod }),
 					tokenName: o.tokenName,
 					tokenUrl: o.tokenUrl,
 					clientId: o.clientId,

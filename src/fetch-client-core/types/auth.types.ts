@@ -12,6 +12,8 @@ export interface IAdvancedOAuth {
 }
 
 export interface IOAuth {
+	authorizationUrl: string;
+	codeChallengeMethod: CodeChallengeMethod;
 	clientAuth: ClientAuth;
 	clientId: string;
 	clientSecret: string;
@@ -25,8 +27,15 @@ export interface IOAuth {
 }
 
 export enum GrantType {
-	PWD_Crd = "password_credentials",
 	Client_Crd = "client_credentials",
+	PWD_Crd = "password_credentials",
+	Authorization_Code = "authorization_code",
+	Authorization_Code_PKCE = "authorization_code_pkce",
+}
+
+export enum CodeChallengeMethod {
+	S256 = "S256",
+	Plain = "plain",
 }
 
 export enum ClientAuth {

@@ -72,6 +72,7 @@ import { MemoryCache } from "./fetch-client-vscode/utils/memoryCache";
 import { pubSubTypes } from "./fetch-client-core/consts/requestTypes.consts";
 import { transferDbConfig } from "./fetch-client-vscode/db/transferDBConfig";
 import { VSCodeLogger } from "./fetch-client-vscode/logger/vsCodeLogger";
+import { OAuthAuthorizationService } from "./fetch-client-vscode/oauthAuthorizationService";
 import * as vscode from "vscode";
 import fs from "fs";
 import path from "path";
@@ -79,6 +80,7 @@ import path from "path";
 export let pubSub: PubSub<IPubSubMessage>;
 export let vsCodeLogger: VSCodeLogger;
 export let sideBarProvider: SideBarProvider;
+export let oauthAuthorizationService: OAuthAuthorizationService;
 
 let storageManager: LocalStorageService;
 let extensionUri: vscode.Uri;
@@ -256,6 +258,11 @@ export async function activate(
 	context.subscriptions.push(vsCodeLogger);
 	storageManager = new LocalStorageService(context.workspaceState);
 	extCache = new MemoryCache<string>();
+	oauthAuthorizationService = new OAuthAuthorizationService(context);
+	context.subscriptions.push(
+		oauthAuthorizationService,
+		vscode.window.registerUriHandler(oauthAuthorizationService),
+	);
 
 	// Migrate legacy saveToWorkspace boolean -> new dbPath enum
 	if (

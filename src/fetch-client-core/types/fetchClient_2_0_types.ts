@@ -113,12 +113,14 @@ export interface IAuthAws {
 export interface IAuthOAuth2 {
 	type: "oauth2";
 	credentials: {
+		authorizationUrl?: string;
+		codeChallengeMethod?: "S256" | "plain";
 		tokenName: string;
 		tokenUrl: string;
 		clientId: string;
 		clientSecret: string;
 		scope: string;
-		grantType: "password_credentials" | "client_credentials";
+		grantType: "authorization_code" | "authorization_code_pkce" | "password_credentials" | "client_credentials";
 		username?: string; // only for password_credentials
 		password?: string; // only for password_credentials
 		clientAuth: "header" | "body";

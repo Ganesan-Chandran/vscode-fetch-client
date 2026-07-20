@@ -30,6 +30,7 @@ import {
 	OpenCookieUI,
 	OpenVariableUI,
 	pubSub,
+	oauthAuthorizationService,
 	sideBarProvider,
 } from "../../extension";
 import { IHistory } from "../../fetch-client-core/types/sidebar.types";
@@ -380,6 +381,8 @@ export class WebAppPanel {
 						).then((data) => {
 							this._panel.webview.postMessage(data);
 						});
+					} else if (message.type === requestTypes.oauthAuthorizationRequest) {
+						oauthAuthorizationService.start(this._panel.webview, message.data);
 					} else if (message.type === requestTypes.themeRequest) {
 						this._panel.webview.postMessage(getVSCodeTheme());
 					} else if (message.type === requestTypes.getCollectionsByIdWithPathRequest) {

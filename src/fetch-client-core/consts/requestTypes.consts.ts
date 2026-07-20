@@ -107,6 +107,7 @@ export const requestTypes = {
 	showMessageRequest: "showMessageRequest",
 	themeRequest: "themeRequest",
 	tokenRequest: "tokenRequest",
+	oauthAuthorizationRequest: "oauthAuthorizationRequest",
 	updateVariableRequest: "updateVariableRequest",
 	viewLogRequest: "viewLogRequest",
 };
@@ -197,6 +198,9 @@ export const responseTypes = {
 	setToVariableResponse: "setToVariableResponse",
 	themeResponse: "themeResponse",
 	tokenResponse: "tokenResponse",
+	oauthAuthorizationStarted: "oauthAuthorizationStarted",
+	oauthAuthorizationCode: "oauthAuthorizationCode",
+	oauthAuthorizationError: "oauthAuthorizationError",
 	updateCollectionHistoryItem: "updateCollectionHistoryItem",
 	updateVariableResponse: "updateVariableResponse",
 };

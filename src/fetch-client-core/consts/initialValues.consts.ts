@@ -2,6 +2,7 @@ import {
 	IAwsAuth,
 	IOAuth,
 	ClientAuth,
+	CodeChallengeMethod,
 	GrantType,
 	IAuth,
 } from "../types/auth.types";
@@ -63,6 +64,8 @@ export const InitialAwsAuth: IAwsAuth = {
 };
 
 export const InitialOAuth: IOAuth = {
+	authorizationUrl: "",
+	codeChallengeMethod: CodeChallengeMethod.S256,
 	clientAuth: ClientAuth.Body,
 	clientId: "",
 	clientSecret: "",

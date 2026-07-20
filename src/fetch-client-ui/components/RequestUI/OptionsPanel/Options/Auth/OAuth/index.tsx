@@ -5,11 +5,13 @@ import { formatDate } from "../../../../../../../fetch-client-core/helpers/dateT
 import {
 	grantTypeOpt,
 	clientAuthOpt,
+	codeChallengeMethodOpt,
 } from "../../../../../../../fetch-client-core/consts/auth.consts";
 import {
 	IAuth,
 	GrantType,
 	ClientAuth,
+	CodeChallengeMethod,
 } from "../../../../../../../fetch-client-core/types/auth.types";
 import {
 	InitialRequestHeaders,
@@ -30,7 +32,7 @@ import {
 import { TextEditor } from "../../../../../Common/TextEditor/TextEditor";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import vscode from "../../../../../Common/vscodeAPI";
 
 export interface IOAuthProps {
@@ -42,6 +44,7 @@ export interface IOAuthProps {
 
 export const OAuth = (props: IOAuthProps) => {
 	const dispatch = useDispatch<AppDispatch>();
+	const [redirectUri, setRedirectUri] = useState("");
 
 	const auth = (props.inherit === true && props.settingAuth)
 		? props.settingAuth
@@ -52,6 +55,7 @@ export const OAuth = (props: IOAuthProps) => {
 	const { parentSettings } = useSelector(
 		(state: IRootState) => state.reqColData,
 	);
+	const isAuthorizationCodeFlow = auth.oauth.grantType === GrantType.Authorization_Code || auth.oauth.grantType === GrantType.Authorization_Code_PKCE;
 
 	const onSetGrantype = (value: GrantType) => {
 		let localAuth = { ...auth };
@@ -65,10 +69,18 @@ export const OAuth = (props: IOAuthProps) => {
 		dispatch(Actions.SetRequestAuthAction(localAuth));
 	};
 
+	const onSetCodeChallengeMethod = (value: CodeChallengeMethod) => {
+		let localAuth = { ...auth };
+		localAuth.oauth.codeChallengeMethod = value;
+		dispatch(Actions.SetRequestAuthAction(localAuth));
+	};
+
 	const onSetValue = (type: string, value: string) => {
 		let localAuth = { ...auth };
 		if (type === "tokenUrl") {
 			localAuth.oauth.tokenUrl = value;
+		} else if (type === "authorizationUrl") {
+			localAuth.oauth.authorizationUrl = value;
 		} else if (type === "clientId") {
 			localAuth.oauth.clientId = value;
 		} else if (type === "clientSecret") {
@@ -92,7 +104,23 @@ export const OAuth = (props: IOAuthProps) => {
 		dispatch(Actions.SetRequestAuthAction(localAuth));
 	};
 
-	function onNewtokenClick() {
+	function onNewtokenClick(authorizationCode?: { code: string; codeVerifier?: string; redirectUri: string }) {
+		if (isAuthorizationCodeFlow && !authorizationCode) {
+			vscode.postMessage({
+				type: requestTypes.oauthAuthorizationRequest,
+				data: {
+					authorizationUrl: auth.oauth.authorizationUrl,
+					clientId: auth.oauth.clientId,
+					scope: auth.oauth.scope,
+					audience: auth.oauth.advancedOpt?.audience,
+					resource: auth.oauth.advancedOpt?.resource,
+					usePkce: auth.oauth.grantType === GrantType.Authorization_Code_PKCE,
+					codeChallengeMethod: auth.oauth.codeChallengeMethod,
+					variableData: selectedVariable?.data,
+				},
+			});
+			return;
+		}
 		let reqData: IRequestModel = {
 			id: uuidv4(),
 			url: auth.oauth.tokenUrl,
@@ -123,7 +151,9 @@ export const OAuth = (props: IOAuthProps) => {
 			isChecked: true,
 			key: "grant_type",
 			value:
-				auth.oauth.grantType === GrantType.Client_Crd
+				isAuthorizationCodeFlow
+					? "authorization_code"
+					: auth.oauth.grantType === GrantType.Client_Crd
 					? "client_credentials"
 					: "password",
 		});
@@ -162,6 +192,14 @@ export const OAuth = (props: IOAuthProps) => {
 				key: "password",
 				value: auth.oauth.password,
 			});
+		}
+
+		if (authorizationCode) {
+			urlencoded.push({ isChecked: true, key: "code", value: authorizationCode.code });
+			urlencoded.push({ isChecked: true, key: "redirect_uri", value: authorizationCode.redirectUri });
+			if (authorizationCode.codeVerifier) {
+				urlencoded.push({ isChecked: true, key: "code_verifier", value: authorizationCode.codeVerifier });
+			}
 		}
 
 		if (
@@ -213,12 +251,18 @@ export const OAuth = (props: IOAuthProps) => {
 						),
 					);
 				}
+			} else if (event.data && event.data.type === responseTypes.oauthAuthorizationStarted) {
+				setRedirectUri(event.data.redirectUri);
+			} else if (event.data && event.data.type === responseTypes.oauthAuthorizationCode) {
+				onNewtokenClick(event.data);
+			} else if (event.data && event.data.type === responseTypes.oauthAuthorizationError) {
+				window.alert(`OAuth authorization failed: ${event.data.error}`);
 			}
 		};
 		window.addEventListener("message", handleMessage);
 
 		return () => window.removeEventListener("message", handleMessage);
-	}, []);
+	}, [auth, selectedVariable, parentSettings]);
 
 	return (
 		<div className="collction-item">
@@ -281,6 +325,25 @@ export const OAuth = (props: IOAuthProps) => {
 					/>
 				)}
 			</div>
+			{isAuthorizationCodeFlow && (
+				<>
+					<div className="oauth-text-panel">
+						<label className="oauth-label">Authorization URL</label>
+						{props.envVar && props.selectedVariable.id && (
+							<TextEditor varWords={props.envVar} onChange={(value: string) => onSetValue("authorizationUrl", value)} value={auth.oauth.authorizationUrl} focus={false} />
+						)}
+					</div>
+					{redirectUri && <div className="oauth-text-panel"><label className="oauth-label">Callback URL</label><span className="oauth-callback-url">{redirectUri}</span></div>}
+					{auth.oauth.grantType === GrantType.Authorization_Code_PKCE && (
+						<div className="oauth-text-panel">
+							<label className="oauth-label">Code Challenge Method</label>
+							<select className="oauth-select apikey-add-select" value={auth.oauth.codeChallengeMethod} onChange={(e) => onSetCodeChallengeMethod(e.target.value as CodeChallengeMethod)}>
+								{codeChallengeMethodOpt.map(({ value, name }) => <option value={value} key={value}>{name}</option>)}
+							</select>
+						</div>
+					)}
+				</>
+			)}
 			<div className="oauth-text-panel">
 				<label className="oauth-label">Client ID</label>
 				{props.envVar && props.selectedVariable.id && (
@@ -398,7 +461,7 @@ export const OAuth = (props: IOAuthProps) => {
 					type="submit"
 					className="submit-button oauth-token-btn"
 					disabled={props.inherit === true}
-					onClick={onNewtokenClick}
+					onClick={() => onNewtokenClick()}
 				>
 					Get New Token
 				</button>

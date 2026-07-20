@@ -50,6 +50,7 @@ export function extractVariablesFromRequest(req: IRequestModel): Set<string> {
 	}
 
 	if (req.auth?.oauth) {
+		extractFromString(req.auth.oauth.authorizationUrl, vars);
 		extractFromString(req.auth.oauth.username, vars);
 		extractFromString(req.auth.oauth.tokenUrl, vars);
 		extractFromString(req.auth.oauth.tokenName, vars);

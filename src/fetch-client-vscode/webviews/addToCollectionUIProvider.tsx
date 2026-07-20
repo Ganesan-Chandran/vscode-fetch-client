@@ -28,6 +28,7 @@ import {
 import { GetHistoryById } from "../db/historyDBUtil";
 import {
 	getStorageManager,
+	oauthAuthorizationService,
 	OpenExistingItem,
 	sideBarProvider,
 } from "../../extension";
@@ -226,6 +227,8 @@ export const AddToColUI = (extensionUri: vscode.Uri) => {
 					).then((data) => {
 						colPanel.webview.postMessage(data);
 					});
+				} else if (message.type === requestTypes.oauthAuthorizationRequest) {
+					oauthAuthorizationService.start(colPanel.webview, message.data);
 				} else if (
 					message.type === requestTypes.getCollectionsByIdWithPathRequest
 				) {
