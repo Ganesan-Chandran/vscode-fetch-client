@@ -1,8 +1,8 @@
 import { fromIni } from "@aws-sdk/credential-provider-ini";
+import { getAwsDefaultRegion, getSecretsCacheDuration } from "../commonConfig";
+import { loadSharedConfigFiles } from "@smithy/shared-ini-file-loader";
 import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 import { STSClient, GetCallerIdentityCommand } from "@aws-sdk/client-sts";
-import { loadSharedConfigFiles } from "@smithy/shared-ini-file-loader";
-import * as vscode from "vscode";
 
 interface CacheEntry { value: string; fetchedAt: number; }
 const secretCache = new Map<string, CacheEntry>();
@@ -17,12 +17,6 @@ interface TargetRef {
   jsonProperty?: string;
 }
 
-function fallbackRegion(): string | undefined {
-  return vscode.workspace
-    .getConfiguration("fetch-client")
-    .get<string>("awsDefaultRegion");
-}
-
 async function getRegionForProfile(profile: string): Promise<string | undefined> {
   if (regionCache.has(profile)) { return regionCache.get(profile); }
   let region: string | undefined;
@@ -31,20 +25,14 @@ async function getRegionForProfile(profile: string): Promise<string | undefined>
     region = configFile[profile]?.region;
   } catch {
   }
-  region = region ?? fallbackRegion();
+  region = region ?? getAwsDefaultRegion();
   regionCache.set(profile, region);
   return region;
 }
 
-function cacheTtlMs(): number {
-  return vscode.workspace
-    .getConfiguration("fetch-client")
-    .get<number>("secretsCacheDuration", 0);
-}
-
 function isCacheEntryValid(hit: CacheEntry | undefined, ttl: number): hit is CacheEntry {
   if (!hit) { return false; }
-  if (ttl === 0) { return true; } // no expiry - always valid until manually cleared
+  if (ttl === 0) { return true; }
   return Date.now() - hit.fetchedAt < ttl;
 }
 
@@ -73,9 +61,9 @@ async function fetchSecret(profile: string, secretName: string) {
   return res.SecretString ?? "";
 }
 
-async function getSecretCached(profile: string, secretName: string) {
+export async function getSecretCached(profile: string, secretName: string): Promise<{ ok: boolean; raw: string; cached: boolean; }> {
   const key = `${profile}::${secretName}`;
-  const ttl = cacheTtlMs();
+  const ttl = getSecretsCacheDuration();
   const hit = secretCache.get(key);
   if (isCacheEntryValid(hit, ttl)) {
     return { ok: true, raw: hit.value, cached: true };
@@ -85,7 +73,7 @@ async function getSecretCached(profile: string, secretName: string) {
     secretCache.set(key, { value: raw, fetchedAt: Date.now() });
     return { ok: true, raw, cached: false };
   } catch (e: any) {
-    return { ok: false, error: e.message ?? String(e) };
+    return { ok: false, raw: e.message ?? String(e), cached: false };
   }
 }
 
@@ -114,7 +102,7 @@ export async function handleAwsCheckConnectivity(targets: TargetRef[]): Promise<
     }
     const s = await getSecretCached(t.profile, t.secretName);
     if (!s.ok) {
-      results.push({ ...t, ok: false, stage: "secret", error: s.error });
+      results.push({ ...t, ok: false, stage: "secret", error: s.raw });
       continue;
     }
     results.push({ ...t, ok: true, cached: s.cached });
@@ -127,23 +115,70 @@ export async function handleAwsFetchAndCache(targets: TargetRef[]): Promise<any[
   const profileResults = await Promise.all(uniqueProfiles.map(checkProfile));
   const profileMap = new Map(profileResults.map((r) => [r.profile, r]));
 
-  const results = [];
+  const fetchResults = new Map<string, { ok: boolean; error?: string; }>();
+
   for (const t of targets) {
-    const p = profileMap.get(t.profile)!;
-    if (!p.ok) {
-      results.push({ ...t, ok: false, stage: "profile", error: p.error });
+    const profile = profileMap.get(t.profile)!;
+
+    if (!profile.ok) {
       continue;
     }
-    const s = await fetchAndCacheSecret(t.profile, t.secretName);
-    if (!s.ok) {
-      results.push({ ...t, ok: false, stage: "secret", error: s.error });
+
+    const key = `${t.profile}::${t.secretName}`;
+
+    if (fetchResults.has(key)) {
       continue;
     }
-    results.push({ ...t, ok: true, cached: false });
+
+    const result = await fetchAndCacheSecret(t.profile, t.secretName);
+
+    if (result.ok) {
+      fetchResults.set(key, { ok: true });
+    } else {
+      fetchResults.set(key, { ok: false, error: result.error, });
+    }
   }
-  return results;
+
+  return targets.map((t) => {
+    const profile = profileMap.get(t.profile)!;
+
+    if (!profile.ok) {
+      return { ...t, ok: false, stage: "profile", error: profile.error, };
+    }
+
+    const key = `${t.profile}::${t.secretName}`;
+    const secret = fetchResults.get(key)!;
+
+    if (!secret.ok) {
+      return { ...t, ok: false, stage: "secret", error: secret.error, };
+    }
+
+    return { ...t, ok: true, cached: false, };
+  });
 }
 
-export function clearAwsSecretCache(): void {
-  secretCache.clear();
+export function clearAwsSecretCache(targets: TargetRef[]): any[] {
+  const clearResults = new Map<string, boolean>();
+
+  for (const t of targets) {
+    const key = `${t.profile}::${t.secretName}`;
+
+    if (!clearResults.has(key)) {
+      const existed = secretCache.has(key);
+      secretCache.delete(key);
+      clearResults.set(key, existed);
+    }
+  }
+
+  return targets.map((t) => {
+    const key = `${t.profile}::${t.secretName}`;
+    const existed = clearResults.get(key) ?? false;
+
+    return {
+      ...t,
+      ok: true,
+      cached: false,
+      error: existed ? undefined : "Not cached",
+    };
+  });
 }

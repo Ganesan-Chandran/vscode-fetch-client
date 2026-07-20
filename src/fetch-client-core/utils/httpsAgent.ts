@@ -1,4 +1,4 @@
-import { getSSLCheck, getTLSCertificates } from "./vscodeConfig";
+import { getSSLCheck, getTLSCertificates } from "./commonConfig";
 import { ITlsCertificate } from "../types/common.types";
 import * as fs from "fs/promises";
 import * as https from "https";

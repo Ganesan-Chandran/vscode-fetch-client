@@ -507,7 +507,7 @@ const SideBar = () => {
 					Sort {varSort === 0 || varSort === 2 ? "(A-Z)" : "(Z-A)"}
 				</button>
 				<hr />
-				<button onClick={(e) => onSecretMangerOpen(e)}>Secret Manager</button>
+				<button onClick={(e) => onSecretMangerOpen(e)}>Secrets Integration</button>
 			</>
 		);
 	}

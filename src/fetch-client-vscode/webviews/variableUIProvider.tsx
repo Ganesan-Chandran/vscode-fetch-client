@@ -9,7 +9,7 @@ import { GetCollectionsByVariable } from "../db/collectionDBUtil";
 import { requestTypes, responseTypes } from "../../fetch-client-core/consts/requestTypes.consts";
 import { sideBarProvider } from "../../extension";
 import * as vscode from "vscode";
-import { handleAwsCheckConnectivity, handleAwsFetchAndCache } from "../../fetch-client-core/utils/secretMangerService/awsConnectivityService";
+import { clearAwsSecretCache, handleAwsCheckConnectivity, handleAwsFetchAndCache } from "../../fetch-client-core/utils/secretMangerService/awsConnectivityService";
 
 export class VariablePanel {
 	public static currentPanel: VariablePanel | undefined;
@@ -130,6 +130,9 @@ export class VariablePanel {
 					type: responseTypes.awsFetchAndCacheResponse,
 					results,
 				});
+			} else if (reqData.type === requestTypes.clearSecretCacheRequest) {
+				const results = clearAwsSecretCache(reqData.data.targets);
+				this._panel.webview.postMessage({ type: responseTypes.clearSecretCacheResponse, results });
 			}
 		});
 	}

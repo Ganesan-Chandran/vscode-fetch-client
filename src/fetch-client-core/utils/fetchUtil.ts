@@ -10,19 +10,15 @@ import {
 	getErrorResponse,
 	getRandomNumber,
 } from "../helpers/common.helper";
+import { getHttpsAgent } from "./httpsAgent";
 import { ITableData } from "../types/common.types";
 import { logDetails } from "../helpers/logger/requestLog";
-import {
-	replaceAuthSettingsInRequest,
-	replaceHeaderSettingsInRequest,
-	replaceValueWithVariable,
-} from "../helpers/variable.helper";
+import { replaceAuthSettingsInRequest, replaceHeaderSettingsInRequest, replaceValueWithVariable } from "../helpers/variable.server.helper";
 import { Request as awsRequest, sign } from "aws4";
 import { responseTypes } from "../consts/requestTypes.consts";
 import { writeLog } from "../helpers/logger/logger";
 import axios, { AxiosRequestConfig, CancelTokenSource } from "axios";
 import FormData from "form-data";
-import { getHttpsAgent } from "./httpsAgent";
 
 export interface FetchConfig {
 	timeOut: number;
@@ -59,10 +55,10 @@ export const updateHeaderSettings = (
 	return requestData;
 };
 
-export const updateVariables = (
+export const updateVariables = async (
 	requestData: IRequestModel,
 	variableData?: ITableData[],
-): IRequestModel => {
+): Promise<IRequestModel> => {
 	const varData: Record<string, string> = {};
 	if (variableData && variableData.length > 0) {
 		for (const item of variableData) {
@@ -70,7 +66,7 @@ export const updateVariables = (
 		}
 	}
 	const copy: IRequestModel = JSON.parse(JSON.stringify(requestData));
-	return replaceValueWithVariable(copy, varData);
+	return await replaceValueWithVariable(copy, varData);
 };
 
 // ---------------------------------------------------------------------------
@@ -89,8 +85,8 @@ export const apiFetch = async (
 	let fetchDuration = 0;
 	let reqData: RequestBody = "";
 
-	let request = updateAuthSettings(requestData, settings);
-	request = updateVariables(request, variableData);
+	let request = updateAuthSettings(requestData, settings);	
+	request = await updateVariables(request, variableData);
 
 	if (!reqSettings || !reqSettings.skipParentHeaders) {
 		request = updateHeaderSettings(request, settings);

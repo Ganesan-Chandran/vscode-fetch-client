@@ -242,8 +242,8 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 						.showSaveDialog({
 							defaultUri: vscode.Uri.file(
 								"fetch-client-collection_" +
-									reqData.data.name?.replace(/[/\\?%*:|"<>]/g, "-") +
-									".json",
+								reqData.data.name?.replace(/[/\\?%*:|"<>]/g, "-") +
+								".json",
 							),
 						})
 						.then((uri: vscode.Uri | undefined) => {
@@ -290,7 +290,9 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 				case requestTypes.importRequest:
 					vscode.window
 						.showOpenDialog({
-							filters: { "Json Files": ["json"] },
+							filters: {
+								"JSON & YAML Files": ["json", "yaml", "yml"],
+							},
 							canSelectMany: true,
 						})
 						.then((uri: vscode.Uri[] | undefined) => {
@@ -361,8 +363,8 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 							.showSaveDialog({
 								defaultUri: vscode.Uri.file(
 									"fetch-client-variable_" +
-										reqData.vars.name?.replace(/[/\\?%*:|"<>]/g, "-") +
-										".json",
+									reqData.vars.name?.replace(/[/\\?%*:|"<>]/g, "-") +
+									".json",
 								),
 							})
 							.then((uri: vscode.Uri | undefined) => {
@@ -574,10 +576,10 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 			ignoreFocusOut: false,
 			validateInput: validate
 				? (text) => {
-						return text !== "" && text.length <= 50
-							? null
-							: "Enter the valid name (length should be <=50)";
-					}
+					return text !== "" && text.length <= 50
+						? null
+						: "Enter the valid name (length should be <=50)";
+				}
 				: null,
 		});
 

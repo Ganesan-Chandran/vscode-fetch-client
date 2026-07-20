@@ -168,61 +168,59 @@ function buildExportPayload(
 }
 
 function validateImportData(data: string): ImportType | null {
-	if (!data || data.length === 0 || !isJson(data)) {
-		writeLog("error::validateImportData() - Empty Data.");
-		throw new Error("Empty or invalid JSON data.");
+	if (!data || data.trim().length === 0) {
+		throw new Error("validateImportData():Empty import data.");
 	}
 
-	let parsedData = JSON.parse(data);
+	// OpenAPI supports YAML and JSON
+	const detection = CheckOpenApiFormat(data);
+	if (detection.isOpenApi) {
+		return ImportType.OpenAPI_V_3;
+	}
+
+	// Remaining formats are JSON only
+	if (!isJson(data)) {
+		throw new Error("validateImportData():Invalid JSON data.");
+	}
+
+	const parsedData = JSON.parse(data);
 
 	try {
 		if (isFetchClientV2(parsedData)) {
 			return ImportType.FetchClient_2_0;
 		}
-	} catch (fcErr) {
-		writeLog("error::validateImportData() " + fcErr);
-	}
+	} catch { }
 
 	try {
 		FetchClientDataProxy.Parse(data);
 		return ImportType.FetchClient_1_0;
-	} catch (fcErr) {
-		writeLog("error::validateImportData() " + fcErr);
+	} catch { }
+
+	const postmanData = parsedData as PostmanSchema_2_1;
+	if (
+		postmanData.info?._postman_id &&
+		postmanData.info.schema === POSTMAN_SCHEMA_V2_1
+	) {
+		return ImportType.Postman_2_1;
 	}
 
-	try {
-		const postmanData = parsedData as PostmanSchema_2_1;
-		if (
-			postmanData.info?._postman_id &&
-			postmanData.info?.schema === POSTMAN_SCHEMA_V2_1
-		) {
-			return ImportType.Postman_2_1;
-		}
+	const thunderData = parsedData as ThunderClient_Schema_1_2;
+	if (
+		thunderData.clientName === "Thunder Client" &&
+		thunderData.version === "1.2"
+	) {
+		return ImportType.ThunderClient_1_2;
+	}
 
-		const thunderData = parsedData as ThunderClient_Schema_1_2;
-		if (thunderData.clientName === "Thunder Client") {
-			if (thunderData.version !== "1.2") {
-				throw new Error("Invalid Thunder Client version.");
-			}
-			return ImportType.ThunderClient_1_2;
-		}
+	const insomniaData = parsedData as InsomniaExport;
+	const fmt = Number(insomniaData.__export_format);
 
-		const insomniaData = JSON.parse(data) as InsomniaExport;
-		const fmt = Number(insomniaData.__export_format);
-		if (
-			insomniaData._type === "export" &&
-			(fmt === INSOMNIA_EXPORT_FORMAT_4 || fmt === INSOMNIA_EXPORT_FORMAT_5)
-		) {
-			return ImportType.Insomnia_4_5;
-		}
-
-		const detection = CheckOpenApiFormat(data);
-		if (detection.isOpenApi) {
-			return ImportType.OpenAPI_V_3;
-		}
-	} catch (parseErr) {
-		writeLog("error::validateImportData() - " + parseErr);
-		throw new Error("Could not parse import data.");
+	if (
+		insomniaData._type === "export" &&
+		(fmt === INSOMNIA_EXPORT_FORMAT_4 ||
+			fmt === INSOMNIA_EXPORT_FORMAT_5)
+	) {
+		return ImportType.Insomnia_4_5;
 	}
 
 	return null;

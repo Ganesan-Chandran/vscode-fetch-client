@@ -1,10 +1,8 @@
-import { IRequestModel } from "../types/request.types";
-import { ISettings } from "../types/sidebar.types";
-import { ITableData } from "../types/common.types";
 import {
 	checkSysVariable,
 	getSysVariableWithValue,
 } from "./systemVariable.helper";
+
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -12,192 +10,6 @@ import {
 
 const VARIABLE_PATTERN = /({{([^}}]+)}})/;
 const VARIABLE_PATTERN_GLOBAL = /({{([^}}]+)}})/gm;
-
-// ---------------------------------------------------------------------------
-// Variable substitution
-// ---------------------------------------------------------------------------
-
-export function replaceValueWithVariable(
-	request: IRequestModel,
-	varData: Record<string, string>,
-): IRequestModel {
-	request.url = replaceDataWithVariable(request.url, varData);
-
-	if (request.params.some((item) => item.isChecked)) {
-		request.params = replaceTableDataWithVariable(request.params, varData);
-	}
-
-	if (request.headers.some((item) => item.isChecked)) {
-		request.headers = replaceTableDataWithVariable(request.headers, varData);
-	}
-
-	request.auth.userName = replaceDataWithVariable(
-		request.auth.userName,
-		varData,
-	);
-	request.auth.password = replaceDataWithVariable(
-		request.auth.password,
-		varData,
-	);
-	request.auth.tokenPrefix = replaceDataWithVariable(
-		request.auth.tokenPrefix,
-		varData,
-	);
-
-	if (request.auth?.aws) {
-		request.auth.aws.accessKey = replaceDataWithVariable(
-			request.auth.aws.accessKey,
-			varData,
-		);
-		request.auth.aws.secretAccessKey = replaceDataWithVariable(
-			request.auth.aws.secretAccessKey,
-			varData,
-		);
-		request.auth.aws.service = replaceDataWithVariable(
-			request.auth.aws.service,
-			varData,
-		);
-		request.auth.aws.region = replaceDataWithVariable(
-			request.auth.aws.region,
-			varData,
-		);
-		request.auth.aws.sessionToken = replaceDataWithVariable(
-			request.auth.aws.sessionToken,
-			varData,
-		);
-	}
-
-	if (request.auth?.oauth) {
-		request.auth.oauth.username = replaceDataWithVariable(request.auth.oauth.username, varData);
-		request.auth.oauth.tokenUrl = replaceDataWithVariable(request.auth.oauth.tokenUrl, varData);
-		request.auth.oauth.tokenName = replaceDataWithVariable(request.auth.oauth.tokenName, varData);
-		request.auth.oauth.scope = replaceDataWithVariable(request.auth.oauth.scope, varData);
-		request.auth.oauth.password = replaceDataWithVariable(request.auth.oauth.password, varData);
-		request.auth.oauth.clientSecret = replaceDataWithVariable(request.auth.oauth.clientSecret, varData);
-		request.auth.oauth.clientId = replaceDataWithVariable(request.auth.oauth.clientId, varData);
-		if (request.auth?.oauth?.advancedOpt) {
-			request.auth.oauth.advancedOpt.audience = replaceDataWithVariable(request.auth.oauth.advancedOpt?.audience, varData);
-			request.auth.oauth.advancedOpt.resource = replaceDataWithVariable(request.auth.oauth.advancedOpt?.resource, varData);
-		}
-	}
-
-	if (
-		request.body.bodyType === "formurlencoded" &&
-		request.body.urlencoded.some((item) => item.isChecked)
-	) {
-		request.body.urlencoded = replaceTableDataWithVariable(
-			request.body.urlencoded,
-			varData,
-		);
-	}
-
-	if (
-		request.body.bodyType === "formdata" &&
-		request.body.formdata.some((item) => item.isChecked)
-	) {
-		request.body.formdata = replaceTableDataWithVariable(
-			request.body.formdata,
-			varData,
-		);
-	}
-
-	if (request.body.bodyType === "raw") {
-		request.body.raw.data = replaceDataWithVariable(
-			request.body.raw.data,
-			varData,
-		);
-	}
-
-	if (request.body.bodyType === "graphql") {
-		request.body.graphql.query = replaceDataWithVariable(
-			request.body.graphql.query,
-			varData,
-		);
-		request.body.graphql.variables = replaceDataWithVariable(
-			request.body.graphql.variables,
-			varData,
-		);
-	}
-
-	return request;
-}
-
-export function replaceAuthSettingsInRequest(
-	request: IRequestModel,
-	settings: ISettings,
-): IRequestModel {
-	if (settings.auth) {
-		request.auth.authType = settings.auth.authType;
-		request.auth.userName = settings.auth.userName;
-		request.auth.password = settings.auth.password;
-		request.auth.tokenPrefix = settings.auth.tokenPrefix;
-		if (request.auth.aws && settings.auth.aws) {
-			request.auth.aws.accessKey = settings.auth.aws.accessKey;
-			request.auth.aws.secretAccessKey = settings.auth.aws.secretAccessKey;
-			request.auth.aws.service = settings.auth.aws.service;
-			request.auth.aws.region = settings.auth.aws.region;
-			request.auth.aws.sessionToken = settings.auth.aws.sessionToken;
-		}
-		if (request.auth.oauth && settings.auth.oauth) {
-			request.auth.oauth.clientAuth = settings.auth.oauth.clientAuth;
-			request.auth.oauth.clientId = settings.auth.oauth.clientId;
-			request.auth.oauth.clientSecret = settings.auth.oauth.clientSecret;
-			request.auth.oauth.grantType = settings.auth.oauth.grantType;
-			request.auth.oauth.password = settings.auth.oauth.password;
-			request.auth.oauth.scope = settings.auth.oauth.scope;
-			request.auth.oauth.tokenName = settings.auth.oauth.tokenName;
-			request.auth.oauth.tokenUrl = settings.auth.oauth.tokenUrl;
-			request.auth.oauth.username = settings.auth.oauth.username;
-			request.auth.oauth.advancedOpt.audience = settings.auth.oauth?.advancedOpt?.audience;
-			request.auth.oauth.advancedOpt.resource = settings.auth.oauth?.advancedOpt?.resource;
-		}
-	}
-
-	return request;
-}
-
-export function replaceHeaderSettingsInRequest(
-	request: IRequestModel,
-	settings: ISettings,
-): IRequestModel {
-	if (settings.headers) {
-		for (const header of settings.headers) {
-			if (header.isChecked && header.key) {
-				const exists = request.headers.some(
-					(item) =>
-						item.key.toLowerCase() === header.key.toLowerCase() &&
-						item.isChecked,
-				);
-				if (!exists) {
-					request.headers.push(header);
-				}
-			}
-		}
-	}
-
-	return request;
-}
-
-function replaceTableDataWithVariable(
-	data: ITableData[],
-	varData: Record<string, string>,
-): ITableData[] {
-	for (const item of data) {
-		if (VARIABLE_PATTERN.test(item.key)) {
-			item.key.match(VARIABLE_PATTERN_GLOBAL)?.forEach((p) => {
-				item.key = updateVariable(p, item.key, varData);
-			});
-		}
-
-		if (VARIABLE_PATTERN.test(item.value)) {
-			item.value.match(VARIABLE_PATTERN_GLOBAL)?.forEach((p) => {
-				item.value = updateVariable(p, item.value, varData);
-			});
-		}
-	}
-
-	return data;
-}
 
 export function replaceDataWithVariable(
 	data: string,
@@ -207,7 +19,7 @@ export function replaceDataWithVariable(
 		return data;
 	}
 
-	data.match(VARIABLE_PATTERN_GLOBAL)?.forEach((item) => {
+	data.match(VARIABLE_PATTERN_GLOBAL)?.forEach(async (item) => {
 		data = updateVariable(item, data, varData);
 	});
 
@@ -220,23 +32,39 @@ function updateVariable(
 	varData: Record<string, string>,
 ): string {
 	if (item.includes("{{#") && item.includes("}}")) {
-		const variable = checkSysVariable(item);
-		if (variable) {
-			const value = getSysVariableWithValue(variable);
-			data = data.replace(item, value?.toString() ?? item);
-		}
+		data = replaceSysVariable(item, data);
 	} else if (varData && Object.keys(varData).length > 0) {
-		const key = item.replace("{{", "").replace("}}", "");
-		const replacedValue = varData[key];
-		if (replacedValue !== undefined) {
-			data = data.replace(
-				item,
-				VARIABLE_PATTERN.test(replacedValue)
-					? replaceDataWithVariable(replacedValue, varData)
-					: replacedValue,
-			);
-		}
+		data = replacePlainVariable(item, data, varData);
 	}
 
 	return data;
+}
+
+export function replaceSysVariable(item: string, data: string): string {
+	const variable = checkSysVariable(item);
+	if (!variable) {
+		return data;
+	}
+
+	const value = getSysVariableWithValue(variable);
+	return data.replace(item, value?.toString() ?? item);
+}
+
+export function replacePlainVariable(
+	item: string,
+	data: string,
+	varData: Record<string, string>,
+): string {
+	const key = item.replace(/^{{/, "").replace(/}}$/, "").trim();
+	const replacedValue = varData[key];
+
+	if (replacedValue === undefined) {
+		return data;
+	}
+
+	const finalValue = VARIABLE_PATTERN.test(replacedValue)
+		? replaceDataWithVariable(replacedValue, varData)
+		: replacedValue;
+
+	return data.replace(item, finalValue);
 }

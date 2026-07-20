@@ -5,7 +5,7 @@ import { ITableData } from "../types/common.types";
 import { IVariable } from "../types/sidebar.types";
 import { ParametersModelMapping } from "../consts/test.consts";
 import { replaceDataWithVariable } from "./variable.helper";
-import { evaluateExpression } from "./expression.helper";
+import { evaluateExpression, evaluateExpressionValue } from "./expression.helper";
 
 export function setVariable(
 	variable: IVariable,
@@ -54,6 +54,22 @@ export function setVariable(
 							value: actualValue,
 						};
 					}
+				}
+			} else if (item.parameter === "Expression") {
+				const result = String(evaluateExpressionValue(item.key?.toString() ?? ""));
+				const actualValue = result === null || result === undefined ? "" : String(result);
+				if (index === -1) {
+					variable.data.push({
+						isChecked: true,
+						key: item.variableName,
+						value: actualValue,
+					});
+				} else {
+					variable.data[index] = {
+						isChecked: true,
+						key: item.variableName,
+						value: actualValue,
+					};
 				}
 			} else {
 				let mapping = ParametersModelMapping[item.parameter];

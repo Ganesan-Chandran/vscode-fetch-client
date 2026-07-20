@@ -36,16 +36,13 @@ import {
 	DbPathOption,
 	getCustomDbPathConfiguration,
 	getDbPathConfiguration,
+	getFallbackRegion,
 	getSaveToWorkspaceConfiguration,
+	getSecretCacheTtlMs,
 	getSSLConfiguration,
 	getTlsCertificate,
-	getTLSCertificates,
 	getVariableEncryptionFCConfiguration,
 	getVariableEncryptionKey,
-	setSSLCheck,
-	setTLSCertificates,
-	setVariableEncryptionConfiguration,
-	setVariableEncryptionKey,
 	updateDbPathConfiguration,
 	updateSaveToWorkspaceConfiguration,
 	updateVariableEncryption,
@@ -57,8 +54,10 @@ import {
 	UpdateToEncryptedVariables,
 	UpdateWithAnotherKey,
 } from "./fetch-client-vscode/db/varDBUtil";
+import { setVariableEncryptionConfiguration, setSSLCheck, setTLSCertificates, getTLSCertificates, setVariableEncryptionKey, setAwsDefaultRegion, setSecretsCacheDuration } from "./fetch-client-core/utils/commonConfig";
 import { access, mkdir } from "fs/promises";
 import { backupFile } from "./fetch-client-vscode/utils/common.utils";
+import { clearHttpsAgentCache } from "./fetch-client-core/utils/httpsAgent";
 import { FCScheduler } from "./fetch-client-vscode/utils/scheduler";
 import { flushCollectionDB } from "./fetch-client-core/db/collectionDB.repository";
 import { flushHistoryDB } from "./fetch-client-core/db/history.repository";
@@ -76,7 +75,6 @@ import { VSCodeLogger } from "./fetch-client-vscode/logger/vsCodeLogger";
 import * as vscode from "vscode";
 import fs from "fs";
 import path from "path";
-import { clearHttpsAgentCache } from "./fetch-client-core/utils/httpsAgent";
 
 export let pubSub: PubSub<IPubSubMessage>;
 export let vsCodeLogger: VSCodeLogger;
@@ -249,6 +247,8 @@ export async function activate(
 	setVariableEncryptionConfiguration(getVariableEncryptionFCConfiguration());
 	setSSLCheck(getSSLConfiguration());
 	setTLSCertificates(getTLSCertificates());
+	setAwsDefaultRegion(getFallbackRegion());
+	setSecretsCacheDuration(getSecretCacheTtlMs());
 
 	extensionUri = context.extensionUri;
 	pubSub = new PubSub<IPubSubMessage>();
@@ -566,6 +566,14 @@ function registerEventListeners(context: vscode.ExtensionContext): void {
 			if (e.affectsConfiguration("fetch-client.tlsConfiguration")) {
 				clearHttpsAgentCache();
 				setTLSCertificates(getTlsCertificate());
+			}
+
+			if (e.affectsConfiguration("fetch-client.awsDefaultRegion")) {
+				setAwsDefaultRegion(getFallbackRegion());
+			}
+
+			if (e.affectsConfiguration("fetch-client.secretsCacheDuration")) {
+				setSecretsCacheDuration(getSecretCacheTtlMs());
 			}
 		}),
 	);

@@ -1,6 +1,7 @@
 import { apiFetch, FetchConfig } from "../fetchUtil";
 import { executeTests } from "../../helpers/tests.helper";
-import { getVariableEncryptionConfiguration, getVariableEncryptionKey, } from "../vscodeConfig";
+import { getVariableEncryptionConfiguration } from "../commonConfig";
+import { getVariableEncryptionKey, } from "../vscodeConfig";
 import { InitialResponse } from "../../consts/initialValues.consts";
 import { IPreFetch, IRunRequest } from "../../types/prefetch.types";
 import { IPreFetchContextProvider, RequestContext } from "./preFetch.types.ts";

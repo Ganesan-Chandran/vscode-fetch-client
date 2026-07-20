@@ -23,7 +23,6 @@ import {
 import {
 	getHeadersConfiguration,
 	getTimeOutConfiguration,
-	getVariableEncryptionConfiguration,
 	getVariableEncryptionKey,
 } from "../../fetch-client-core/utils/vscodeConfig";
 import { GetHistoryById } from "../db/historyDBUtil";
@@ -40,11 +39,12 @@ import {
 	Col_Repository_GetAllCollectionsById,
 	Col_Repository_GetCollectionById,
 } from "../../fetch-client-core/db/collectionDB.repository";
-import { Var_Repository_FindByIdSync } from "../../fetch-client-core/db/variableDB.repository";
-import { resolveParentSettings } from "../../fetch-client-core/helpers/settings.helper";
-import { runDataDrivenTest, IDataDrivenCancelRef } from "../../fetch-client-core/utils/dataDrivenTestService/dataDrivenRunner";
+import { getVariableEncryptionConfiguration } from "../../fetch-client-core/utils/commonConfig";
 import { IDataDrivenConfig } from "../../fetch-client-core/utils/dataDrivenTestService/dataDriven.types";
 import { IRequestModel } from "../../fetch-client-core/types/request.types";
+import { resolveParentSettings } from "../../fetch-client-core/helpers/settings.helper";
+import { runDataDrivenTest, IDataDrivenCancelRef } from "../../fetch-client-core/utils/dataDrivenTestService/dataDrivenRunner";
+import { Var_Repository_FindByIdSync } from "../../fetch-client-core/db/variableDB.repository";
 import * as fs from "fs";
 import * as vscode from "vscode";
 import axios from "axios";

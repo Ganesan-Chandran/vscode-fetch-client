@@ -187,27 +187,32 @@ const Variables = (_props: IVariableProps) => {
 
 	function renderHeader() {
 		return (
+			<div className="variable-panel-name">
+				<label className="variable-text-label">Name :</label>
+
+				<input
+					className={
+						errors["varName"]
+							? "variable-text required-value"
+							: "variable-text"
+					}
+					type="text"
+					value={variableItem.name}
+					onChange={onNameChange}
+					disabled={!enabled}
+				/>
+
+				{errors["varName"] && (
+					<div className="var-name-valid error-text">{errors["varName"]}</div>
+				)}
+			</div>
+		);
+	}
+
+
+	function renderCheckbox() {
+		return (
 			<>
-				<div className="variable-panel-name">
-					<label className="variable-text-label">Name :</label>
-
-					<input
-						className={
-							errors["varName"]
-								? "variable-text required-value"
-								: "variable-text"
-						}
-						type="text"
-						value={variableItem.name}
-						onChange={onNameChange}
-						disabled={!enabled}
-					/>
-
-					{errors["varName"] && (
-						<div className="var-name-valid error-text">{errors["varName"]}</div>
-					)}
-				</div>
-
 				<div className="view-variable-panel-name">
 					<label className="request-header-panel-text view-variable">
 						<input
@@ -220,6 +225,19 @@ const Variables = (_props: IVariableProps) => {
 					</label>
 				</div>
 			</>
+		);
+	}
+
+	function renderNotes() {
+		return (			
+			<div className="dd-notes-panel var-notes-panel">
+				<div className="dd-notes-title">Cloud Secret Format</div>
+				<ul className="dd-notes-list">
+					<li><strong>AWS:</strong>{" "}<code>{"aws:<profile>:<secret-name>[:json-property]"}</code></li>
+					<li><strong>Azure:</strong>{" "}<code>{"azure:<vault-name>:<secret-name>[:json-property]"}</code></li>
+					<li>Use <strong>Variable → Secrets Integration</strong> to cache or clear cloud secrets. Caching reduces cloud API calls and helps minimize cloud API costs.</li>
+				</ul>
+			</div>
 		);
 	}
 
@@ -304,6 +322,8 @@ const Variables = (_props: IVariableProps) => {
 		>
 			{variableItem && (
 				<>
+					{renderNotes()}
+					{renderCheckbox()}
 					{renderVariableTable()}
 					{renderAttachedCollections()}
 				</>

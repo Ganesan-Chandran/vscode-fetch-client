@@ -16,10 +16,8 @@ import {
 	Main_Repository_SaveRequest,
 	Main_Repository_UpdateRequest,
 } from "../../fetch-client-core/db/mainDB.repository";
-import {
-	getVariableEncryptionConfiguration,
-	getVariableEncryptionKey,
-} from "../../fetch-client-core/utils/vscodeConfig";
+import { getVariableEncryptionConfiguration } from "../../fetch-client-core/utils/commonConfig";
+import { getVariableEncryptionKey } from "../../fetch-client-core/utils/vscodeConfig";
 import { IFetchClientExportV2 } from "../../fetch-client-core/types/fetchClient_2_0_types";
 import { IRequestModel } from "../../fetch-client-core/types/request.types";
 import { PostmanSchema_2_1 } from "../../fetch-client-core/types/postman_2_1.types";

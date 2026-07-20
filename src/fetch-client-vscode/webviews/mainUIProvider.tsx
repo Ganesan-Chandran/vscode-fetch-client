@@ -43,6 +43,7 @@ import {
 	requestTypes,
 	responseTypes,
 } from "../../fetch-client-core/consts/requestTypes.consts";
+import { replaceValueWithVariable } from "../../fetch-client-core/helpers/variable.server.helper";
 import { SaveHistory, UpdateHistory } from "../db/historyDBUtil";
 import { writeLog } from "../../fetch-client-core/helpers/logger/logger";
 import * as vscode from "vscode";
@@ -381,14 +382,18 @@ export class WebAppPanel {
 						});
 					} else if (message.type === requestTypes.themeRequest) {
 						this._panel.webview.postMessage(getVSCodeTheme());
-					} else if (
-						message.type === requestTypes.getCollectionsByIdWithPathRequest
-					) {
+					} else if (message.type === requestTypes.getCollectionsByIdWithPathRequest) {
 						GetAllCollectionsByIdWithPath(message.data, this._panel.webview);
-					} else if (
-						message.type === requestTypes.getAllCollectionNameRequest
-					) {
+					} else if (message.type === requestTypes.getAllCollectionNameRequest) {
 						GetAllCollectionName(this._panel.webview, message.data);
+					} else if (message.type === requestTypes.resolveVariableRequest) {
+						const { request, varData, requestId } = message;
+						const replaced = await replaceValueWithVariable(request, varData);
+						this._panel.webview.postMessage({
+							type: responseTypes.resolveVariableResponse,
+							requestId,
+							request: replaced,
+						});
 					}
 				} catch (error) {
 					writeLog("error::mainUIProvider::onDidReceiveMessage()" + error);

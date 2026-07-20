@@ -136,7 +136,7 @@ export async function executeRequest(
     testResults = executeTests(request.tests, responseModel, variableData);
   }
 
-  request = updateVariables(request, variableData);
+  request = await updateVariables(request, variableData);
 
   return {
     id: request.id,

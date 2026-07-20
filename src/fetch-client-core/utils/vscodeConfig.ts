@@ -1,7 +1,8 @@
-import * as vscode from "vscode";
-import { responseTypes } from "../consts/requestTypes.consts";
 import { getExtLocalDbPath } from "../db/dbHelper";
 import { ITlsCertificate } from "../types/common.types";
+import { responseTypes } from "../consts/requestTypes.consts";
+import { variableEncryptionKeyCache } from "./commonConfig";
+import * as vscode from "vscode";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -24,15 +25,6 @@ interface ThemeResponse {
 	type: string;
 	theme: vscode.ColorThemeKind;
 }
-
-// ---------------------------------------------------------------------------
-// Module-level state
-// ---------------------------------------------------------------------------
-
-let variableEncryptionConfiguration = false;
-let variableEncryptionKeyCache = "";
-let SSLCheck = true;
-let tlsCertificates: ITlsCertificate[] = null;
 
 // ---------------------------------------------------------------------------
 // Internal helper
@@ -183,6 +175,10 @@ export function getSecretCacheTtlMs(): number {
   return getFetchClientConfiguration().get<number>("secretsCacheDuration", 0);
 }
 
+export function getFallbackRegion(): string | undefined {
+  return getFetchClientConfiguration().get<string>("awsDefaultRegion");
+}
+
 export function updateVariableEncryptionKey(key: string) {
 	return getFetchClientConfiguration().update(
 		"variableEncryptionKey",
@@ -197,43 +193,6 @@ export function updateVariableEncryption(shouldEncrypt: boolean) {
 		shouldEncrypt,
 		vscode.ConfigurationTarget.Global,
 	);
-}
-
-// ---------------------------------------------------------------------------
-// Variable encryption state (set once on activation, updated on config change)
-// ---------------------------------------------------------------------------
-
-export function setVariableEncryptionConfiguration(enabled: boolean): void {
-	variableEncryptionConfiguration = enabled;
-}
-
-export function getVariableEncryptionConfiguration(): boolean {
-	return variableEncryptionConfiguration;
-}
-
-export function setVariableEncryptionKey(key: string): void {
-	variableEncryptionKeyCache = key;
-}
-
-// ---------------------------------------------------------------------------
-// SSL and TLS configuration
-// ---------------------------------------------------------------------------
-
-export function setSSLCheck(enabled: boolean): void {
-	SSLCheck = enabled;
-}
-
-export function setTLSCertificates(config: ITlsCertificate[]): void {
-	tlsCertificates = config;
-}
-
-
-export function getSSLCheck(): boolean {
-	return SSLCheck;
-}
-
-export function getTLSCertificates(): ITlsCertificate[] {
-	return tlsCertificates;
 }
 
 // ---------------------------------------------------------------------------

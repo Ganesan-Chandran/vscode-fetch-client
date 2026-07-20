@@ -1,6 +1,7 @@
 import { FCCipher } from "../../../../../fetch-client-packages/crypto";
 import { formatDate } from "../../../dateTime.helper";
-import { getVariableEncryptionConfiguration, getVariableEncryptionKey } from "../../../../utils/vscodeConfig";
+import { getVariableEncryptionConfiguration } from "../../../../utils/commonConfig";
+import { getVariableEncryptionKey } from "../../../../utils/vscodeConfig";
 import { ITableData } from "../../../../types/common.types";
 import { IVariable } from "../../../../types/sidebar.types";
 import { ThunderClientVariableSchema_1_2 } from "../../../../types/thunderClient_1_2.variable_types";

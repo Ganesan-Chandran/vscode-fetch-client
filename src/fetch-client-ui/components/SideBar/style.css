@@ -170,7 +170,7 @@
 .dropdown-content {
 	display: none;
 	position: absolute;
-	width: 125px;
+	width: 145px;
 	overflow: auto;
 	box-shadow: 10px 8px 16px 0 rgba(0, 0, 0, 0.4);
 	right: 0;

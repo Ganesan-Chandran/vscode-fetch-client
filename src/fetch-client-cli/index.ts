@@ -5,7 +5,7 @@ import {
 	setTLSCertificates,
 	setVariableEncryptionConfiguration,
 	setVariableEncryptionKey,
-} from "../fetch-client-core/utils/vscodeConfig";
+} from "../fetch-client-core/utils/commonConfig";
 
 // - 1. Bootstrap DB path before any repository code opens a database -
 setGlobalStorageUri(cliConfig.dbPath);

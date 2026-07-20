@@ -35,7 +35,7 @@ export interface TextEditorProps {
 	onFocus?: any;
 }
 
-const VAR_REGEX = /{{[A-Za-z0-9\s!@#$%^&*()_+=-`~\\\]\[|';:\/.,?><]+}}/g;
+const VAR_REGEX = /{{[A-Za-z0-9\s!@#$%^&*()_+=`~\\\]\[|';:\/.,?><-]+}}/g;
 const SYS_VAR_REGEX =
 	/(({{#)((num|str|char|rdate|date|dateISO|email|guid|bool)|(num,[ ]?[0-9]+,[ ]?[0-9]+)|(date,( )*[a-zA-Z $&+,:;=?@#|'<>.^*()%!-\/]*))(}}))/g;
 

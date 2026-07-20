@@ -1,6 +1,7 @@
 import { FCCipher } from "../../../../../fetch-client-packages/crypto";
 import { formatDate } from "../../../dateTime.helper";
-import { getVariableEncryptionConfiguration, getVariableEncryptionKey } from "../../../../utils/vscodeConfig";
+import { getVariableEncryptionConfiguration } from "../../../../utils/commonConfig";
+import { getVariableEncryptionKey } from "../../../../utils/vscodeConfig";
 import { ITableData } from "../../../../types/common.types";
 import { IVariable } from "../../../../types/sidebar.types";
 import { PostmanVariableSchema_2_1 } from "../../../../types/postman_2_1.variable_types";

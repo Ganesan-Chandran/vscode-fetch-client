@@ -22,6 +22,8 @@ interface ResultRow extends AwsKeyRef {
   cached?: boolean;
 }
 
+type ResultAction = "check" | "cache" | "clear";
+
 function extractAwsRefs(vars: IVariable[]): AwsKeyRef[] {
   const refs: AwsKeyRef[] = [];
 
@@ -52,7 +54,9 @@ const SecretMangerPanel = () => {
   const [loading, setLoading] = useState(true);
   const [checking, setChecking] = useState(false);
   const [caching, setCaching] = useState(false);
+  const [clearing, setClearing] = useState(false);
   const [results, setResults] = useState<ResultRow[]>([]);
+  const [lastAction, setLastAction] = useState<ResultAction | null>(null);
   const [selectedProfile, setSelectedProfile] = useState("all");
 
   useEffect(() => {
@@ -66,6 +70,9 @@ const SecretMangerPanel = () => {
       } else if (event.data?.type === responseTypes.awsFetchAndCacheResponse) {
         setResults(event.data.results as ResultRow[]);
         setCaching(false);
+      } else if (event.data?.type === responseTypes.clearSecretCacheResponse) {
+        setResults(event.data.results as ResultRow[]);
+        setClearing(false);
       }
     };
     window.addEventListener("message", handleMessage);
@@ -92,6 +99,7 @@ const SecretMangerPanel = () => {
     if (!targets.length) { return; }
     setChecking(true);
     setResults([]);
+    setLastAction("check");
     vscode.postMessage({
       type: requestTypes.awsCheckConnectivityRequest,
       data: { targets },
@@ -103,8 +111,21 @@ const SecretMangerPanel = () => {
     if (!targets.length) { return; }
     setCaching(true);
     setResults([]);
+    setLastAction("cache");
     vscode.postMessage({
       type: requestTypes.awsFetchAndCacheRequest,
+      data: { targets },
+    });
+  }
+
+  function onClearCacheClick() {
+    const targets = associatedRefs;
+    if (!targets.length) { return; }
+    setClearing(true);
+    setResults([]);
+    setLastAction("clear");
+    vscode.postMessage({
+      type: requestTypes.clearSecretCacheRequest,
       data: { targets },
     });
   }
@@ -189,17 +210,19 @@ const SecretMangerPanel = () => {
                   {r.ok ? (
                     <span className="aws-status aws-status--ok">
                       <span className="aws-status-dot aws-status-dot--ok" />
-                      Connected
+                      {lastAction === "clear" ? "Cleared" : "Connected"}
                     </span>
                   ) : (
                     <span className="aws-status aws-status--fail">
                       <span className="aws-status-dot aws-status-dot--fail" />
-                      Failed ({r.stage})
+                      Failed{r.stage ? ` (${r.stage})` : ""}
                     </span>
                   )}
                 </td>
                 <td className="aws-detail-cell">
-                  {r.ok ? (
+                  {lastAction === "clear" ? (
+                    r.ok ? (r.error ?? "Removed from cache") : r.error
+                  ) : r.ok ? (
                     r.cached ? <span className="aws-cache-badge">cached</span> : "fetched"
                   ) : (
                     r.error
@@ -242,17 +265,25 @@ const SecretMangerPanel = () => {
           type="submit"
           className="submit-button check-btn"
           onClick={onCheckClick}
-          disabled={checking || caching}
+          disabled={checking || caching || clearing}
         >
-          {checking ? "Checking..." : "Check connectivity"}
+          {checking ? "Checking..." : "Test Connection"}
         </button>
         <button
           type="button"
           className="submit-button check-btn"
           onClick={onFetchAndCacheClick}
-          disabled={checking || caching}
+          disabled={checking || caching || clearing}
         >
           {caching ? "Fetching..." : "Fetch & Cache"}
+        </button>
+        <button
+          type="button"
+          className="submit-button check-btn"
+          onClick={onClearCacheClick}
+          disabled={checking || caching || clearing}
+        >
+          {clearing ? "Clearing..." : "Clear Cache"}
         </button>
       </div>
     );
@@ -260,7 +291,7 @@ const SecretMangerPanel = () => {
 
   return (
     <PanelLayout
-      title="🔐 AWS Secrets Connectivity"
+      title="🔐 Secrets Integration"
       loading={loading}
       footer={renderFooter()}
     >
