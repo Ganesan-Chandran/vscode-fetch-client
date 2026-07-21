@@ -4,6 +4,7 @@ import { writeLog } from "../helpers/logger/logger";
 import loki, { LokiFsAdapter } from "lokijs";
 import {
 	autoRequestDBPath,
+	autoRequestHistoryDBPath,
 	collectionDBPath,
 	cookieDBPath,
 	historyDBPath,
@@ -151,4 +152,21 @@ export function CreateResponseDB(): Promise<void> {
 			});
 		}
 	});
+}
+
+export function CreateAutoRequestHistoryDB(): Promise<void> {
+	return createDatabase(
+		autoRequestHistoryDBPath(),
+		"CreateAutoRequestHistoryDB",
+		(db) => {
+			if (db.getCollection("autoRequestHistory") === null) {
+				db.addCollection("autoRequestHistory", {
+					autoupdate: true,
+					disableMeta: true,
+					unique: ["id"],
+					indices: ["id", "colId", "autoReqId"],
+				});
+			}
+		},
+	);
 }

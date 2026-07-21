@@ -1,19 +1,27 @@
 import { buildWebviewHtml } from "./webviewUtils";
-import { GetAllAutoRequest, SaveAutoRequest } from "../db/autoRequestDBUtil";
+import {
+	DeleteAutoRequestHistory,
+	GetAutoRequestByColId,
+	GetAutoRequestHistory,
+	SaveAutoRequest,
+} from "../db/autoRequestDBUtil";
 import {
 	GetAllCollectionName,
 	GetAllCollectionsByIdWithPath,
 } from "../db/collectionDBUtil";
 import { requestTypes } from "../../fetch-client-core/consts/requestTypes.consts";
 import * as vscode from "vscode";
+import { SESSION_ID } from "../../fetch-client-core/utils/vscodeConfig";
 
 export const AutoRequestProviderUI = (extensionUri: vscode.Uri) => {
 	const disposable = vscode.commands.registerCommand(
 		"fetch-client.autoRequest",
-		() => {
+		(colId: string = "", name: string = "") => {
 			const autoRequestPanel = vscode.window.createWebviewPanel(
 				"fetch-client",
-				"Fetch Client - Auto Request",
+				colId
+					? `Fetch Client - Auto Request (${name})`
+					: "Fetch Client - Auto Request",
 				vscode.ViewColumn.One,
 				{ enableScripts: true, retainContextWhenHidden: true },
 			);
@@ -31,16 +39,22 @@ export const AutoRequestProviderUI = (extensionUri: vscode.Uri) => {
 			);
 
 			autoRequestPanel.webview.onDidReceiveMessage((message: any) => {
-				if (message.type === requestTypes.getAllCollectionNameRequest) {
+				if (message.type === requestTypes.getAutoRequestByColIdRequest) {
+					GetAutoRequestByColId(colId, name, autoRequestPanel.webview);
+				} else if (message.type === requestTypes.getAllCollectionNameRequest) {
 					GetAllCollectionName(autoRequestPanel.webview, message.data);
 				} else if (
 					message.type === requestTypes.getCollectionsByIdWithPathRequest
 				) {
 					GetAllCollectionsByIdWithPath(message.data, autoRequestPanel.webview);
-				} else if (message.type === requestTypes.getAllAutoRequest) {
-					GetAllAutoRequest(autoRequestPanel.webview);
+				} else if (message.type === requestTypes.getAutoRequestHistoryRequest) {
+					GetAutoRequestHistory(colId, autoRequestPanel.webview);
+				} else if (
+					message.type === requestTypes.deleteAutoRequestHistoryRequest
+				) {
+					DeleteAutoRequestHistory(message.data, colId, autoRequestPanel.webview);
 				} else if (message.type === requestTypes.saveAutoRequestRequest) {
-					SaveAutoRequest(message.data);
+					SaveAutoRequest(message.data, SESSION_ID, autoRequestPanel.webview);
 				}
 			});
 		},

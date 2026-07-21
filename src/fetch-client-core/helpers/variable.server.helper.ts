@@ -195,29 +195,6 @@ export async function replaceDataWithVariable(
 	return data;
 }
 
-// async function replaceTableDataWithVariable(
-// 	data: ITableData[],
-// 	varData: Record<string, string>,
-// ): Promise<ITableData[]> {
-// 	for (const item of data) {
-// 		if (VARIABLE_PATTERN.test(item.key)) {
-// 			const matches = item.key.match(VARIABLE_PATTERN_GLOBAL) ?? [];
-// 			for (const p of matches) {
-// 				item.key = await updateVariable(p, item.key, varData);
-// 			}
-// 		}
-
-// 		if (VARIABLE_PATTERN.test(item.value)) {
-// 			const matches = item.value.match(VARIABLE_PATTERN_GLOBAL) ?? [];
-// 			for (const p of matches) {
-// 				item.value = await updateVariable(p, item.value, varData);
-// 			}
-// 		}
-// 	}
-
-// 	return data;
-// }
-
 async function replaceTableDataWithVariable(
 	data: ITableData[],
 	varData: Record<string, string>,

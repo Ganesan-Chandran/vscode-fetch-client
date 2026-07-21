@@ -1,442 +1,441 @@
 import "./style.css";
 import { formatDate } from "../../../fetch-client-core/helpers/dateTime.helper";
-import { IAutoRequest } from "../../../fetch-client-core/types/autorequest.types";
-import {
-	ICollection,
-	IColRequest,
-	IRequestList,
-} from "../../../fetch-client-core/types/prefetch.types";
+import { IAutoRequest, IAutoRequestHistory, IAutoRequestSchedule } from "../../../fetch-client-core/types/autorequest.types";
+import { ICollection, IRequestList } from "../../../fetch-client-core/types/prefetch.types";
 import { ReactComponent as BinLogo } from "../../../../icons/bin.svg";
-import {
-	requestTypes,
-	responseTypes,
-} from "../../../fetch-client-core/consts/requestTypes.consts";
+import { requestTypes, responseTypes } from "../../../fetch-client-core/consts/requestTypes.consts";
 import { v4 as uuidv4 } from "uuid";
 import PanelLayout from "../Common/Layout/panelLayout";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import vscode from "../Common/vscodeAPI";
 
-const AutoRequest = () => {
-	const [loading, setLoading] = useState(true);
-	const [collections, setCollections] = useState<ICollection[]>([]);
+const MAX_REQUESTS = 5;
+const MAX_ACTIVE_SCHEDULES = 1;
+const MIN_INTERVAL = 5;
+const MAX_INTERVAL = 600;
+const MIN_DURATION = 5;
+const MAX_DURATION = 600;
 
-	const [colRequestList, _setColRequestList] = useState<IColRequest[]>([
-		{ id: "", reqs: [] },
-	]);
-	const refColRequestList = useRef(colRequestList);
-	const setColRequestList = (data: IColRequest[]) => {
-		refColRequestList.current = data;
-		_setColRequestList(refColRequestList.current);
-	};
-
-	const [selectedRequestList, _setSelectedRequestList] = useState<
-		IAutoRequest[]
-	>([
+const newRow = (scheduleId: string, colId = ""): IAutoRequest => {
+	return (
 		{
 			id: uuidv4(),
-			colId: "",
+			scheduleId,
+			colId,
 			reqId: "",
+			reqName: "",
 			parentId: "",
-			interval: 15,
-			duration: 15,
-			status: false,
+			interval: MIN_INTERVAL,
+			duration: MIN_DURATION,
+			status: true,
 			cron: "",
-			createdTime: formatDate(),
-		},
-	]);
-	const refSelectedRequestList = useRef(selectedRequestList);
-	const setSelectedRequestList = (data: IAutoRequest[]) => {
-		refSelectedRequestList.current = data;
-		_setSelectedRequestList(refSelectedRequestList.current);
+			createdTime: formatDate()
+		}
+	);
+};
+
+const AutoRequest = () => {
+	// UI
+	const [loading, setLoading] = useState(true);
+	const [tab, setTab] = useState<"create" | "summary">("create");
+	const [message, setMessage] = useState("");
+
+	// Collection
+	const [isGlobal, setIsGlobal] = useState(true);
+	const [colId, setColId] = useState("");
+	const [colName, setColName] = useState("");
+	const [collections, setCollections] = useState<ICollection[]>([]);
+	const [requestLists, setRequestLists] = useState<Record<string, IRequestList[]>>({});
+
+	// Schedule
+	const [scheduleId, setScheduleId] = useState(uuidv4());
+	const [rows, setRows] = useState<IAutoRequest[]>([newRow(scheduleId)]);
+	const [schedules, setSchedules] = useState<IAutoRequestSchedule[]>([]);
+	const [history, setHistory] = useState<IAutoRequestHistory[]>([]);
+	const [selectedScheduleId, setSelectedScheduleId] = useState<string | null>(null);
+
+	const refresh = () => {
+		vscode.postMessage({ type: requestTypes.getAutoRequestByColIdRequest });
+		vscode.postMessage({ type: requestTypes.getAutoRequestHistoryRequest });
 	};
 
-	const [statusMsg, setStatusMsg] = useState<{
-		text: string;
-		isError?: boolean;
-	} | null>(null);
+	const handleCollectionsResponse = (data: any) => {
+		setCollections([
+			{ id: "", name: "--select--" },
+			...(data.collectionNames ?? []).map((item: { value: string; name: string }) => ({
+				id: item.value,
+				name: item.name,
+			})),
+		]);
+	};
+
+	const handleCollectionRequestsResponse = (data: any) => {
+		setRequestLists((current) => ({
+			...current,
+			[data.colId]: [
+				{ id: "", name: "--select--" },
+				...Object.entries(data.paths ?? {}).map(([id, name]) => ({
+					id,
+					name: String(name),
+				})),
+			],
+		}));
+	};
+
+	const initialTabChecked = React.useRef(false);
+
+	const handleAutoRequestResponse = (data: any) => {
+		const scoped = Boolean(data.colId);
+
+		setIsGlobal(!scoped);
+		setColId(data.colId ?? "");
+		setColName(data.name ?? "");
+
+		if (scoped) {
+			setRows((current) =>
+				current.map((row) =>
+					row.colId ? row : { ...row, colId: data.colId }
+				)
+			);
+
+			vscode.postMessage({
+				type: requestTypes.getCollectionsByIdWithPathRequest,
+				data: data.colId,
+			});
+		}
+
+		setSchedules(data.autoRequests ?? []);
+		if (!initialTabChecked.current) {
+			initialTabChecked.current = true;
+			const hasActiveSchedule = (data.autoRequests ?? []).some(
+				(item: IAutoRequestSchedule) => item.scheduleStatus === "running"
+			);
+			setTab(hasActiveSchedule ? "summary" : "create");
+		}
+		setLoading(false);
+	};
 
 	useEffect(() => {
-		const handleMessage = (event: MessageEvent) => {
-			if (
-				event.data &&
-				event.data.type === responseTypes.getAllCollectionNamesResponse
-			) {
-				let col: ICollection[] = event.data.collectionNames?.map(
-					(item: { value: any; name: any }) => {
-						return {
-							id: item.value,
-							name: item.name,
-						};
-					},
-				);
-				col.unshift({ id: "", name: "--select--" });
-				setCollections(col);
-				setLoading(false);
-			} else if (
-				event.data &&
-				event.data.type === responseTypes.getCollectionsByIdWithPathResponse
-			) {
-				let reqList: IRequestList[] = [{ id: "", name: "--select--" }];
-				for (const [key, value] of Object.entries(event.data.paths)) {
-					reqList.push({
-						id: key,
-						name: value as string,
-					});
-				}
-				let col: IColRequest = {
-					id: event.data.colId,
-					reqs: reqList,
-				};
-
-				let localData = [...refColRequestList.current];
-				localData.push(col);
-				setColRequestList(localData);
-			} else if (
-				event.data &&
-				event.data.type === responseTypes.getAllAutoRequestResponse
-			) {
-				let reqs: IAutoRequest[] = event.data.autoRequests;
-				if (reqs.length !== 0) {
-					for (let i = 0; i < reqs.length; i++) {
-						vscode.postMessage({
-							type: requestTypes.getCollectionsByIdWithPathRequest,
-							data: reqs[i].colId,
-						});
-					}
-
-					if (reqs.length !== 5) {
-						reqs.push({
-							id: uuidv4(),
-							colId: "",
-							reqId: "",
-							parentId: "",
-							interval: 15,
-							duration: 15,
-							status: false,
-							cron: "",
-							createdTime: formatDate(),
-						});
-					}
-					setSelectedRequestList(event.data.autoRequests);
+		const onMessage = (event: MessageEvent) => {
+			const data = event.data;
+			if (!data) { return; }
+			if (data.type === responseTypes.getAllCollectionNamesResponse) {
+				handleCollectionsResponse(data);
+			} else if (data.type === responseTypes.getCollectionsByIdWithPathResponse) {
+				handleCollectionRequestsResponse(data);
+			} else if (data.type === responseTypes.getAutoRequestByColIdResponse) {
+				handleAutoRequestResponse(data);
+			} else if (data.type === responseTypes.getAutoRequestHistoryResponse) {
+				setHistory(data.history ?? []);
+			} else if (data.type === responseTypes.saveAutoRequestResponse) {
+				if (data.success) {
+					setMessage("Schedule enabled.");
+					const id = uuidv4();
+					setScheduleId(id);
+					setRows([newRow(id, isGlobal ? "" : colId)]);
+					setTab("summary");
+					refresh();
+				} else {
+					setMessage(data.message ?? "Unable to enable the schedule.");
 				}
 			}
 		};
-		window.addEventListener("message", handleMessage);
-		vscode.postMessage({
-			type: requestTypes.getAllCollectionNameRequest,
-			data: "autorequest",
-		});
-		vscode.postMessage({ type: requestTypes.getAllAutoRequest });
-
-		return () => window.removeEventListener("message", handleMessage);
+		window.addEventListener("message", onMessage);
+		refresh(); vscode.postMessage({ type: requestTypes.getAllCollectionNameRequest, data: "autorequest" });
+		return () => window.removeEventListener("message", onMessage);
 	}, []);
 
-	function onDeleteReqClick(index: number) {
-		let localData = [...selectedRequestList];
-		localData.splice(index, 1);
-		if (selectedRequestList.filter((i) => i.colId).length === 5) {
-			localData.push({
-				id: uuidv4(),
-				colId: "",
-				reqId: "",
-				parentId: "",
-				interval: 15,
-				duration: 15,
-				status: false,
-				cron: "",
-				createdTime: formatDate(),
-			});
-		}
-		setSelectedRequestList(localData);
-	}
-
-	const onSelectRequest = (id: string, index: number, type: string) => {
-		let serachIndex = -1;
-		if (type === "col") {
-			serachIndex = colRequestList.findIndex((i) => i.id === id);
-			if (serachIndex === -1) {
-				vscode.postMessage({
-					type: requestTypes.getCollectionsByIdWithPathRequest,
-					data: id,
-				});
-			}
-		}
-
-		let localData = [...selectedRequestList];
-
-		if (type === "col") {
-			localData[index].colId = id;
-			localData[index].status = true;
-		} else {
-			let colId = localData[index].colId;
-			let name = colRequestList
-				.find((i) => i.id === colId)
-				?.reqs?.filter((j) => j.id === id)[0].name;
-			let parentId = name.split(";")[1];
-			localData[index].reqId = id;
-			localData[index].parentId = parentId;
-		}
-
-		if (index === localData.length - 1 && localData.length < 5) {
-			localData.push({
-				id: uuidv4(),
-				colId: "",
-				reqId: "",
-				parentId: "",
-				interval: 15,
-				duration: 15,
-				status: false,
-				cron: "",
-				createdTime: formatDate(),
-			});
-		}
-
-		setSelectedRequestList(localData);
+	const updateRow = (index: number, update: Partial<IAutoRequest>) => {
+		setRows((current) => current.map((row, rowIndex) => rowIndex === index ? { ...row, ...update } : row));
 	};
 
-	const getRequestList = (index: number) => {
-		let colId = selectedRequestList[index]?.colId;
-
-		if (colId) {
-			let re = colRequestList.find((i) => i.id === colId)?.reqs;
-			return re;
-		}
-
-		return [];
+	const selectCollection = (index: number, value: string) => {
+		updateRow(index, { colId: value, reqId: "", reqName: "", parentId: "" });
+		if (value && !requestLists[value]) { vscode.postMessage({ type: requestTypes.getCollectionsByIdWithPathRequest, data: value }); }
 	};
 
-	const onIntervalUpdate = (
-		event: React.ChangeEvent<HTMLInputElement>,
-		index: number,
-	) => {
-		const re = /^[0-9\b]+$/;
-		let localData = [...selectedRequestList];
-		if (event.target.value === "") {
-			localData[index].interval = 0;
-		} else if (re.test(event.target.value)) {
-			localData[index].interval = Number(event.target.value);
+	const selectRequest = (index: number, value: string) => {
+		const row = rows[index];
+		const name = requestLists[row.colId]?.find((request) => request.id === value)?.name ?? "";
+		updateRow(index, { reqId: value, reqName: name.split(";")[0] ?? "", parentId: name.split(";")[1] ?? "" });
+		if (value && index === rows.length - 1 && rows.length < MAX_REQUESTS) {
+			setRows((current) => [...current, newRow(scheduleId)]);
 		}
-		setSelectedRequestList(localData);
 	};
 
-	const onDurationUpdate = (
-		event: React.ChangeEvent<HTMLInputElement>,
-		index: number,
-	) => {
-		const re = /^[0-9\b]+$/;
-		let localData = [...selectedRequestList];
-		if (event.target.value === "") {
-			localData[index].duration = 0;
-		} else if (re.test(event.target.value)) {
-			localData[index].duration = Number(event.target.value);
-		}
-		setSelectedRequestList(localData);
+	const deleteRow = (index: number) => {
+		setRows((current) => current.length === 1 ? current : current.filter((_, rowIndex) => rowIndex !== index));
 	};
 
-	const getCss = (value: number) => {
-		if (value < 15 || value > 600) {
-			return "autorequest-text-box invalid-value-border";
+	const numeric = (index: number, field: "interval" | "duration", value: string) => {
+		if (/^\d*$/.test(value)) {
+			updateRow(index, { [field]: Number(value) });
 		}
-
-		return "autorequest-text-box";
 	};
 
-	const getButtonDisabledStatus = () => {
-		if (selectedRequestList.length === 1 && !selectedRequestList[0].colId) {
-			return true;
+	// const populatedRows = rows.filter((row) => row.colId || row.reqId);
+	const populatedRows = rows.filter((row) => row.reqId.trim() !== "");
+
+	const valid = populatedRows.length > 0 && populatedRows.every((row) => row.colId && row.reqId && row.interval >= MIN_INTERVAL && row.interval <= MAX_INTERVAL && row.duration >= MIN_DURATION && row.duration <= MAX_DURATION && row.interval <= row.duration);
+
+	const activeScheduleIds = new Set(schedules.filter((item) => item.scheduleStatus === "running").map((item) => item.scheduleId ?? item.id));
+
+	const scheduleGroups = Object.values(schedules.reduce<Record<string, IAutoRequestSchedule[]>>((groups, item) => { const id = item.scheduleId ?? item.id; (groups[id] ??= []).push(item); return groups; }, {}));
+
+	const statusClass = (status: string) => status === "success" || status === "completed" ? "history-status history-status--ok" : status === "pending" || status === "running" ? "history-status history-status--pending" : "history-status history-status--error";
+
+	const isScheduleLimitReached = activeScheduleIds.size >= MAX_ACTIVE_SCHEDULES;
+
+	const sortedHistory = [...history].sort((a, b) => {
+		const aRunning = a.status === "running";
+		const bRunning = b.status === "running";
+
+		if (aRunning !== bRunning) {
+			return aRunning ? -1 : 1;
 		}
 
-		if (
-			selectedRequestList.findIndex(
-				(i) =>
-					i.colId &&
-					(!i.reqId ||
-						i.interval < 15 ||
-						i.duration < 15 ||
-						i.interval > 600 ||
-						i.duration > 600 ||
-						i.interval > i.duration),
-			) !== -1
-		) {
-			return true;
-		}
+		const aTime = a.executedTime ? new Date(a.executedTime).getTime() : 0;
+		const bTime = b.executedTime ? new Date(b.executedTime).getTime() : 0;
 
-		return false;
-	};
+		return bTime - aTime;
+	});
 
-	const onEnableAutoRequest = () => {
-		vscode.postMessage({
-			type: requestTypes.saveAutoRequestRequest,
-			data: selectedRequestList,
-		});
-		setStatusMsg({ text: "Auto request settings saved successfully." });
-	};
+	const filteredHistory = selectedScheduleId
+		? sortedHistory.filter(
+			item => (item.scheduleId ?? item.autoReqId) === selectedScheduleId
+		)
+		: sortedHistory;
 
-	const formatDuration = (totalMinutes: number): string => {
-		if (totalMinutes > 60) {
-			const hours = Math.floor(totalMinutes / 60);
-			const minutes = String(totalMinutes % 60).padStart(2, "0");
-			return `${hours}:${minutes} hours`;
-		}
-		return `${totalMinutes} minutes`;
-	};
-
-	function renderStatus() {
-		if (!statusMsg) {
-			return null;
-		}
+	const sortedScheduleGroups = [...scheduleGroups].sort((a, b) => {
 		return (
-			<div
-				className={`reorder-status ${statusMsg.isError ? "reorder-status--error" : "reorder-status--ok"}`}
-			>
-				{statusMsg.text}
-			</div>
+			new Date(b[0].createdTime ?? 0).getTime() -
+			new Date(a[0].createdTime ?? 0).getTime()
 		);
-	}
+	});
 
-	function renderHeader() {
-		return (
-			<div className="autorequest-row autorequest-row--header">
-				<div className="autorequest-cell">Collection</div>
-				<div className="autorequest-cell">Request</div>
-				<div className="autorequest-cell">
-					Interval (minutes)
-					<label
-						className="runall-settings-info-label"
-						title={
-							"Time between the request exection. \nmin value is 15 and max value is 600"
-						}
-					>
-						ⓘ
-					</label>
-				</div>
-				<div className="autorequest-cell">
-					Duration (minutes)
-					<label
-						className="runall-settings-info-label"
-						title={
-							"Total duration of the auto request execution.\nmin value is 15 and max value is 600"
-						}
-					>
-						ⓘ
-					</label>
-				</div>
-				<div className="autorequest-cell">Remove</div>
-			</div>
-		);
-	}
-
-	function renderRequests() {
-		return selectedRequestList.map((item, index) => {
-			return (
-				<div className="autorequest-row" key={item.id}>
-					<div className="autorequest-cell">
-						<select
-							className="preReq-col-select"
-							id={"preReq_col_" + index.toString()}
-							required={true}
-							value={item.colId}
-							onChange={(e) => onSelectRequest(e.target.value, index, "col")}
-						>
-							{collections?.length > 0 &&
-								collections.map((item, index) => (
-									<option
-										value={item.id}
-										key={index + item.name}
-										disabled={index === 0 ? true : false}
-										hidden={index === 0 ? true : false}
-									>
-										{item.name}
-									</option>
-								))}
-						</select>
-					</div>
-					<div className="autorequest-cell">
-						<select
-							className="preReq-col-select"
-							id={"preReq_req_" + index.toString()}
-							required={true}
-							value={item.reqId}
-							onChange={(e) => onSelectRequest(e.target.value, index, "req")}
-						>
-							{getRequestList(index)?.map(({ id, name }) => (
-								<option value={id} key={id}>
-									{name.split(";")[0]}
-								</option>
-							))}
-						</select>
-					</div>
-					<div className="autorequest-cell">
-						<input
-							id={"preReq_int_" + index.toString()}
-							className={getCss(item.interval)}
-							value={item.interval}
-							onChange={(event) => onIntervalUpdate(event, index)}
-							disabled={selectedRequestList[index].colId ? false : true}
-							placeholder={"interval"}
-							type="text"
-						/>
-					</div>
-					<div className="autorequest-cell">
-						<input
-							id={"preReq_dur_" + index.toString()}
-							className={getCss(item.duration)}
-							value={item.duration}
-							onChange={(event) => onDurationUpdate(event, index)}
-							disabled={selectedRequestList[index].colId ? false : true}
-							placeholder={"interval"}
-							type="text"
-						/>
-						<label
-							className="runall-settings-info-label"
-							title={
-								item.colId && item.reqId
-									? `The request will be executed every ${formatDuration(item.interval)}. \nuntil the next ${formatDuration(item.duration)}`
-									: ""
-							}
-						>
-							ⓘ
-						</label>
-					</div>
-					<div className="autorequest-cell">
-						{(selectedRequestList[index].colId ||
-							selectedRequestList[index].reqId) && (
-							<BinLogo
-								className="delete-button"
-								onClick={() => onDeleteReqClick(index)}
-							/>
-						)}
-					</div>
-				</div>
-			);
-		});
-	}
+	const collectionName = (id: string) => {
+		return collections.find((collection) => collection.id === id)?.name ?? "-";
+	};
 
 	return (
 		<PanelLayout
-			title="🔁 Auto Request"
+			title={isGlobal ? "🔁 Auto Request" : `🔁 Auto Request - ${colName}`}
 			loading={loading}
-			footer={
-				<div className="reorder-btn-panel">
-					<button
-						className="submit-button reorder-btn"
-						disabled={getButtonDisabledStatus()}
-						onClick={onEnableAutoRequest}
-					>
-						Enable
-					</button>
-				</div>
+			footer={tab === "create" ?
+				<>
+					{
+						message && <div className="reorder-status reorder-status--ok">
+							{message}
+						</div>
+					}
+					<div className="reorder-btn-panel">
+						<button className="submit-button reorder-btn"
+							disabled={!valid || isScheduleLimitReached}
+							onClick={() => {
+								setMessage("");
+								vscode.postMessage({ type: requestTypes.saveAutoRequestRequest, data: populatedRows });
+							}}>Enable
+						</button>
+					</div>
+				</> :
+				undefined
 			}
 		>
-			<div className="autorequest-max-note">
-				Max 5 requests · Requests containing PreFetch steps will skip PreFetch
-				execution
+			<div className="autorequest-tabs">
+				<button
+					className={tab === "create" ? "autorequest-tab active" : "autorequest-tab"}
+					onClick={() => setTab("create")}
+				>
+					Create schedule</button>
+				<button className={tab === "summary" ? "autorequest-tab active" : "autorequest-tab"} onClick={() => { setTab("summary"); refresh(); }}>Execution summary</button>
 			</div>
-			<div className="reorder-tree-panel autorequest-scroll-panel">
-				{renderHeader()}
-				{renderRequests()}
-			</div>
-			{renderStatus()}
+			{tab === "create" ?
+				<div className="autorequest-create-wrapper">
+
+					<div>
+						<>
+							{
+								isScheduleLimitReached && <div className="autorequest-max-note">
+									"A schedule is already running. It must finish, complete, or be stopped before you can create another."
+								</div>
+							}
+							{
+								!isScheduleLimitReached && <div className="autorequest-max-note">
+									Up to {MAX_REQUESTS} requests in this schedule
+								</div>
+							}
+							<div className={isScheduleLimitReached
+								? "reorder-tree-panel autorequest-scroll-panel disabled"
+								: "reorder-tree-panel autorequest-scroll-panel"} >
+								<div className={`autorequest-row autorequest-row--header ${!isGlobal ? "autorequest-row--scoped" : ""}`}>
+									{isGlobal && <div className="autorequest-cell">Collection</div>}
+									<div className="autorequest-cell">Request</div>
+									<div className="autorequest-cell">Interval (minutes)
+										<label
+											className="runall-settings-info-label"
+											title={
+												`Time between the request exection. \nmin value is ${MIN_INTERVAL} and max value is ${MAX_INTERVAL}`
+											}
+										>
+											ⓘ
+										</label>
+									</div>
+									<div className="autorequest-cell">Duration (minutes)
+										<label
+											className="runall-settings-info-label"
+											title={
+												`Total duration of the auto request execution.\nmin value is ${MIN_DURATION} and max value is ${MAX_DURATION}`
+											}
+										>
+											ⓘ
+										</label></div>
+									<div className="autorequest-cell">Remove</div>
+								</div>
+								{
+									rows.map((row, index) =>
+										<div className={`autorequest-row ${!isGlobal ? "autorequest-row--scoped" : ""}`} key={row.id}>
+											{isGlobal && <div className="autorequest-cell">
+												<select
+													className="preReq-col-select"
+													value={row.colId}
+													onChange={(event) => selectCollection(index, event.target.value)}
+												>
+													{
+														collections.map((collection) =>
+															<option
+																value={collection.id}
+																key={collection.id}
+																disabled={!collection.id}
+																hidden={!collection.id}>{collection.name}
+															</option>
+														)
+													}
+												</select>
+											</div>
+											}
+											<div className="autorequest-cell">
+												<select
+													className="preReq-col-select"
+													value={row.reqId}
+													disabled={!row.colId}
+													onChange={(event) => selectRequest(index, event.target.value)}>
+													{(
+														requestLists[row.colId] ?? [{ id: "", name: "--select--" }]).map((request) =>
+															<option
+																value={request.id}
+																key={request.id}
+																disabled={!request.id}
+																hidden={!request.id}>
+																{request.name.split(";")[0]}
+															</option>
+														)
+													}
+												</select>
+											</div>
+											<div className="autorequest-cell">
+												<input
+													className="autorequest-text-box"
+													value={row.interval}
+													disabled={!row.colId}
+													onChange={(event) => numeric(index, "interval", event.target.value)} />
+											</div>
+											<div className="autorequest-cell">
+												<input
+													className="autorequest-text-box"
+													value={row.duration}
+													disabled={!row.colId}
+													onChange={(event) => numeric(index, "duration", event.target.value)} />
+											</div>
+											<div className="autorequest-cell">
+												{(row.colId || row.reqId) && <BinLogo className="delete-button" onClick={() => deleteRow(index)} />}
+											</div>
+										</div>
+									)
+								}
+							</div>
+						</>
+					</div>
+					{/* {isScheduleLimitReached && (
+						<div className="autorequest-overlay">
+							<div className="autorequest-overlay-message">
+								A schedule is already running.
+								<br />
+								Stop or wait for it to complete before creating another schedule.
+							</div>
+						</div>
+					)} */}
+
+				</div>
+				:
+				<div className="autorequest-summary">
+					<div className="summary-heading">
+						<span>Schedules ({activeScheduleIds.size}/{MAX_ACTIVE_SCHEDULES} active)</span>
+						<button className="submit-button" onClick={refresh}>Refresh</button>
+					</div>
+					<div className="autorequest-table schedule-table">
+						<div className="autorequest-table-row header">
+							<span>Schedule</span>
+							<span>Requests</span>
+							<span>Collection</span>
+							<span>Status</span>
+							<span>Next run</span>
+							<span>Created</span>
+						</div>
+						{
+							sortedScheduleGroups.length ? sortedScheduleGroups.map(
+								(group) => {
+									const statuses = group.map((item) => item.scheduleStatus);
+									const status = statuses.includes("running") ? "running" : statuses.includes("failed") ? "failed" : statuses.includes("completed") ? "completed" : "stopped";
+									return <div className={`autorequest-table-row ${selectedScheduleId === (group[0].scheduleId ?? group[0].id)
+										? "selected-row"
+										: ""
+										}`} key={group[0].scheduleId ?? group[0].id}
+										onClick={() => {
+											const id = group[0].scheduleId ?? group[0].id;
+											setSelectedScheduleId(current =>
+												current === id ? null : id
+											);
+										}}
+										style={{ cursor: "pointer" }}>
+										<span>{(group[0].scheduleId ?? group[0].id).slice(0, 8)}</span><span>{group.length}</span>
+										<span>{collectionName(group[0].colId)}</span>
+										<span className={statusClass(status)}>{status}</span>
+										<span>{group.find((item) => item.scheduleStatus === "running")?.nextRunTime ?? "-"}</span>
+										<span>{group[0].createdTime}</span>
+									</div>;
+								}) :
+								<div className="no-history-text">No schedules created yet</div>
+						}
+					</div>
+					<div className="history-section-title">Requests</div><div className="autorequest-table request-table">
+						<div className="autorequest-table-row header">
+							<span>Schedule</span>
+							<span>Request</span>
+							<span>Status</span>
+							<span>Status code</span>
+							<span>Duration</span>
+							<span>Executed time</span>
+						</div>{
+							filteredHistory.length ? filteredHistory.map(
+								(item) =>
+									<div className="autorequest-table-row" key={item.id}>
+										<span>{(item.scheduleId ?? item.autoReqId).slice(0, 8)}</span>
+										<span>{item.requestName}</span>
+										<span className={statusClass(item.status)}>{item.status}</span>
+										<span>{item.statusCode ?? "-"}</span>
+										<span>{item.duration === undefined || item.duration === null ? "-" : `${item.duration} ms`}</span>
+										<span>{item.executedTime ?? "-"}</span>
+									</div>
+							) : (
+								<div className="no-history-text">
+									{selectedScheduleId
+										? "No requests found for the selected schedule"
+										: "No request executions yet"}
+								</div>
+							)
+						}
+					</div>
+				</div>}
 		</PanelLayout>
 	);
 };

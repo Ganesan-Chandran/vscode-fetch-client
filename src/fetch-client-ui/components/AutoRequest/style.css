@@ -6,6 +6,77 @@
 	padding-top: 20px;
 }
 
+.autorequest-tabs {
+	display: flex;
+	gap: 8px;
+	border-bottom: 1px solid var(--vscode-editorGroup-border);
+}
+
+.autorequest-tab {
+	background: transparent;
+	border: 0;
+	border-bottom: 2px solid transparent;
+	color: var(--text-color);
+	cursor: pointer;
+	padding: 8px 12px;
+}
+
+.autorequest-tab.active {
+	border-bottom-color: var(--vscode-focusBorder);
+	font-weight: 600;
+}
+
+.autorequest-message {
+	margin: 8px 0;
+	color: var(--vscode-testing-iconPassed, #2ea043);
+}
+
+.autorequest-summary {
+	min-width: 760px;
+	height: 100%;
+}
+
+.summary-heading {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 8px;
+	font-weight: 600;
+}
+
+.autorequest-table {
+	border: 1px solid var(--vscode-editorGroup-border);
+	overflow: auto;
+}
+
+.autorequest-table-row {
+	display: grid;
+	grid-template-columns: 1.5fr 1.5fr repeat(4, 1fr);
+	gap: 10px;
+	align-items: center;
+	padding: 9px 12px;
+	border-bottom: 1px solid var(--vscode-editorGroup-border);
+}
+
+.autorequest-table-row.header {
+	background: var(--vscode-sideBar-background);
+	font-weight: 600;
+	position: sticky;
+	top: 0;
+}
+
+.autorequest-table-row:last-child {
+	border-bottom: 0;
+}
+
+.schedule-table {
+	height: 35%;
+}
+
+.request-table {
+	height: calc(100% - 40% - 125px);
+}
+
 .autorequest-text-panel {
 	padding: 10px 20px 10px 10px;
 	text-align: center;
@@ -59,6 +130,16 @@
 	color: red;
 	font-size: 13px;
 	padding: 4px 0;
+	margin-bottom: 5px;
+}
+
+/* Keep the schedule editor aligned with the original Auto Request grid. */
+.autorequest-create .autorequest-row {
+	grid-template-columns: 2fr 2fr 140px 140px;
+}
+
+.autorequest-create .autorequest-row--scoped {
+	grid-template-columns: 2fr 140px 140px;
 }
 
 .detail-note {
@@ -112,4 +193,169 @@
 /* Delete icon */
 .autorequest-cell:last-child {
 	justify-content: center;
+}
+
+.autorequest-history-row {
+	display: grid;
+	grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr 50px;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 12px;
+	border-bottom: 1px solid var(--vscode-editorGroup-border);
+}
+
+.autorequest-history-row--header {
+	position: sticky;
+	top: 0;
+	background: var(--vscode-sideBar-background);
+	font-weight: 600;
+	z-index: 2;
+}
+
+.history-section-title {
+	font-weight: 600;
+	padding-top: 24px;
+	padding-bottom: 8px;
+}
+
+.history-scroll-panel {
+	max-height: 260px;
+}
+
+.history-status {
+	font-size: 12px;
+	padding: 2px 8px;
+	border-radius: 3px;
+}
+
+.history-status--ok {
+	color: #2ea043;
+	background: rgba(46, 160, 67, 0.15);
+}
+
+.history-status--error {
+	color: #f05348;
+	background: rgba(240, 83, 72, 0.15);
+}
+
+.autorequest-row--scoped {
+	grid-template-columns: 2fr 140px 140px 50px;
+}
+
+.autorequest-history-row {
+	display: grid;
+	grid-template-columns: 2fr 2fr 1fr 1fr 1fr 1.5fr 50px;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 12px;
+	border-bottom: 1px solid var(--vscode-editorGroup-border);
+}
+
+.autorequest-history-row--header {
+	position: sticky;
+	top: 0;
+	background: var(--vscode-sideBar-background);
+	font-weight: 600;
+	z-index: 2;
+}
+
+.history-section-title {
+	font-weight: 600;
+	padding-top: 24px;
+	padding-bottom: 8px;
+}
+
+.history-scroll-panel {
+	max-height: 260px;
+}
+
+.history-status {
+	font-size: 12px;
+	padding: 2px 8px;
+	border-radius: 3px;
+}
+
+.history-status--ok {
+	color: #2ea043;
+	background: rgba(46, 160, 67, 0.15);
+}
+
+.history-status--error {
+	color: #f05348;
+	background: rgba(240, 83, 72, 0.15);
+}
+
+.autorequest-history-row {
+	display: grid;
+	grid-template-columns: 2fr 2fr 1fr 1fr 1fr 1.5fr 1fr 1.5fr 50px;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 12px;
+	border-bottom: 1px solid var(--vscode-editorGroup-border);
+}
+
+.history-status--pending {
+	color: #d29922;
+	background: rgba(210, 153, 34, 0.15);
+}
+
+.autorequest-create-wrapper {
+	position: relative;
+}
+
+.autorequest-scroll-panel.disabled {
+	opacity: 0.45;
+	filter: grayscale(100%);
+	pointer-events: none;
+	user-select: none;
+}
+
+.autorequest-overlay {
+	position: absolute;
+	top: 40px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(0, 0, 0, .05);
+	z-index: 10;
+}
+
+.autorequest-overlay-message {
+	padding: 12px 18px;
+	border-radius: 6px;
+	background: var(--vscode-editorWidget-background);
+	border: 1px solid var(--vscode-panel-border);
+	text-align: center;
+	font-weight: 600;
+	max-width: 320px;
+}
+
+.autorequest-table-row.selected {
+	background: var(--vscode-list-activeSelectionBackground);
+	color: var(--vscode-list-activeSelectionForeground);
+}
+
+.schedule-table .autorequest-table-row:not(.header) {
+	cursor: pointer;
+	transition: background-color 0.15s ease;
+}
+
+.schedule-table .autorequest-table-row:not(.header):hover {
+	background-color: var(--vscode-list-hoverBackground);
+}
+
+.schedule-table .autorequest-table-row.selected-row {
+	background-color: var(--vscode-list-activeSelectionBackground);
+	color: var(--vscode-list-activeSelectionForeground);
+}
+
+.schedule-table .autorequest-table-row.selected-row:hover {
+	background-color: var(--vscode-list-activeSelectionBackground);
+}
+
+.schedule-table .autorequest-table-row.selected-row {
+	outline: 1px solid var(--vscode-focusBorder);
 }

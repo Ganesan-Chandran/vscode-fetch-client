@@ -532,6 +532,9 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 				case requestTypes.openAutoRequest:
 					OpenAutoRequestUI();
 					break;
+				case requestTypes.autoRequestUIOpenRequest:
+					OpenAutoRequestUI(reqData.data.colId, reqData.data.name);
+					break;
 				case requestTypes.configRequest:
 					webviewView.webview.postMessage(getConfiguration());
 					break;

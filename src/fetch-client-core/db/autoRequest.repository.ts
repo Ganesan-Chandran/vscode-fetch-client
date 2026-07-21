@@ -56,6 +56,7 @@ async function getAutoRequestCollection(): Promise<{
 }
 
 export async function Auto_Repository_SaveAutoRequests(
+	colId: string,
 	requests: IAutoRequest[],
 ): Promise<{
 	savedRequests: IAutoRequest[];
@@ -76,7 +77,8 @@ export async function Auto_Repository_SaveAutoRequests(
 				return;
 			}
 
-			existing.id = item.id;
+				existing.id = item.id;
+				existing.scheduleId = item.scheduleId;
 			existing.colId = item.colId;
 			existing.reqId = item.reqId;
 			existing.parentId = item.parentId;
@@ -90,7 +92,9 @@ export async function Auto_Repository_SaveAutoRequests(
 		});
 
 		const deletedRequests = collection.data.filter(
-			(dbItem) => !requests.some((req) => req.id === dbItem.id),
+			(dbItem) =>
+				(colId ? dbItem.colId === colId : true) &&
+				!requests.some((req) => req.id === dbItem.id),
 		);
 
 		deletedRequests.forEach((item) => {
@@ -105,6 +109,30 @@ export async function Auto_Repository_SaveAutoRequests(
 		};
 	} catch (error) {
 		writeLog(`error::SaveAutoRequests(): ${error}`);
+		throw error;
+	}
+}
+
+/** Adds schedules without removing the schedules already shown in the summary. */
+export async function Auto_Repository_AddAutoRequests(
+	requests: IAutoRequest[],
+): Promise<IAutoRequest[]> {
+	try {
+		const { db, collection } = await getAutoRequestCollection();
+		const validRequests = requests.filter((item) => item.colId && item.reqId);
+		validRequests.forEach((item) => {
+			const existing = collection.findOne({ id: item.id });
+			if (existing) {
+				Object.assign(existing, item);
+				collection.update(existing);
+			} else {
+				collection.insert(item);
+			}
+		});
+		await saveDatabase(db);
+		return validRequests;
+	} catch (error) {
+		writeLog(`error::AddAutoRequests(): ${error}`);
 		throw error;
 	}
 }
@@ -133,6 +161,18 @@ export async function Auto_Repository_GetAutoRequestById(
 		return collection.find({ id });
 	} catch (error) {
 		writeLog(`error::GetAutoRequestById(): ${error}`);
+		throw error;
+	}
+}
+
+export async function Auto_Repository_GetAutoRequestsByColId(
+	colId: string,
+): Promise<IAutoRequest[]> {
+	try {
+		const { collection } = await getAutoRequestCollection();
+		return collection.find({ colId });
+	} catch (error) {
+		writeLog(`error::GetAutoRequestsByColId(): ${error}`);
 		throw error;
 	}
 }

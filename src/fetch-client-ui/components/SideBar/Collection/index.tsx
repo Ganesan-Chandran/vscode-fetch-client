@@ -668,6 +668,20 @@ export const CollectionBar = (props: ICollectionProps) => {
 		openContextMenu(id, isSub);
 	}
 
+	function onAutoRequest(
+		evt: React.MouseEvent<HTMLElement>,
+		colId: string,
+		name: string,
+	) {
+		evt.preventDefault();
+		evt.stopPropagation();
+		vscode.postMessage({
+			type: requestTypes.autoRequestUIOpenRequest,
+			data: { colId: colId, name: name },
+		});
+		setCurrentHeadIndex("");
+	}
+
 	const sortItems = (
 		items: (IHistory | IFolder)[],
 		order: SortOrder,
@@ -1282,6 +1296,9 @@ export const CollectionBar = (props: ICollectionProps) => {
 										}
 									>
 										Data-Driven Test
+									</button>
+									<button onClick={(e) => onAutoRequest(e, item.id, item.name)}>
+										Auto Request
 									</button>
 								</div>
 							</div>

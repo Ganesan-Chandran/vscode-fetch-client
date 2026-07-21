@@ -4,6 +4,8 @@ import { responseTypes } from "../consts/requestTypes.consts";
 import { variableEncryptionKeyCache } from "./commonConfig";
 import * as vscode from "vscode";
 
+export const SESSION_ID = vscode.env.sessionId;
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------

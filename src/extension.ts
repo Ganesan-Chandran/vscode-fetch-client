@@ -11,6 +11,7 @@ import {
 } from "./fetch-client-vscode/webviews";
 import {
 	autoRequestDBPath,
+	autoRequestHistoryDBPath,
 	collectionDBPath,
 	cookieDBPath,
 	getExtDbPath,
@@ -24,6 +25,7 @@ import {
 } from "./fetch-client-core/db/dbHelper";
 import {
 	CreateAutoRequestDB,
+	CreateAutoRequestHistoryDB,
 	CreateCollectionDB,
 	CreateCookieDB,
 	CreateHistoryDB,
@@ -43,6 +45,7 @@ import {
 	getTlsCertificate,
 	getVariableEncryptionFCConfiguration,
 	getVariableEncryptionKey,
+	SESSION_ID,
 	updateDbPathConfiguration,
 	updateSaveToWorkspaceConfiguration,
 	updateVariableEncryption,
@@ -76,6 +79,7 @@ import { OAuthAuthorizationService } from "./fetch-client-vscode/oauthAuthorizat
 import * as vscode from "vscode";
 import fs from "fs";
 import path from "path";
+import { AutoReqHistory_Repository_ReconcileOwnSession } from "./fetch-client-core/db/autoRequestHistory.repository";
 
 export let pubSub: PubSub<IPubSubMessage>;
 export let vsCodeLogger: VSCodeLogger;
@@ -213,8 +217,8 @@ export function OpenBulkExportUI(type: string): void {
 	vscode.commands.executeCommand("fetch-client.bulkExport", type);
 }
 
-export function OpenAutoRequestUI(): void {
-	vscode.commands.executeCommand("fetch-client.autoRequest");
+export function OpenAutoRequestUI(colId: string = "", name: string = ""): void {
+	vscode.commands.executeCommand("fetch-client.autoRequest", colId, name);
 }
 
 export function OpenSecretMangerUI(): void {
@@ -288,6 +292,8 @@ export async function activate(
 	extCache.set("oldKey", getVariableEncryptionKey());
 	extCache.set("oldDbPathMode", getDbPathConfiguration());
 	extCache.set("oldCustomDbPath", getCustomDbPathConfiguration());
+
+	await AutoReqHistory_Repository_ReconcileOwnSession(SESSION_ID);
 }
 
 export function getStorageManager(): LocalStorageService {
@@ -344,6 +350,7 @@ async function initializeStorage(): Promise<void> {
 		ensureDb(variableDBPath(), CreateVariableDB),
 		ensureDb(cookieDBPath(), CreateCookieDB),
 		ensureDb(autoRequestDBPath(), CreateAutoRequestDB),
+		ensureDb(autoRequestHistoryDBPath(), CreateAutoRequestHistoryDB),
 		ensureDb(responseDBPath(), CreateResponseDB),
 		ensureDb(path.resolve(extPath, logPath), createLogFile),
 	]);
