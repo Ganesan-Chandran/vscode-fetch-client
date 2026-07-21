@@ -57,7 +57,8 @@ export function setVariable(
 				}
 			} else if (item.parameter === "Expression") {
 				const result = String(evaluateExpressionValue(item.key?.toString() ?? ""));
-				const actualValue = result === null || result === undefined ? "" : String(result);
+				actualValue = result === null || result === undefined ? "" : String(result);
+				index = variable.data.findIndex((d) => d.key === item.variableName);
 				if (index === -1) {
 					variable.data.push({
 						isChecked: true,
