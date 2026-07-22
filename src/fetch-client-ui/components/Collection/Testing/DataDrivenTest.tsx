@@ -600,11 +600,23 @@ const DataDrivenTest = () => {
 
 				{done && results.length > 0 && (
 					<div className="dd-export-row">
-						<button className="submit-button dd-export-btn" onClick={onExportJson}>Export JSON</button>
-						<button className="submit-button dd-export-btn" onClick={onExportCSV}>Export CSV</button>
-						<button className="submit-button dd-export-btn" onClick={onExportHtml}>Export HTML</button>
-						<button className="submit-button dd-export-btn" onClick={onExportXml}>Export XML</button>
-						<button className="submit-button dd-export-btn" onClick={onExportNUnit}>Export NUnit</button>
+						<div className="runall-dropdown">
+							<button
+								className="submit-button reorder-btn run-all-button"
+								disabled={!done || results.length === 0}
+							>
+								Export
+							</button>
+							{done && results.length > 0 && (
+								<div className="runall-dropdown-content">
+									<a onClick={onExportJson}>JSON</a>
+									<a onClick={onExportCSV}>CSV</a>
+									<a onClick={onExportHtml}>HTML</a>
+									<a onClick={onExportXml}>XML</a>
+									<a onClick={onExportNUnit}>NUnit</a>
+								</div>
+							)}
+						</div>
 					</div>
 				)}
 			</div>

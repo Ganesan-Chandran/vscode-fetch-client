@@ -375,12 +375,14 @@
 	display: flex;
 	gap: 8px;
 	padding-top: 4px;
+	justify-content: center;
 }
 
 .dd-footer-row {
 	display: flex;
 	align-items: center;
 	gap: 8px;
+	justify-content: center;
 }
 
 /* ── End Data-Driven Test ──────────────────────────────────────────────────── */

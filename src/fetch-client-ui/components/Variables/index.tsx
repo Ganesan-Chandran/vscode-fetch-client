@@ -234,7 +234,7 @@ const Variables = (_props: IVariableProps) => {
 				<div className="dd-notes-title">Cloud Secret Format</div>
 				<ul className="dd-notes-list">
 					<li><strong>AWS:</strong>{" "}<code>{"aws:<profile>:<secret-name>[:json-property]"}</code></li>
-					<li><strong>Azure:</strong>{" "}<code>{"azure:<vault-name>:<secret-name>[:json-property]"}</code></li>
+					{/* <li><strong>Azure:</strong>{" "}<code>{"azure:<vault-name>:<secret-name>[:json-property]"}</code></li> */}
 					<li>Use <strong>Variable → Secrets Integration</strong> to cache or clear cloud secrets. Caching reduces cloud API calls and helps minimize cloud API costs.</li>
 				</ul>
 			</div>
