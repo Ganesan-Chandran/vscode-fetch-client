@@ -18,7 +18,10 @@ import { cliConfig } from "../config";
 import { resolveSettings } from "./helper";
 import {
 	exportDataDrivenCSV,
+	exportDataDrivenHtml,
 	exportDataDrivenJson,
+	exportDataDrivenNUnit,
+	exportDataDrivenXml,
 } from "../../fetch-client-core/utils/dataDrivenTestService/dataDrivenExport";
 import { parseDataFile } from "../../fetch-client-core/utils/dataDrivenTestService/dataDrivenParser";
 import { validateVariables } from "../../fetch-client-core/utils/dataDrivenTestService/dataDrivenVariables";
@@ -30,15 +33,17 @@ import {
 	CsvSeparator,
 	DataFileFormat,
 	IDataDrivenConfig,
+	IDataDrivenResult,
 	IDataDrivenRowResult,
 } from "../../fetch-client-core/utils/dataDrivenTestService/dataDriven.types";
 import { bold, dim, green, methodBadge, printSection, red, statusBadge, yellow } from "../utils/display";
-import { ExportFormat } from "../../fetch-client-core/consts/export.consts";
+import { DD_EXPORT_FORMATS, ExportFormat } from "../../fetch-client-core/consts/export.consts";
 import { FetchConfig } from "../../fetch-client-core/utils/fetchUtil";
 import { getTimeOutConfiguration, getHeadersConfiguration } from "../../fetch-client-core/utils/vscodeConfig";
 import { ICollections, IVariable } from "../../fetch-client-core/types/sidebar.types";
 import { IRequestModel } from "../../fetch-client-core/types/request.types";
 import { writeConsoleLog, wrtieConsleError } from "../utils/logger";
+import { writeReportFile } from "../utils/export/report";
 
 export interface DataDrivenCliOptions {
 	col?: boolean;
@@ -59,6 +64,8 @@ export interface DataDrivenCliOptions {
 	exportFormat?: ExportFormat;
 	exportPath?: string;
 }
+
+type DdExportFormat = typeof DD_EXPORT_FORMATS[number];
 
 const SEPARATOR_ALIASES: Record<string, CsvSeparator> = {
 	",": ",",
@@ -141,7 +148,7 @@ function printRowResult(r: IDataDrivenRowResult): void {
 
 	writeConsoleLog(
 		`  ${dim(`Row ${r.rowIndex}`)} ${sep} ${methodBadge(r.method ?? "")}${r.requestName} ${sep} ${status} ${sep} ${dim(`${r.duration}ms`)} ${sep} tests ${tests} ${sep} ${passLabel}` +
-			(r.error ? ` ${sep} ${red(r.error)}` : ""),
+		(r.error ? ` ${sep} ${red(r.error)}` : ""),
 	);
 }
 
@@ -244,13 +251,6 @@ async function resolveTarget(opts: DataDrivenCliOptions): Promise<{
 }
 
 export async function runDataDrivenCli(opts: DataDrivenCliOptions): Promise<void> {
-	if (opts.exportFormat && opts.exportFormat !== "json" && opts.exportFormat !== "csv") {
-		wrtieConsleError(
-			`Invalid --export format '${opts.exportFormat}' for 'dd'. Supported formats: json, csv.`,
-		);
-		process.exit(1);
-	}
-
 	const { collection, requestMap, leaves, variable, folderId } = await resolveTarget(opts);
 
 	if (leaves.length === 0) {
@@ -362,10 +362,10 @@ export async function runDataDrivenCli(opts: DataDrivenCliOptions): Promise<void
 	printSection("Summary");
 	writeConsoleLog(
 		`Rows: ${result.totalRows}  Requests: ${result.totalRequests}  ` +
-			bold(green(`Passed: ${result.passedRequests}`)) +
-			"  " +
-			bold(red(`Failed: ${result.failedRequests}`)) +
-			(cancelRef.cancelled ? "  " + yellow("(cancelled)") : ""),
+		bold(green(`Passed: ${result.passedRequests}`)) +
+		"  " +
+		bold(red(`Failed: ${result.failedRequests}`)) +
+		(cancelRef.cancelled ? "  " + yellow("(cancelled)") : ""),
 	);
 
 	if (!opts.exportFormat) {
@@ -373,21 +373,45 @@ export async function runDataDrivenCli(opts: DataDrivenCliOptions): Promise<void
 	}
 
 	const testName = collection.name;
-	const timestamp = result.endTime.replace(/[:.]/g, "-");
 	const dir = opts.exportPath ?? path.join(process.cwd(), "fetch-client-exports");
 	await fs.mkdir(dir, { recursive: true });
 
-	const fileBase = `${testName}-datadriven-${timestamp}`;
-	const outPath =
-		opts.exportFormat === "json"
-			? path.join(dir, `${fileBase}.json`)
-			: path.join(dir, `${fileBase}.csv`);
+	let format = opts.exportFormat as DdExportFormat;
+	if (format === "nunit") {
+		format = "xml";
+	}
 
-	const content =
-		opts.exportFormat === "json"
-			? exportDataDrivenJson(result, config, testName)
-			: exportDataDrivenCSV(result);
+	const content = buildDdExportContent(format, result, config, testName);
 
-	await fs.writeFile(outPath, content, "utf8");
-	writeConsoleLog(`Report exported to: ${outPath}`);
+	const filePath = await writeReportFile(
+		content,
+		format,
+		{ scope: "dd", name: testName, format: format },
+		opts.exportPath,
+	);
+
+	writeConsoleLog(`Report exported to: ${filePath}`);
+}
+
+function buildDdExportContent(
+	format: DdExportFormat,
+	result: IDataDrivenResult,
+	config: IDataDrivenConfig,
+	testName: string,
+): string {
+	switch (format) {
+		case "json":
+			return exportDataDrivenJson(result, config, testName);
+		case "csv":
+			return exportDataDrivenCSV(result);
+		case "html":
+			return exportDataDrivenHtml(result, config, testName);
+		case "xml":
+			return exportDataDrivenXml(result, config, testName);
+		case "nunit":
+			return exportDataDrivenNUnit(result, testName);
+		default: {
+			throw new Error(`Unsupported dd export format: ${format}`);
+		}
+	}
 }

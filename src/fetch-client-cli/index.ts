@@ -16,8 +16,8 @@ setTLSCertificates(cliConfig.tlsCertificate);
 
 // - 2. Lazy-import command handlers (DB repos are only called inside them) -
 import { checkDbFiles } from "./commands/check";
-import { ExportFormat, SUPPORTED_EXPORT_FORMATS } from "../fetch-client-core/consts/export.consts";
-import { isSupportedExportFormat } from "./types/export.types";
+import { DD_EXPORT_FORMATS, ExportFormat, SUPPORTED_EXPORT_FORMATS } from "../fetch-client-core/consts/export.consts";
+import { isSupportedDataDrivenExportFormat, isSupportedExportFormat } from "./types/export.types";
 import { listCollections, listFolders, listVariables } from "./commands/list";
 import { perfCollection, perfCollectionFromFile, perfFolder, perfFolderFromFile, perfRequest, perfRequestFromFile } from "./commands/perf";
 import { runCollection, runFolder, runRequest, runCurl, runCollectionFromFile, runFolderFromFile, runRequestFromFile } from "./commands/run";
@@ -121,7 +121,7 @@ fc-cli perf --file <collection.json> --var-file <vars.json>       Override embed
 --rampup-steps <n>                              [default: 5]          Steps within ramp-up. rampup/combined only.
                                                                        Cannot exceed --vus (auto-clamped).
 --think-time <ms>                               [default: 0]          Delay between waves. Max 300000.
---export <json|csv>                             [default: none]       Export a perf report after the test
+--export <json|csv|html|xml>                    [default: none]       Export a perf report after the test
 --export-path <dir>                             [default: fetch-client-exports folder]
  
 Before running, the CLI prints the resolved configuration showing which values you
@@ -146,7 +146,7 @@ fc-cli dd --file <collection.json> --fol <name/id> --data <file>   Restrict to a
 --validate                                                            Check that all {{variables}} used are present as
                                                                        columns in the data file, then exit without running
 --var <name/id>                                                      Variable set to merge under the row data (row data wins)
---export <json|csv>                             [default: none]       Export a data-driven report after the run
+--export <json|csv|html|xml|nunit>              [default: none]       Export a data-driven report after the run
 --export-path <dir>                             [default: ./fetch-client-exports]
 
 Maximum 100 data rows per run. Requests run sequentially per row, in collection/folder order.
@@ -707,9 +707,9 @@ async function handlePerf(argv: ParsedArgs): Promise<void> {
 // - dd -
 
 async function handleDataDriven(argv: ParsedArgs): Promise<void> {
-	if (argv.export && argv.export !== "json" && argv.export !== "csv") {
+	if (argv.export && !isSupportedDataDrivenExportFormat(argv.export)) {
 		wrtieConsleError(
-			`Invalid --export format '${argv.export}' for 'dd'. Supported formats: json, csv.`,
+			`Invalid --export format '${argv.export}' for 'dd'. Supported formats: ${DD_EXPORT_FORMATS.join(", ")}.`,
 		);
 		process.exit(1);
 	}

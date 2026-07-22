@@ -3,6 +3,9 @@ import {
 	IDataDrivenConfig,
 	IDataDrivenResult,
 } from "./dataDriven.types";
+import { toDataDrivenHtml } from "./dataDrivenHtmlExporter";
+import { toDataDrivenNUnit } from "./dataDrivenNunitExporter";
+import { toDataDrivenXml } from "./dataDrivenXmlExporter";
 
 export function exportDataDrivenJson(
 	result: IDataDrivenResult,
@@ -64,4 +67,27 @@ export function exportDataDrivenCSV(result: IDataDrivenResult): string {
 	});
 
 	return [headers.join(","), ...csvRows].join("\n");
+}
+
+export function exportDataDrivenHtml(
+	result: IDataDrivenResult,
+	config: IDataDrivenConfig,
+	testName: string,
+): string {
+	return toDataDrivenHtml(config, result, testName);
+}
+
+export function exportDataDrivenXml(
+	result: IDataDrivenResult,
+	config: IDataDrivenConfig,
+	testName: string,
+): string {
+	return toDataDrivenXml(config, result, testName);
+}
+
+export function exportDataDrivenNUnit(
+	result: IDataDrivenResult,
+	testName: string,
+): string {
+	return toDataDrivenNUnit(result, testName);
 }

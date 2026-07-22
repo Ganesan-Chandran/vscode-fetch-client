@@ -1,14 +1,5 @@
+import { escapeHtml } from "../../../utils/escapeHelpers";
 import { ExportPreFetchStep, ExportReport, ExportRequestResult } from "../../../types/export.types";
-
-function escapeHtml(value: string | number | undefined | null): string {
-	const str = value === undefined || value === null ? "" : String(value);
-	return str
-		.replace(/&/g, "&amp;")
-		.replace(/</g, "&lt;")
-		.replace(/>/g, "&gt;")
-		.replace(/"/g, "&quot;")
-		.replace(/'/g, "&#39;");
-}
 
 function renderTestsRows(tests: ExportRequestResult["tests"]): string {
 	if (tests.length === 0) {

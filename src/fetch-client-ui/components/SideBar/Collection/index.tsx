@@ -902,7 +902,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 									e.preventDefault();
 								}}
 							>
-								Tools <span className="col-menu-submenu-arrow">›</span>
+								Run <span className="col-menu-submenu-arrow">›</span>
 								<div className="dropdown-more sub-menu tools-sub-menu">
 									<button
 										onClick={(e) =>
@@ -1274,7 +1274,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 									e.preventDefault();
 								}}
 							>
-								Tools <span className="col-menu-submenu-arrow">›</span>
+								Run <span className="col-menu-submenu-arrow">›</span>
 								<div className="dropdown-more sub-menu tools-sub-menu">
 									<button
 										onClick={(e) =>
@@ -1298,7 +1298,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 										Data-Driven Test
 									</button>
 									<button onClick={(e) => onAutoRequest(e, item.id, item.name)}>
-										Auto Request
+										Scheduled Runs
 									</button>
 								</div>
 							</div>

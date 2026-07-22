@@ -6,6 +6,8 @@ import {
 	IPerfResultPoint,
 } from "../../types/perfTest.types";
 import { percentile } from "./perfEngine";
+import { toPerfHtml } from "./perfHtmlExporter";
+import { toPerfXml } from "./perfXmlExporter";
 
 export function computeMetrics(
 	results: IPerfResultPoint[],
@@ -105,4 +107,24 @@ export function exportPerfCSV(
 	});
 
 	return data;
+}
+
+export function exportPerfHtml(
+	config: IPerfConfig,
+	results: IPerfResultPoint[],
+	metrics: IPerfMetrics,
+	breakdown: IPerfEndpointMetrics[],
+	testName: string,
+): string {
+	return toPerfHtml(config, results, metrics, breakdown, testName);
+}
+
+export function exportPerfXml(
+	config: IPerfConfig,
+	results: IPerfResultPoint[],
+	metrics: IPerfMetrics,
+	breakdown: IPerfEndpointMetrics[],
+	testName: string,
+): string {
+	return toPerfXml(config, results, metrics, breakdown, testName);
 }

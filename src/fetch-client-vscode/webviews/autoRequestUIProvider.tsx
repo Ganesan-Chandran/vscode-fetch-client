@@ -20,8 +20,8 @@ export const AutoRequestProviderUI = (extensionUri: vscode.Uri) => {
 			const autoRequestPanel = vscode.window.createWebviewPanel(
 				"fetch-client",
 				colId
-					? `Fetch Client - Auto Request (${name})`
-					: "Fetch Client - Auto Request",
+					? `Fetch Client - Scheduled Runs (${name})`
+					: "Fetch Client - Scheduled Runs",
 				vscode.ViewColumn.One,
 				{ enableScripts: true, retainContextWhenHidden: true },
 			);

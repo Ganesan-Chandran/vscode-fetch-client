@@ -4,7 +4,9 @@ import {
 	computeEndpointBreakdown,
 	computeMetrics,
 	exportPerfCSV,
+	exportPerfHtml,
 	exportPerfJson,
+	exportPerfXml,
 } from "../../../../fetch-client-core/utils/performanceTestService/perfHelper";
 import { getMethodClassName } from "../../SideBar/util";
 import { IPerfConfig, IPerfResultPoint } from "../../../../fetch-client-core/types/perfTest.types";
@@ -375,6 +377,34 @@ const PerformanceTest = () => {
 		});
 	}
 
+	function onExportHtml(e: any) {
+		e.preventDefault();
+		const elapsedSec = elapsedDisplay / 1000;
+		const metrics = computeMetrics(results, elapsedSec);
+		const breakdown = computeEndpointBreakdown(results, elapsedSec);
+		const data = exportPerfHtml(config, results, metrics, breakdown, sourceColName);
+		vscode.postMessage({
+			type: requestTypes.exportData,
+			format: "html",
+			data: data,
+			name: `${sourceColName}-perf`,
+		});
+	}
+
+	function onExportXml(e: any) {
+		e.preventDefault();
+		const elapsedSec = elapsedDisplay / 1000;
+		const metrics = computeMetrics(results, elapsedSec);
+		const breakdown = computeEndpointBreakdown(results, elapsedSec);
+		const data = exportPerfXml(config, results, metrics, breakdown, sourceColName);
+		vscode.postMessage({
+			type: requestTypes.exportData,
+			format: "xml",
+			data: data,
+			name: `${sourceColName}-runall`,
+		});
+	}
+
 	// ---------- selection UI handlers ----------
 
 	function onSelectChange(index: number) {
@@ -739,6 +769,8 @@ const PerformanceTest = () => {
 						<div className="runall-dropdown-content">
 							<a onClick={onExportJson}>JSON</a>
 							<a onClick={onExportCSV}>CSV</a>
+							<a onClick={onExportHtml}>HTML</a>
+							<a onClick={onExportXml}>XML</a>
 						</div>
 					)}
 				</div>

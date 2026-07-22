@@ -219,7 +219,7 @@ const AutoRequest = () => {
 
 	return (
 		<PanelLayout
-			title={isGlobal ? "🔁 Auto Request" : `🔁 Auto Request - ${colName}`}
+			title={isGlobal ? "🔁 Scheduled Runs" : `🔁 Scheduled Runs - ${colName}`}
 			loading={loading}
 			footer={tab === "create" ?
 				<>
@@ -284,7 +284,7 @@ const AutoRequest = () => {
 										<label
 											className="runall-settings-info-label"
 											title={
-												`Total duration of the auto request execution.\nmin value is ${MIN_DURATION} and max value is ${MAX_DURATION}`
+												`Total duration of the request execution.\nmin value is ${MIN_DURATION} and max value is ${MAX_DURATION}`
 											}
 										>
 											ⓘ

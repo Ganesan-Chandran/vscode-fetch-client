@@ -478,10 +478,10 @@ const SideBar = () => {
 							e.preventDefault();
 						}}
 					>
-						Tools <span className="submenu-arrow">›</span>
+						Run <span className="submenu-arrow">›</span>
 					</button>
 					<div className="dropdown-more tools-submenu">
-						<button onClick={(e) => onAutoRequest(e)}>Auto Request</button>
+						<button onClick={(e) => onAutoRequest(e)}>Scheduled Runs</button>
 					</div>
 				</div>
 				<hr />

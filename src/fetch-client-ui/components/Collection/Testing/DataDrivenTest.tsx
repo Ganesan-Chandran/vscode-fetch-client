@@ -2,7 +2,10 @@ import "../style.css";
 import "./style.css";
 import {
 	exportDataDrivenCSV,
+	exportDataDrivenHtml,
 	exportDataDrivenJson,
+	exportDataDrivenNUnit,
+	exportDataDrivenXml,
 } from "../../../../fetch-client-core/utils/dataDrivenTestService/dataDrivenExport";
 import {
 	parseDataFile,
@@ -298,6 +301,47 @@ const DataDrivenTest = () => {
 		});
 	}
 
+	function onExportHtml() {
+		const result = finalResult ?? buildPartialResult();
+		const config: IDataDrivenConfig = {
+			fileFormat, csvSeparator, maxRows, stopOnRowFailure,
+			selectedRequestIds: getSelectedRequests().map((r) => r.id),
+		};
+		const html = exportDataDrivenHtml(result, config, sourceColName);
+		vscode.postMessage({
+			type: requestTypes.exportData,
+			format: "html",
+			data: html,
+			name: `${sourceColName}-ddTest`,
+		});
+	}
+
+	function onExportXml() {
+		const result = finalResult ?? buildPartialResult();
+		const config: IDataDrivenConfig = {
+			fileFormat, csvSeparator, maxRows, stopOnRowFailure,
+			selectedRequestIds: getSelectedRequests().map((r) => r.id),
+		};
+		const xml = exportDataDrivenXml(result, config, sourceColName);
+		vscode.postMessage({
+			type: requestTypes.exportData,
+			format: "xml",
+			data: xml,
+			name: `${sourceColName}-ddTest`,
+		});
+	}
+
+	function onExportNUnit() {
+		const result = finalResult ?? buildPartialResult();
+		const nunit = exportDataDrivenNUnit(result, sourceColName);
+		vscode.postMessage({
+			type: requestTypes.exportData,
+			format: "xml",
+			data: nunit,
+			name: `${sourceColName}-ddTest`,
+		});
+	}
+
 	function renderStatusBadge(status: number) {
 		let cls = "dd-status-badge";
 		if (status === 0) { cls += " dd-badge-error"; }
@@ -556,12 +600,11 @@ const DataDrivenTest = () => {
 
 				{done && results.length > 0 && (
 					<div className="dd-export-row">
-						<button className="submit-button dd-export-btn" onClick={onExportJson}>
-							Export JSON
-						</button>
-						<button className="submit-button dd-export-btn" onClick={onExportCSV}>
-							Export CSV
-						</button>
+						<button className="submit-button dd-export-btn" onClick={onExportJson}>Export JSON</button>
+						<button className="submit-button dd-export-btn" onClick={onExportCSV}>Export CSV</button>
+						<button className="submit-button dd-export-btn" onClick={onExportHtml}>Export HTML</button>
+						<button className="submit-button dd-export-btn" onClick={onExportXml}>Export XML</button>
+						<button className="submit-button dd-export-btn" onClick={onExportNUnit}>Export NUnit</button>
 					</div>
 				)}
 			</div>
