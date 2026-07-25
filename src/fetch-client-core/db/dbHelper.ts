@@ -32,6 +32,9 @@ export const autoRequestDBPath = (dbPath: string = "") =>
 export const responseDBPath = (dbPath: string = "") =>
 	path.resolve(dbPath || getExtDbPath(), "fetchClientResponse.db");
 
+export const autoRequestHistoryDBPath = (dbPath: string = "") =>
+	path.resolve(dbPath || getExtDbPath(), "fetchAutoRequestHistory.db");
+
 export const setGlobalStorageUri = (pathDef: string) => {
 	globalStorageUri = pathDef;
 };

@@ -1,12 +1,13 @@
 import "./style.css";
+import { AceEditor } from "../Editor";
 import { codeSnippetLangunages } from "../../../../fetch-client-core/consts/codeLang.consts";
 import { HTTPSnippet, type TargetId, type ClientId } from "httpsnippet";
 import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
 import { IRootState } from "../../../reducer/combineReducer";
-import { AceEditor } from "../Editor";
-import { replaceValueWithVariable } from "../../../../fetch-client-core/helpers/variable.helper";
+import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
 import { useSelector } from "react-redux";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import vscode from "../vscodeAPI";
 
 const CodeSnippetGenerator = () => {
 	const [language, setLang] = useState<TargetId>("csharp");
@@ -17,6 +18,8 @@ const CodeSnippetGenerator = () => {
 	const { selectedVariable } = useSelector(
 		(state: IRootState) => state.variableData,
 	);
+
+	const requestIdRef = useRef(0);
 
 	function onSelectedLanguage(e: React.ChangeEvent<HTMLSelectElement>) {
 		const lang = e.target.value as TargetId;
@@ -38,41 +41,28 @@ const CodeSnippetGenerator = () => {
 			xml: "application/xml",
 			text: "text/plain",
 		};
-
 		return contentTypes[rawType];
 	}
 
-	useEffect(() => {
-		if (!requestData.url) {
-			return;
-		}
-
-		let request: IRequestModel;
-		let varData = {};
-
-		if (selectedVariable.data.length > 0) {
-			selectedVariable.data.forEach((item) => {
-				varData[item.key] = item.value;
-			});
-			let copy = JSON.parse(JSON.stringify(requestData));
-			request = replaceValueWithVariable(copy, varData);
+	function isString(val: any): boolean {
+		if (typeof val === "string" || val instanceof String) {
+			return true;
 		} else {
-			request = requestData;
+			return false;
 		}
+	}
 
+	function generateSnippet(request: IRequestModel) {
 		if (
-			requestData.url.startsWith("http://") ||
-			requestData.url.startsWith("https://")
+			request.url.startsWith("http://") ||
+			request.url.startsWith("https://")
 		) {
-			request.url = requestData.url;
+			request.url = request.url;
 		} else {
-			request.url = "https://" + requestData.url;
+			request.url = "https://" + request.url;
 		}
 
-		let body: any = {
-			mimeType: "",
-			text: "",
-		};
+		let body: any = { mimeType: "", text: "" };
 
 		if (request.body.bodyType === "formdata") {
 			let params = [];
@@ -85,10 +75,7 @@ const CodeSnippetGenerator = () => {
 					}
 				}
 			});
-			body = {
-				mimeType: "multipart/form-data",
-				params: params,
-			};
+			body = { mimeType: "multipart/form-data", params: params };
 		} else if (request.body.bodyType === "formurlencoded") {
 			let params = [];
 			request.body.urlencoded.forEach((data) => {
@@ -96,10 +83,7 @@ const CodeSnippetGenerator = () => {
 					params.push({ name: data.key, value: data.value });
 				}
 			});
-			body = {
-				mimeType: "application/x-www-form-urlencoded",
-				params: params,
-			};
+			body = { mimeType: "application/x-www-form-urlencoded", params: params };
 		} else if (request.body.bodyType === "raw") {
 			body = {
 				mimeType: getRawContentType(request.body.raw.lang),
@@ -135,7 +119,6 @@ const CodeSnippetGenerator = () => {
 		});
 
 		let value: any;
-
 		try {
 			var harRequest = {
 				method: request.method.toUpperCase(),
@@ -157,18 +140,48 @@ const CodeSnippetGenerator = () => {
 			);
 		}
 
-		let str = isString(value) ? (value as string) : "";
+		setCodeSnippet(isString(value) ? (value as string) : "");
+	}
 
-		setCodeSnippet(str);
+	useEffect(() => {
+		const handleMessage = (event: MessageEvent) => {
+			if (
+				event.data &&
+				event.data.type === responseTypes.resolveVariableResponse &&
+				event.data.requestId === requestIdRef.current
+			) {
+				generateSnippet(event.data.request as IRequestModel);
+			}
+		};
+
+		window.addEventListener("message", handleMessage);
+		return () => window.removeEventListener("message", handleMessage);
 	}, [language, option, requestData]);
 
-	function isString(val: any): boolean {
-		if (typeof val === "string" || val instanceof String) {
-			return true;
-		} else {
-			return false;
+	useEffect(() => {
+		if (!requestData.url) {
+			return;
 		}
-	}
+
+		if (selectedVariable.data.length > 0) {
+			let varData = {};
+			selectedVariable.data.forEach((item) => {
+				varData[item.key] = item.value;
+			});
+
+			const copy = JSON.parse(JSON.stringify(requestData));
+
+			requestIdRef.current += 1;
+			vscode.postMessage({
+				type: requestTypes.resolveVariableRequest,
+				requestId: requestIdRef.current,
+				request: copy,
+				varData,
+			});
+		} else {
+			generateSnippet(requestData);
+		}
+	}, [language, option, requestData, selectedVariable]);
 
 	return (
 		<div className="code-snippet-panel">

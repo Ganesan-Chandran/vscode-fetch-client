@@ -1,156 +1,157 @@
-import { FormatBytes } from "../../../../fetch-client-core/helpers/common.helper";
-import {
-	formatDate,
-	GetResponseTime,
-} from "../../../../fetch-client-core/helpers/dateTime.helper";
+import { buildSummary } from "../../../../fetch-client-core/helpers/exporters/reports/reportBuilder";
+import { ExportContext, ExportReport, ExportScope } from "../../../../fetch-client-core/types/export.types";
 import { IReponseModel } from "../../../../fetch-client-core/types/response.types";
 import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
 import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";
+import { RunResult } from "../../../../fetch-client-core/types/cli.types";
+import { toCsv } from "../../../../fetch-client-core/helpers/exporters/reports/csvExporter";
+import { toExportRequestResults } from "../../../../fetch-client-core/helpers/exporters/reports/transform";
+import { toJson } from "../../../../fetch-client-core/helpers/exporters/reports/jsonExporter";
+import { toHtml } from "../../../../fetch-client-core/helpers/exporters/reports/htmlExporter";
+import { toXml } from "../../../../fetch-client-core/helpers/exporters/reports/xmlExporter";
+import { toNUnit } from "../../../../fetch-client-core/helpers/exporters/reports/nunitExporter";
+
+export function uiResponsesToRunResults(
+	req: IRequestModel[],
+	selectedReq: boolean[],
+	responses: IReponseModel[],
+): RunResult[] {
+	const results: RunResult[] = [];
+
+	req.forEach((request, index) => {
+		if (!selectedReq[index]) {
+			return;
+		}
+
+		const response = responses?.[index];
+
+		results.push({
+			id: request.id,
+			name: request.name,
+			method: request.method.toUpperCase(),
+			url: request.url,
+
+			status: response?.response?.status ?? 0,
+			statusText: response?.response?.statusText ?? "",
+
+			duration: response?.response?.isError
+				? 0
+				: (response?.response?.duration ?? 0),
+
+			size: response?.response?.size
+				? Number(response.response.size)
+				: 0,
+
+			isError: response?.response?.isError ?? true,
+
+			responseData:
+				response?.response?.responseData ??
+				response?.response?.statusText ??
+				"",
+
+			testResults: response?.testResults ?? [],
+
+			preFetchResponses: response?.preFetchResponse ?? [],
+		});
+	});
+
+	return results;
+}
 
 export function exportJson(
 	req: IRequestModel[],
 	selectedReq: boolean[],
 	res: IReponseModel[][],
+	sourceType: ExportScope,
 	sourceColName: string,
-	selectedVariable: IVariable,
+	_selectedVariable: IVariable,
 	totalIterations: number,
 ): any {
-	let iteration: any[] = [];
-	for (let i = 0; i < totalIterations; i++) {
-		let iterationData: any[] = [];
-		req.forEach((item, index) => {
-			if (selectedReq[index]) {
-				iterationData.push({
-					request: {
-						id: item.id,
-						url: item.url,
-						name: item.name,
-						createdTime: item.createdTime,
-						method: item.method.toUpperCase(),
-						notes: item.notes,
-					},
-					response:
-						res[i] && res[i][index]
-							? {
-									status: res[i][index].response.status,
-									statusText: res[i][index].response.statusText,
-									duration: getResponseDuration(res, i, index),
-									size: getResponseSize(res, i, index),
-								}
-							: "[]",
-					tests:
-						res[i] && res[i][index] && res[i][index].testResults
-							? res[i][index].testResults.map((itm) => {
-									return {
-										testCase: itm.test,
-										actualValue: itm.actualValue,
-										result: itm.result,
-									};
-								})
-							: "[]",
-					totalTests:
-						res[i] && res[i][index] && res[i][index].testResults
-							? res[i][index].testResults.length
-							: 0,
-					passedTests:
-						res[i] && res[i][index] && res[i][index].testResults
-							? res[i][index].testResults.filter((re) => re.result === true)
-									.length
-							: 0,
-					failedTests:
-						res[i] && res[i][index] && res[i][index].testResults
-							? res[i][index].testResults.filter((re) => re.result === false)
-									.length
-							: 0,
-				});
-			}
-		});
 
-		let totalRequests = selectedReq.filter((item) => item === true).length;
-		let passedCount = passedRequestsCount(res[i]);
-
-		let iterationInfo = {
-			iteration: i + 1,
-			totalRequests: totalRequests,
-			passedRequests: passedCount,
-			failedRequests: totalRequests - passedCount,
-			iterationData: iterationData,
-		};
-		iteration.push(iterationInfo);
-	}
-
-	let exportData = {
-		app: "Fetch Client",
-		collectionName: sourceColName,
-		version: "1.0",
-		exportedDate: formatDate(),
-		variableName: selectedVariable.name,
-		totalIterations: totalIterations,
-		iterations: iteration,
-	};
-
-	return exportData;
+	let iteration: ExportReport[] = buildData(req, selectedReq, res, sourceType, sourceColName, totalIterations);
+	return JSON.parse(toJson(iteration));
 }
 
 export function exportCSV(
 	req: IRequestModel[],
 	selectedReq: boolean[],
 	res: IReponseModel[][],
+	sourceType: ExportScope,
 	sourceColName: string,
-	selectedVariable: IVariable,
+	_selectedVariable: IVariable,
 	totalIterations: number,
 ): string {
-	let data = `app,Fetch Client\ncollectionName,${sourceColName}\nversion,1.0\nexportedDate,${formatDate()}\nvariableName,${selectedVariable.name}\ntotalIterations,${totalIterations}\n\n`;
+
+	let iteration: ExportReport[] = buildData(req, selectedReq, res, sourceType, sourceColName, totalIterations);
+	return toCsv(iteration);
+}
+
+export function exportHTML(
+	req: IRequestModel[],
+	selectedReq: boolean[],
+	res: IReponseModel[][],
+	sourceType: ExportScope,
+	sourceColName: string,
+	_selectedVariable: IVariable,
+	totalIterations: number,
+): string {
+
+	let iteration: ExportReport[] = buildData(req, selectedReq, res, sourceType, sourceColName, totalIterations);
+	return toHtml(iteration);
+}
+
+export function exportXML(
+	req: IRequestModel[],
+	selectedReq: boolean[],
+	res: IReponseModel[][],
+	sourceType: ExportScope,
+	sourceColName: string,
+	_selectedVariable: IVariable,
+	totalIterations: number,
+): string {
+
+	let iteration: ExportReport[] = buildData(req, selectedReq, res, sourceType, sourceColName, totalIterations);
+	return toXml(iteration);
+}
+
+export function exportNunit(
+	req: IRequestModel[],
+	selectedReq: boolean[],
+	res: IReponseModel[][],
+	sourceType: ExportScope,
+	sourceColName: string,
+	_selectedVariable: IVariable,
+	totalIterations: number,
+): string {
+
+	let iteration: ExportReport[] = buildData(req, selectedReq, res, sourceType, sourceColName, totalIterations);
+	return toNUnit(iteration);
+}
+
+function buildData(
+	req: IRequestModel[],
+	selectedReq: boolean[],
+	res: IReponseModel[][],
+	sourceType: ExportScope,
+	sourceColName: string,
+	totalIterations: number
+): ExportReport[] {
+	let iteration: ExportReport[] = [];
 
 	for (let i = 0; i < totalIterations; i++) {
-		data = data + `iteration,${i + 1}\n`;
-		data =
-			data +
-			`Id,Url,Name,Method,Status,Status Text,Duration,Size,Total Tests,Total Passed,Total Failed\n`;
-		req.forEach((item, index) => {
-			if (selectedReq[index]) {
-				data =
-					data +
-					`${item.id},${item.url},${item.name},${item.method.toUpperCase()},${res[i] && res[i][index] ? res[i][index].response.status : ""},${res[i] && res[i][index] ? res[i][index].response.statusText : ""},${getResponseDuration(res, i, index)},${getResponseSize(res, i, index)},${res[i] && res[i][index] && res[i][index].testResults ? res[i][index].testResults.length : 0},${res[i] && res[i][index] && res[i][index].testResults ? res[i][index].testResults.filter((re) => re.result === true).length : 0},${res[i] && res[i][index] && res[i][index].testResults ? res[i][index].testResults.filter((re) => re.result === false).length : 0}\n`;
-			}
+		const runResults = uiResponsesToRunResults(req, selectedReq, res[i]);
+		const summary = buildSummary(runResults);
+		const results = toExportRequestResults(runResults);
+		const context: ExportContext = {
+			scope: sourceType,
+			name: sourceColName
+		};
+		iteration.push({
+			"context": context,
+			"summary": summary,
+			"results": results
 		});
-		data = data + "\n";
 	}
 
-	return data;
-}
-
-function passedRequestsCount(res: IReponseModel[]) {
-	let count = 0;
-	for (let i = 0; i < res?.length; i++) {
-		if (res[i]?.response?.status >= 200 && res[i]?.response?.status < 205) {
-			count++;
-		}
-	}
-
-	return count;
-}
-
-function getResponseDuration(
-	res: IReponseModel[][],
-	selectedIteration: number,
-	index: number,
-) {
-	return res[selectedIteration] && res[selectedIteration][index]
-		? res[selectedIteration][index]?.response.isError
-			? "0 ms"
-			: GetResponseTime(res[selectedIteration][index].response.duration)
-		: "";
-}
-
-function getResponseSize(
-	res: IReponseModel[][],
-	selectedIteration: number,
-	index: number,
-) {
-	return res[selectedIteration] && res[selectedIteration][index]
-		? res[selectedIteration][index]?.response.size
-			? FormatBytes(parseInt(res[selectedIteration][index].response.size))
-			: ""
-		: "";
+	return iteration;
 }

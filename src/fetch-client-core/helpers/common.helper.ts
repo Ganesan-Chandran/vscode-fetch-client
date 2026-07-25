@@ -99,3 +99,12 @@ export function getErrorResponse() {
 export function deepClone<T>(value: T): T {
 	return JSON.parse(JSON.stringify(value)) as T;
 }
+
+export function isValidJson(str: string): boolean {
+  try {
+    const result = JSON.parse(str);
+    return typeof result === "object" && result !== null;
+  } catch (error) {
+    return false;
+  }
+}

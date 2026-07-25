@@ -1,206 +1,183 @@
 import "./style.css";
 import { IRootState } from "../../../../../reducer/combineReducer";
-import {
-	ITestResult,
-	IPreFetchResponse,
-} from "../../../../../../fetch-client-core/types/response.types";
+import { ITestResult, IPreFetchResponse } from "../../../../../../fetch-client-core/types/response.types";
 import { useSelector } from "react-redux";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 export const PreFetchResponse = () => {
-	const { preFetchResponse } = useSelector(
-		(state: IRootState) => state.responseData,
-	);
-	const parentPreFecthCount = useSelector(
-		(state: IRootState) => state.reqColData,
-	)?.parentSettings?.preFetch?.requests?.length;
-	const { skipParentPreFetch } = useSelector(
-		(state: IRootState) => state.reqSettings,
-	);
+	const { preFetchResponse } = useSelector((state: IRootState) => state.responseData);
+	const parentPreFecthCount = useSelector((state: IRootState) => state.reqColData)?.parentSettings?.preFetch?.requests?.length;
+	const { skipParentPreFetch } = useSelector((state: IRootState) => state.reqSettings);
 	const [expand, setExpand] = useState(false);
 
 	function onExpandPanel() {
 		setExpand(!expand);
 	}
 
-	const makeTable = (reqId: string, data: ITestResult[]) => {
-		return data.map((item: ITestResult, index: number) => {
-			return tableRow(item, reqId + "_" + index);
-		});
-	};
+	function getLabelName(index: number, name: string): string {
+		if (skipParentPreFetch || index >= parentPreFecthCount) {
+			const offset = skipParentPreFetch ? 0 : parentPreFecthCount;
+			return `${name} ${index - offset + 1}`;
+		}
+		return `${name} ${index + 1}`;
+	}
 
-	const tableRow = (row: ITestResult, key: string) => {
-		if (row.test === "") {
-			return <></>;
+	// Rolls every condition + pre-request status up into one pass/fail count
+	// so the top of the panel answers "did everything pass?" without expanding anything.
+	const { passCount, failCount } = useMemo(() => {
+		let pass = 0;
+		let fail = 0;
+		const walk = (items?: IPreFetchResponse[]) => {
+			items?.forEach((item) => {
+				item.testResults?.forEach((t) => {
+					if (t.test === "") { return; }
+					t.result ? pass++ : fail++;
+				});
+				if (item.reqId && item.reqId !== "-1") {
+					item.resStatus < 400 ? pass++ : fail++;
+				}
+				walk(item.childrenResponse);
+			});
+		};
+		walk(preFetchResponse);
+		return { passCount: pass, failCount: fail };
+	}, [preFetchResponse]);
+
+	const renderTests = (reqId: string, data: ITestResult[]) => {
+		const rows = data.filter((row) => row.test !== "");
+		if (rows.length === 0) {
+			return null;
 		}
 		return (
-			<tr key={"test_res_" + key}>
-				<td className="test-result-test-case-col">
-					<div className="res-table-input">{row.test}</div>
-				</td>
-				<td align="center" className="top-align">
-					<label
-						className={
-							row.result
-								? "prefetch-test-result-label pass"
-								: "prefetch-test-result-label fail"
-						}
-					>
-						{row.result ? "Pass" : "Fail"}
-					</label>
-				</td>
-			</tr>
+			<div className="prefetch-test-list">
+				{rows.map((row, i) => (
+					<div className="prefetch-test-row" key={`test_res_${reqId}_${i}`}>
+						<span className="test-name">{row.test}</span>
+						<span className={`pf-badge ${row.result ? "pass" : "fail"}`}>
+							{row.result ? "Pass" : "Fail"}
+						</span>
+					</div>
+				))}
+			</div>
 		);
 	};
 
-	function getLabelName(index: number, name: string): string {
-		if (skipParentPreFetch) {
-			return name + " " + (name === "Condition" ? index : index + 1);
-		} else {
-			if (index >= parentPreFecthCount) {
-				return (
-					name +
-					" " +
-					(name === "Condition"
-						? index - parentPreFecthCount
-						: index - parentPreFecthCount + 1)
-				);
-			}
-
-			return (
-				name + " " + (name === "Condition" ? index : index + 1) + " (Parent)"
-			);
-		}
-	}
-
 	function getPreFetchResponseBody(
-		preFetchRes: IPreFetchResponse[],
-		isParent: boolean,
+		preFetchRes: IPreFetchResponse[]
 	) {
 		return (
 			<>
 				{preFetchRes?.map((item, index) => {
+					const conditionPassed = item.reqId !== "-1" || item.testResults.filter((i) => !i.result).length === 0;
+					const requestPassed = item.resStatus < 400 && item.reqId !== "-1";
+
 					return (
-						<>
-							{item.testResults?.length > 0 ? (
+						<React.Fragment key={`node_${item.reqId}_${index}`}>
+							{item.testResults?.length > 0 && (
 								<details
 									open={expand}
-									key={"prefetch_results_condition_" + item.reqId}
 									className="prefetch-result-details-items"
 								>
 									<summary className="prefetch-response-items">
-										{getLabelName(index, "Condition")}:{" "}
-										{item.reqId !== "-1" ||
-										item.testResults.filter((i) => !i.result).length === 0 ? (
-											<label className="prefetch-condition-result-label pass">
-												Pass
-											</label>
-										) : (
-											<label className="prefetch-condition-result-label fail">
-												Fail
-											</label>
+										<span className="pf-scope-tag condition">Condition</span>
+										{item.isParentReq && (
+											<span className="pf-scope-tag collection">
+												Parent
+											</span>
 										)}
-										<div></div>
+										<span className="pf-node-label">
+											{getLabelName(index, "Condition")}
+										</span>
+										<span
+											className={`pf-badge ${conditionPassed ? "pass" : "fail"}`}
+										>
+											{conditionPassed ? "Pass" : "Fail"}
+										</span>
 									</summary>
-									<div className="collction-item">
-										<table>
-											<tbody>{makeTable(item.reqId, item.testResults)}</tbody>
-										</table>
-									</div>
+									{renderTests(item.reqId, item.testResults)}
 								</details>
-							) : (
-								<></>
 							)}
-							{(isParent && item.name && (item.reqId || item.reqId === "-1")) ||
-							(!isParent && item.reqId && item.reqId !== "-1") ? (
-								<details
-									open={expand}
-									key={"prefetch_results_" + item.reqId}
-									className="prefetch-result-details-items"
-								>
-									<summary className="prefetch-response-items">
-										{getLabelName(index, "Pre-Request")}: {item.name}{" "}
-										{item.resStatus < 400 && item.reqId !== "-1" ? (
-											<label className="prefetch-condition-result-label pass">
-												Pass
-											</label>
-										) : (
-											<label className="prefetch-condition-result-label fail">
-												Fail
-											</label>
-										)}
-										<div></div>
-									</summary>
-									<div className="prefetch-collction-item">
-										<tr key={item.reqId}>
-											<td className="test-result-test-case-col">
-												<div
-													id={"test_res_" + item.reqId.toString()}
-													className="res-table-input"
-												>
-													Name : {item.name}
-												</div>
-											</td>
+
+							{((item.isParentReq && item.name && (item.reqId || item.reqId === "-1")) ||
+								(!item.isParentReq && item.reqId && item.reqId !== "-1")) &&
+								(() => {
+									const hasChildren = item.childrenResponse?.length > 0;
+									const rowContent = (
+										<>
+											<span className="pf-scope-tag request">Pre-request</span>
+											{item.isParentReq && (
+												<span className="pf-scope-tag collection">
+													Parent
+												</span>
+											)}
+											<span className="pf-node-label">
+												{getLabelName(index, "Pre-request")}: {item.name}
+											</span>
 											{item.reqId !== "-1" && (
-												<td align="center" className="top-align">
-													<label
-														className={
-															item.resStatus < 400
-																? "prefetch-test-result-label pass"
-																: "prefetch-test-result-label fail"
-														}
-													>
-														{item.resStatus}
-													</label>
-												</td>
+												<span
+													className={`pf-badge ${requestPassed ? "pass" : "fail"}`}
+												>
+													{item.resStatus}
+												</span>
 											)}
-										</tr>
-										<tr>
-											{item.childrenResponse?.length > 0 && (
-												<div className="prefecth-child-panel">
-													{getPreFetchResponseBody(
-														item.childrenResponse,
-														false,
-													)}
+										</>
+									);
+
+									// No children -> nothing to expand into, so skip the
+									// details/summary wrapper entirely and just show the row.
+									if (!hasChildren) {
+										return (
+											<div className="prefetch-result-details-items">
+												<div className="prefetch-response-items no-expand">
+													{rowContent}
 												</div>
-											)}
-										</tr>
-									</div>
-								</details>
-							) : (
-								<></>
-							)}
-						</>
+											</div>
+										);
+									}
+
+									return (
+										<details
+											open={expand}
+											className="prefetch-result-details-items"
+										>
+											<summary className="prefetch-response-items">
+												{rowContent}
+											</summary>
+											<div className="prefecth-child-panel">
+												{getPreFetchResponseBody(item.childrenResponse)}
+											</div>
+										</details>
+									);
+								})()}
+						</React.Fragment>
 					);
 				})}
 			</>
 		);
 	}
 
+	if (preFetchResponse?.length === 0) {
+		return (
+			<div className="prefetch-empty">
+				No pre-request results available.
+			</div>
+		);
+	}
+
 	return (
-		<>
-			{preFetchResponse?.length === 0 ? (
-				<>
-					<hr />
-					<div className="auth-header-label">
-						<label>{"No PreFetch requests available."}</label>
-					</div>
-				</>
-			) : (
-				<>
-					<div className="manage-cookie-btn-panel">
-						<button
-							onClick={onExpandPanel}
-							className="format-button open-var-button manage-cookie-button"
-						>
-							{expand ? "Collapse All" : "Expand All"}
-						</button>
-					</div>
-					<div className="prefetch-result-panel">
-						{getPreFetchResponseBody(preFetchResponse, true)}
-					</div>
-				</>
-			)}
-		</>
+		<div className="prefetch-result-panel">
+			<div className="prefetch-toolbar">
+				<div className="prefetch-summary">
+					<span className="pf-badge pass">{passCount} passed</span>
+					{failCount > 0 && (
+						<span className="pf-badge fail">{failCount} failed</span>
+					)}
+				</div>
+				<button onClick={onExpandPanel} className="prefetch-expand-btn">
+					{expand ? "Collapse all" : "Expand all"}
+				</button>
+			</div>
+			<div>{getPreFetchResponseBody(preFetchResponse)}</div>
+		</div>
 	);
 };

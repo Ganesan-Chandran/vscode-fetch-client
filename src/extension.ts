@@ -11,6 +11,7 @@ import {
 } from "./fetch-client-vscode/webviews";
 import {
 	autoRequestDBPath,
+	autoRequestHistoryDBPath,
 	collectionDBPath,
 	cookieDBPath,
 	getExtDbPath,
@@ -24,6 +25,7 @@ import {
 } from "./fetch-client-core/db/dbHelper";
 import {
 	CreateAutoRequestDB,
+	CreateAutoRequestHistoryDB,
 	CreateCollectionDB,
 	CreateCookieDB,
 	CreateHistoryDB,
@@ -36,11 +38,14 @@ import {
 	DbPathOption,
 	getCustomDbPathConfiguration,
 	getDbPathConfiguration,
+	getFallbackRegion,
 	getSaveToWorkspaceConfiguration,
+	getSecretCacheTtlMs,
+	getSSLConfiguration,
+	getTlsCertificate,
 	getVariableEncryptionFCConfiguration,
 	getVariableEncryptionKey,
-	setVariableEncryptionConfiguration,
-	setVariableEncryptionKey,
+	SESSION_ID,
 	updateDbPathConfiguration,
 	updateSaveToWorkspaceConfiguration,
 	updateVariableEncryption,
@@ -52,8 +57,10 @@ import {
 	UpdateToEncryptedVariables,
 	UpdateWithAnotherKey,
 } from "./fetch-client-vscode/db/varDBUtil";
+import { setVariableEncryptionConfiguration, setSSLCheck, setTLSCertificates, getTLSCertificates, setVariableEncryptionKey, setAwsDefaultRegion, setSecretsCacheDuration } from "./fetch-client-core/utils/commonConfig";
 import { access, mkdir } from "fs/promises";
 import { backupFile } from "./fetch-client-vscode/utils/common.utils";
+import { clearHttpsAgentCache } from "./fetch-client-core/utils/httpsAgent";
 import { FCScheduler } from "./fetch-client-vscode/utils/scheduler";
 import { flushCollectionDB } from "./fetch-client-core/db/collectionDB.repository";
 import { flushHistoryDB } from "./fetch-client-core/db/history.repository";
@@ -68,13 +75,16 @@ import { MemoryCache } from "./fetch-client-vscode/utils/memoryCache";
 import { pubSubTypes } from "./fetch-client-core/consts/requestTypes.consts";
 import { transferDbConfig } from "./fetch-client-vscode/db/transferDBConfig";
 import { VSCodeLogger } from "./fetch-client-vscode/logger/vsCodeLogger";
+import { OAuthAuthorizationService } from "./fetch-client-vscode/oauthAuthorizationService";
 import * as vscode from "vscode";
 import fs from "fs";
 import path from "path";
+import { AutoReqHistory_Repository_ReconcileOwnSession } from "./fetch-client-core/db/autoRequestHistory.repository";
 
 export let pubSub: PubSub<IPubSubMessage>;
 export let vsCodeLogger: VSCodeLogger;
 export let sideBarProvider: SideBarProvider;
+export let oauthAuthorizationService: OAuthAuthorizationService;
 
 let storageManager: LocalStorageService;
 let extensionUri: vscode.Uri;
@@ -113,8 +123,8 @@ export function OpenAddToColUI(id: string): void {
 	);
 }
 
-export function OpenVariableUI(id?: string, type?: string): void {
-	vscode.commands.executeCommand("fetch-client.newVar", id, type);
+export function OpenVariableUI(id?: string): void {
+	vscode.commands.executeCommand("fetch-client.newVar", "newvar", id);
 }
 
 export function OpenCopyToColUI(id: string, name: string): void {
@@ -179,6 +189,22 @@ export function OpenPerfTestUI(
 	);
 }
 
+export function OpenDataDrivenTestUI(
+	colId: string,
+	folderId: string,
+	name: string,
+	varId: string,
+): void {
+	vscode.commands.executeCommand(
+		"fetch-client.addToCol",
+		colId,
+		folderId,
+		name,
+		"datadriventest",
+		varId,
+	);
+}
+
 export function OpenCookieUI(id?: string): void {
 	vscode.commands.executeCommand("fetch-client.manageCookies", id);
 }
@@ -191,8 +217,12 @@ export function OpenBulkExportUI(type: string): void {
 	vscode.commands.executeCommand("fetch-client.bulkExport", type);
 }
 
-export function OpenAutoRequestUI(): void {
-	vscode.commands.executeCommand("fetch-client.autoRequest");
+export function OpenAutoRequestUI(colId: string = "", name: string = ""): void {
+	vscode.commands.executeCommand("fetch-client.autoRequest", colId, name);
+}
+
+export function OpenSecretMangerUI(): void {
+	vscode.commands.executeCommand("fetch-client.newVar", "scmanager");
 }
 
 export function OpenColSettings(
@@ -221,6 +251,10 @@ export async function activate(
 ): Promise<void> {
 	setGlobalStorageUri(context.globalStorageUri.fsPath);
 	setVariableEncryptionConfiguration(getVariableEncryptionFCConfiguration());
+	setSSLCheck(getSSLConfiguration());
+	setTLSCertificates(getTLSCertificates());
+	setAwsDefaultRegion(getFallbackRegion());
+	setSecretsCacheDuration(getSecretCacheTtlMs());
 
 	extensionUri = context.extensionUri;
 	pubSub = new PubSub<IPubSubMessage>();
@@ -228,6 +262,11 @@ export async function activate(
 	context.subscriptions.push(vsCodeLogger);
 	storageManager = new LocalStorageService(context.workspaceState);
 	extCache = new MemoryCache<string>();
+	oauthAuthorizationService = new OAuthAuthorizationService(context);
+	context.subscriptions.push(
+		oauthAuthorizationService,
+		vscode.window.registerUriHandler(oauthAuthorizationService),
+	);
 
 	// Migrate legacy saveToWorkspace boolean -> new dbPath enum
 	if (
@@ -253,6 +292,8 @@ export async function activate(
 	extCache.set("oldKey", getVariableEncryptionKey());
 	extCache.set("oldDbPathMode", getDbPathConfiguration());
 	extCache.set("oldCustomDbPath", getCustomDbPathConfiguration());
+
+	await AutoReqHistory_Repository_ReconcileOwnSession(SESSION_ID);
 }
 
 export function getStorageManager(): LocalStorageService {
@@ -309,6 +350,7 @@ async function initializeStorage(): Promise<void> {
 		ensureDb(variableDBPath(), CreateVariableDB),
 		ensureDb(cookieDBPath(), CreateCookieDB),
 		ensureDb(autoRequestDBPath(), CreateAutoRequestDB),
+		ensureDb(autoRequestHistoryDBPath(), CreateAutoRequestHistoryDB),
 		ensureDb(responseDBPath(), CreateResponseDB),
 		ensureDb(path.resolve(extPath, logPath), createLogFile),
 	]);
@@ -325,6 +367,11 @@ function registerProviders(context: vscode.ExtensionContext): void {
 		vscode.window.registerWebviewViewProvider(
 			SideBarProvider.viewType,
 			sideBarProvider,
+			{
+				webviewOptions: {
+					retainContextWhenHidden: true,
+				},
+			}
 		),
 		AddToColUI(context.extensionUri),
 		VariableUI(context.extensionUri),
@@ -355,7 +402,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
 		vscode.commands.registerCommand("fetch-client.documentation", () => {
 			vscode.env.openExternal(
 				vscode.Uri.parse(
-					"https://github.com/Ganesan-Chandran/vscode-fetch-client/wiki",
+					"https://fetchclient.github.io",
 				),
 			);
 		}),
@@ -384,6 +431,12 @@ function getSourcePath(mode: DbPathOption): string {
 		return extCache.get("oldCustomDbPath") ?? "";
 	}
 	return getGlobalStorageUri();
+}
+
+const BACKUP_DIR_SUFFIX = "\\backups\\";
+
+function getBackupDir(): string {
+	return `${getGlobalStorageUri() + BACKUP_DIR_SUFFIX}`;
 }
 
 let isUpdatingEncryptionSetting = false;
@@ -512,45 +565,71 @@ function registerEventListeners(context: vscode.ExtensionContext): void {
 			}
 
 			if (e.affectsConfiguration("fetch-client.variableEncryptionKey")) {
-				const oldKey = extCache.get("oldKey");
-
-				try {
-					const newKey = getVariableEncryptionKey();
-					if (!newKey) {
-						updateVariableEncryptionKey(oldKey);
-						return;
-					}
-
-					if (newKey === oldKey) {
-						return;
-					}
-
-					if (getVariableEncryptionFCConfiguration()) {
-						UpdateWithAnotherKey(oldKey, newKey);
-					}
-
-					setVariableEncryptionKey(newKey);
-					extCache.set("oldKey", newKey);
-				} catch (error) {
-					updateVariableEncryptionKey(oldKey);
-				}
+				await handleEncryptedKeyChange();
 			}
 
 			if (e.affectsConfiguration("fetch-client.encryptedVariables")) {
 				await handleEncryptedVariablesChange();
 			}
+
+			if (e.affectsConfiguration("fetch-client.SSLCheck")) {
+				clearHttpsAgentCache();
+				setSSLCheck(getSSLConfiguration());
+			}
+
+			if (e.affectsConfiguration("fetch-client.tlsConfiguration")) {
+				clearHttpsAgentCache();
+				setTLSCertificates(getTlsCertificate());
+			}
+
+			if (e.affectsConfiguration("fetch-client.awsDefaultRegion")) {
+				setAwsDefaultRegion(getFallbackRegion());
+			}
+
+			if (e.affectsConfiguration("fetch-client.secretsCacheDuration")) {
+				setSecretsCacheDuration(getSecretCacheTtlMs());
+			}
 		}),
 	);
 }
 
-const BACKUP_DIR_SUFFIX = "\\backups\\";
+async function handleEncryptedKeyChange(): Promise<void> {
+	const oldKey = extCache.get("oldKey");
 
-function getBackupDir(): string {
-	return `${getGlobalStorageUri() + BACKUP_DIR_SUFFIX}`;
+	try {
+		const choice = showConfirmationMessage();
+		if (!choice) {
+			return;
+		}
+
+		const newKey = getVariableEncryptionKey();
+		if (!newKey) {
+			updateVariableEncryptionKey(oldKey);
+			return;
+		}
+
+		if (newKey === oldKey) {
+			return;
+		}
+
+		if (getVariableEncryptionFCConfiguration()) {
+			UpdateWithAnotherKey(oldKey, newKey);
+		}
+
+		setVariableEncryptionKey(newKey);
+		extCache.set("oldKey", newKey);
+	} catch (error) {
+		updateVariableEncryptionKey(oldKey);
+	}
 }
 
 async function handleEncryptedVariablesChange(): Promise<void> {
 	if (isUpdatingEncryptionSetting) {
+		return;
+	}
+
+	const choice = showConfirmationMessage();
+	if (!choice) {
 		return;
 	}
 
@@ -594,4 +673,26 @@ async function handleEncryptedVariablesChange(): Promise<void> {
 		await deactivate();
 		await vscode.commands.executeCommand("workbench.action.reloadWindow");
 	}
+}
+
+async function showConfirmationMessage(): Promise<boolean> {
+	const dbPath = getDbPathConfiguration();
+	if (dbPath !== "Default") {
+		const choice = await vscode.window.showWarningMessage(
+			`Fetch Client: The database path is currently set to the workspace or a custom path. Changing this setting may affect other projects/users. Do you want to continue?`,
+			{ modal: true },
+			"Yes",
+			"No",
+		);
+
+		if (!choice) { // Dialog dismissed - signal caller to revert
+			return false;
+		}
+
+		if (choice === "No") {
+			return false;
+		}
+	}
+
+	return true;
 }

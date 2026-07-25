@@ -468,7 +468,7 @@ export const AuthPanel = (props: IAuthProps) => {
 				</label>
 				<details
 					className="inherit-auth-details"
-					open={false}
+					open={true}
 					key={"inherit-auth-details"}
 				>
 					<summary className="inherit-auth-summary">
@@ -496,6 +496,7 @@ export const AuthPanel = (props: IAuthProps) => {
 						envVar={envVar}
 						selectedVariable={props.selectedVariable}
 						settingAuth={parentSettings?.auth}
+						inherit={isInherit}
 					/>
 				);
 			case "oauth2":

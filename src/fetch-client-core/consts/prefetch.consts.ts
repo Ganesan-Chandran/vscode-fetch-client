@@ -6,6 +6,12 @@ export const preConditions = [
 	{ name: "Variable", value: "Variable" },
 ];
 
+export const preConditionsFirst = [
+	{ name: "parameter", value: "" },
+	{ name: "No Condition", value: "noCondition" },
+	{ name: "Variable", value: "Variable" },
+];
+
 export const preConditionActions = {
 	"Response Code": {
 		action: [
@@ -33,7 +39,8 @@ export const preConditionActions = {
 		action: [
 			{ name: "select", value: "" },
 			{ name: "empty", value: "empty" },
-			{ name: "notEmpty", value: "notEmpty" },
+			{ name: "regex", value: "regex" },
+			{ name: "expression", value: "expression" }
 		],
 	},
 };

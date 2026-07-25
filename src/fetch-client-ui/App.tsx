@@ -33,6 +33,13 @@ const ReOrder = React.lazy(
 const PerformanceTest = React.lazy(
 	() => import("./components/Collection/Testing/PerformanceTest"),
 );
+const DataDrivenTest = React.lazy(
+	() => import("./components/Collection/Testing/DataDrivenTest"),
+);
+const SecretManagerPanel = React.lazy(
+	() => import("./components/Variables/SecretManager/secretMangerPanel"),
+);
+
 
 function ErrorFallback({ error }) {
 	const errorData =
@@ -117,6 +124,12 @@ function renderUI() {
 		return <AutoRequestUI />;
 	} else if (document.title.includes("perftest")) {
 		return <PerformanceTest />;
+	} else if (document.title.includes("datadriventest")) {
+		return <DataDrivenTest />;
+	} else if (document.title.includes("datadriventest")) {
+		return <DataDrivenTest />;
+	} else if (document.title.includes("scmanager")) {
+		return <SecretManagerPanel />;
 	} else {
 		return <MainUI />;
 	}

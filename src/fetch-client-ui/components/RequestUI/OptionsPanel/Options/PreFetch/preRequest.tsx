@@ -11,6 +11,7 @@ import {
 import {
 	preConditions,
 	preConditionActions,
+	preConditionsFirst,
 } from "../../../../../../fetch-client-core/consts/prefetch.consts";
 import { ReactComponent as BinLogo } from "../../../../../../../icons/bin.svg";
 import {
@@ -190,7 +191,19 @@ export const PreRequest = (props: IPreRequestProps) => {
 				id={"preReq_parameter_" + reqIndex.toString()}
 				onChange={(e) => onSelect(e, reqIndex, conIndex, "parameter")}
 			>
-				{preConditions.map((param: any, index: number) => {
+				{reqIndex === 0 && preConditionsFirst.map((param: any, index: number) => {
+					return (
+						<option
+							disabled={index === 0 ? true : false}
+							hidden={index === 0 ? true : false}
+							key={index + param.name}
+							value={param.value}
+						>
+							{param.name}
+						</option>
+					);
+				})}
+				{reqIndex > 0 && preConditions.map((param: any, index: number) => {
 					return (
 						<option
 							disabled={index === 0 ? true : false}
@@ -315,7 +328,7 @@ export const PreRequest = (props: IPreRequestProps) => {
 				<legend>Pre-request {reqIndex + 1}</legend>
 				<div className="preReq-step-index">{reqIndex + 1}</div>
 
-				{reqIndex > 0 && makeCondition(req.condition, reqIndex)}
+				{makeCondition(req.condition, reqIndex)}
 
 				<div className="preReq-fields-row">
 					<div className="preReq-text-panel">

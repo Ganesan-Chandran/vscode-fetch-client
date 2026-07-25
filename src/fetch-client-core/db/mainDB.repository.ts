@@ -1,12 +1,11 @@
-import { CheckOpenApiFormat } from "../helpers/importers/openapi/v3/utils";
 import { createAutoDBCache } from "./dbManager";
 import { ExportBuilderV2 } from "../helpers/exporters/fetchClient/fetchClientExporter_2_0";
 import { FetchClientDataProxy } from "../helpers/validators/fetchClientCollectionValidator";
-import { fetchClientImporter } from "../helpers/importers/fetchClient/fetchClientImporter_1_0";
+import { fetchClientImporter } from "../helpers/importers/collections/fetchClient/fetchClientImporter_1_0";
 import {
 	fetchClientV2Importer,
 	isFetchClientV2,
-} from "../helpers/importers/fetchClient/fetchClientImporter_2_0";
+} from "../helpers/importers/collections/fetchClient/fetchClientImporter_2_0";
 import { formatDate } from "../helpers/dateTime.helper";
 import { getCollectionDB, saveCollectionDB } from "./collectionDB.repository";
 import { getExportCollectionConfiguration } from "../utils/vscodeConfig";
@@ -19,19 +18,18 @@ import {
 	INSOMNIA_EXPORT_FORMAT_5,
 	InsomniaExport,
 } from "../types/insomnia.types";
-import { insomniaImporter } from "../helpers/importers/insomnia/insomniaImporter";
+import { insomniaImporter } from "../helpers/importers/collections/insomnia/insomniaImporter";
 import { IRequestModel } from "../types/request.types";
 import { isFolder } from "../helpers/common.helper";
 import { isJson } from "../helpers/tests.helper";
 import { mainDBPath } from "./dbHelper";
-import { openApiImporter } from "../helpers/importers/openapi/v3/openApiImporter";
-import { postmanImporter } from "../helpers/importers/postman/postmanImporter_2_1";
+import { postmanImporter } from "../helpers/importers/collections/postman/postmanImporter_2_1";
 import {
 	PostmanSchema_2_1,
 	POSTMAN_SCHEMA_V2_1,
 } from "../types/postman_2_1.types";
 import { ThunderClient_Schema_1_2 } from "../types/thunderClient_1_2_types";
-import { thunderClientImporter } from "../helpers/importers/thunderClient/thunderClientImporter_1_2";
+import { thunderClientImporter } from "../helpers/importers/collections/thunderClient/thunderClientImporter_1_2";
 import {
 	Var_Repository_FindById,
 	Var_Repository_Insert,
@@ -39,6 +37,8 @@ import {
 import { writeLog } from "../helpers/logger/logger";
 import loki, { Collection } from "lokijs";
 import { ExportBuilderPostman2_1 } from "../helpers/exporters/postman/postmanExporter_2_1";
+import { CheckOpenApiFormat } from "../helpers/importers/collections/openapi/v3/utils";
+import { openApiImporter } from "../helpers/importers/collections/openapi/v3/openApiImporter";
 
 const {
 	getLoadedDB: getMainDB,
@@ -168,61 +168,59 @@ function buildExportPayload(
 }
 
 function validateImportData(data: string): ImportType | null {
-	if (!data || data.length === 0 || !isJson(data)) {
-		writeLog("error::validateImportData() - Empty Data.");
-		throw new Error("Empty or invalid JSON data.");
+	if (!data || data.trim().length === 0) {
+		throw new Error("validateImportData():Empty import data.");
 	}
 
-	let parsedData = JSON.parse(data);
+	// OpenAPI supports YAML and JSON
+	const detection = CheckOpenApiFormat(data);
+	if (detection.isOpenApi) {
+		return ImportType.OpenAPI_V_3;
+	}
+
+	// Remaining formats are JSON only
+	if (!isJson(data)) {
+		throw new Error("validateImportData():Invalid JSON data.");
+	}
+
+	const parsedData = JSON.parse(data);
 
 	try {
 		if (isFetchClientV2(parsedData)) {
 			return ImportType.FetchClient_2_0;
 		}
-	} catch (fcErr) {
-		writeLog("error::validateImportData() " + fcErr);
-	}
+	} catch { }
 
 	try {
 		FetchClientDataProxy.Parse(data);
 		return ImportType.FetchClient_1_0;
-	} catch (fcErr) {
-		writeLog("error::validateImportData() " + fcErr);
+	} catch { }
+
+	const postmanData = parsedData as PostmanSchema_2_1;
+	if (
+		postmanData.info?._postman_id &&
+		postmanData.info.schema === POSTMAN_SCHEMA_V2_1
+	) {
+		return ImportType.Postman_2_1;
 	}
 
-	try {
-		const postmanData = parsedData as PostmanSchema_2_1;
-		if (
-			postmanData.info?._postman_id &&
-			postmanData.info?.schema === POSTMAN_SCHEMA_V2_1
-		) {
-			return ImportType.Postman_2_1;
-		}
+	const thunderData = parsedData as ThunderClient_Schema_1_2;
+	if (
+		thunderData.clientName === "Thunder Client" &&
+		thunderData.version === "1.2"
+	) {
+		return ImportType.ThunderClient_1_2;
+	}
 
-		const thunderData = parsedData as ThunderClient_Schema_1_2;
-		if (thunderData.clientName === "Thunder Client") {
-			if (thunderData.version !== "1.2") {
-				throw new Error("Invalid Thunder Client version.");
-			}
-			return ImportType.ThunderClient_1_2;
-		}
+	const insomniaData = parsedData as InsomniaExport;
+	const fmt = Number(insomniaData.__export_format);
 
-		const insomniaData = JSON.parse(data) as InsomniaExport;
-		const fmt = Number(insomniaData.__export_format);
-		if (
-			insomniaData._type === "export" &&
-			(fmt === INSOMNIA_EXPORT_FORMAT_4 || fmt === INSOMNIA_EXPORT_FORMAT_5)
-		) {
-			return ImportType.Insomnia_4_5;
-		}
-
-		const detection = CheckOpenApiFormat(data);
-		if (detection.isOpenApi) {
-			return ImportType.OpenAPI_V_3;
-		}
-	} catch (parseErr) {
-		writeLog("error::validateImportData() - " + parseErr);
-		throw new Error("Could not parse import data.");
+	if (
+		insomniaData._type === "export" &&
+		(fmt === INSOMNIA_EXPORT_FORMAT_4 ||
+			fmt === INSOMNIA_EXPORT_FORMAT_5)
+	) {
+		return ImportType.Insomnia_4_5;
 	}
 
 	return null;

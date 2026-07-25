@@ -581,6 +581,22 @@ export const CollectionBar = (props: ICollectionProps) => {
 		setCurrentHeadIndex("");
 	}
 
+	function onDataDrivenTest(
+		evt: React.MouseEvent<HTMLElement>,
+		colId: string,
+		folderId: string,
+		name: string,
+		varId: string,
+	) {
+		evt.preventDefault();
+		evt.stopPropagation();
+		vscode.postMessage({
+			type: requestTypes.runDataDrivenTestUIOpenRequest,
+			data: { colId: colId, folderId: folderId, name: name, varId: varId },
+		});
+		setCurrentHeadIndex("");
+	}
+
 	function onReOrderItems(
 		evt: React.MouseEvent<HTMLElement>,
 		colId: string,
@@ -650,6 +666,20 @@ export const CollectionBar = (props: ICollectionProps) => {
 		e.preventDefault();
 		e.stopPropagation();
 		openContextMenu(id, isSub);
+	}
+
+	function onAutoRequest(
+		evt: React.MouseEvent<HTMLElement>,
+		colId: string,
+		name: string,
+	) {
+		evt.preventDefault();
+		evt.stopPropagation();
+		vscode.postMessage({
+			type: requestTypes.autoRequestUIOpenRequest,
+			data: { colId: colId, name: name },
+		});
+		setCurrentHeadIndex("");
 	}
 
 	const sortItems = (
@@ -872,7 +902,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 									e.preventDefault();
 								}}
 							>
-								Tools <span className="col-menu-submenu-arrow">›</span>
+								Run <span className="col-menu-submenu-arrow">›</span>
 								<div className="dropdown-more sub-menu tools-sub-menu">
 									<button
 										onClick={(e) =>
@@ -899,6 +929,19 @@ export const CollectionBar = (props: ICollectionProps) => {
 										}
 									>
 										Performance Test
+									</button>
+									<button
+										onClick={(e) =>
+											onDataDrivenTest(
+												e,
+												cols.id,
+												item.id,
+												cols.name + " \\ " + item.name,
+												cols.variableId,
+											)
+										}
+									>
+										Data-Driven Test
 									</button>
 								</div>
 							</div>
@@ -1231,7 +1274,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 									e.preventDefault();
 								}}
 							>
-								Tools <span className="col-menu-submenu-arrow">›</span>
+								Run <span className="col-menu-submenu-arrow">›</span>
 								<div className="dropdown-more sub-menu tools-sub-menu">
 									<button
 										onClick={(e) =>
@@ -1246,6 +1289,16 @@ export const CollectionBar = (props: ICollectionProps) => {
 										}
 									>
 										Performance Test
+									</button>
+									<button
+										onClick={(e) =>
+											onDataDrivenTest(e, item.id, "", item.name, item.variableId)
+										}
+									>
+										Data-Driven Test
+									</button>
+									<button onClick={(e) => onAutoRequest(e, item.id, item.name)}>
+										Scheduled Runs
 									</button>
 								</div>
 							</div>

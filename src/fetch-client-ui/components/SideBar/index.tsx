@@ -37,6 +37,7 @@ const SideBar = () => {
 		colId: "",
 		foldId: "",
 		itemId: "",
+		varId: ""
 	});
 	const [colSort, setColSort] = useState(0);
 	const [varSort, setVarSort] = useState(0);
@@ -46,6 +47,7 @@ const SideBar = () => {
 		colId: string;
 		foldId: string;
 		itemId: string;
+		varId: string;
 	}) => {
 		refSelectedItem.current = data;
 		_setSelectedItem(refSelectedItem.current);
@@ -86,6 +88,14 @@ const SideBar = () => {
 		vscode.postMessage({
 			type: requestTypes.bulkExportRequest,
 			data: { type: type },
+		});
+		setMenuShow(false);
+	}
+
+	function onSecretMangerOpen(evt: any) {
+		evt.preventDefault();
+		vscode.postMessage({
+			type: requestTypes.secretManagerUIOpen
 		});
 		setMenuShow(false);
 	}
@@ -383,6 +393,7 @@ const SideBar = () => {
 					colId: event.data.colId,
 					foldId: event.data.folId,
 					itemId: event.data.id,
+					varId: event.data.varId
 				});
 			} else if (
 				event.data &&
@@ -393,6 +404,7 @@ const SideBar = () => {
 						colId: "",
 						foldId: "",
 						itemId: "",
+						varId: ""
 					});
 				}
 			} else if (
@@ -466,10 +478,10 @@ const SideBar = () => {
 							e.preventDefault();
 						}}
 					>
-						Tools <span className="submenu-arrow">›</span>
+						Run <span className="submenu-arrow">›</span>
 					</button>
 					<div className="dropdown-more tools-submenu">
-						<button onClick={(e) => onAutoRequest(e)}>Auto Request</button>
+						<button onClick={(e) => onAutoRequest(e)}>Scheduled Runs</button>
 					</div>
 				</div>
 				<hr />
@@ -494,6 +506,8 @@ const SideBar = () => {
 				<button onClick={(e) => onVariableSort(e)}>
 					Sort {varSort === 0 || varSort === 2 ? "(A-Z)" : "(Z-A)"}
 				</button>
+				<hr />
+				<button onClick={(e) => onSecretMangerOpen(e)}>Secrets Integration</button>
 			</>
 		);
 	}
@@ -580,6 +594,7 @@ const SideBar = () => {
 							<VariableSection
 								filterCondition={filterCondititon?.toLowerCase()}
 								isLoading={isVarLoading}
+								selectedItem={selectedItem}
 								sort={varSort}
 							/>
 						</React.Suspense>

@@ -39,7 +39,7 @@
 }
 
 .oauth-select {
-	width: 170px !important;
+	width: 200px !important;
 }
 
 .oauth-btn-panel {
@@ -53,4 +53,10 @@
 
 .oauth-info-label {
 	cursor: pointer;
+}
+
+.oauth-callback-url {
+	width: calc(100% - 155px);
+	padding-top: 5px;
+	overflow-wrap: anywhere;
 }

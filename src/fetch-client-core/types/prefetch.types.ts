@@ -17,6 +17,8 @@ export interface IRunRequest {
 
 export interface IPreFetch {
 	requests: IRunRequest[];
+	// skipParentRequest: boolean;
+	// runMainOnPreFetchFailure: boolean
 }
 
 export interface ISetVar {

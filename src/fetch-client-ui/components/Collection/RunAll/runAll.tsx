@@ -3,7 +3,7 @@ import {
 	executeTests,
 	setVariable,
 } from "../../../../fetch-client-core/helpers/tests.helper";
-import { exportCSV, exportJson } from "./helper";
+import { exportCSV, exportHTML, exportJson, exportNunit, exportXML } from "./helper";
 import { getMethodClassName } from "../../SideBar/util";
 import { GetResponseTime } from "../../../../fetch-client-core/helpers/dateTime.helper";
 import { IReponseModel } from "../../../../fetch-client-core/types/response.types";
@@ -409,8 +409,8 @@ const RunAll = () => {
 				: res[selectedIteration][index].response.status === 0
 					? ""
 					: res[selectedIteration][index].response.status +
-						" " +
-						res[selectedIteration][index].response.statusText
+					" " +
+					res[selectedIteration][index].response.statusText
 			: "";
 	}
 
@@ -520,6 +520,7 @@ const RunAll = () => {
 			req,
 			selectedReq,
 			res,
+			sourceColName.trim().includes("\\") ? "folder" : "collection",
 			sourceColName,
 			selectedVariable,
 			totalIteration,
@@ -527,7 +528,7 @@ const RunAll = () => {
 		vscode.postMessage({
 			type: requestTypes.exportRunTestJsonRequest,
 			data: exportData,
-			name: sourceColName,
+			name: `${sourceColName}-runall`,
 		});
 	}
 
@@ -537,6 +538,7 @@ const RunAll = () => {
 			req,
 			selectedReq,
 			res,
+			sourceColName.trim().includes("\\") ? "folder" : "collection",
 			sourceColName,
 			selectedVariable,
 			totalIteration,
@@ -544,7 +546,65 @@ const RunAll = () => {
 		vscode.postMessage({
 			type: requestTypes.exportRunTestCSVRequest,
 			data: data,
-			name: sourceColName,
+			name: `${sourceColName}-runall`,
+		});
+	}
+
+	function onClickExportHtml(e: any) {
+		e.preventDefault();
+		let data = exportHTML(
+			req,
+			selectedReq,
+			res,
+			sourceColName.trim().includes("\\") ? "folder" : "collection",
+			sourceColName,
+			selectedVariable,
+			totalIteration,
+		);
+		vscode.postMessage({
+			type: requestTypes.exportData,
+			format: "html",
+			data: data,
+			name: `${sourceColName}-runall`,
+		});
+	}
+
+	function onClickExportXML(e: any) {
+		e.preventDefault();
+		let data = exportXML(
+			req,
+			selectedReq,
+			res,
+			sourceColName.trim().includes("\\") ? "folder" : "collection",
+			sourceColName,
+			selectedVariable,
+			totalIteration,
+		);
+		vscode.postMessage({
+			type: requestTypes.exportData,
+			format: "xml",
+			data: data,
+			name: `${sourceColName}-runall`,
+		});
+	}
+
+	
+	function onClickExportNUnit(e: any) {
+		e.preventDefault();
+		let data = exportNunit(
+			req,
+			selectedReq,
+			res,
+			sourceColName.trim().includes("\\") ? "folder" : "collection",
+			sourceColName,
+			selectedVariable,
+			totalIteration,
+		);
+		vscode.postMessage({
+			type: requestTypes.exportData,
+			format: "xml",
+			data: data,
+			name: `${sourceColName}-runall`,
 		});
 	}
 
@@ -824,9 +884,9 @@ const RunAll = () => {
 												{(selectedOption === 1 &&
 													curIndex === index &&
 													processing) ||
-												(selectedOption === 2 &&
-													processing &&
-													selectedReq[index])
+													(selectedOption === 2 &&
+														processing &&
+														selectedReq[index])
 													? "loading..."
 													: getResponseStatus(index)}
 											</span>
@@ -836,9 +896,9 @@ const RunAll = () => {
 												{(selectedOption === 1 &&
 													curIndex === index &&
 													processing) ||
-												(selectedOption === 2 &&
-													processing &&
-													selectedReq[index])
+													(selectedOption === 2 &&
+														processing &&
+														selectedReq[index])
 													? "loading..."
 													: getResponseDuration(index)}
 											</span>
@@ -850,9 +910,9 @@ const RunAll = () => {
 												{(selectedOption === 1 &&
 													curIndex === index &&
 													processing) ||
-												(selectedOption === 2 &&
-													processing &&
-													selectedReq[index])
+													(selectedOption === 2 &&
+														processing &&
+														selectedReq[index])
 													? "loading..."
 													: getTestResult(index)}
 											</span>
@@ -961,6 +1021,9 @@ const RunAll = () => {
 						<div className="runall-dropdown-content">
 							<a onClick={onClickExportJson}>JSON</a>
 							<a onClick={onClickExportCSV}>CSV</a>
+							<a onClick={onClickExportHtml}>HTML</a>
+							<a onClick={onClickExportXML}>XML</a>
+							<a onClick={onClickExportNUnit}>NUnit</a>
 						</div>
 					)}
 				</div>

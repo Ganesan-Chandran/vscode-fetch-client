@@ -1,47 +1,241 @@
-.prefetch-test-result-label {
-	display: block;
-	width: 50px;
-	border-radius: 3px;
-	height: 19px;
-	margin: 10px 5px 5px 5px;
-	text-align: center;
-	font-weight: bold;
-}
-
-.prefetch-response-items {
-	padding-right: 0 !important;
-	min-width: 220px;
-}
-
 .prefetch-result-panel {
-	padding-top: 35px;
+	/* Every color below resolves to a VS Code theme token, with a plain
+	   fallback for storybook/browser preview where those tokens don't exist.
+	   Because they're real theme variables (not hex), switching the editor
+	   between light / dark / high-contrast themes updates this panel live. */
+	--pf-surface: var(--vscode-editorWidget-background, #232428);
+	--pf-surface-hover: var(--vscode-list-hoverBackground, #2a2c31);
+	--pf-border: var(--vscode-widget-border, var(--vscode-panel-border, #35373c));
+	--pf-text: var(--vscode-editor-foreground, var(--vscode-foreground, #e4e5e7));
+	--pf-text-muted: var(--vscode-descriptionForeground, #8b8d94);
+
+	/* --vscode-testing-icon{Passed,Failed} are the same tokens VS Code's
+	   own Test Explorer uses, so pass/fail here matches the rest of the IDE. */
+	--pf-pass: var(--vscode-testing-iconPassed, #3ecf8e);
+	--pf-pass-bg: color-mix(in srgb, var(--pf-pass) 16%, transparent);
+	--pf-fail: var(--vscode-testing-iconFailed, var(--vscode-errorForeground, #f2555a));
+	--pf-fail-bg: color-mix(in srgb, var(--pf-fail) 16%, transparent);
+
+	--pf-collection: var(--vscode-charts-yellow, #f0b429);
+	--pf-collection-bg: color-mix(in srgb, var(--pf-collection) 16%, transparent);
+	--pf-request: var(--vscode-charts-blue, var(--vscode-textLink-foreground, #6c8cff));
+	--pf-request-bg: color-mix(in srgb, var(--pf-request) 16%, transparent);
+	--pf-neutral-bg: color-mix(in srgb, var(--pf-text-muted) 16%, transparent);
+
+	--pf-radius: 4px;
+	--pf-mono: var(--vscode-editor-font-family, ui-monospace, SFMono-Regular, Menlo, monospace);
+
+	/* font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif); */
+	font-size: var(--vscode-font-size, 13px);
+	color: var(--pf-text);
+	padding-top: 20px;
 	padding-bottom: 15px;
 }
 
-.prefetch-condition-result-label {
-	display: inline-block;
-	width: 50px;
-	border-radius: 3px;
-	height: 19px;
-	margin-left: 10px;
-	text-align: center;
-	font-weight: bold;
+/* Toolbar / summary */
+
+.prefetch-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding-bottom: 14px;
+	margin-bottom: 14px;
+	border-bottom: 1px solid var(--pf-border);
 }
+
+.prefetch-summary {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.prefetch-expand-btn {
+	background: transparent;
+	border: 1px solid var(--pf-border);
+	color: var(--pf-text);
+	padding: 6px 12px;
+	border-radius: var(--pf-radius);
+	font-size: 12px;
+	cursor: pointer;
+	transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.prefetch-expand-btn:hover {
+	background: var(--pf-surface-hover);
+	border-color: var(--pf-text-muted);
+}
+
+/* Empty state */
+
+.prefetch-empty {
+	text-align: center;
+	padding: 40px 20px;
+	color: var(--pf-text-muted);
+	font-size: 13px;
+	border: 1px dashed var(--pf-border);
+	border-radius: 8px;
+}
+
+/* Tree nodes */
+
+.prefetch-result-details-items {
+	margin-bottom: 6px;
+}
+
+.prefetch-response-items {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 10px;
+	border-radius: var(--pf-radius);
+	cursor: pointer;
+	list-style: none;
+	background: var(--pf-surface);
+	border: 1px solid var(--pf-border);
+	min-width: 0;
+}
+
+.prefetch-response-items::-webkit-details-marker {
+	display: none;
+}
+
+.prefetch-response-items:hover {
+	background: var(--pf-surface-hover);
+}
+
+.prefetch-response-items::before {
+	content: "";
+	width: 0;
+	height: 0;
+	flex-shrink: 0;
+	border-left: 5px solid var(--pf-text-muted);
+	border-top: 4px solid transparent;
+	border-bottom: 4px solid transparent;
+	transition: transform 0.12s ease;
+}
+
+details[open]>.prefetch-response-items::before {
+	transform: rotate(90deg);
+}
+
+/* Leaf rows: no children to expand into, so no chevron and no pointer cursor */
+.prefetch-response-items.no-expand {
+	cursor: default;
+}
+
+.prefetch-response-items.no-expand::before {
+	display: none;
+}
+
+.pf-node-label {
+	flex: 1;
+	min-width: 0;
+	/* font-family: var(--pf-mono); */
+	font-size: 12.5px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Scope tags */
+
+.pf-scope-tag {
+	flex-shrink: 0;
+	font-size: 10px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	padding: 2px 6px;
+	border-radius: 4px;
+}
+
+.pf-scope-tag.condition {
+	background: var(--pf-neutral-bg);
+	color: var(--pf-text-muted);
+	margin-left: 15px;
+}
+
+.pf-scope-tag.request {
+	background: var(--pf-request-bg);
+	color: var(--pf-request);
+	margin-left: 15px;
+}
+
+.pf-scope-tag.collection {
+	background: var(--pf-collection-bg);
+	color: var(--pf-collection);
+}
+
+/* Status badge */
+
+.pf-badge {
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 3px 9px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+}
+
+.pf-badge::before {
+	content: "";
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: currentColor;
+	flex-shrink: 0;
+}
+
+.pf-badge.pass {
+	background: var(--pf-pass-bg);
+	color: var(--pf-pass);
+}
+
+.pf-badge.fail {
+	background: var(--pf-fail-bg);
+	color: var(--pf-fail);
+}
+
+/* Test list (conditions) */
+
+.prefetch-test-list {
+	margin: 6px 0 6px 12px;
+	padding-left: 14px;
+	border-left: 1px dashed var(--pf-border);
+}
+
+.prefetch-test-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 6px 10px;
+}
+
+.prefetch-test-row .test-name {
+	/* font-family: var(--pf-mono); */
+	font-size: 12.5px;
+	color: var(--pf-text);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Nested children */
 
 .prefecth-child-panel {
-	padding: 10px 20px 10px 20px;
+	margin: 6px 0 6px 12px;
+	padding-left: 14px;
+	border-left: 1px solid var(--pf-border);
 }
 
-.prefetch-collction-item {
-	display: grid;
+.prefetch-result-panel details>summary.prefetch-response-items {
+	background: var(--pf-surface);
 }
 
-details[open].prefetch-result-details-items > summary > label.pass {
-	background-color: transparent;
-	color: rgb(2, 151, 2);
-}
-
-details[open].prefetch-result-details-items > summary > label.fail {
-	background-color: transparent;
-	color: rgb(240, 22, 22);
+.prefetch-result-panel details[open]>summary.prefetch-response-items {
+	background: var(--pf-surface-hover);
 }

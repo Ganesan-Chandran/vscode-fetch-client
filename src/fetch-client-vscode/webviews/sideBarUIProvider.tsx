@@ -61,10 +61,12 @@ import {
 	OpenColSettings,
 	OpenCopyToColUI,
 	OpenCurlUI,
+	OpenDataDrivenTestUI,
 	OpenExistingItem,
 	OpenPerfTestUI,
 	OpenReOrderUI,
 	OpenRunAllUI,
+	OpenSecretMangerUI,
 	OpenVariableUI,
 	pubSub,
 	vsCodeLogger,
@@ -240,8 +242,8 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 						.showSaveDialog({
 							defaultUri: vscode.Uri.file(
 								"fetch-client-collection_" +
-									reqData.data.name?.replace(/[/\\?%*:|"<>]/g, "-") +
-									".json",
+								reqData.data.name?.replace(/[/\\?%*:|"<>]/g, "-") +
+								".json",
 							),
 						})
 						.then((uri: vscode.Uri | undefined) => {
@@ -288,7 +290,9 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 				case requestTypes.importRequest:
 					vscode.window
 						.showOpenDialog({
-							filters: { "Json Files": ["json"] },
+							filters: {
+								"JSON & YAML Files": ["json", "yaml", "yml"],
+							},
 							canSelectMany: true,
 						})
 						.then((uri: vscode.Uri[] | undefined) => {
@@ -359,8 +363,8 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 							.showSaveDialog({
 								defaultUri: vscode.Uri.file(
 									"fetch-client-variable_" +
-										reqData.vars.name?.replace(/[/\\?%*:|"<>]/g, "-") +
-										".json",
+									reqData.vars.name?.replace(/[/\\?%*:|"<>]/g, "-") +
+									".json",
 								),
 							})
 							.then((uri: vscode.Uri | undefined) => {
@@ -528,6 +532,9 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 				case requestTypes.openAutoRequest:
 					OpenAutoRequestUI();
 					break;
+				case requestTypes.autoRequestUIOpenRequest:
+					OpenAutoRequestUI(reqData.data.colId, reqData.data.name);
+					break;
 				case requestTypes.configRequest:
 					webviewView.webview.postMessage(getConfiguration());
 					break;
@@ -538,6 +545,17 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 						reqData.data.name,
 						reqData.data.varId,
 					);
+					break;
+				case requestTypes.runDataDrivenTestUIOpenRequest:
+					OpenDataDrivenTestUI(
+						reqData.data.colId,
+						reqData.data.folderId,
+						reqData.data.name,
+						reqData.data.varId,
+					);
+					break;
+				case requestTypes.secretManagerUIOpen:
+					OpenSecretMangerUI();
 					break;
 			}
 		});
@@ -561,10 +579,10 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 			ignoreFocusOut: false,
 			validateInput: validate
 				? (text) => {
-						return text !== "" && text.length <= 50
-							? null
-							: "Enter the valid name (length should be <=50)";
-					}
+					return text !== "" && text.length <= 50
+						? null
+						: "Enter the valid name (length should be <=50)";
+				}
 				: null,
 		});
 

@@ -113,6 +113,7 @@ const ResToVariables = () => {
 							{ name: "Header", value: "Header" },
 							{ name: "Cookie", value: "Cookie" },
 							{ name: "Json Response", value: "JSON" },
+							{ name: "Expression", value: "Expression" }
 						].map((param: any, index: number) => {
 							return (
 								<option
@@ -143,7 +144,8 @@ const ResToVariables = () => {
 									? "header name"
 									: row.parameter === "Cookie"
 										? "cookie name"
-										: "json data"
+										: row.parameter === "Expression" ? "ex. now() or now() + days(1) or 5+5"
+											: "json data"
 								: "value"
 						}
 					/>

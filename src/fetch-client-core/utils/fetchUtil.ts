@@ -1,6 +1,6 @@
 import { access } from "fs/promises";
 import { createReadStream } from "fs";
-import { getSSLConfiguration, getProtocolConfiguration } from "./vscodeConfig";
+import { getProtocolConfiguration } from "./vscodeConfig";
 import { IReqSettings } from "../types/prefetch.types";
 import { IRequestModel } from "../types/request.types";
 import { ISettings } from "../types/sidebar.types";
@@ -10,17 +10,13 @@ import {
 	getErrorResponse,
 	getRandomNumber,
 } from "../helpers/common.helper";
+import { getHttpsAgent } from "./httpsAgent";
 import { ITableData } from "../types/common.types";
 import { logDetails } from "../helpers/logger/requestLog";
-import {
-	replaceAuthSettingsInRequest,
-	replaceHeaderSettingsInRequest,
-	replaceValueWithVariable,
-} from "../helpers/variable.helper";
+import { replaceAuthSettingsInRequest, replaceHeaderSettingsInRequest, replaceValueWithVariable } from "../helpers/variable.server.helper";
 import { Request as awsRequest, sign } from "aws4";
 import { responseTypes } from "../consts/requestTypes.consts";
 import { writeLog } from "../helpers/logger/logger";
-import * as https from "https";
 import axios, { AxiosRequestConfig, CancelTokenSource } from "axios";
 import FormData from "form-data";
 
@@ -59,10 +55,10 @@ export const updateHeaderSettings = (
 	return requestData;
 };
 
-export const updateVariables = (
+export const updateVariables = async (
 	requestData: IRequestModel,
 	variableData?: ITableData[],
-): IRequestModel => {
+): Promise<IRequestModel> => {
 	const varData: Record<string, string> = {};
 	if (variableData && variableData.length > 0) {
 		for (const item of variableData) {
@@ -70,7 +66,7 @@ export const updateVariables = (
 		}
 	}
 	const copy: IRequestModel = JSON.parse(JSON.stringify(requestData));
-	return replaceValueWithVariable(copy, varData);
+	return await replaceValueWithVariable(copy, varData);
 };
 
 // ---------------------------------------------------------------------------
@@ -89,8 +85,8 @@ export const apiFetch = async (
 	let fetchDuration = 0;
 	let reqData: RequestBody = "";
 
-	let request = updateAuthSettings(requestData, settings);
-	request = updateVariables(request, variableData);
+	let request = updateAuthSettings(requestData, settings);	
+	request = await updateVariables(request, variableData);
 
 	if (!reqSettings || !reqSettings.skipParentHeaders) {
 		request = updateHeaderSettings(request, settings);
@@ -177,11 +173,6 @@ export const apiFetch = async (
 				);
 		}
 
-		// --- SSL ---
-		(
-			https.globalAgent as { options: { rejectUnauthorized?: boolean } }
-		).options.rejectUnauthorized = getSSLConfiguration();
-
 		// Use a per-request instance to prevent interceptors from stacking on the global instance
 		const instance = axios.create({ withCredentials: true });
 		let startTime = 0;
@@ -198,6 +189,9 @@ export const apiFetch = async (
 			? request.url
 			: `${getProtocolConfiguration()}://${request.url}`;
 		request.url = url;
+
+		// --- SSL ---
+		const httpsAgent = await getHttpsAgent(url);
 
 		let requestConfig: AxiosRequestConfig;
 
@@ -245,6 +239,7 @@ export const apiFetch = async (
 				responseType: "arraybuffer",
 				maxContentLength: Infinity,
 				maxBodyLength: Infinity,
+				httpsAgent
 			};
 		} else {
 			requestConfig = {
@@ -254,9 +249,9 @@ export const apiFetch = async (
 				auth:
 					request.auth.authType === "basic"
 						? {
-								username: request.auth.userName,
-								password: request.auth.password,
-							}
+							username: request.auth.userName,
+							password: request.auth.password,
+						}
 						: undefined,
 				data: reqData,
 				validateStatus: () => true,
@@ -265,6 +260,7 @@ export const apiFetch = async (
 				responseType: "arraybuffer",
 				maxContentLength: Infinity,
 				maxBodyLength: Infinity,
+				httpsAgent
 			};
 		}
 

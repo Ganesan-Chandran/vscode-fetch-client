@@ -23,10 +23,12 @@ import {
 import {
 	getHeadersConfiguration,
 	getTimeOutConfiguration,
+	getVariableEncryptionKey,
 } from "../../fetch-client-core/utils/vscodeConfig";
 import { GetHistoryById } from "../db/historyDBUtil";
 import {
 	getStorageManager,
+	oauthAuthorizationService,
 	OpenExistingItem,
 	sideBarProvider,
 } from "../../extension";
@@ -34,8 +36,22 @@ import {
 	requestTypes,
 	responseTypes,
 } from "../../fetch-client-core/consts/requestTypes.consts";
+import {
+	Col_Repository_GetAllCollectionsById,
+	Col_Repository_GetCollectionById,
+} from "../../fetch-client-core/db/collectionDB.repository";
+import { getVariableEncryptionConfiguration } from "../../fetch-client-core/utils/commonConfig";
+import { IDataDrivenConfig } from "../../fetch-client-core/utils/dataDrivenTestService/dataDriven.types";
+import { IRequestModel } from "../../fetch-client-core/types/request.types";
+import { resolveParentSettings } from "../../fetch-client-core/helpers/settings.helper";
+import { runDataDrivenTest, IDataDrivenCancelRef } from "../../fetch-client-core/utils/dataDrivenTestService/dataDrivenRunner";
+import { Var_Repository_FindByIdSync } from "../../fetch-client-core/db/variableDB.repository";
+import * as fs from "fs";
 import * as vscode from "vscode";
 import axios from "axios";
+
+// Per-panel cancel ref for data-driven test runs
+const dataDrivenCancelRefs = new WeakMap<vscode.WebviewPanel, IDataDrivenCancelRef>();
 
 export const AddToColUI = (extensionUri: vscode.Uri) => {
 	const disposable = vscode.commands.registerCommand(
@@ -147,7 +163,7 @@ export const AddToColUI = (extensionUri: vscode.Uri) => {
 						vscode.Uri.file(
 							`fetch-client-collection-report-${message.name?.replace(/[/\\?%*:|"<>]/g, "-")}.json`,
 						),
-						JSON.stringify(message.data),
+						JSON.stringify(message.data, null, "\t"),
 						"exportRunTestJsonRequest",
 						{ filters: { "Json Files": ["json"] } },
 					);
@@ -159,6 +175,25 @@ export const AddToColUI = (extensionUri: vscode.Uri) => {
 						message.data.toString(),
 						"exportRunTestCSVRequest",
 						{ filters: { CSV: ["csv"] } },
+					);
+				} else if (message.type === requestTypes.exportData) {
+					const format = (message.format?.toString() ?? "").toUpperCase();
+					if (format === "") {
+						return;
+					}
+					let fileExt: string;
+					if (format === "HTML") {
+						fileExt = "html";
+					} else if (format === "XML") {
+						fileExt = "xml";
+					}
+					await saveToFile(
+						vscode.Uri.file(
+							`fetch-client-collection-report-${message.name?.replace(/[/\\?%*:|"<>]/g, "-")}.${fileExt}`,
+						),
+						message.data.toString(),
+						"requestTypes.exportData",
+						{ filters: { format: [`${fileExt}`] } },
 					);
 				} else if (message.type === requestTypes.saveColSettingsRequest) {
 					SaveCollectionSettings(
@@ -192,6 +227,8 @@ export const AddToColUI = (extensionUri: vscode.Uri) => {
 					).then((data) => {
 						colPanel.webview.postMessage(data);
 					});
+				} else if (message.type === requestTypes.oauthAuthorizationRequest) {
+					oauthAuthorizationService.start(colPanel.webview, message.data);
 				} else if (
 					message.type === requestTypes.getCollectionsByIdWithPathRequest
 				) {
@@ -204,6 +241,142 @@ export const AddToColUI = (extensionUri: vscode.Uri) => {
 					);
 				} else if (message.type === requestTypes.showMessageRequest) {
 					ShowInformationDialog(message.data);
+				} else if (message.type === requestTypes.selectFileRequest) {
+					const uris = await vscode.window.showOpenDialog({
+						filters: { "Data Files": ["csv", "json"], "All Files": ["*"] },
+						canSelectMany: false,
+					});
+					if (uris && uris.length > 0) {
+						const filePath = uris[0].fsPath;
+						try {
+							const fileData = await fs.promises.readFile(filePath, "utf8");
+							colPanel.webview.postMessage({
+								type: responseTypes.selectFileResponse,
+								path: filePath,
+								fileData,
+							});
+						} catch (readErr) {
+							// FIX #6: surface file read errors to the UI
+							colPanel.webview.postMessage({
+								type: responseTypes.selectFileResponse,
+								path: "",
+								fileData: "",
+								error: `Failed to read file: ${(readErr as Error).message}`,
+							});
+						}
+					}
+					// If dialog dismissed (no uris), send nothing - UI treats missing response as cancel
+				} else if (message.type === requestTypes.runDataDrivenRunRequest) {
+					// Cancel any existing run on this panel
+					const existing = dataDrivenCancelRefs.get(colPanel);
+					if (existing) {
+						existing.cancelled = true;
+					}
+
+					const cancelRef: IDataDrivenCancelRef = { cancelled: false };
+					dataDrivenCancelRefs.set(colPanel, cancelRef);
+
+					const {
+						colId: ddColId,
+						folderId: ddFolderId,
+						varId: ddVarId,
+						selectedRequestIds,
+						dataRows,
+						config,
+						testName,
+					} = message.data as {
+						colId: string;
+						folderId: string;
+						varId: string;
+						selectedRequestIds: string[];
+						dataRows: Record<string, string>[];
+						config: IDataDrivenConfig;
+						testName: string;
+					};
+
+					try {
+						const encKey = getVariableEncryptionConfiguration()
+							? getVariableEncryptionKey()
+							: null;
+
+						// Load full collection (needed for parent-settings resolution and CliPreFetchContextProvider)
+						const collection = await Col_Repository_GetCollectionById(ddColId, "");
+
+						// Load ALL requests in the collection for pre-fetch lookup
+						const { requests: allColReqs } =
+							await Col_Repository_GetAllCollectionsById(ddColId, "", "col");
+						const requestMap = new Map<string, IRequestModel>(
+							allColReqs.map((r: IRequestModel) => [r.id, r]),
+						);
+
+						// Load requests scoped to this collection/folder for the ordered selected list
+						const isFolderScope = !!ddFolderId;
+						const { requests: scopedReqs } =
+							await Col_Repository_GetAllCollectionsById(
+								ddColId,
+								ddFolderId,
+								isFolderScope ? "fol" : "col",
+							);
+
+						const selectedRequests = selectedRequestIds
+							.map((id) => scopedReqs.find((r: IRequestModel) => r.id === id))
+							.filter((r): r is IRequestModel => !!r);
+
+						// Load variable (may be undefined if no variable attached)
+						const variable = ddVarId
+							? await Var_Repository_FindByIdSync(ddVarId, encKey)
+							: null;
+
+						// Resolve parent settings for the scope
+						const parentSettings = resolveParentSettings(
+							collection,
+							ddFolderId ?? "",
+						);
+
+						const ddFetchConfig: FetchConfig = {
+							timeOut: getTimeOutConfiguration(),
+							headersCase: getHeadersConfiguration(),
+						};
+
+						const finalResult = await runDataDrivenTest(
+							selectedRequests,
+							collection,
+							requestMap,
+							dataRows,
+							variable ?? undefined,
+							parentSettings,
+							config,
+							ddFetchConfig,
+							cancelRef,
+							(rowResult) => {
+								if (!colPanel.webview) {
+									return;
+								}
+								colPanel.webview.postMessage({
+									type: responseTypes.dataDrivenRowResultResponse,
+									data: rowResult,
+								});
+							},
+						);
+
+						if (!cancelRef.cancelled) {
+							colPanel.webview.postMessage({
+								type: responseTypes.dataDrivenCompleteResponse,
+								data: { ...finalResult, testName },
+							});
+						}
+					} catch (err) {
+						colPanel.webview.postMessage({
+							type: responseTypes.dataDrivenCompleteResponse,
+							data: null,
+							error: (err as Error).message,
+						});
+					}
+				} else if (message.type === requestTypes.runDataDrivenCancelRequest) {
+					const cancelRef = dataDrivenCancelRefs.get(colPanel);
+					if (cancelRef) {
+						cancelRef.cancelled = true;
+					}
 				}
 			});
 		},

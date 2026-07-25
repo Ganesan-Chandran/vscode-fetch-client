@@ -33,6 +33,7 @@ export interface IPreFetchResponse {
 	reqId: string;
 	name: string;
 	resStatus: number;
+	isParentReq: boolean;
 	testResults?: ITestResult[];
 	childrenResponse?: IPreFetchResponse[];
 }

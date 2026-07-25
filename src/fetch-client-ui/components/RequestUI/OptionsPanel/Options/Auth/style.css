@@ -15,7 +15,6 @@
 	background-color: var(--background-color);
 	color: var(--text-color);
 	display: inline-block;
-	font-weight: 600;
 }
 
 .auth-type-select option {
@@ -186,7 +185,7 @@ label {
 }
 
 .inherit-auth-summary {
-	padding-left: 5px;
+	padding-left: 10px;
 }
 
 .inherit-auth-details {

@@ -102,6 +102,15 @@ export const PreFetch = (props: IPreFecthProps) => {
 						/>{" "}
 						Skip parent pre-requests
 					</label>
+					{/* <label className="request-header-panel-text">
+						<input
+							type="checkbox"
+							className="request-header-panel-option"
+							checked={skipParentPreFetch}
+							onChange={(e) => onSelectChange(e)}
+						/>{" "}
+						Continue the main request even if a pre-request fails
+					</label> */}
 				</div>
 			) : (
 				<></>

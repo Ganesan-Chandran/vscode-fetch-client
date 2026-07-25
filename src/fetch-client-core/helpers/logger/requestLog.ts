@@ -15,6 +15,11 @@ export function logDetails(
 	duration: number,
 ): void {
 	try {
+
+		if(!vsCodeLogger){
+			return;
+		}
+
 		let log = `\n-----------------------------------------------------------------------------\n`;
 		log += `▶ ${request.method.toUpperCase()}    ${request.url}\n`;
 		log += `-----------------------------------------------------------------------------\n`;

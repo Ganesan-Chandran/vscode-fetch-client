@@ -42,6 +42,9 @@ export function ExportBuilderV2(
 		if (requests.length > 0) {
 			if (folderId) {
 				const folder = findItem(col, folderId) as IFolder;
+				if (!folder) {
+					throw new Error(`Item with id "${folderId}" not found.`);
+				}
 				// Folder itself at root, request nested inside it
 				flattenFolder(folder, null, 1, [requests[0]], items);
 			} else {
@@ -56,6 +59,9 @@ export function ExportBuilderV2(
 	} else if (folderId) {
 		// Export a specific folder and all its descendants
 		const folder = findItem(col, folderId) as IFolder;
+		if (!folder) {
+			throw new Error(`Item with id "${folderId}" not found.`);
+		}
 		flattenFolder(folder, null, 1, null, items, apiRequests);
 	} else {
 		// Export the entire collection
@@ -168,7 +174,7 @@ function flattenItem(
 	if (isFolder(item)) {
 		flattenFolder(item, parentId, order, null, out, apiRequests);
 	} else {
-		// IHistory – fetch the full request from the DB
+		// IHistory - fetch the full request from the DB
 		const requests = apiRequests
 			.chain()
 			.find({ id: { $in: [item.id] } })
@@ -183,7 +189,7 @@ function flattenItem(
 /**
  * Recursively flatten a folder and all its children into the flat items array.
  * `overrideRequests` is used when we're exporting a single request wrapped in
- * a folder – we skip the DB lookup and use the already-fetched request.
+ * a folder - we skip the DB lookup and use the already-fetched request.
  */
 function flattenFolder(
 	folder: IFolder,
@@ -340,6 +346,8 @@ function mapAuth(auth: IAuth): IExportAuth {
 			return {
 				type: "oauth2",
 				credentials: {
+					authorizationUrl: o.authorizationUrl,
+					...(o.grantType === "authorization_code_pkce" && { codeChallengeMethod: o.codeChallengeMethod }),
 					tokenName: o.tokenName,
 					tokenUrl: o.tokenUrl,
 					clientId: o.clientId,
@@ -366,7 +374,7 @@ function mapAuth(auth: IAuth): IExportAuth {
 		}
 
 		default:
-			// Fallback – treat unknown authType as noauth so export never breaks
+			// Fallback - treat unknown authType as noauth so export never breaks
 			return { type: "noauth" };
 	}
 }
@@ -484,7 +492,7 @@ function resolveAssertionSource(
 			// customParameter holds the JSONPath expression
 			return { source: "body.jsonPath", path: customParameter };
 		default:
-			// Unknown parameter – use response.body as a safe fallback
+			// Unknown parameter - use response.body as a safe fallback
 			return { source: "response.body" };
 	}
 }
@@ -606,11 +614,11 @@ function resolveContentType(ext: string, contentTypeOption: string): string {
 
 /**
  * Walks the collection tree to find an item by id.
- * Same logic as your existing `findItem` utility – kept here to avoid
+ * Same logic as your existing `findItem` utility - kept here to avoid
  * cross-file dependencies. Replace with your existing `findItem` import
  * if preferred.
  */
-function findItem(source: { data?: any[] }, id: string): IFolder | IHistory {
+function findItem(source: { data?: any[] }, id: string): IFolder | IHistory | undefined {
 	for (const item of source.data ?? []) {
 		if (item.id === id) {
 			return item;
@@ -622,7 +630,7 @@ function findItem(source: { data?: any[] }, id: string): IFolder | IHistory {
 			}
 		}
 	}
-	throw new Error(`Item with id "${id}" not found in collection.`);
+	return undefined;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -137,7 +137,6 @@
 }
 
 .view-variable-panel-name {
-	margin-top: 20px;
 	display: flex;
 	width: 100%;
 }
@@ -146,4 +145,9 @@
 	max-height: 98% !important;
 	overflow-y: auto !important;
 	overflow-x: hidden !important;
+	margin-top: 0 !important;
+}
+
+.var-notes-panel {
+	margin-top: 10px;
 }

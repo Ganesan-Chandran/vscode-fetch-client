@@ -1,0 +1,62 @@
+// - Report scope / context -
+
+export type ExportScope = "request" | "collection" | "folder";
+
+export interface ExportContext {
+	scope: ExportScope;
+	name: string;
+}
+
+// - Aggregate summary (HTTP-level pass/fail, matches the CLI's own run summary) -
+
+export interface ExportSummary {
+	totalRequests: number;
+	passedRequests: number;
+	failedRequests: number;
+	totalDurationMs: number;
+	totalTests: number;
+	passedTests: number;
+	failedTests: number;
+	generatedAt: string;
+}
+
+// - Normalized per-request export model -
+// This is the single shape every format (csv/html/json/xml/nunit) renders from.
+// It deliberately excludes internal-only fields (responseType, isError) and
+// derives everything a report needs (outcome, details, preFetch) up front.
+
+export type ExportOutcome = "Passed" | "Failed" | "Error";
+
+export interface ExportTestResult {
+	name: string;
+	passed: boolean;
+	actualValue?: string;
+}
+
+export interface ExportPreFetchStep {
+	name: string;
+	status: number;
+	passed: boolean;
+	tests: ExportTestResult[];
+	children: ExportPreFetchStep[];
+}
+
+export interface ExportRequestResult {
+	name: string;
+	method: string;
+	url: string;
+	status: number;
+	statusText: string;
+	durationMs: number;
+	sizeBytes: number;
+	outcome: ExportOutcome;
+	details?: string;
+	tests: ExportTestResult[];
+	preFetch: ExportPreFetchStep[];
+}
+
+export interface ExportReport {
+	context: ExportContext;
+	summary: ExportSummary;
+	results: ExportRequestResult[];
+}

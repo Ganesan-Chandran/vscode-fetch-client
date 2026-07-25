@@ -23,3 +23,13 @@ export type TableType =
 	| "resCookies";
 
 export type TextType = "text" | "password";
+
+export interface ITlsCertificate {
+	host: string;
+	type: "pem" | "pfx";
+	certPath?: string;
+	keyPath?: string;
+	pfxPath?: string;
+	passphrase?: string;
+	enabled?: boolean;
+}

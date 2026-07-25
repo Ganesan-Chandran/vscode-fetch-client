@@ -1,6 +1,10 @@
-import * as vscode from "vscode";
-import { responseTypes } from "../consts/requestTypes.consts";
 import { getExtLocalDbPath } from "../db/dbHelper";
+import { ITlsCertificate } from "../types/common.types";
+import { responseTypes } from "../consts/requestTypes.consts";
+import { variableEncryptionKeyCache } from "./commonConfig";
+import * as vscode from "vscode";
+
+export const SESSION_ID = vscode?.env?.sessionId;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -23,13 +27,6 @@ interface ThemeResponse {
 	type: string;
 	theme: vscode.ColorThemeKind;
 }
-
-// ---------------------------------------------------------------------------
-// Module-level state
-// ---------------------------------------------------------------------------
-
-let variableEncryptionConfiguration = false;
-let variableEncryptionKeyCache = "";
 
 // ---------------------------------------------------------------------------
 // Internal helper
@@ -71,6 +68,10 @@ export function getVSCodeTheme(): ThemeResponse {
 
 export function getSSLConfiguration(): boolean {
 	return getFetchClientConfiguration().get<boolean>("SSLCheck", true);
+}
+
+export function getTlsCertificate(): ITlsCertificate[] {
+	return getFetchClientConfiguration().get<ITlsCertificate[]>("tlsConfiguration", []);
 }
 
 export function getHistoryLimitConfiguration(): string {
@@ -172,6 +173,14 @@ export function getExportCollectionConfiguration(): boolean {
 	);
 }
 
+export function getSecretCacheTtlMs(): number {
+  return getFetchClientConfiguration().get<number>("secretsCacheDuration", 0);
+}
+
+export function getFallbackRegion(): string | undefined {
+  return getFetchClientConfiguration().get<string>("awsDefaultRegion");
+}
+
 export function updateVariableEncryptionKey(key: string) {
 	return getFetchClientConfiguration().update(
 		"variableEncryptionKey",
@@ -186,22 +195,6 @@ export function updateVariableEncryption(shouldEncrypt: boolean) {
 		shouldEncrypt,
 		vscode.ConfigurationTarget.Global,
 	);
-}
-
-// ---------------------------------------------------------------------------
-// Variable encryption state (set once on activation, updated on config change)
-// ---------------------------------------------------------------------------
-
-export function setVariableEncryptionConfiguration(enabled: boolean): void {
-	variableEncryptionConfiguration = enabled;
-}
-
-export function getVariableEncryptionConfiguration(): boolean {
-	return variableEncryptionConfiguration;
-}
-
-export function setVariableEncryptionKey(key: string): void {
-	variableEncryptionKeyCache = key;
 }
 
 // ---------------------------------------------------------------------------
