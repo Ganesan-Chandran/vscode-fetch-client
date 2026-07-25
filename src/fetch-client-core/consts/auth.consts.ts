@@ -1,4 +1,8 @@
-import { ClientAuth, CodeChallengeMethod, GrantType } from "../types/auth.types";
+import {
+	ClientAuth,
+	CodeChallengeMethod,
+	GrantType,
+} from "../types/auth.types";
 
 export const apiKeyAddTo = [
 	{ name: "Query Params", value: "queryparams" },
@@ -7,7 +11,10 @@ export const apiKeyAddTo = [
 
 export const grantTypeOpt = [
 	{ name: "Authorization Code", value: GrantType.Authorization_Code },
-	{ name: "Authorization Code (PKCE)", value: GrantType.Authorization_Code_PKCE },
+	{
+		name: "Authorization Code (PKCE)",
+		value: GrantType.Authorization_Code_PKCE,
+	},
 	{ name: "Password Credentials", value: GrantType.PWD_Crd },
 	{ name: "Client Credentials", value: GrantType.Client_Crd },
 ];

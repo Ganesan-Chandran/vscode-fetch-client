@@ -1,13 +1,22 @@
 import "./style.css";
 import { IRootState } from "../../../../../reducer/combineReducer";
-import { ITestResult, IPreFetchResponse } from "../../../../../../fetch-client-core/types/response.types";
+import {
+	ITestResult,
+	IPreFetchResponse,
+} from "../../../../../../fetch-client-core/types/response.types";
 import { useSelector } from "react-redux";
 import React, { useMemo, useState } from "react";
 
 export const PreFetchResponse = () => {
-	const { preFetchResponse } = useSelector((state: IRootState) => state.responseData);
-	const parentPreFecthCount = useSelector((state: IRootState) => state.reqColData)?.parentSettings?.preFetch?.requests?.length;
-	const { skipParentPreFetch } = useSelector((state: IRootState) => state.reqSettings);
+	const { preFetchResponse } = useSelector(
+		(state: IRootState) => state.responseData,
+	);
+	const parentPreFecthCount = useSelector(
+		(state: IRootState) => state.reqColData,
+	)?.parentSettings?.preFetch?.requests?.length;
+	const { skipParentPreFetch } = useSelector(
+		(state: IRootState) => state.reqSettings,
+	);
 	const [expand, setExpand] = useState(false);
 
 	function onExpandPanel() {
@@ -30,7 +39,9 @@ export const PreFetchResponse = () => {
 		const walk = (items?: IPreFetchResponse[]) => {
 			items?.forEach((item) => {
 				item.testResults?.forEach((t) => {
-					if (t.test === "") { return; }
+					if (t.test === "") {
+						return;
+					}
 					t.result ? pass++ : fail++;
 				});
 				if (item.reqId && item.reqId !== "-1") {
@@ -62,13 +73,13 @@ export const PreFetchResponse = () => {
 		);
 	};
 
-	function getPreFetchResponseBody(
-		preFetchRes: IPreFetchResponse[]
-	) {
+	function getPreFetchResponseBody(preFetchRes: IPreFetchResponse[]) {
 		return (
 			<>
 				{preFetchRes?.map((item, index) => {
-					const conditionPassed = item.reqId !== "-1" || item.testResults.filter((i) => !i.result).length === 0;
+					const conditionPassed =
+						item.reqId !== "-1" ||
+						item.testResults.filter((i) => !i.result).length === 0;
 					const requestPassed = item.resStatus < 400 && item.reqId !== "-1";
 
 					return (
@@ -81,9 +92,7 @@ export const PreFetchResponse = () => {
 									<summary className="prefetch-response-items">
 										<span className="pf-scope-tag condition">Condition</span>
 										{item.isParentReq && (
-											<span className="pf-scope-tag collection">
-												Parent
-											</span>
+											<span className="pf-scope-tag collection">Parent</span>
 										)}
 										<span className="pf-node-label">
 											{getLabelName(index, "Condition")}
@@ -98,7 +107,9 @@ export const PreFetchResponse = () => {
 								</details>
 							)}
 
-							{((item.isParentReq && item.name && (item.reqId || item.reqId === "-1")) ||
+							{((item.isParentReq &&
+								item.name &&
+								(item.reqId || item.reqId === "-1")) ||
 								(!item.isParentReq && item.reqId && item.reqId !== "-1")) &&
 								(() => {
 									const hasChildren = item.childrenResponse?.length > 0;
@@ -106,9 +117,7 @@ export const PreFetchResponse = () => {
 										<>
 											<span className="pf-scope-tag request">Pre-request</span>
 											{item.isParentReq && (
-												<span className="pf-scope-tag collection">
-													Parent
-												</span>
+												<span className="pf-scope-tag collection">Parent</span>
 											)}
 											<span className="pf-node-label">
 												{getLabelName(index, "Pre-request")}: {item.name}
@@ -158,9 +167,7 @@ export const PreFetchResponse = () => {
 
 	if (preFetchResponse?.length === 0) {
 		return (
-			<div className="prefetch-empty">
-				No pre-request results available.
-			</div>
+			<div className="prefetch-empty">No pre-request results available.</div>
 		);
 	}
 

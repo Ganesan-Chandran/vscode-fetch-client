@@ -23,11 +23,17 @@ export async function replaceValueWithVariable(
 	request.url = await replaceDataWithVariable(request.url, varData);
 
 	if (request.params.some((item) => item.isChecked)) {
-		request.params = await replaceTableDataWithVariable(request.params, varData);
+		request.params = await replaceTableDataWithVariable(
+			request.params,
+			varData,
+		);
 	}
 
 	if (request.headers.some((item) => item.isChecked)) {
-		request.headers = await replaceTableDataWithVariable(request.headers, varData);
+		request.headers = await replaceTableDataWithVariable(
+			request.headers,
+			varData,
+		);
 	}
 
 	request.auth.userName = await replaceDataWithVariable(
@@ -67,17 +73,47 @@ export async function replaceValueWithVariable(
 	}
 
 	if (request.auth?.oauth) {
-		request.auth.oauth.authorizationUrl = await replaceDataWithVariable(request.auth.oauth.authorizationUrl, varData);
-		request.auth.oauth.username = await replaceDataWithVariable(request.auth.oauth.username, varData);
-		request.auth.oauth.tokenUrl = await replaceDataWithVariable(request.auth.oauth.tokenUrl, varData);
-		request.auth.oauth.tokenName = await replaceDataWithVariable(request.auth.oauth.tokenName, varData);
-		request.auth.oauth.scope = await replaceDataWithVariable(request.auth.oauth.scope, varData);
-		request.auth.oauth.password = await replaceDataWithVariable(request.auth.oauth.password, varData);
-		request.auth.oauth.clientSecret = await replaceDataWithVariable(request.auth.oauth.clientSecret, varData);
-		request.auth.oauth.clientId = await replaceDataWithVariable(request.auth.oauth.clientId, varData);
+		request.auth.oauth.authorizationUrl = await replaceDataWithVariable(
+			request.auth.oauth.authorizationUrl,
+			varData,
+		);
+		request.auth.oauth.username = await replaceDataWithVariable(
+			request.auth.oauth.username,
+			varData,
+		);
+		request.auth.oauth.tokenUrl = await replaceDataWithVariable(
+			request.auth.oauth.tokenUrl,
+			varData,
+		);
+		request.auth.oauth.tokenName = await replaceDataWithVariable(
+			request.auth.oauth.tokenName,
+			varData,
+		);
+		request.auth.oauth.scope = await replaceDataWithVariable(
+			request.auth.oauth.scope,
+			varData,
+		);
+		request.auth.oauth.password = await replaceDataWithVariable(
+			request.auth.oauth.password,
+			varData,
+		);
+		request.auth.oauth.clientSecret = await replaceDataWithVariable(
+			request.auth.oauth.clientSecret,
+			varData,
+		);
+		request.auth.oauth.clientId = await replaceDataWithVariable(
+			request.auth.oauth.clientId,
+			varData,
+		);
 		if (request.auth?.oauth?.advancedOpt) {
-			request.auth.oauth.advancedOpt.audience = await replaceDataWithVariable(request.auth.oauth.advancedOpt?.audience, varData);
-			request.auth.oauth.advancedOpt.resource = await replaceDataWithVariable(request.auth.oauth.advancedOpt?.resource, varData);
+			request.auth.oauth.advancedOpt.audience = await replaceDataWithVariable(
+				request.auth.oauth.advancedOpt?.audience,
+				varData,
+			);
+			request.auth.oauth.advancedOpt.resource = await replaceDataWithVariable(
+				request.auth.oauth.advancedOpt?.resource,
+				varData,
+			);
 		}
 	}
 
@@ -139,7 +175,8 @@ export function replaceAuthSettingsInRequest(
 			request.auth.aws.sessionToken = settings.auth.aws.sessionToken;
 		}
 		if (request.auth.oauth && settings.auth.oauth) {
-			request.auth.oauth.authorizationUrl = settings.auth.oauth.authorizationUrl;
+			request.auth.oauth.authorizationUrl =
+				settings.auth.oauth.authorizationUrl;
 			request.auth.oauth.clientAuth = settings.auth.oauth.clientAuth;
 			request.auth.oauth.clientId = settings.auth.oauth.clientId;
 			request.auth.oauth.clientSecret = settings.auth.oauth.clientSecret;
@@ -149,8 +186,10 @@ export function replaceAuthSettingsInRequest(
 			request.auth.oauth.tokenName = settings.auth.oauth.tokenName;
 			request.auth.oauth.tokenUrl = settings.auth.oauth.tokenUrl;
 			request.auth.oauth.username = settings.auth.oauth.username;
-			request.auth.oauth.advancedOpt.audience = settings.auth.oauth?.advancedOpt?.audience;
-			request.auth.oauth.advancedOpt.resource = settings.auth.oauth?.advancedOpt?.resource;
+			request.auth.oauth.advancedOpt.audience =
+				settings.auth.oauth?.advancedOpt?.audience;
+			request.auth.oauth.advancedOpt.resource =
+				settings.auth.oauth?.advancedOpt?.resource;
 		}
 	}
 
@@ -212,7 +251,6 @@ async function updateVariable(
 	data: string,
 	varData: Record<string, string>,
 ): Promise<string> {
-
 	if (item.startsWith("{{#") && item.includes("}}")) {
 		return replaceSysVariable(item, data);
 	}

@@ -8,7 +8,12 @@ export const SUPPORTED_EXPORT_FORMATS: readonly ExportFormat[] = [
 	"nunit",
 ] as const;
 
-export const PERF_EXPORT_FORMATS: ExportFormat[] = ["json", "csv", "html", "xml"];
+export const PERF_EXPORT_FORMATS: ExportFormat[] = [
+	"json",
+	"csv",
+	"html",
+	"xml",
+];
 
 export const EXTENSION_BY_FORMAT: Record<ExportFormat, string> = {
 	csv: "csv",
@@ -18,4 +23,10 @@ export const EXTENSION_BY_FORMAT: Record<ExportFormat, string> = {
 	nunit: "xml",
 };
 
-export const DD_EXPORT_FORMATS = ["json", "csv", "html", "xml", "nunit"] as const;
+export const DD_EXPORT_FORMATS = [
+	"json",
+	"csv",
+	"html",
+	"xml",
+	"nunit",
+] as const;

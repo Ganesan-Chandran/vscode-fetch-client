@@ -7,7 +7,12 @@ import {
 	exportPerfXml,
 } from "../../../fetch-client-core/utils/performanceTestService/perfHelper";
 import { ExportFormat } from "../../../fetch-client-core/consts/export.consts";
-import { IPerfConfig, IPerfResultPoint, IPerfMetrics, IPerfEndpointMetrics } from "../../../fetch-client-core/types/perfTest.types";
+import {
+	IPerfConfig,
+	IPerfResultPoint,
+	IPerfMetrics,
+	IPerfEndpointMetrics,
+} from "../../../fetch-client-core/types/perfTest.types";
 import { printPerfSummary } from "../display";
 import { writeConsoleLog } from "../logger";
 import { writeReportFile } from "../export/report";
@@ -33,7 +38,11 @@ function buildPerfExportContent(
 		case "xml":
 			return exportPerfXml(config, results, metrics, breakdown, testName);
 		case "json":
-			return JSON.stringify(exportPerfJson(config, results, metrics, breakdown, testName), null, 2);
+			return JSON.stringify(
+				exportPerfJson(config, results, metrics, breakdown, testName),
+				null,
+				2,
+			);
 		default: {
 			throw new Error(`Unsupported perf export format: ${format}`);
 		}
@@ -49,7 +58,10 @@ export async function finalizePerfTest(
 	opts: PerfFinalizeOptions,
 ): Promise<void> {
 	const metrics: IPerfMetrics = computeMetrics(results, elapsedSec);
-	const breakdown: IPerfEndpointMetrics[] = computeEndpointBreakdown(results, elapsedSec);
+	const breakdown: IPerfEndpointMetrics[] = computeEndpointBreakdown(
+		results,
+		elapsedSec,
+	);
 
 	printPerfSummary(metrics, breakdown, status);
 

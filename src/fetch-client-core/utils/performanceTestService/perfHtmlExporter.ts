@@ -15,7 +15,8 @@ function buildResponseTimeSvg(points: number[]): string {
 	const height = 160;
 	const padding = 10;
 	const max = Math.max(...points, 1);
-	const stepX = points.length > 1 ? (width - padding * 2) / (points.length - 1) : 0;
+	const stepX =
+		points.length > 1 ? (width - padding * 2) / (points.length - 1) : 0;
 
 	const coords = points.map((p, i) => {
 		const x = padding + i * stepX;

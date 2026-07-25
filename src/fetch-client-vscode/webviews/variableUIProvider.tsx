@@ -6,10 +6,17 @@ import {
 	UpdateVariable,
 } from "../db/varDBUtil";
 import { GetCollectionsByVariable } from "../db/collectionDBUtil";
-import { requestTypes, responseTypes } from "../../fetch-client-core/consts/requestTypes.consts";
+import {
+	requestTypes,
+	responseTypes,
+} from "../../fetch-client-core/consts/requestTypes.consts";
 import { sideBarProvider } from "../../extension";
 import * as vscode from "vscode";
-import { clearAwsSecretCache, handleAwsCheckConnectivity, handleAwsFetchAndCache } from "../../fetch-client-core/utils/secretMangerService/awsConnectivityService";
+import {
+	clearAwsSecretCache,
+	handleAwsCheckConnectivity,
+	handleAwsFetchAndCache,
+} from "../../fetch-client-core/utils/secretMangerService/awsConnectivityService";
 
 export class VariablePanel {
 	public static currentPanel: VariablePanel | undefined;
@@ -19,7 +26,11 @@ export class VariablePanel {
 	private _disposables: vscode.Disposable[] = [];
 	private _currentId: string | undefined;
 
-	public static createOrShow(extensionUri: vscode.Uri, type: string, id?: string) {
+	public static createOrShow(
+		extensionUri: vscode.Uri,
+		type: string,
+		id?: string,
+	) {
 		const column = vscode.window.activeTextEditor
 			? vscode.window.activeTextEditor.viewColumn
 			: undefined;
@@ -40,13 +51,15 @@ export class VariablePanel {
 			{ enableScripts: true, retainContextWhenHidden: true },
 		);
 
-		const iconUri = vscode.Uri.joinPath(
-			extensionUri,
-			"icons/fetch-client.png",
-		);
+		const iconUri = vscode.Uri.joinPath(extensionUri, "icons/fetch-client.png");
 		panel.iconPath = iconUri;
 
-		VariablePanel.currentPanel = new VariablePanel(panel, extensionUri, type, id);
+		VariablePanel.currentPanel = new VariablePanel(
+			panel,
+			extensionUri,
+			type,
+			id,
+		);
 	}
 
 	public static kill() {
@@ -111,11 +124,7 @@ export class VariablePanel {
 			} else if (reqData.type === requestTypes.updateVariableRequest) {
 				UpdateVariable(reqData.data, this._panel.webview);
 			} else if (reqData.type === requestTypes.saveVariableRequest) {
-				SaveVariable(
-					reqData.data,
-					this._panel.webview,
-					sideBarProvider.view,
-				);
+				SaveVariable(reqData.data, this._panel.webview, sideBarProvider.view);
 			} else if (reqData.type === requestTypes.getAllVariableRequest) {
 				GetAllVariable(this._panel.webview);
 			} else if (reqData.type === requestTypes.awsCheckConnectivityRequest) {
@@ -132,7 +141,10 @@ export class VariablePanel {
 				});
 			} else if (reqData.type === requestTypes.clearSecretCacheRequest) {
 				const results = clearAwsSecretCache(reqData.data.targets);
-				this._panel.webview.postMessage({ type: responseTypes.clearSecretCacheResponse, results });
+				this._panel.webview.postMessage({
+					type: responseTypes.clearSecretCacheResponse,
+					results,
+				});
 			}
 		});
 	}

@@ -17,7 +17,7 @@ function renderBreakdown(breakdown: IPerfEndpointMetrics[]): string {
 	return `\n  <endpointBreakdown>\n${breakdown
 		.map(
 			(b) =>
-				`    <endpoint requestId="${escapeXml(b.requestId)}" requestName="${escapeXml(b.requestName)}" url="${escapeXml(b.url)}" method="${escapeXml(b.method)}" ${renderMetricsAttrs(b)} />`,
+				`			<endpoint requestId="${escapeXml(b.requestId)}" requestName="${escapeXml(b.requestName)}" url="${escapeXml(b.url)}" method="${escapeXml(b.method)}" ${renderMetricsAttrs(b)} />`,
 		)
 		.join("\n")}\n  </endpointBreakdown>`;
 }
@@ -29,7 +29,7 @@ function renderRawResults(results: IPerfResultPoint[]): string {
 	return `\n  <rawResults>\n${results
 		.map(
 			(r) =>
-				`    <result wave="${r.wave}" vuIndex="${r.vuIndex}" requestId="${escapeXml(r.requestId)}" requestName="${escapeXml(r.requestName)}" url="${escapeXml(r.url)}" method="${escapeXml(r.method)}" status="${r.status}" statusText="${escapeXml(r.statusText)}" duration="${r.duration}" isError="${r.isError}" timestamp="${r.timestamp}" />`,
+				` 		<result wave="${r.wave}" vuIndex="${r.vuIndex}" requestId="${escapeXml(r.requestId)}" requestName="${escapeXml(r.requestName)}" url="${escapeXml(r.url)}" method="${escapeXml(r.method)}" status="${r.status}" statusText="${escapeXml(r.statusText)}" duration="${r.duration}" isError="${r.isError}" timestamp="${r.timestamp}" />`,
 		)
 		.join("\n")}\n  </rawResults>`;
 }
@@ -43,8 +43,8 @@ export function toPerfXml(
 ): string {
 	return `<?xml version="1.0" encoding="UTF-8"?>
 <perfTestReport name="${escapeXml(testName)}" scope="${escapeXml(config.scope)}" loadModel="${escapeXml(config.loadModel)}">
-  <config targetVUs="${config.targetVUs}" iterations="${config.iterations}" testDurationSec="${config.testDurationSec}" rampUpDurationSec="${config.rampUpDurationSec}" rampSteps="${config.rampSteps}" thinkTimeMs="${config.thinkTimeMs}" />
-  <summary ${renderMetricsAttrs(metrics)} />${renderBreakdown(breakdown)}${renderRawResults(results)}
+	<config targetVUs="${config.targetVUs}" iterations="${config.iterations}" testDurationSec="${config.testDurationSec}" rampUpDurationSec="${config.rampUpDurationSec}" rampSteps="${config.rampSteps}" thinkTimeMs="${config.thinkTimeMs}" />
+	<summary ${renderMetricsAttrs(metrics)} />${renderBreakdown(breakdown)}${renderRawResults(results)}
 </perfTestReport>
 `;
 }

@@ -13,7 +13,11 @@ import {
 import { getHttpsAgent } from "./httpsAgent";
 import { ITableData } from "../types/common.types";
 import { logDetails } from "../helpers/logger/requestLog";
-import { replaceAuthSettingsInRequest, replaceHeaderSettingsInRequest, replaceValueWithVariable } from "../helpers/variable.server.helper";
+import {
+	replaceAuthSettingsInRequest,
+	replaceHeaderSettingsInRequest,
+	replaceValueWithVariable,
+} from "../helpers/variable.server.helper";
 import { Request as awsRequest, sign } from "aws4";
 import { responseTypes } from "../consts/requestTypes.consts";
 import { writeLog } from "../helpers/logger/logger";
@@ -85,7 +89,7 @@ export const apiFetch = async (
 	let fetchDuration = 0;
 	let reqData: RequestBody = "";
 
-	let request = updateAuthSettings(requestData, settings);	
+	let request = updateAuthSettings(requestData, settings);
 	request = await updateVariables(request, variableData);
 
 	if (!reqSettings || !reqSettings.skipParentHeaders) {
@@ -239,7 +243,7 @@ export const apiFetch = async (
 				responseType: "arraybuffer",
 				maxContentLength: Infinity,
 				maxBodyLength: Infinity,
-				httpsAgent
+				httpsAgent,
 			};
 		} else {
 			requestConfig = {
@@ -249,9 +253,9 @@ export const apiFetch = async (
 				auth:
 					request.auth.authType === "basic"
 						? {
-							username: request.auth.userName,
-							password: request.auth.password,
-						}
+								username: request.auth.userName,
+								password: request.auth.password,
+							}
 						: undefined,
 				data: reqData,
 				validateStatus: () => true,
@@ -260,7 +264,7 @@ export const apiFetch = async (
 				responseType: "arraybuffer",
 				maxContentLength: Infinity,
 				maxBodyLength: Infinity,
-				httpsAgent
+				httpsAgent,
 			};
 		}
 

@@ -1,7 +1,15 @@
-import { buildExportReport, renderReport, slugify, timestampForFilename } from "../../../fetch-client-core/helpers/exporters/reports/reportBuilder";
+import {
+	buildExportReport,
+	renderReport,
+	slugify,
+	timestampForFilename,
+} from "../../../fetch-client-core/helpers/exporters/reports/reportBuilder";
 import { cliConfig } from "../../config";
 import { ExportContext } from "../../../fetch-client-core/types/export.types";
-import { ExportFormat, EXTENSION_BY_FORMAT } from "../../../fetch-client-core/consts/export.consts";
+import {
+	ExportFormat,
+	EXTENSION_BY_FORMAT,
+} from "../../../fetch-client-core/consts/export.consts";
 import { RunResult } from "../../../fetch-client-core/types/cli.types";
 import { wrtieConsleError } from "../logger";
 import * as fs from "fs/promises";
@@ -17,7 +25,9 @@ const EXPORT_DIR_NAME = "fetch-client-exports";
  * resolveDbPath() always returns a directory (custom path, workspace path, or the
  * default VS Code global-storage path are all directories) - never a file path.
  */
-export async function resolveExportDirectory(customPath?: string): Promise<string> {
+export async function resolveExportDirectory(
+	customPath?: string,
+): Promise<string> {
 	if (customPath) {
 		return path.resolve(customPath);
 	}
@@ -43,8 +53,7 @@ export async function writeExportReport(
 		await fs.writeFile(filePath, content, "utf-8");
 
 		return filePath;
-	}
-	catch (err) {
+	} catch (err) {
 		wrtieConsleError(err);
 		process.exit(1);
 	}
@@ -59,8 +68,7 @@ export async function writeReportFile(
 	const directory = await resolveExportDirectory(customExportPath);
 	await fs.mkdir(directory, { recursive: true });
 
-	const fileName =
-		`${fileNameParts.scope}-${slugify(fileNameParts.name)}-${fileNameParts.format}-${timestampForFilename()}.${extension}`;
+	const fileName = `${fileNameParts.scope}-${slugify(fileNameParts.name)}-${fileNameParts.format}-${timestampForFilename()}.${extension}`;
 	const filePath = path.join(directory, fileName);
 
 	await fs.writeFile(filePath, content, "utf-8");

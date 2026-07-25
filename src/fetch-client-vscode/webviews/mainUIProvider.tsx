@@ -175,7 +175,7 @@ export class WebAppPanel {
 						colId: colId,
 						folId: folderId,
 						id: id,
-						varId: ""
+						varId: "",
 					});
 				}
 			},
@@ -385,9 +385,13 @@ export class WebAppPanel {
 						oauthAuthorizationService.start(this._panel.webview, message.data);
 					} else if (message.type === requestTypes.themeRequest) {
 						this._panel.webview.postMessage(getVSCodeTheme());
-					} else if (message.type === requestTypes.getCollectionsByIdWithPathRequest) {
+					} else if (
+						message.type === requestTypes.getCollectionsByIdWithPathRequest
+					) {
 						GetAllCollectionsByIdWithPath(message.data, this._panel.webview);
-					} else if (message.type === requestTypes.getAllCollectionNameRequest) {
+					} else if (
+						message.type === requestTypes.getAllCollectionNameRequest
+					) {
 						GetAllCollectionName(this._panel.webview, message.data);
 					} else if (message.type === requestTypes.resolveVariableRequest) {
 						const { request, varData, requestId } = message;
@@ -413,7 +417,7 @@ export class WebAppPanel {
 			id: id,
 			colId: colId,
 			folderId: folderId,
-			varId: ""
+			varId: "",
 		});
 
 		if (WebAppPanel.currentPanel === this) {

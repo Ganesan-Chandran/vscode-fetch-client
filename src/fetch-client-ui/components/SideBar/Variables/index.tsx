@@ -170,8 +170,8 @@ export const VariableSection = (props: IVariableProps) => {
 	}
 
 	useEffect(() => {
-			setSelectedItem(props.selectedItem.varId);
-		}, [props.selectedItem]);
+		setSelectedItem(props.selectedItem.varId);
+	}, [props.selectedItem]);
 
 	function getVariableItems(item: IVariable, index: number) {
 		return (

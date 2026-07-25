@@ -5,7 +5,7 @@ export const requestTypes = {
 	addToCollectionsRequest: "addToCollectionsRequest",
 	apiRequest: "apiRequest",
 	attachVariableRequest: "attachVariableRequest",
-	autoRequestUIOpenRequest: "autoRequestUIOpenRequest", 
+	autoRequestUIOpenRequest: "autoRequestUIOpenRequest",
 	awsCheckConnectivityRequest: "awsCheckConnectivityRequest",
 	awsFetchAndCacheRequest: "awsFetchAndCacheRequest",
 	bulkColExportRequest: "bulkColExportRequest",

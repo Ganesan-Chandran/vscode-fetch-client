@@ -106,28 +106,33 @@ export const DataDrivenTestSettings: React.FC<IProps> = ({
 					)}
 					{parseResult && !parseResult.error && (
 						<span className="dd-row-count dd-status-ok">
-							✓ {parseResult.rowCount} row{parseResult.rowCount !== 1 ? "s" : ""} loaded
+							✓ {parseResult.rowCount} row
+							{parseResult.rowCount !== 1 ? "s" : ""} loaded
 						</span>
 					)}
-				{fileLoadError && (
-					<span className="dd-row-count dd-status-error">
-						✗ {fileLoadError}
-					</span>
-				)}
-				{parseResult?.error && (
-					<span className="dd-row-count dd-status-error">
-						✗ {parseResult.error}
-					</span>
-				)}
-			</div>
-			{parseResult && !parseResult.error && parseResult.columns.length > 0 && (
-				<div className="dd-columns-preview">
-					<span className="dd-columns-label">Columns: </span>
-					{parseResult.columns.map((col) => (
-						<code key={col} className="dd-col-chip">{col}</code>
-					))}
+					{fileLoadError && (
+						<span className="dd-row-count dd-status-error">
+							✗ {fileLoadError}
+						</span>
+					)}
+					{parseResult?.error && (
+						<span className="dd-row-count dd-status-error">
+							✗ {parseResult.error}
+						</span>
+					)}
 				</div>
-			)}
+				{parseResult &&
+					!parseResult.error &&
+					parseResult.columns.length > 0 && (
+						<div className="dd-columns-preview">
+							<span className="dd-columns-label">Columns: </span>
+							{parseResult.columns.map((col) => (
+								<code key={col} className="dd-col-chip">
+									{col}
+								</code>
+							))}
+						</div>
+					)}
 			</div>
 
 			<div className="perf-settings-delay-panel">

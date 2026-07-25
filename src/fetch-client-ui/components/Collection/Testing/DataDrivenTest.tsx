@@ -7,12 +7,8 @@ import {
 	exportDataDrivenNUnit,
 	exportDataDrivenXml,
 } from "../../../../fetch-client-core/utils/dataDrivenTestService/dataDrivenExport";
-import {
-	parseDataFile,
-} from "../../../../fetch-client-core/utils/dataDrivenTestService/dataDrivenParser";
-import {
-	validateVariables,
-} from "../../../../fetch-client-core/utils/dataDrivenTestService/dataDrivenVariables";
+import { parseDataFile } from "../../../../fetch-client-core/utils/dataDrivenTestService/dataDrivenParser";
+import { validateVariables } from "../../../../fetch-client-core/utils/dataDrivenTestService/dataDrivenVariables";
 import {
 	CsvSeparator,
 	DataFileFormat,
@@ -42,41 +38,55 @@ const DataDrivenTest = () => {
 
 	const [req, setReq] = useState<IRequestModel[]>([]);
 	const refReq = useRef(req);
-	useEffect(() => { refReq.current = req; }, [req]);
+	useEffect(() => {
+		refReq.current = req;
+	}, [req]);
 
 	const [selectedReq, setSelectedReq] = useState<boolean[]>([]);
 	const refSelectedReq = useRef(selectedReq);
-	useEffect(() => { refSelectedReq.current = selectedReq; }, [selectedReq]);
+	useEffect(() => {
+		refSelectedReq.current = selectedReq;
+	}, [selectedReq]);
 
 	const [fileFormat, setFileFormat] = useState<DataFileFormat>("csv");
 	const refFileFormat = useRef(fileFormat);
-	useEffect(() => { refFileFormat.current = fileFormat; }, [fileFormat]);
+	useEffect(() => {
+		refFileFormat.current = fileFormat;
+	}, [fileFormat]);
 
 	const [csvSeparator, setCsvSeparator] = useState<CsvSeparator>(",");
 	const refCsvSeparator = useRef(csvSeparator);
-	useEffect(() => { refCsvSeparator.current = csvSeparator; }, [csvSeparator]);
+	useEffect(() => {
+		refCsvSeparator.current = csvSeparator;
+	}, [csvSeparator]);
 
 	const [fileName, setFileName] = useState("");
 
 	const [rawFileContent, setRawFileContent] = useState("");
 	const refRawFileContent = useRef(rawFileContent);
-	useEffect(() => { refRawFileContent.current = rawFileContent; }, [rawFileContent]);
+	useEffect(() => {
+		refRawFileContent.current = rawFileContent;
+	}, [rawFileContent]);
 
 	const [parseResult, setParseResult] = useState<IDataParseResult | null>(null);
 	const refParseResult = useRef(parseResult);
-	useEffect(() => { refParseResult.current = parseResult; }, [parseResult]);
+	useEffect(() => {
+		refParseResult.current = parseResult;
+	}, [parseResult]);
 
 	const [fileLoadError, setFileLoadError] = useState("");
 
 	const maxRows = 100;
 	const [stopOnRowFailure, setStopOnRowFailure] = useState(false);
 
-	const [validationResult, setValidationResult] = useState<IValidationResult | null>(null);
-
+	const [validationResult, setValidationResult] =
+		useState<IValidationResult | null>(null);
 
 	const [running, setRunning] = useState(false);
 	const refRunning = useRef(running);
-	useEffect(() => { refRunning.current = running; }, [running]);
+	useEffect(() => {
+		refRunning.current = running;
+	}, [running]);
 
 	const [done, setDone] = useState(false);
 	const [cancelled, setCancelled] = useState(false);
@@ -88,7 +98,9 @@ const DataDrivenTest = () => {
 		refResults.current = data;
 		_setResults(data);
 	};
-	const [finalResult, setFinalResult] = useState<IDataDrivenResult | null>(null);
+	const [finalResult, setFinalResult] = useState<IDataDrivenResult | null>(
+		null,
+	);
 
 	const [selectedTab, setSelectedTab] = useState<"Setup" | "Results">("Setup");
 
@@ -105,7 +117,9 @@ const DataDrivenTest = () => {
 		setVarId(varIdVal);
 
 		const handleMessage = (event: MessageEvent) => {
-			if (!event.data) { return; }
+			if (!event.data) {
+				return;
+			}
 
 			if (event.data.type === responseTypes.getCollectionsByIdResponse) {
 				const collections = event.data.collections as IRequestModel[];
@@ -113,7 +127,11 @@ const DataDrivenTest = () => {
 				setSelectedReq(collections.map(() => true));
 				setLoading(false);
 			} else if (event.data.type === responseTypes.selectFileResponse) {
-				const { path, fileData, error } = event.data as { path: string; fileData: string; error?: string };
+				const { path, fileData, error } = event.data as {
+					path: string;
+					fileData: string;
+					error?: string;
+				};
 				if (error) {
 					setFileLoadError(error);
 					setFileName("");
@@ -136,7 +154,9 @@ const DataDrivenTest = () => {
 				);
 				setParseResult(result);
 				setValidationResult(null);
-			} else if (event.data.type === responseTypes.dataDrivenRowResultResponse) {
+			} else if (
+				event.data.type === responseTypes.dataDrivenRowResultResponse
+			) {
 				const rowResult = event.data.data as IDataDrivenRowResult;
 				setResults([...refResults.current, rowResult]);
 			} else if (event.data.type === responseTypes.dataDrivenCompleteResponse) {
@@ -164,8 +184,7 @@ const DataDrivenTest = () => {
 		return () => window.removeEventListener("message", handleMessage);
 	}, []);
 
-	const getSelectedRequests = () =>
-		req.filter((_, i) => selectedReq[i]);
+	const getSelectedRequests = () => req.filter((_, i) => selectedReq[i]);
 
 	const buildRequestMap = (): Map<string, IRequestModel> =>
 		new Map<string, IRequestModel>(req.map((r) => [r.id, r]));
@@ -177,13 +196,18 @@ const DataDrivenTest = () => {
 		parseResult.rowCount > 0 &&
 		getSelectedRequests().length > 0;
 
-	const reparseCurrentFile = useCallback((fmt: DataFileFormat, sep: CsvSeparator) => {
-		const raw = refRawFileContent.current;
-		if (!raw) { return; }
-		const result = parseDataFile(raw, fmt, sep);
-		setParseResult(result);
-		setValidationResult(null);
-	}, []);
+	const reparseCurrentFile = useCallback(
+		(fmt: DataFileFormat, sep: CsvSeparator) => {
+			const raw = refRawFileContent.current;
+			if (!raw) {
+				return;
+			}
+			const result = parseDataFile(raw, fmt, sep);
+			setParseResult(result);
+			setValidationResult(null);
+		},
+		[],
+	);
 
 	function onBrowseFile() {
 		vscode.postMessage({ type: requestTypes.selectFileRequest });
@@ -215,7 +239,9 @@ const DataDrivenTest = () => {
 	}
 
 	function onRun() {
-		if (!canRun()) { return; }
+		if (!canRun()) {
+			return;
+		}
 
 		setResults([]);
 		setFinalResult(null);
@@ -304,7 +330,10 @@ const DataDrivenTest = () => {
 	function onExportHtml() {
 		const result = finalResult ?? buildPartialResult();
 		const config: IDataDrivenConfig = {
-			fileFormat, csvSeparator, maxRows, stopOnRowFailure,
+			fileFormat,
+			csvSeparator,
+			maxRows,
+			stopOnRowFailure,
 			selectedRequestIds: getSelectedRequests().map((r) => r.id),
 		};
 		const html = exportDataDrivenHtml(result, config, sourceColName);
@@ -319,7 +348,10 @@ const DataDrivenTest = () => {
 	function onExportXml() {
 		const result = finalResult ?? buildPartialResult();
 		const config: IDataDrivenConfig = {
-			fileFormat, csvSeparator, maxRows, stopOnRowFailure,
+			fileFormat,
+			csvSeparator,
+			maxRows,
+			stopOnRowFailure,
 			selectedRequestIds: getSelectedRequests().map((r) => r.id),
 		};
 		const xml = exportDataDrivenXml(result, config, sourceColName);
@@ -344,10 +376,15 @@ const DataDrivenTest = () => {
 
 	function renderStatusBadge(status: number) {
 		let cls = "dd-status-badge";
-		if (status === 0) { cls += " dd-badge-error"; }
-		else if (status < 300) { cls += " dd-badge-ok"; }
-		else if (status < 400) { cls += " dd-badge-warn"; }
-		else { cls += " dd-badge-error"; }
+		if (status === 0) {
+			cls += " dd-badge-error";
+		} else if (status < 300) {
+			cls += " dd-badge-ok";
+		} else if (status < 400) {
+			cls += " dd-badge-warn";
+		} else {
+			cls += " dd-badge-error";
+		}
 		return <span className={cls}>{status || "ERR"}</span>;
 	}
 
@@ -447,7 +484,9 @@ const DataDrivenTest = () => {
 					<div
 						className={
 							"dd-validation-panel " +
-							(validationResult.valid ? "dd-validation-ok" : "dd-validation-fail")
+							(validationResult.valid
+								? "dd-validation-ok"
+								: "dd-validation-fail")
 						}
 					>
 						{validationResult.valid ? (
@@ -476,26 +515,30 @@ const DataDrivenTest = () => {
 				<div className="dd-notes-panel">
 					<div className="dd-notes-title">Notes</div>
 					<ul className="dd-notes-list">
-						<li>Maximum <strong>100 data rows</strong> are supported per run.</li>
+						<li>
+							Maximum <strong>100 data rows</strong> are supported per run.
+						</li>
 						<li>
 							<strong>JSON format</strong>: supports a top-level array{" "}
-							<code>{"[{...}]"}</code>, or an object with a{" "}
-							<code>data</code> / <code>rows</code> key.
+							<code>{"[{...}]"}</code>, or an object with a <code>data</code> /{" "}
+							<code>rows</code> key.
 						</li>
 						<li>
-							Variables set by pre-requests (setvar) must have an <strong>empty
-								column</strong> in your CSV / JSON - the runner will fill the value
-							at runtime.
+							Variables set by pre-requests (setvar) must have an{" "}
+							<strong>empty column</strong> in your CSV / JSON - the runner will
+							fill the value at runtime.
 						</li>
 						<li>
-							Variables from the attached collection variable set are merged with
-							the row data. <strong>Row data takes precedence.</strong>
+							Variables from the attached collection variable set are merged
+							with the row data. <strong>Row data takes precedence.</strong>
 						</li>
-						<li>Requests run <strong>sequentially</strong> per row.</li>
+						<li>
+							Requests run <strong>sequentially</strong> per row.
+						</li>
 						<li>
 							Use <em>Validate</em> to check that all{" "}
-							<code>{"{{variable}}"}</code> placeholders in selected requests are
-							present in your data file before running.
+							<code>{"{{variable}}"}</code> placeholders in selected requests
+							are present in your data file before running.
 						</li>
 					</ul>
 				</div>
@@ -529,7 +572,12 @@ const DataDrivenTest = () => {
 						Requests: <strong>{results.length}</strong>
 						{running && expectedRowCount > 0 && (
 							<span className="dd-progress-hint">
-								{" "}(row {Math.ceil(results.length / Math.max(1, getSelectedRequests().length))} / {expectedRowCount})
+								{" "}
+								(row{" "}
+								{Math.ceil(
+									results.length / Math.max(1, getSelectedRequests().length),
+								)}{" "}
+								/ {expectedRowCount})
 							</span>
 						)}
 					</span>
@@ -584,9 +632,7 @@ const DataDrivenTest = () => {
 									<td>{renderStatusBadge(r.status)}</td>
 									<td>{r.duration}</td>
 									<td>
-										{r.testTotal > 0
-											? `${r.testPassed}/${r.testTotal}`
-											: "-"}
+										{r.testTotal > 0 ? `${r.testPassed}/${r.testTotal}` : "-"}
 									</td>
 									<td>{renderPassBadge(r)}</td>
 									<td className="dd-error-cell" title={r.error}>
@@ -629,8 +675,7 @@ const DataDrivenTest = () => {
 				<button
 					key={tab}
 					className={
-						"dd-tab-btn" +
-						(selectedTab === tab ? " dd-tab-btn-active" : "")
+						"dd-tab-btn" + (selectedTab === tab ? " dd-tab-btn-active" : "")
 					}
 					onClick={() => setSelectedTab(tab)}
 				>
@@ -646,7 +691,12 @@ const DataDrivenTest = () => {
 				<>
 					<button
 						className="submit-button"
-						disabled={!parseResult || !!parseResult.error || getSelectedRequests().length === 0 || running}
+						disabled={
+							!parseResult ||
+							!!parseResult.error ||
+							getSelectedRequests().length === 0 ||
+							running
+						}
 						onClick={onValidate}
 					>
 						Validate

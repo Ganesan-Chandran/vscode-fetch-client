@@ -191,30 +191,32 @@ export const PreRequest = (props: IPreRequestProps) => {
 				id={"preReq_parameter_" + reqIndex.toString()}
 				onChange={(e) => onSelect(e, reqIndex, conIndex, "parameter")}
 			>
-				{reqIndex === 0 && preConditionsFirst.map((param: any, index: number) => {
-					return (
-						<option
-							disabled={index === 0 ? true : false}
-							hidden={index === 0 ? true : false}
-							key={index + param.name}
-							value={param.value}
-						>
-							{param.name}
-						</option>
-					);
-				})}
-				{reqIndex > 0 && preConditions.map((param: any, index: number) => {
-					return (
-						<option
-							disabled={index === 0 ? true : false}
-							hidden={index === 0 ? true : false}
-							key={index + param.name}
-							value={param.value}
-						>
-							{param.name}
-						</option>
-					);
-				})}
+				{reqIndex === 0 &&
+					preConditionsFirst.map((param: any, index: number) => {
+						return (
+							<option
+								disabled={index === 0 ? true : false}
+								hidden={index === 0 ? true : false}
+								key={index + param.name}
+								value={param.value}
+							>
+								{param.name}
+							</option>
+						);
+					})}
+				{reqIndex > 0 &&
+					preConditions.map((param: any, index: number) => {
+						return (
+							<option
+								disabled={index === 0 ? true : false}
+								hidden={index === 0 ? true : false}
+								key={index + param.name}
+								value={param.value}
+							>
+								{param.name}
+							</option>
+						);
+					})}
 			</select>
 		);
 	}

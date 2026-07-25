@@ -347,7 +347,9 @@ function mapAuth(auth: IAuth): IExportAuth {
 				type: "oauth2",
 				credentials: {
 					authorizationUrl: o.authorizationUrl,
-					...(o.grantType === "authorization_code_pkce" && { codeChallengeMethod: o.codeChallengeMethod }),
+					...(o.grantType === "authorization_code_pkce" && {
+						codeChallengeMethod: o.codeChallengeMethod,
+					}),
 					tokenName: o.tokenName,
 					tokenUrl: o.tokenUrl,
 					clientId: o.clientId,
@@ -618,7 +620,10 @@ function resolveContentType(ext: string, contentTypeOption: string): string {
  * cross-file dependencies. Replace with your existing `findItem` import
  * if preferred.
  */
-function findItem(source: { data?: any[] }, id: string): IFolder | IHistory | undefined {
+function findItem(
+	source: { data?: any[] },
+	id: string,
+): IFolder | IHistory | undefined {
 	for (const item of source.data ?? []) {
 		if (item.id === id) {
 			return item;

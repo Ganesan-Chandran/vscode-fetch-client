@@ -21,10 +21,12 @@ interface PendingAuthorization {
 }
 
 /** Handles browser redirects for OAuth authorization-code requests. */
-export class OAuthAuthorizationService implements vscode.UriHandler, vscode.Disposable {
+export class OAuthAuthorizationService
+	implements vscode.UriHandler, vscode.Disposable
+{
 	private readonly pending = new Map<string, PendingAuthorization>();
 
-	constructor(private readonly context: vscode.ExtensionContext) { }
+	constructor(private readonly context: vscode.ExtensionContext) {}
 
 	async start(
 		webview: vscode.Webview,
@@ -32,8 +34,14 @@ export class OAuthAuthorizationService implements vscode.UriHandler, vscode.Disp
 	): Promise<void> {
 		try {
 			const variables = request.variableData ?? {};
-			const authorizationUrl = await replaceDataWithVariable(request.authorizationUrl, variables);
-			const clientId = await replaceDataWithVariable(request.clientId, variables);
+			const authorizationUrl = await replaceDataWithVariable(
+				request.authorizationUrl,
+				variables,
+			);
+			const clientId = await replaceDataWithVariable(
+				request.clientId,
+				variables,
+			);
 			if (!authorizationUrl || !clientId) {
 				throw new Error("Authorization URL and Client ID are required.");
 			}
@@ -54,16 +62,23 @@ export class OAuthAuthorizationService implements vscode.UriHandler, vscode.Disp
 			if (request.usePkce) {
 				codeVerifier = randomBytes(48).toString("base64url");
 				const method = request.codeChallengeMethod ?? CodeChallengeMethod.S256;
-				const codeChallenge = method === CodeChallengeMethod.S256
-					? createHash("sha256").update(codeVerifier).digest("base64url")
-					: codeVerifier;
+				const codeChallenge =
+					method === CodeChallengeMethod.S256
+						? createHash("sha256").update(codeVerifier).digest("base64url")
+						: codeVerifier;
 				url.searchParams.set("code_challenge", codeChallenge);
 				url.searchParams.set("code_challenge_method", method);
 			}
 
 			const scope = await replaceDataWithVariable(request.scope, variables);
-			const audience = await replaceDataWithVariable(request.audience ?? "", variables);
-			const resource = await replaceDataWithVariable(request.resource ?? "", variables);
+			const audience = await replaceDataWithVariable(
+				request.audience ?? "",
+				variables,
+			);
+			const resource = await replaceDataWithVariable(
+				request.resource ?? "",
+				variables,
+			);
 			if (scope) {
 				url.searchParams.set("scope", scope);
 			}
@@ -75,7 +90,10 @@ export class OAuthAuthorizationService implements vscode.UriHandler, vscode.Disp
 			}
 
 			this.pending.set(state, { webview, codeVerifier, redirectUri });
-			await webview.postMessage({ type: "oauthAuthorizationStarted", redirectUri });
+			await webview.postMessage({
+				type: "oauthAuthorizationStarted",
+				redirectUri,
+			});
 			await vscode.env.openExternal(vscode.Uri.parse(url.toString()));
 		} catch (error) {
 			this.postError(webview, error);
@@ -83,7 +101,9 @@ export class OAuthAuthorizationService implements vscode.UriHandler, vscode.Disp
 	}
 
 	handleUri(uri: vscode.Uri): void {
-		const state = uri.query ? new URLSearchParams(uri.query).get("state") : undefined;
+		const state = uri.query
+			? new URLSearchParams(uri.query).get("state")
+			: undefined;
 		const pending = state ? this.pending.get(state) : undefined;
 		if (!pending) {
 			return;
@@ -94,7 +114,10 @@ export class OAuthAuthorizationService implements vscode.UriHandler, vscode.Disp
 		const error = params.get("error");
 		const code = params.get("code");
 		if (error || !code) {
-			this.postError(pending.webview, error ?? "The authorization server did not return a code.");
+			this.postError(
+				pending.webview,
+				error ?? "The authorization server did not return a code.",
+			);
 			return;
 		}
 		pending.webview.postMessage({

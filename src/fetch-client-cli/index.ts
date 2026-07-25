@@ -16,11 +16,33 @@ setTLSCertificates(cliConfig.tlsCertificate);
 
 // - 2. Lazy-import command handlers (DB repos are only called inside them) -
 import { checkDbFiles } from "./commands/check";
-import { DD_EXPORT_FORMATS, ExportFormat, SUPPORTED_EXPORT_FORMATS } from "../fetch-client-core/consts/export.consts";
-import { isSupportedDataDrivenExportFormat, isSupportedExportFormat } from "./types/export.types";
+import {
+	DD_EXPORT_FORMATS,
+	ExportFormat,
+	SUPPORTED_EXPORT_FORMATS,
+} from "../fetch-client-core/consts/export.consts";
+import {
+	isSupportedDataDrivenExportFormat,
+	isSupportedExportFormat,
+} from "./types/export.types";
 import { listCollections, listFolders, listVariables } from "./commands/list";
-import { perfCollection, perfCollectionFromFile, perfFolder, perfFolderFromFile, perfRequest, perfRequestFromFile } from "./commands/perf";
-import { runCollection, runFolder, runRequest, runCurl, runCollectionFromFile, runFolderFromFile, runRequestFromFile } from "./commands/run";
+import {
+	perfCollection,
+	perfCollectionFromFile,
+	perfFolder,
+	perfFolderFromFile,
+	perfRequest,
+	perfRequestFromFile,
+} from "./commands/perf";
+import {
+	runCollection,
+	runFolder,
+	runRequest,
+	runCurl,
+	runCollectionFromFile,
+	runFolderFromFile,
+	runRequestFromFile,
+} from "./commands/run";
 import { runDataDrivenCli } from "./commands/ddTest";
 import { writeConsoleLog, wrtieConsleError } from "./utils/logger";
 
@@ -33,61 +55,61 @@ const VERSION: string = require("./package.json").version;
 
 const HELP = `
 Fetch Client CLI v${VERSION}
- 
+
 Usage:  fc-cli <command> [options]
- 
+
 Commands:
 	list      List collections, folders, or variables
 	run       Execute requests, collections, folders, a raw curl string, or exported collection json file
 	check     Verify that all Fetch Client DB files are available
- 
+
 ── LIST ────────────────────────────────────────────────────────────────────────────────────────────
- 
+
 fc-cli list --col <name/id>                                     Filter collections by name or id
- 
+
 fc-cli list --fol <name/id>                                     Find folder by name or id
- 
+
 fc-cli list --var                                               List all variable sets
 fc-cli list --var <name/id>                                     Filter variable sets by name or id
- 
+
 ── RUN ─────────────────────────────────────────────────────────────────────────────────────────────
- 
+
 fc-cli run --req <name/id>                                      Run a request by name or id
 fc-cli run --req <name/id> --var <name/id>                      Override variable set (by name or id)
- 
+
 fc-cli run --col --all                                          Run every request in every collection
 fc-cli run --col <name/id>                                      Run all requests in a collection by name or id
 fc-cli run --col <name/id> --var <name/id>                      Run collection with a specific variable set (by name or id)
-                                                                Note: if the collection is already linked to a variable set,
-                                                                the linked variable takes priority and --var is ignored
-                                                                (an info message is printed).
- 
+																																Note: if the collection is already linked to a variable set,
+																																the linked variable takes priority and --var is ignored
+																																(an info message is printed).
+
 fc-cli run --fol <name/id>                                      Run all requests in a folder by name or id
 fc-cli run --fol <name/id> --var <name/id>                      Override variable set (by name or id)
-                                                                Note: same priority rule applies - linked variable wins.
- 
+																																Note: same priority rule applies - linked variable wins.
+
 fc-cli run --curl '<curl ...>'                                  Execute a raw curl command
- 
+
 ── RUN FROM EXPORTED COLLECTION ────────────────────────────────────────────────────────────────────
- 
+
 fc-cli run --file <collection.json>                             Run an exported collection
 fc-cli run --file <collection.json> --fol <name/id>             Run a folder
 fc-cli run --file <collection.json> --req <name/id>             Run a request
 fc-cli run --file <collection.json> --var-file <vars.json>      Override embedded variables
- 
+
 ── EXPORT ──────────────────────────────────────────────────────────────────────────────────────────
- 
+
 fc-cli run --req <name/id> --export <format> --var <name/id>    Export a detailed report after running
 fc-cli run --col <name/id> --export <format>                    Supported formats: csv, html, json, xml, nunit
 fc-cli run --col --all --export json --export-path <dir>        Export to a custom directory
-                                                                Notes:
-                                                                --export is only supported with --req, --col, and --fol.
-                                                                --export-path must be a directory. If omitted, reports are
-                                                                written to a "fetch-client-exports" folder alongside the
-                                                                Fetch Client database.
- 
+																																Notes:
+																																--export is only supported with --req, --col, and --fol.
+																																--export-path must be a directory. If omitted, reports are
+																																written to a "fetch-client-exports" folder alongside the
+																																Fetch Client database.
+
 ── LEGACY SYNTAX (still supported) ─────────────────────────────────────────────────────────────────
- 
+
 fc-cli run --col --name <name>                                  Same as: fc-cli run --col <name>
 fc-cli run --col --id <uuid>                                    Same as: fc-cli run --col <uuid>
 fc-cli run --fol --name <name>                                  Same as: fc-cli run --fol <name>
@@ -100,7 +122,7 @@ fc-cli list --var --name <name>                                 Same as: fc-cli 
 fc-cli list --var --id <uuid>                                   Same as: fc-cli list --var <uuid>
 
 ── PERF ────────────────────────────────────────────────────────────────────────────────────────────
- 
+
 fc-cli perf --req <name/id>                                       Load-test a single request
 fc-cli perf --col <name/id>                                       Load-test a whole collection
 fc-cli perf --fol <name/id>                                       Load-test a folder
@@ -109,27 +131,27 @@ fc-cli perf --file <collection.json>                              Load-test an e
 fc-cli perf --file <collection.json> --fol <name/id>              Load-test a folder within it
 fc-cli perf --file <collection.json> --req <name/id>              Load-test a request within it
 fc-cli perf --file <collection.json> --var-file <vars.json>       Override embedded variables
-                                                                   Note: --var/--var-id/--var-name are not
-                                                                   supported with --file (matches 'run --file').
- 
+																																	Note: --var/--var-id/--var-name are not
+																																	supported with --file (matches 'run --file').
+
 --load-model <fixed|duration|rampup|combined>   [default: fixed]      Load pattern to use
 --vus <n>                                       [default: 5]          Virtual users. Max 50.
-                                                                       (target VUs for rampup/combined)
+																																			(target VUs for rampup/combined)
 --iterations <n>                                [default: 10]         Waves per VU. Fixed model only. Max 1000.
 --duration <sec>                                [default: 30]         Hold/test duration. duration/combined only. Max 3600.
 --rampup-duration <sec>                         [default: 20]         Ramp-up window. rampup/combined only. Max 3600.
 --rampup-steps <n>                              [default: 5]          Steps within ramp-up. rampup/combined only.
-                                                                       Cannot exceed --vus (auto-clamped).
+																																			Cannot exceed --vus (auto-clamped).
 --think-time <ms>                               [default: 0]          Delay between waves. Max 300000.
 --export <json|csv|html|xml>                    [default: none]       Export a perf report after the test
 --export-path <dir>                             [default: fetch-client-exports folder]
- 
+
 Before running, the CLI prints the resolved configuration showing which values you
 set explicitly (user) vs. which fell back to defaults, plus any warnings about
 invalid, out-of-range, or irrelevant flags for the chosen load model.
- 
+
 Press Ctrl+C once to stop gracefully and print results so far; press it again to force-quit.
- 
+
 ── DATA-DRIVEN TEST ────────────────────────────────────────────────────────────────────────────────
 
 fc-cli dd --col <name/id> --data <file.csv|file.json>              Run every request in a collection once per data row
@@ -144,7 +166,7 @@ fc-cli dd --file <collection.json> --fol <name/id> --data <file>   Restrict to a
 --dd-separator <,|;|tab>                        [default: ,]           CSV column separator
 --stop-on-fail                                                        Stop the run as soon as a row fails
 --validate                                                            Check that all {{variables}} used are present as
-                                                                       columns in the data file, then exit without running
+																																			columns in the data file, then exit without running
 --var <name/id>                                                      Variable set to merge under the row data (row data wins)
 --export <json|csv|html|xml|nunit>              [default: none]       Export a data-driven report after the run
 --export-path <dir>                             [default: ./fetch-client-exports]
@@ -153,16 +175,16 @@ Maximum 100 data rows per run. Requests run sequentially per row, in collection/
 Press Ctrl+C once to stop gracefully and print results so far; press it again to force-quit.
 
 ── CHECK ───────────────────────────────────────────────────────────────────────────────────────────
- 
+
 fc-cli check                                                    Check if all DB files exist
- 
+
 ── OPTIONS ─────────────────────────────────────────────────────────────────────────────────────────
- 
+
 --help, -h                                                      Show this help message
 --version, -v                                                   Show CLI version
- 
+
 ── CONFIGURATION ───────────────────────────────────────────────────────────────────────────────────
- 
+
 By default the CLI locates the Fetch Client database at the standard
 VS Code global-storage path for this extension.
 `;
@@ -318,7 +340,9 @@ function parseArgs(argv: string[]): ParsedArgs {
 		// --name=value / --id=value / --curl=value / --var-id=value /
 		// --var-name=value / --export=value / --export-path=value
 		const eqMatch =
-			/^--(name|id|curl|file|var-file|var-id|var-name|export|export-path)=(.+)$/.exec(arg);
+			/^--(name|id|curl|file|var-file|var-id|var-name|export|export-path)=(.+)$/.exec(
+				arg,
+			);
 		if (eqMatch) {
 			const key = eqMatch[1].replace(/-([a-z])/g, (_, c) =>
 				c.toUpperCase(),
@@ -355,7 +379,8 @@ function parseArgs(argv: string[]): ParsedArgs {
 // - Name/id resolution helpers -
 
 // Matches standard UUIDs (any version/variant), e.g. the ids stored in the DB.
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_PATTERN =
+	/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function isUuid(value: string): boolean {
 	return UUID_PATTERN.test(value);
@@ -470,7 +495,9 @@ async function handleList(argv: ParsedArgs): Promise<void> {
 		const { name, id } = resolveEntityFilter(argv.name, argv.id, argv.folValue);
 
 		if (!name && !id) {
-			wrtieConsleError("'fc-cli list --fol' requires a name or id, e.g. 'fc-cli list --fol <name/id>'.");
+			wrtieConsleError(
+				"'fc-cli list --fol' requires a name or id, e.g. 'fc-cli list --fol <name/id>'.",
+			);
 			process.exit(1);
 		}
 
@@ -516,18 +543,20 @@ async function handleRun(argv: ParsedArgs): Promise<void> {
 
 	if (file) {
 		if (argv.col || argv.all) {
-			wrtieConsleError(
-				"'--col' and '--all' cannot be used with '--file'."
-			);
+			wrtieConsleError("'--col' and '--all' cannot be used with '--file'.");
 			process.exit(1);
 		}
 
 		if (argv.req) {
-			const { name, id } = resolveEntityFilter(argv.name, argv.id, argv.reqValue);
+			const { name, id } = resolveEntityFilter(
+				argv.name,
+				argv.id,
+				argv.reqValue,
+			);
 
 			if (!name && !id) {
 				wrtieConsleError(
-					"'fc-cli run --file' with '--req' requires a name or id, e.g. 'fc-cli run --file <file> --req <name/id>'."
+					"'fc-cli run --file' with '--req' requires a name or id, e.g. 'fc-cli run --file <file> --req <name/id>'.",
 				);
 				process.exit(1);
 			}
@@ -545,11 +574,15 @@ async function handleRun(argv: ParsedArgs): Promise<void> {
 		}
 
 		if (argv.fol) {
-			const { name, id } = resolveEntityFilter(argv.name, argv.id, argv.folValue);
+			const { name, id } = resolveEntityFilter(
+				argv.name,
+				argv.id,
+				argv.folValue,
+			);
 
 			if (!name && !id) {
 				wrtieConsleError(
-					"'fc-cli run --file' with '--fol' requires a name or id, e.g. 'fc-cli run --file <file> --fol <name/id>'."
+					"'fc-cli run --file' with '--fol' requires a name or id, e.g. 'fc-cli run --file <file> --fol <name/id>'.",
 				);
 				process.exit(1);
 			}
@@ -580,11 +613,17 @@ async function handleRun(argv: ParsedArgs): Promise<void> {
 		const { name, id } = resolveEntityFilter(argv.name, argv.id, argv.reqValue);
 
 		if (!name && !id) {
-			wrtieConsleError("'fc-cli run --req' requires a name or id, e.g. 'fc-cli run --req <name/id>'.");
+			wrtieConsleError(
+				"'fc-cli run --req' requires a name or id, e.g. 'fc-cli run --req <name/id>'.",
+			);
 			process.exit(1);
 		}
 
-		const { varId, varName } = resolveVarOverride(argv.varId, argv.varName, argv.varValue);
+		const { varId, varName } = resolveVarOverride(
+			argv.varId,
+			argv.varName,
+			argv.varValue,
+		);
 
 		await runRequest({
 			name,
@@ -599,7 +638,11 @@ async function handleRun(argv: ParsedArgs): Promise<void> {
 
 	if (argv.col) {
 		const { name, id } = resolveEntityFilter(argv.name, argv.id, argv.colValue);
-		const { varId, varName } = resolveVarOverride(argv.varId, argv.varName, argv.varValue);
+		const { varId, varName } = resolveVarOverride(
+			argv.varId,
+			argv.varName,
+			argv.varValue,
+		);
 
 		await runCollection({
 			all: argv.all,
@@ -615,10 +658,16 @@ async function handleRun(argv: ParsedArgs): Promise<void> {
 
 	if (argv.fol) {
 		const { name, id } = resolveEntityFilter(argv.name, argv.id, argv.folValue);
-		const { varId, varName } = resolveVarOverride(argv.varId, argv.varName, argv.varValue);
+		const { varId, varName } = resolveVarOverride(
+			argv.varId,
+			argv.varName,
+			argv.varValue,
+		);
 
 		if (!name && !id) {
-			wrtieConsleError("'fc-cli run --fol' requires a name or id, e.g. 'fc-cli run --fol <name/id>'.");
+			wrtieConsleError(
+				"'fc-cli run --fol' requires a name or id, e.g. 'fc-cli run --fol <name/id>'.",
+			);
 			process.exit(1);
 		}
 
@@ -662,38 +711,74 @@ async function handlePerf(argv: ParsedArgs): Promise<void> {
 		}
 
 		if (argv.req) {
-			const { name, id } = resolveEntityFilter(argv.name, argv.id, argv.reqValue);
-			await perfRequestFromFile({ ...perfOpts, file: argv.file, name, id, varFile: argv.varFile });
+			const { name, id } = resolveEntityFilter(
+				argv.name,
+				argv.id,
+				argv.reqValue,
+			);
+			await perfRequestFromFile({
+				...perfOpts,
+				file: argv.file,
+				name,
+				id,
+				varFile: argv.varFile,
+			});
 			return;
 		}
 
 		if (argv.fol) {
-			const { name, id } = resolveEntityFilter(argv.name, argv.id, argv.folValue);
-			await perfFolderFromFile({ ...perfOpts, file: argv.file, name, id, varFile: argv.varFile });
+			const { name, id } = resolveEntityFilter(
+				argv.name,
+				argv.id,
+				argv.folValue,
+			);
+			await perfFolderFromFile({
+				...perfOpts,
+				file: argv.file,
+				name,
+				id,
+				varFile: argv.varFile,
+			});
 			return;
 		}
 
-		await perfCollectionFromFile({ ...perfOpts, file: argv.file, varFile: argv.varFile });
+		await perfCollectionFromFile({
+			...perfOpts,
+			file: argv.file,
+			varFile: argv.varFile,
+		});
 		return;
 	}
 
 	if (argv.req) {
 		const { name, id } = resolveEntityFilter(argv.name, argv.id, argv.reqValue);
-		const { varId, varName } = resolveVarOverride(argv.varId, argv.varName, argv.varValue);
+		const { varId, varName } = resolveVarOverride(
+			argv.varId,
+			argv.varName,
+			argv.varValue,
+		);
 		await perfRequest({ ...perfOpts, name, id, varId, varName });
 		return;
 	}
 
 	if (argv.col) {
 		const { name, id } = resolveEntityFilter(argv.name, argv.id, argv.colValue);
-		const { varId, varName } = resolveVarOverride(argv.varId, argv.varName, argv.varValue);
+		const { varId, varName } = resolveVarOverride(
+			argv.varId,
+			argv.varName,
+			argv.varValue,
+		);
 		await perfCollection({ ...perfOpts, name, id, varId, varName });
 		return;
 	}
 
 	if (argv.fol) {
 		const { name, id } = resolveEntityFilter(argv.name, argv.id, argv.folValue);
-		const { varId, varName } = resolveVarOverride(argv.varId, argv.varName, argv.varValue);
+		const { varId, varName } = resolveVarOverride(
+			argv.varId,
+			argv.varName,
+			argv.varValue,
+		);
 		await perfFolder({ ...perfOpts, name, id, varId, varName });
 		return;
 	}
@@ -738,7 +823,11 @@ async function handleDataDriven(argv: ParsedArgs): Promise<void> {
 		argv.id,
 		argv.fol ? argv.folValue : argv.colValue,
 	);
-	const { varId, varName } = resolveVarOverride(argv.varId, argv.varName, argv.varValue);
+	const { varId, varName } = resolveVarOverride(
+		argv.varId,
+		argv.varName,
+		argv.varValue,
+	);
 
 	await runDataDrivenCli({
 		col: argv.col,

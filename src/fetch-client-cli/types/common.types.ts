@@ -1,5 +1,9 @@
 import { ExportFormat } from "../../fetch-client-core/consts/export.consts";
-import { ICollections, IFolder, IVariable } from "../../fetch-client-core/types/sidebar.types";
+import {
+	ICollections,
+	IFolder,
+	IVariable,
+} from "../../fetch-client-core/types/sidebar.types";
 import { IRequestModel } from "../../fetch-client-core/types/request.types";
 import { ITlsCertificate } from "../../fetch-client-core/types/common.types";
 

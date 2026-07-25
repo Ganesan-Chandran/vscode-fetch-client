@@ -1,5 +1,9 @@
 import { escapeHtml } from "../escapeHelpers";
-import { IDataDrivenConfig, IDataDrivenResult, IDataDrivenRowResult } from "./dataDriven.types";
+import {
+	IDataDrivenConfig,
+	IDataDrivenResult,
+	IDataDrivenRowResult,
+} from "./dataDriven.types";
 
 function isRowPassed(r: IDataDrivenRowResult): boolean {
 	return !r.isError && (r.testTotal === 0 || r.testPassed === r.testTotal);

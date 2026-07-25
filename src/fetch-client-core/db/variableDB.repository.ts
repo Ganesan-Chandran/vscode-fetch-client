@@ -195,7 +195,11 @@ export async function Var_Repository_FindByIdSync(
 export function Var_Repository_GetVariableByIdSync(id: string, key: string) {
 	try {
 		return new Promise<IVariable>(async (resolve, _reject) => {
-			const result = await Var_Repository_FindById(id, (!id || id === "") ? true : false, key);
+			const result = await Var_Repository_FindById(
+				id,
+				!id || id === "" ? true : false,
+				key,
+			);
 			resolve(result?.[0]);
 		});
 	} catch (err) {

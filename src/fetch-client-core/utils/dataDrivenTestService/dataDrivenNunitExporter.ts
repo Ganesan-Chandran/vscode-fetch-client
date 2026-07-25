@@ -23,25 +23,28 @@ function renderTestCase(r: IDataDrivenRowResult, id: number): string {
 
 	const failureBlock = !passed
 		? `
-      <failure>
-        <message><![CDATA[${failureMessage}]]></message>
-      </failure>`
+			<failure>
+				<message><![CDATA[${failureMessage}]]></message>
+			</failure>`
 		: "";
 
 	const propertiesBlock = `
-      <properties>
-        <property name="rowIndex" value="${r.rowIndex}" />
-        <property name="testsPassed" value="${r.testPassed}/${r.testTotal}" />
-      </properties>`;
+			<properties>
+				<property name="rowIndex" value="${r.rowIndex}" />
+				<property name="testsPassed" value="${r.testPassed}/${r.testTotal}" />
+			</properties>`;
 
 	const body = `${failureBlock}${propertiesBlock}`;
 
-	return `    <test-case id="${id}" name="${escapeXml(name)}" fullname="${escapeXml(fullname)}" classname="FetchClient.DataDriven" result="${result}" duration="${durationSeconds}" asserts="${r.testTotal}">
+	return `		<test-case id="${id}" name="${escapeXml(name)}" fullname="${escapeXml(fullname)}" classname="FetchClient.DataDriven" result="${result}" duration="${durationSeconds}" asserts="${r.testTotal}">
 ${body}
-    </test-case>`;
+		</test-case>`;
 }
 
-export function toDataDrivenNUnit(result: IDataDrivenResult, testName: string): string {
+export function toDataDrivenNUnit(
+	result: IDataDrivenResult,
+	testName: string,
+): string {
 	const total = result.rows.length;
 	const passed = result.rows.filter(isRowPassed).length;
 	const failed = total - passed;

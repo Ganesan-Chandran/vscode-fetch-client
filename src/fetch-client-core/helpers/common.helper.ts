@@ -101,10 +101,10 @@ export function deepClone<T>(value: T): T {
 }
 
 export function isValidJson(str: string): boolean {
-  try {
-    const result = JSON.parse(str);
-    return typeof result === "object" && result !== null;
-  } catch (error) {
-    return false;
-  }
+	try {
+		const result = JSON.parse(str);
+		return typeof result === "object" && result !== null;
+	} catch (error) {
+		return false;
+	}
 }

@@ -36,11 +36,29 @@ import {
 	IDataDrivenResult,
 	IDataDrivenRowResult,
 } from "../../fetch-client-core/utils/dataDrivenTestService/dataDriven.types";
-import { bold, dim, green, methodBadge, printSection, red, statusBadge, yellow } from "../utils/display";
-import { DD_EXPORT_FORMATS, ExportFormat } from "../../fetch-client-core/consts/export.consts";
+import {
+	bold,
+	dim,
+	green,
+	methodBadge,
+	printSection,
+	red,
+	statusBadge,
+	yellow,
+} from "../utils/display";
+import {
+	DD_EXPORT_FORMATS,
+	ExportFormat,
+} from "../../fetch-client-core/consts/export.consts";
 import { FetchConfig } from "../../fetch-client-core/utils/fetchUtil";
-import { getTimeOutConfiguration, getHeadersConfiguration } from "../../fetch-client-core/utils/vscodeConfig";
-import { ICollections, IVariable } from "../../fetch-client-core/types/sidebar.types";
+import {
+	getTimeOutConfiguration,
+	getHeadersConfiguration,
+} from "../../fetch-client-core/utils/vscodeConfig";
+import {
+	ICollections,
+	IVariable,
+} from "../../fetch-client-core/types/sidebar.types";
 import { IRequestModel } from "../../fetch-client-core/types/request.types";
 import { writeConsoleLog, wrtieConsleError } from "../utils/logger";
 import { writeReportFile } from "../utils/export/report";
@@ -65,7 +83,7 @@ export interface DataDrivenCliOptions {
 	exportPath?: string;
 }
 
-type DdExportFormat = typeof DD_EXPORT_FORMATS[number];
+type DdExportFormat = (typeof DD_EXPORT_FORMATS)[number];
 
 const SEPARATOR_ALIASES: Record<string, CsvSeparator> = {
 	",": ",",
@@ -82,7 +100,9 @@ function resolveFormat(opts: DataDrivenCliOptions): DataFileFormat {
 		if (f === "csv" || f === "json") {
 			return f;
 		}
-		wrtieConsleError(`Invalid --dd-format '${opts.format}'. Use 'csv' or 'json'.`);
+		wrtieConsleError(
+			`Invalid --dd-format '${opts.format}'. Use 'csv' or 'json'.`,
+		);
 		process.exit(1);
 	}
 	const ext = path.extname(opts.dataFile).toLowerCase();
@@ -98,7 +118,9 @@ function resolveSeparator(opts: DataDrivenCliOptions): CsvSeparator {
 	}
 	const resolved = SEPARATOR_ALIASES[opts.separator.toLowerCase()];
 	if (!resolved) {
-		wrtieConsleError(`Invalid --dd-separator '${opts.separator}'. Use ',', ';', or 'tab'.`);
+		wrtieConsleError(
+			`Invalid --dd-separator '${opts.separator}'. Use ',', ';', or 'tab'.`,
+		);
 		process.exit(1);
 	}
 	return resolved;
@@ -109,12 +131,17 @@ function filterByReq(leaves: RequestLeaf[], req?: string): RequestLeaf[] {
 	if (!req) {
 		return leaves;
 	}
-	const wanted = req.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+	const wanted = req
+		.split(",")
+		.map((s) => s.trim().toLowerCase())
+		.filter(Boolean);
 	if (wanted.length === 0) {
 		return leaves;
 	}
 	const matched = leaves.filter(
-		(l) => wanted.includes(l.id.toLowerCase()) || wanted.includes(l.name.toLowerCase()),
+		(l) =>
+			wanted.includes(l.id.toLowerCase()) ||
+			wanted.includes(l.name.toLowerCase()),
 	);
 	const foundKeys = new Set(
 		matched.flatMap((l) => [l.id.toLowerCase(), l.name.toLowerCase()]),
@@ -122,7 +149,9 @@ function filterByReq(leaves: RequestLeaf[], req?: string): RequestLeaf[] {
 	const missing = wanted.filter((w) => !foundKeys.has(w));
 	if (missing.length > 0) {
 		writeConsoleLog(
-			yellow(`Warning: --req referenced requests not found and were skipped: ${missing.join(", ")}`),
+			yellow(
+				`Warning: --req referenced requests not found and were skipped: ${missing.join(", ")}`,
+			),
 		);
 	}
 	return matched;
@@ -148,7 +177,7 @@ function printRowResult(r: IDataDrivenRowResult): void {
 
 	writeConsoleLog(
 		`  ${dim(`Row ${r.rowIndex}`)} ${sep} ${methodBadge(r.method ?? "")}${r.requestName} ${sep} ${status} ${sep} ${dim(`${r.duration}ms`)} ${sep} tests ${tests} ${sep} ${passLabel}` +
-		(r.error ? ` ${sep} ${red(r.error)}` : ""),
+			(r.error ? ` ${sep} ${red(r.error)}` : ""),
 	);
 }
 
@@ -168,7 +197,10 @@ async function resolveTarget(opts: DataDrivenCliOptions): Promise<{
 		const requestMap = new Map(requests.map((r) => [r.id, r]));
 
 		if (opts.fol) {
-			const folder = findFolderInCollection(collection, { name: opts.name, id: opts.id });
+			const folder = findFolderInCollection(collection, {
+				name: opts.name,
+				id: opts.id,
+			});
 			if (!folder) {
 				wrtieConsleError("Folder not found in file.");
 				process.exit(1);
@@ -224,13 +256,18 @@ async function resolveTarget(opts: DataDrivenCliOptions): Promise<{
 	}
 
 	if (opts.req) {
-		const identifiers = opts.req.split(",").map((s) => s.trim()).filter(Boolean);
+		const identifiers = opts.req
+			.split(",")
+			.map((s) => s.trim())
+			.filter(Boolean);
 		const { collection, leaves, requestMap, missing } =
 			await resolveRequestsAcrossCollections(identifiers);
 
 		if (missing.length > 0) {
 			writeConsoleLog(
-				yellow(`Warning: --req referenced requests not found and were skipped: ${missing.join(", ")}`),
+				yellow(
+					`Warning: --req referenced requests not found and were skipped: ${missing.join(", ")}`,
+				),
 			);
 		}
 
@@ -250,8 +287,11 @@ async function resolveTarget(opts: DataDrivenCliOptions): Promise<{
 	process.exit(1);
 }
 
-export async function runDataDrivenCli(opts: DataDrivenCliOptions): Promise<void> {
-	const { collection, requestMap, leaves, variable, folderId } = await resolveTarget(opts);
+export async function runDataDrivenCli(
+	opts: DataDrivenCliOptions,
+): Promise<void> {
+	const { collection, requestMap, leaves, variable, folderId } =
+		await resolveTarget(opts);
 
 	if (leaves.length === 0) {
 		wrtieConsleError("No requests found for the given collection/folder.");
@@ -298,13 +338,23 @@ export async function runDataDrivenCli(opts: DataDrivenCliOptions): Promise<void
 		`Loaded ${parseResult.rowCount} row(s), columns: ${parseResult.columns.join(", ")}`,
 	);
 
-	const validation = validateVariables(selectedRequests, requestMap, parseResult.columns);
+	const validation = validateVariables(
+		selectedRequests,
+		requestMap,
+		parseResult.columns,
+	);
 
 	if (validation.valid) {
-		writeConsoleLog(green(`✓ All variables present in data file (${validation.presentVars.join(", ") || "none used"}).`));
+		writeConsoleLog(
+			green(
+				`✓ All variables present in data file (${validation.presentVars.join(", ") || "none used"}).`,
+			),
+		);
 	} else {
 		writeConsoleLog(
-			red(`✗ Missing columns in data file: ${validation.missingVars.join(", ")}`),
+			red(
+				`✗ Missing columns in data file: ${validation.missingVars.join(", ")}`,
+			),
 		);
 	}
 
@@ -332,7 +382,11 @@ export async function runDataDrivenCli(opts: DataDrivenCliOptions): Promise<void
 	const onSigint = () => {
 		sigintCount++;
 		if (sigintCount === 1) {
-			writeConsoleLog(yellow("\nStopping after the current request... (press Ctrl+C again to force quit)"));
+			writeConsoleLog(
+				yellow(
+					"\nStopping after the current request... (press Ctrl+C again to force quit)",
+				),
+			);
 			cancelRef.cancelled = true;
 		} else {
 			process.exit(1);
@@ -341,7 +395,9 @@ export async function runDataDrivenCli(opts: DataDrivenCliOptions): Promise<void
 	process.on("SIGINT", onSigint);
 
 	writeConsoleLog(
-		bold(`\nRunning: ${selectedRequests.length} request(s) x ${parseResult.rowCount} row(s)\n`),
+		bold(
+			`\nRunning: ${selectedRequests.length} request(s) x ${parseResult.rowCount} row(s)\n`,
+		),
 	);
 
 	const result = await runDataDrivenTest(
@@ -362,10 +418,10 @@ export async function runDataDrivenCli(opts: DataDrivenCliOptions): Promise<void
 	printSection("Summary");
 	writeConsoleLog(
 		`Rows: ${result.totalRows}  Requests: ${result.totalRequests}  ` +
-		bold(green(`Passed: ${result.passedRequests}`)) +
-		"  " +
-		bold(red(`Failed: ${result.failedRequests}`)) +
-		(cancelRef.cancelled ? "  " + yellow("(cancelled)") : ""),
+			bold(green(`Passed: ${result.passedRequests}`)) +
+			"  " +
+			bold(red(`Failed: ${result.failedRequests}`)) +
+			(cancelRef.cancelled ? "  " + yellow("(cancelled)") : ""),
 	);
 
 	if (!opts.exportFormat) {
@@ -373,7 +429,8 @@ export async function runDataDrivenCli(opts: DataDrivenCliOptions): Promise<void
 	}
 
 	const testName = collection.name;
-	const dir = opts.exportPath ?? path.join(process.cwd(), "fetch-client-exports");
+	const dir =
+		opts.exportPath ?? path.join(process.cwd(), "fetch-client-exports");
 	await fs.mkdir(dir, { recursive: true });
 
 	let format = opts.exportFormat as DdExportFormat;

@@ -189,12 +189,12 @@ function validateImportData(data: string): ImportType | null {
 		if (isFetchClientV2(parsedData)) {
 			return ImportType.FetchClient_2_0;
 		}
-	} catch { }
+	} catch {}
 
 	try {
 		FetchClientDataProxy.Parse(data);
 		return ImportType.FetchClient_1_0;
-	} catch { }
+	} catch {}
 
 	const postmanData = parsedData as PostmanSchema_2_1;
 	if (
@@ -217,8 +217,7 @@ function validateImportData(data: string): ImportType | null {
 
 	if (
 		insomniaData._type === "export" &&
-		(fmt === INSOMNIA_EXPORT_FORMAT_4 ||
-			fmt === INSOMNIA_EXPORT_FORMAT_5)
+		(fmt === INSOMNIA_EXPORT_FORMAT_4 || fmt === INSOMNIA_EXPORT_FORMAT_5)
 	) {
 		return ImportType.Insomnia_4_5;
 	}

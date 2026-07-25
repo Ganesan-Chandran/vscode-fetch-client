@@ -1292,7 +1292,13 @@ export const CollectionBar = (props: ICollectionProps) => {
 									</button>
 									<button
 										onClick={(e) =>
-											onDataDrivenTest(e, item.id, "", item.name, item.variableId)
+											onDataDrivenTest(
+												e,
+												item.id,
+												"",
+												item.name,
+												item.variableId,
+											)
 										}
 									>
 										Data-Driven Test

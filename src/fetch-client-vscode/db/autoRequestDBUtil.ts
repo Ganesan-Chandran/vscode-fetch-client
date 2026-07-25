@@ -25,9 +25,14 @@ export async function SaveAutoRequest(
 	webview: vscode.Webview,
 ) {
 	try {
-		const validRequests = requests.filter((request) => request.colId && request.reqId);
+		const validRequests = requests.filter(
+			(request) => request.colId && request.reqId,
+		);
 
-		if (validRequests.length === 0 || validRequests.length > MAX_REQUESTS_PER_SCHEDULE) {
+		if (
+			validRequests.length === 0 ||
+			validRequests.length > MAX_REQUESTS_PER_SCHEDULE
+		) {
 			webview.postMessage({
 				type: responseTypes.saveAutoRequestResponse,
 				success: false,
@@ -38,12 +43,14 @@ export async function SaveAutoRequest(
 
 		const scheduler = FCScheduler.Instance;
 
-		const runningBefore = await AutoReqHistory_Repository_GetDistinctRunningScheduleIds();
+		const runningBefore =
+			await AutoReqHistory_Repository_GetDistinctRunningScheduleIds();
 		if (runningBefore.length > 0 || scheduler.GetActiveJobCount() > 0) {
 			webview.postMessage({
 				type: responseTypes.saveAutoRequestResponse,
 				success: false,
-				message: "Another schedule is already running. Wait for it to finish, complete, or stop before creating a new one.",
+				message:
+					"Another schedule is already running. Wait for it to finish, complete, or stop before creating a new one.",
 			});
 			return;
 		}
@@ -51,7 +58,8 @@ export async function SaveAutoRequest(
 		const savedRequests = await Auto_Repository_AddAutoRequests(validRequests);
 		await scheduler.CreateJobs(savedRequests, true);
 
-		const runningAfter = await AutoReqHistory_Repository_GetDistinctRunningScheduleIds();
+		const runningAfter =
+			await AutoReqHistory_Repository_GetDistinctRunningScheduleIds();
 		if (runningAfter.length > 1) {
 			for (const request of savedRequests) {
 				scheduler.RemoveJob(request);
@@ -70,12 +78,16 @@ export async function SaveAutoRequest(
 			webview.postMessage({
 				type: responseTypes.saveAutoRequestResponse,
 				success: false,
-				message: "Another window started a schedule at the same moment. Please try again.",
+				message:
+					"Another window started a schedule at the same moment. Please try again.",
 			});
 			return;
 		}
 
-		webview.postMessage({ type: responseTypes.saveAutoRequestResponse, success: true });
+		webview.postMessage({
+			type: responseTypes.saveAutoRequestResponse,
+			success: true,
+		});
 	} catch (err) {
 		writeLog(`error::SaveAutoRequest(): ${err}`);
 	}
@@ -116,7 +128,10 @@ export async function GetAutoRequestById(id: string, webview: vscode.Webview) {
 	}
 }
 
-export async function GetAutoRequestHistory(colId: string, webview: vscode.Webview) {
+export async function GetAutoRequestHistory(
+	colId: string,
+	webview: vscode.Webview,
+) {
 	try {
 		const history = colId
 			? await AutoReqHistory_Repository_GetByColId(colId)

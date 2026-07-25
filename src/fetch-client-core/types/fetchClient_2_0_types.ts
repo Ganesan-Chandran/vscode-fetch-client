@@ -120,7 +120,11 @@ export interface IAuthOAuth2 {
 		clientId: string;
 		clientSecret: string;
 		scope: string;
-		grantType: "authorization_code" | "authorization_code_pkce" | "password_credentials" | "client_credentials";
+		grantType:
+			| "authorization_code"
+			| "authorization_code_pkce"
+			| "password_credentials"
+			| "client_credentials";
 		username?: string; // only for password_credentials
 		password?: string; // only for password_credentials
 		clientAuth: "header" | "body";

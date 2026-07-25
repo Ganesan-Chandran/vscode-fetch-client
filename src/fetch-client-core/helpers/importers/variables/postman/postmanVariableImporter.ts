@@ -51,5 +51,5 @@ export function ImportPostmanVariables(data: string): IVariable {
 		data: varData,
 	};
 
-  return convertedData;
+	return convertedData;
 }

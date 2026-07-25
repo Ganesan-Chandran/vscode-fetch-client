@@ -1,4 +1,8 @@
-import { IPerfConfig, LoadModel, TestScope } from "../../../fetch-client-core/types/perfTest.types";
+import {
+	IPerfConfig,
+	LoadModel,
+	TestScope,
+} from "../../../fetch-client-core/types/perfTest.types";
 import { wrtieConsleError } from "../logger";
 
 export const MAX_VUS = 50;
@@ -68,19 +72,26 @@ function parseNumericFlag(
 	const parsed = Number(raw);
 
 	if (isNaN(parsed)) {
-		warnings.push(`'${flagName} ${raw}' is not a number - using default (${fallback}).`);
+		warnings.push(
+			`'${flagName} ${raw}' is not a number - using default (${fallback}).`,
+		);
 		return { value: fallback, wasProvided: false };
 	}
 
 	const clamped = clamp(parsed, min, max);
 	if (clamped !== parsed) {
-		warnings.push(`'${flagName} ${raw}' is out of range (${min}-${max}) - clamped to ${clamped}.`);
+		warnings.push(
+			`'${flagName} ${raw}' is out of range (${min}-${max}) - clamped to ${clamped}.`,
+		);
 	}
 
 	return { value: clamped, wasProvided: true };
 }
 
-export function buildPerfConfig(scope: TestScope, opts: PerfCliOptions): BuiltPerfConfig {
+export function buildPerfConfig(
+	scope: TestScope,
+	opts: PerfCliOptions,
+): BuiltPerfConfig {
 	const warnings: string[] = [];
 	const loadModel = (opts.loadModel ?? PERF_DEFAULTS.loadModel) as LoadModel;
 
@@ -91,22 +102,68 @@ export function buildPerfConfig(scope: TestScope, opts: PerfCliOptions): BuiltPe
 		process.exit(1);
 	}
 
-	const vus = parseNumericFlag(opts.vus, "--vus", PERF_DEFAULTS.targetVUs, 1, MAX_VUS, warnings);
-	const iterations = parseNumericFlag(opts.iterations, "--iterations", PERF_DEFAULTS.iterations, 1, MAX_ITERATIONS, warnings);
-	const duration = parseNumericFlag(opts.duration, "--duration", PERF_DEFAULTS.testDurationSec, 1, MAX_DURATION_SEC, warnings);
-	const rampupDuration = parseNumericFlag(opts.rampupDuration, "--rampup-duration", PERF_DEFAULTS.rampUpDurationSec, 1, MAX_DURATION_SEC, warnings);
-	const thinkTime = parseNumericFlag(opts.thinkTime, "--think-time", PERF_DEFAULTS.thinkTimeMs, 0, MAX_DELAY_MS, warnings);
+	const vus = parseNumericFlag(
+		opts.vus,
+		"--vus",
+		PERF_DEFAULTS.targetVUs,
+		1,
+		MAX_VUS,
+		warnings,
+	);
+	const iterations = parseNumericFlag(
+		opts.iterations,
+		"--iterations",
+		PERF_DEFAULTS.iterations,
+		1,
+		MAX_ITERATIONS,
+		warnings,
+	);
+	const duration = parseNumericFlag(
+		opts.duration,
+		"--duration",
+		PERF_DEFAULTS.testDurationSec,
+		1,
+		MAX_DURATION_SEC,
+		warnings,
+	);
+	const rampupDuration = parseNumericFlag(
+		opts.rampupDuration,
+		"--rampup-duration",
+		PERF_DEFAULTS.rampUpDurationSec,
+		1,
+		MAX_DURATION_SEC,
+		warnings,
+	);
+	const thinkTime = parseNumericFlag(
+		opts.thinkTime,
+		"--think-time",
+		PERF_DEFAULTS.thinkTimeMs,
+		0,
+		MAX_DELAY_MS,
+		warnings,
+	);
 
 	// rampSteps is bounded by the resolved VU count, so it's validated after `vus` above.
-	const rampSteps = parseNumericFlag(opts.rampupSteps, "--rampup-steps", Math.min(PERF_DEFAULTS.rampSteps, vus.value), 1, vus.value, warnings);
+	const rampSteps = parseNumericFlag(
+		opts.rampupSteps,
+		"--rampup-steps",
+		Math.min(PERF_DEFAULTS.rampSteps, vus.value),
+		1,
+		vus.value,
+		warnings,
+	);
 
 	// Flag relevance check: warn if the user passed a flag the chosen load model ignores.
 	if (loadModel === "fixed" || loadModel === "duration") {
 		if (opts.rampupDuration !== undefined) {
-			warnings.push(`--rampup-duration is ignored with --load-model ${loadModel}.`);
+			warnings.push(
+				`--rampup-duration is ignored with --load-model ${loadModel}.`,
+			);
 		}
 		if (opts.rampupSteps !== undefined) {
-			warnings.push(`--rampup-steps is ignored with --load-model ${loadModel}.`);
+			warnings.push(
+				`--rampup-steps is ignored with --load-model ${loadModel}.`,
+			);
 		}
 	}
 	if (loadModel === "fixed" || loadModel === "rampup") {

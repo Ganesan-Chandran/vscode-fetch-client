@@ -9,9 +9,15 @@ import {
 	resolveFolderContext,
 	resolveRequestContext,
 } from "./lookup";
-import { ExportFormat, PERF_EXPORT_FORMATS } from "../../fetch-client-core/consts/export.consts";
+import {
+	ExportFormat,
+	PERF_EXPORT_FORMATS,
+} from "../../fetch-client-core/consts/export.consts";
 import { isSupportedPerfExportFormat } from "../types/export.types";
-import { PerfCliOptions, buildPerfConfig } from "../utils/performance/perfConfig";
+import {
+	PerfCliOptions,
+	buildPerfConfig,
+} from "../utils/performance/perfConfig";
 import { printPerfConfigSummary } from "../utils/display";
 import { RequestLeaf, RunCollectionFileOptions } from "../types/common.types";
 import { runPerfEngine } from "../utils/performance/perfRunner";
@@ -35,7 +41,9 @@ export interface PerfFileCommandOptions extends PerfCliOptions {
 	exportPath?: string;
 }
 
-function validateExportFormat(exportFormatRaw?: string): ExportFormat | undefined {
+function validateExportFormat(
+	exportFormatRaw?: string,
+): ExportFormat | undefined {
 	if (!exportFormatRaw) {
 		return undefined;
 	}
@@ -50,7 +58,10 @@ function validateExportFormat(exportFormatRaw?: string): ExportFormat | undefine
 	return exportFormatRaw as ExportFormat;
 }
 
-function estimateTotalRequests(leafCount: number, config: ReturnType<typeof buildPerfConfig>["config"]): string {
+function estimateTotalRequests(
+	leafCount: number,
+	config: ReturnType<typeof buildPerfConfig>["config"],
+): string {
 	if (config.loadModel === "fixed") {
 		return String(leafCount * config.targetVUs * config.iterations);
 	}
@@ -63,29 +74,50 @@ export async function perfCollection(opts: PerfCommandOptions): Promise<void> {
 	const exportFormat = validateExportFormat(opts.exportFormat);
 
 	if (!opts.name && !opts.id) {
-		wrtieConsleError("'fc-cli perf --col' requires a name or id, e.g. 'fc-cli perf --col <name/id>'.");
+		wrtieConsleError(
+			"'fc-cli perf --col' requires a name or id, e.g. 'fc-cli perf --col <name/id>'.",
+		);
 		process.exit(1);
 	}
 
 	const contexts = await resolveCollectionContexts(opts);
 
 	if (contexts.length === 0) {
-		wrtieConsleError(`Collection '${opts.name ?? opts.id}' has no requests to test.`);
+		wrtieConsleError(
+			`Collection '${opts.name ?? opts.id}' has no requests to test.`,
+		);
 		process.exit(1);
 	}
 
 	const context = contexts[0];
-	const { config, userProvided, warnings } = buildPerfConfig("collection", opts);
+	const { config, userProvided, warnings } = buildPerfConfig(
+		"collection",
+		opts,
+	);
 
-	printPerfConfigSummary(context.collection.name, "Collection", config, userProvided, warnings);
-	writeConsoleLog(`Requests  : ${context.leaves.length} in scope | Est. total calls: ${estimateTotalRequests(context.leaves.length, config)}`);
+	printPerfConfigSummary(
+		context.collection.name,
+		"Collection",
+		config,
+		userProvided,
+		warnings,
+	);
+	writeConsoleLog(
+		`Requests  : ${context.leaves.length} in scope | Est. total calls: ${estimateTotalRequests(context.leaves.length, config)}`,
+	);
 	writeConsoleLog("");
 
 	const provider = new DbPreFetchContextProvider();
 
 	await runPerfEngine(
-		context.collection.name, context.leaves, context.requestMap, context.collection,
-		context.variable, context.effectiveVarId, provider, config,
+		context.collection.name,
+		context.leaves,
+		context.requestMap,
+		context.collection,
+		context.variable,
+		context.effectiveVarId,
+		provider,
+		config,
 		{ exportFormat, exportPath: opts.exportPath },
 	);
 }
@@ -94,28 +126,49 @@ export async function perfFolder(opts: PerfCommandOptions): Promise<void> {
 	const exportFormat = validateExportFormat(opts.exportFormat);
 
 	if (!opts.name && !opts.id) {
-		wrtieConsleError("'fc-cli perf --fol' requires a name or id, e.g. 'fc-cli perf --fol <name/id>'.");
+		wrtieConsleError(
+			"'fc-cli perf --fol' requires a name or id, e.g. 'fc-cli perf --fol <name/id>'.",
+		);
 		process.exit(1);
 	}
 
 	const context = await resolveFolderContext(opts);
 
 	if (context.leaves.length === 0) {
-		wrtieConsleError(`Folder '${context.folder.name}' has no requests to test.`);
+		wrtieConsleError(
+			`Folder '${context.folder.name}' has no requests to test.`,
+		);
 		process.exit(1);
 	}
 
-	const { config, userProvided, warnings } = buildPerfConfig("collection", opts);
+	const { config, userProvided, warnings } = buildPerfConfig(
+		"collection",
+		opts,
+	);
 
-	printPerfConfigSummary(context.folder.name, "Folder", config, userProvided, warnings);
-	writeConsoleLog(`Requests  : ${context.leaves.length} in scope | Est. total calls: ${estimateTotalRequests(context.leaves.length, config)}`);
+	printPerfConfigSummary(
+		context.folder.name,
+		"Folder",
+		config,
+		userProvided,
+		warnings,
+	);
+	writeConsoleLog(
+		`Requests  : ${context.leaves.length} in scope | Est. total calls: ${estimateTotalRequests(context.leaves.length, config)}`,
+	);
 	writeConsoleLog("");
 
 	const provider = new DbPreFetchContextProvider();
 
 	await runPerfEngine(
-		context.folder.name, context.leaves, context.requestMap, context.collection,
-		context.variable, context.effectiveVarId, provider, config,
+		context.folder.name,
+		context.leaves,
+		context.requestMap,
+		context.collection,
+		context.variable,
+		context.effectiveVarId,
+		provider,
+		config,
 		{ exportFormat, exportPath: opts.exportPath },
 	);
 }
@@ -124,7 +177,9 @@ export async function perfRequest(opts: PerfCommandOptions): Promise<void> {
 	const exportFormat = validateExportFormat(opts.exportFormat);
 
 	if (!opts.name && !opts.id) {
-		wrtieConsleError("'fc-cli perf --req' requires a name or id, e.g. 'fc-cli perf --req <name/id>'.");
+		wrtieConsleError(
+			"'fc-cli perf --req' requires a name or id, e.g. 'fc-cli perf --req <name/id>'.",
+		);
 		process.exit(1);
 	}
 
@@ -138,27 +193,46 @@ export async function perfRequest(opts: PerfCommandOptions): Promise<void> {
 		folderId: context.folderId,
 	};
 
-	const requestMap = context.requestMap ?? new Map([[context.request.id, context.request]]);
+	const requestMap =
+		context.requestMap ?? new Map([[context.request.id, context.request]]);
 	const { config, userProvided, warnings } = buildPerfConfig("single", opts);
 
-	printPerfConfigSummary(context.request.name || context.request.url, "Request", config, userProvided, warnings);
-	writeConsoleLog(`Requests  : 1 in scope | Est. total calls: ${estimateTotalRequests(1, config)}`);
+	printPerfConfigSummary(
+		context.request.name || context.request.url,
+		"Request",
+		config,
+		userProvided,
+		warnings,
+	);
+	writeConsoleLog(
+		`Requests  : 1 in scope | Est. total calls: ${estimateTotalRequests(1, config)}`,
+	);
 	writeConsoleLog("");
 
 	const provider = new DbPreFetchContextProvider();
 
 	await runPerfEngine(
-		context.request.name || context.request.url, [leaf], requestMap, context.collection,
-		context.variable, context.effectiveVarId, provider, config,
+		context.request.name || context.request.url,
+		[leaf],
+		requestMap,
+		context.collection,
+		context.variable,
+		context.effectiveVarId,
+		provider,
+		config,
 		{ exportFormat, exportPath: opts.exportPath },
 	);
 }
 
 // --- File-backed perf (new - mirrors run --file) ------------------------------
 
-export async function perfCollectionFromFile(opts: PerfFileCommandOptions): Promise<void> {
+export async function perfCollectionFromFile(
+	opts: PerfFileCommandOptions,
+): Promise<void> {
 	const exportFormat = validateExportFormat(opts.exportFormat);
-	const { collection, requests, variable } = await loadCollectionFromFile(opts as RunCollectionFileOptions);
+	const { collection, requests, variable } = await loadCollectionFromFile(
+		opts as RunCollectionFileOptions,
+	);
 
 	const leaves: RequestLeaf[] = [];
 	collectLeaves(collection, "", leaves);
@@ -169,33 +243,62 @@ export async function perfCollectionFromFile(opts: PerfFileCommandOptions): Prom
 	}
 
 	const requestMap = new Map(requests.map((r) => [r.id, r]));
-	const provider = new CliPreFetchContextProvider(collection, requestMap, variable);
-	const { config, userProvided, warnings } = buildPerfConfig("collection", opts);
+	const provider = new CliPreFetchContextProvider(
+		collection,
+		requestMap,
+		variable,
+	);
+	const { config, userProvided, warnings } = buildPerfConfig(
+		"collection",
+		opts,
+	);
 
-	printPerfConfigSummary(collection.name, "Collection (file)", config, userProvided, warnings);
-	writeConsoleLog(`Requests  : ${leaves.length} in scope | Est. total calls: ${estimateTotalRequests(leaves.length, config)}`);
+	printPerfConfigSummary(
+		collection.name,
+		"Collection (file)",
+		config,
+		userProvided,
+		warnings,
+	);
+	writeConsoleLog(
+		`Requests  : ${leaves.length} in scope | Est. total calls: ${estimateTotalRequests(leaves.length, config)}`,
+	);
 	writeConsoleLog("");
 
 	await runPerfEngine(
-		collection.name, leaves, requestMap, collection,
-		variable, "", provider, config,
+		collection.name,
+		leaves,
+		requestMap,
+		collection,
+		variable,
+		"",
+		provider,
+		config,
 		{ exportFormat, exportPath: opts.exportPath },
 	);
 }
 
-export async function perfFolderFromFile(opts: PerfFileCommandOptions): Promise<void> {
+export async function perfFolderFromFile(
+	opts: PerfFileCommandOptions,
+): Promise<void> {
 	const exportFormat = validateExportFormat(opts.exportFormat);
 
 	if (!opts.name && !opts.id) {
-		wrtieConsleError("'fc-cli perf --file <file> --fol' requires a name or id.");
+		wrtieConsleError(
+			"'fc-cli perf --file <file> --fol' requires a name or id.",
+		);
 		process.exit(1);
 	}
 
-	const { collection, requests, variable } = await loadCollectionFromFile(opts as RunCollectionFileOptions);
+	const { collection, requests, variable } = await loadCollectionFromFile(
+		opts as RunCollectionFileOptions,
+	);
 	const folder = findFolderInCollection(collection, opts);
 
 	if (!folder) {
-		wrtieConsleError(`Folder '${opts.name ?? opts.id}' not found in '${opts.file}'.`);
+		wrtieConsleError(
+			`Folder '${opts.name ?? opts.id}' not found in '${opts.file}'.`,
+		);
 		process.exit(1);
 	}
 
@@ -208,36 +311,65 @@ export async function perfFolderFromFile(opts: PerfFileCommandOptions): Promise<
 	}
 
 	const requestMap = new Map(requests.map((r) => [r.id, r]));
-	const provider = new CliPreFetchContextProvider(collection, requestMap, variable);
-	const { config, userProvided, warnings } = buildPerfConfig("collection", opts);
+	const provider = new CliPreFetchContextProvider(
+		collection,
+		requestMap,
+		variable,
+	);
+	const { config, userProvided, warnings } = buildPerfConfig(
+		"collection",
+		opts,
+	);
 
-	printPerfConfigSummary(folder.name, "Folder (file)", config, userProvided, warnings);
-	writeConsoleLog(`Requests  : ${leaves.length} in scope | Est. total calls: ${estimateTotalRequests(leaves.length, config)}`);
+	printPerfConfigSummary(
+		folder.name,
+		"Folder (file)",
+		config,
+		userProvided,
+		warnings,
+	);
+	writeConsoleLog(
+		`Requests  : ${leaves.length} in scope | Est. total calls: ${estimateTotalRequests(leaves.length, config)}`,
+	);
 	writeConsoleLog("");
 
 	await runPerfEngine(
-		folder.name, leaves, requestMap, collection,
-		variable, "", provider, config,
+		folder.name,
+		leaves,
+		requestMap,
+		collection,
+		variable,
+		"",
+		provider,
+		config,
 		{ exportFormat, exportPath: opts.exportPath },
 	);
 }
 
-export async function perfRequestFromFile(opts: PerfFileCommandOptions): Promise<void> {
+export async function perfRequestFromFile(
+	opts: PerfFileCommandOptions,
+): Promise<void> {
 	const exportFormat = validateExportFormat(opts.exportFormat);
 
 	if (!opts.name && !opts.id) {
-		wrtieConsleError("'fc-cli perf --file <file> --req' requires a name or id.");
+		wrtieConsleError(
+			"'fc-cli perf --file <file> --req' requires a name or id.",
+		);
 		process.exit(1);
 	}
 
-	const { collection, requests, variable } = await loadCollectionFromFile(opts as RunCollectionFileOptions);
+	const { collection, requests, variable } = await loadCollectionFromFile(
+		opts as RunCollectionFileOptions,
+	);
 
 	const request = opts.id
 		? requests.find((r) => r.id === opts.id)
 		: requests.find((r) => r.name.toLowerCase() === opts.name!.toLowerCase());
 
 	if (!request) {
-		wrtieConsleError(`Request '${opts.name ?? opts.id}' not found in '${opts.file}'.`);
+		wrtieConsleError(
+			`Request '${opts.name ?? opts.id}' not found in '${opts.file}'.`,
+		);
 		process.exit(1);
 	}
 
@@ -251,16 +383,34 @@ export async function perfRequestFromFile(opts: PerfFileCommandOptions): Promise
 	};
 
 	const requestMap = new Map(requests.map((r) => [r.id, r]));
-	const provider = new CliPreFetchContextProvider(collection, requestMap, variable);
+	const provider = new CliPreFetchContextProvider(
+		collection,
+		requestMap,
+		variable,
+	);
 	const { config, userProvided, warnings } = buildPerfConfig("single", opts);
 
-	printPerfConfigSummary(request.name || request.url, "Request (file)", config, userProvided, warnings);
-	writeConsoleLog(`Requests  : 1 in scope | Est. total calls: ${estimateTotalRequests(1, config)}`);
+	printPerfConfigSummary(
+		request.name || request.url,
+		"Request (file)",
+		config,
+		userProvided,
+		warnings,
+	);
+	writeConsoleLog(
+		`Requests  : 1 in scope | Est. total calls: ${estimateTotalRequests(1, config)}`,
+	);
 	writeConsoleLog("");
 
 	await runPerfEngine(
-		request.name || request.url, [leaf], requestMap, collection,
-		variable, "", provider, config,
+		request.name || request.url,
+		[leaf],
+		requestMap,
+		collection,
+		variable,
+		"",
+		provider,
+		config,
 		{ exportFormat, exportPath: opts.exportPath },
 	);
 }

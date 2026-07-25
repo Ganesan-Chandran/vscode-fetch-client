@@ -90,7 +90,7 @@ jexl.addFunction("hours", (value: number): number => value * HOUR);
 jexl.addFunction("days", (value: number): number => value * DAY);
 
 jexl.addFunction("date", (value?: string): number => {
-  return value ? new Date(value).getTime() : Date.now();
+	return value ? new Date(value).getTime() : Date.now();
 });
 
 jexl.addFunction("nowString", () => new Date().toISOString());
@@ -98,54 +98,45 @@ jexl.addFunction("nowString", () => new Date().toISOString());
 jexl.addFunction("today", () => new Date().toLocaleString());
 
 jexl.addFunction("parseDate", (value: string): number => {
-  return new Date(value).getTime();
+	return new Date(value).getTime();
 });
 
 jexl.addFunction(
-  "formatDate",
-  (
-    value?: number | string | Date,
-    format = "dd-MM-yyyy HH:mm:ss",
-  ) => {
-    const d = value ? new Date(value) : new Date();
+	"formatDate",
+	(value?: number | string | Date, format = "dd-MM-yyyy HH:mm:ss") => {
+		const d = value ? new Date(value) : new Date();
 
-    const pad = (n: number) => String(n).padStart(2, "0");
+		const pad = (n: number) => String(n).padStart(2, "0");
 
-    return format
-      .replace("yyyy", String(d.getFullYear()))
-      .replace("MM", pad(d.getMonth() + 1))
-      .replace("dd", pad(d.getDate()))
-      .replace("HH", pad(d.getHours()))
-      .replace("mm", pad(d.getMinutes()))
-      .replace("ss", pad(d.getSeconds()));
-  },
+		return format
+			.replace("yyyy", String(d.getFullYear()))
+			.replace("MM", pad(d.getMonth() + 1))
+			.replace("dd", pad(d.getDate()))
+			.replace("HH", pad(d.getHours()))
+			.replace("mm", pad(d.getMinutes()))
+			.replace("ss", pad(d.getSeconds()));
+	},
 );
 
-jexl.addFunction(
-  "addDays",
-  (date: number | Date, days: number): number => {
-    const d = new Date(date);
-    d.setDate(d.getDate() + days);
-    return d.getTime();
-  },
-);
+jexl.addFunction("addDays", (date: number | Date, days: number): number => {
+	const d = new Date(date);
+	d.setDate(d.getDate() + days);
+	return d.getTime();
+});
+
+jexl.addFunction("addHours", (date: number | Date, hours: number): number => {
+	const d = new Date(date);
+	d.setHours(d.getHours() + hours);
+	return d.getTime();
+});
 
 jexl.addFunction(
-  "addHours",
-  (date: number | Date, hours: number): number => {
-    const d = new Date(date);
-    d.setHours(d.getHours() + hours);
-    return d.getTime();
-  },
-);
-
-jexl.addFunction(
-  "addMinutes",
-  (date: number | Date, minutes: number): number => {
-    const d = new Date(date);
-    d.setMinutes(d.getMinutes() + minutes);
-    return d.getTime();
-  },
+	"addMinutes",
+	(date: number | Date, minutes: number): number => {
+		const d = new Date(date);
+		d.setMinutes(d.getMinutes() + minutes);
+		return d.getTime();
+	},
 );
 
 // -----------------------------------------------------------------------------
@@ -153,36 +144,30 @@ jexl.addFunction(
 // -----------------------------------------------------------------------------
 
 jexl.addFunction("empty", (value: unknown): boolean => {
-  return value === "" || value === null || value === undefined;
+	return value === "" || value === null || value === undefined;
 });
 
 jexl.addFunction("exists", (value: unknown): boolean => {
-  return value !== undefined && value !== null;
+	return value !== undefined && value !== null;
+});
+
+jexl.addFunction("contains", (text: unknown, search: unknown): boolean => {
+	return text?.toString().includes(search?.toString() ?? "") ?? false;
+});
+
+jexl.addFunction("matches", (text: unknown, regex: string): boolean => {
+	try {
+		return new RegExp(regex).test(text?.toString() ?? "");
+	} catch {
+		return false;
+	}
 });
 
 jexl.addFunction(
-  "contains",
-  (text: unknown, search: unknown): boolean => {
-    return text?.toString().includes(search?.toString() ?? "") ?? false;
-  },
-);
-
-jexl.addFunction(
-  "matches",
-  (text: unknown, regex: string): boolean => {
-    try {
-      return new RegExp(regex).test(text?.toString() ?? "");
-    } catch {
-      return false;
-    }
-  },
-);
-
-jexl.addFunction(
-  "between",
-  (value: number, min: number, max: number): boolean => {
-    return value >= min && value <= max;
-  },
+	"between",
+	(value: number, min: number, max: number): boolean => {
+		return value >= min && value <= max;
+	},
 );
 
 // -----------------------------------------------------------------------------
@@ -190,26 +175,28 @@ jexl.addFunction(
 // -----------------------------------------------------------------------------
 
 export function evaluateTableExpression(
-  expression: string,
-  variables: ITableData[],
+	expression: string,
+	variables: ITableData[],
 ): boolean {
-  const context: Record<string, unknown> = {};
+	const context: Record<string, unknown> = {};
 
-  variables.forEach((v) => {
-    context[v.key] = v.value;
-  });
+	variables.forEach((v) => {
+		context[v.key] = v.value;
+	});
 
-  return Boolean(jexl.evalSync(expression, context));
+	return Boolean(jexl.evalSync(expression, context));
 }
 
 export function evaluateExpression(expression: string): boolean {
-  return Boolean(jexl.evalSync(expression));
+	return Boolean(jexl.evalSync(expression));
 }
 
-export function evaluateExpressionValue<T = unknown>(expression: string): T | "" {
-  try {
-    return jexl.evalSync(expression) as T;
-  } catch (err) {
-    return "";
-  }
+export function evaluateExpressionValue<T = unknown>(
+	expression: string,
+): T | "" {
+	try {
+		return jexl.evalSync(expression) as T;
+	} catch (err) {
+		return "";
+	}
 }

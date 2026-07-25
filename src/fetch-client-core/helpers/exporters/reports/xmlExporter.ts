@@ -1,15 +1,19 @@
 import { escapeXml } from "../../../utils/escapeHelpers";
-import { ExportPreFetchStep, ExportRequestResult, ExportReport } from "../../../types/export.types";
+import {
+	ExportPreFetchStep,
+	ExportRequestResult,
+	ExportReport,
+} from "../../../types/export.types";
 
 function renderPreFetchStep(step: ExportPreFetchStep, indent: string): string {
 	const testsXml =
 		step.tests.length > 0
 			? `\n${indent}  <tests>\n${step.tests
-				.map(
-					(t) =>
-						`${indent}    <test name="${escapeXml(t.name)}" result="${t.passed ? "Pass" : "Fail"}" actualValue="${escapeXml(t.actualValue ?? "")}" />`,
-				)
-				.join("\n")}\n${indent}  </tests>`
+					.map(
+						(t) =>
+							`${indent}    <test name="${escapeXml(t.name)}" result="${t.passed ? "Pass" : "Fail"}" actualValue="${escapeXml(t.actualValue ?? "")}" />`,
+					)
+					.join("\n")}\n${indent}  </tests>`
 			: "";
 
 	const childrenXml =
@@ -36,11 +40,11 @@ function renderRequest(r: ExportRequestResult): string {
 	const testsXml =
 		r.tests.length > 0
 			? `\n    <tests>\n${r.tests
-				.map(
-					(t) =>
-						`      <test name="${escapeXml(t.name)}" result="${t.passed ? "Pass" : "Fail"}" actualValue="${escapeXml(t.actualValue ?? "")}" />`,
-				)
-				.join("\n")}\n    </tests>`
+					.map(
+						(t) =>
+							`      <test name="${escapeXml(t.name)}" result="${t.passed ? "Pass" : "Fail"}" actualValue="${escapeXml(t.actualValue ?? "")}" />`,
+					)
+					.join("\n")}\n    </tests>`
 			: "";
 
 	return `  <request name="${escapeXml(r.name)}" method="${escapeXml(r.method)}" url="${escapeXml(r.url)}" status="${r.status}" statusText="${escapeXml(r.statusText)}" durationMs="${r.durationMs}" sizeBytes="${r.sizeBytes}" outcome="${r.outcome}">${detailsXml}${testsXml}${renderPreFetch(r.preFetch)}\n  </request>`;
@@ -84,15 +88,15 @@ export function toXml(reports: ExportReport[]): string {
 			const requestsXml = report.results.map(renderRequest).join("\n");
 
 			return `  <iteration number="${index + 1}">
-    <summary totalRequests="${report.summary.totalRequests}" passedRequests="${report.summary.passedRequests}" failedRequests="${report.summary.failedRequests}" totalDurationMs="${report.summary.totalDurationMs}" totalTests="${report.summary.totalTests}" passedTests="${report.summary.passedTests}" failedTests="${report.summary.failedTests}" generatedAt="${escapeXml(report.summary.generatedAt)}" />
+		<summary totalRequests="${report.summary.totalRequests}" passedRequests="${report.summary.passedRequests}" failedRequests="${report.summary.failedRequests}" totalDurationMs="${report.summary.totalDurationMs}" totalTests="${report.summary.totalTests}" passedTests="${report.summary.passedTests}" failedTests="${report.summary.failedTests}" generatedAt="${escapeXml(report.summary.generatedAt)}" />
 ${requestsXml}
-  </iteration>`;
+	</iteration>`;
 		})
 		.join("\n");
 
 	return `<?xml version="1.0" encoding="UTF-8"?>
 <fetchClientReport scope="${escapeXml(context.scope)}" name="${escapeXml(context.name)}">
-  <summary totalRequests="${summary.totalRequests}" passedRequests="${summary.passedRequests}" failedRequests="${summary.failedRequests}" totalDurationMs="${summary.totalDurationMs}" totalTests="${summary.totalTests}" passedTests="${summary.passedTests}" failedTests="${summary.failedTests}" generatedAt="${escapeXml(summary.generatedAt)}" />
+	<summary totalRequests="${summary.totalRequests}" passedRequests="${summary.passedRequests}" failedRequests="${summary.failedRequests}" totalDurationMs="${summary.totalDurationMs}" totalTests="${summary.totalTests}" passedTests="${summary.passedTests}" failedTests="${summary.failedTests}" generatedAt="${escapeXml(summary.generatedAt)}" />
 ${iterationsXml}
 </fetchClientReport>
 `;

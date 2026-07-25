@@ -1,7 +1,7 @@
 import { apiFetch, FetchConfig } from "../fetchUtil";
 import { executeTests } from "../../helpers/tests.helper";
 import { getVariableEncryptionConfiguration } from "../commonConfig";
-import { getVariableEncryptionKey, } from "../vscodeConfig";
+import { getVariableEncryptionKey } from "../vscodeConfig";
 import { InitialResponse } from "../../consts/initialValues.consts";
 import { IPreFetch, IRunRequest } from "../../types/prefetch.types";
 import { IPreFetchContextProvider, RequestContext } from "./preFetch.types.ts";
@@ -15,7 +15,7 @@ function createEmptyPreFetchResponse(): IPreFetchResponse {
 		resStatus: 0,
 		testResults: [],
 		childrenResponse: [],
-		isParentReq: false
+		isParentReq: false,
 	};
 }
 
@@ -38,7 +38,11 @@ export class PreFetchRunner {
 		return this._message;
 	}
 
-	constructor(fetchConfig: FetchConfig, reqId: string, private readonly contextProvider: IPreFetchContextProvider) {
+	constructor(
+		fetchConfig: FetchConfig,
+		reqId: string,
+		private readonly contextProvider: IPreFetchContextProvider,
+	) {
 		this.fetchConfig = fetchConfig;
 		this.executingRequests = [reqId];
 		this.response = {
@@ -105,7 +109,10 @@ export class PreFetchRunner {
 
 			// Loaded BEFORE condition evaluation so every pre-request - including
 			// the first - has access to its own collection's variable scope.
-			const context = await this.loadRequestContext(filteredRequests[i], parentName);
+			const context = await this.loadRequestContext(
+				filteredRequests[i],
+				parentName,
+			);
 
 			if (!context) {
 				return;
@@ -168,7 +175,10 @@ export class PreFetchRunner {
 					this.executingRequests.splice(execIdx, 1);
 				}
 
-				const refreshedContext = await this.loadRequestContext(filteredRequests[i], parentName);
+				const refreshedContext = await this.loadRequestContext(
+					filteredRequests[i],
+					parentName,
+				);
 				if (refreshedContext) {
 					variable = refreshedContext.variable;
 					parentSettings = refreshedContext.parentSettings;

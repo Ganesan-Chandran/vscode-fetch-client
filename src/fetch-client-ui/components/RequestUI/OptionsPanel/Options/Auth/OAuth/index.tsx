@@ -46,16 +46,19 @@ export const OAuth = (props: IOAuthProps) => {
 	const dispatch = useDispatch<AppDispatch>();
 	const [redirectUri, setRedirectUri] = useState("");
 
-	const auth = (props.inherit === true && props.settingAuth)
-		? props.settingAuth
-		: useSelector((state: IRootState) => state.requestData.auth);
+	const auth =
+		props.inherit === true && props.settingAuth
+			? props.settingAuth
+			: useSelector((state: IRootState) => state.requestData.auth);
 	const { selectedVariable } = useSelector(
 		(state: IRootState) => state.variableData,
 	);
 	const { parentSettings } = useSelector(
 		(state: IRootState) => state.reqColData,
 	);
-	const isAuthorizationCodeFlow = auth.oauth.grantType === GrantType.Authorization_Code || auth.oauth.grantType === GrantType.Authorization_Code_PKCE;
+	const isAuthorizationCodeFlow =
+		auth.oauth.grantType === GrantType.Authorization_Code ||
+		auth.oauth.grantType === GrantType.Authorization_Code_PKCE;
 
 	const onSetGrantype = (value: GrantType) => {
 		let localAuth = { ...auth };
@@ -104,7 +107,11 @@ export const OAuth = (props: IOAuthProps) => {
 		dispatch(Actions.SetRequestAuthAction(localAuth));
 	};
 
-	function onNewtokenClick(authorizationCode?: { code: string; codeVerifier?: string; redirectUri: string }) {
+	function onNewtokenClick(authorizationCode?: {
+		code: string;
+		codeVerifier?: string;
+		redirectUri: string;
+	}) {
 		if (isAuthorizationCodeFlow && !authorizationCode) {
 			vscode.postMessage({
 				type: requestTypes.oauthAuthorizationRequest,
@@ -150,10 +157,9 @@ export const OAuth = (props: IOAuthProps) => {
 		urlencoded.push({
 			isChecked: true,
 			key: "grant_type",
-			value:
-				isAuthorizationCodeFlow
-					? "authorization_code"
-					: auth.oauth.grantType === GrantType.Client_Crd
+			value: isAuthorizationCodeFlow
+				? "authorization_code"
+				: auth.oauth.grantType === GrantType.Client_Crd
 					? "client_credentials"
 					: "password",
 		});
@@ -195,10 +201,22 @@ export const OAuth = (props: IOAuthProps) => {
 		}
 
 		if (authorizationCode) {
-			urlencoded.push({ isChecked: true, key: "code", value: authorizationCode.code });
-			urlencoded.push({ isChecked: true, key: "redirect_uri", value: authorizationCode.redirectUri });
+			urlencoded.push({
+				isChecked: true,
+				key: "code",
+				value: authorizationCode.code,
+			});
+			urlencoded.push({
+				isChecked: true,
+				key: "redirect_uri",
+				value: authorizationCode.redirectUri,
+			});
 			if (authorizationCode.codeVerifier) {
-				urlencoded.push({ isChecked: true, key: "code_verifier", value: authorizationCode.codeVerifier });
+				urlencoded.push({
+					isChecked: true,
+					key: "code_verifier",
+					value: authorizationCode.codeVerifier,
+				});
 			}
 		}
 
@@ -251,11 +269,20 @@ export const OAuth = (props: IOAuthProps) => {
 						),
 					);
 				}
-			} else if (event.data && event.data.type === responseTypes.oauthAuthorizationStarted) {
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.oauthAuthorizationStarted
+			) {
 				setRedirectUri(event.data.redirectUri);
-			} else if (event.data && event.data.type === responseTypes.oauthAuthorizationCode) {
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.oauthAuthorizationCode
+			) {
 				onNewtokenClick(event.data);
-			} else if (event.data && event.data.type === responseTypes.oauthAuthorizationError) {
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.oauthAuthorizationError
+			) {
 				window.alert(`OAuth authorization failed: ${event.data.error}`);
 			}
 		};
@@ -330,15 +357,39 @@ export const OAuth = (props: IOAuthProps) => {
 					<div className="oauth-text-panel">
 						<label className="oauth-label">Authorization URL</label>
 						{props.envVar && props.selectedVariable.id && (
-							<TextEditor varWords={props.envVar} onChange={(value: string) => onSetValue("authorizationUrl", value)} value={auth.oauth.authorizationUrl} focus={false} />
+							<TextEditor
+								varWords={props.envVar}
+								onChange={(value: string) =>
+									onSetValue("authorizationUrl", value)
+								}
+								value={auth.oauth.authorizationUrl}
+								focus={false}
+							/>
 						)}
 					</div>
-					{redirectUri && <div className="oauth-text-panel"><label className="oauth-label">Callback URL</label><span className="oauth-callback-url">{redirectUri}</span></div>}
+					{redirectUri && (
+						<div className="oauth-text-panel">
+							<label className="oauth-label">Callback URL</label>
+							<span className="oauth-callback-url">{redirectUri}</span>
+						</div>
+					)}
 					{auth.oauth.grantType === GrantType.Authorization_Code_PKCE && (
 						<div className="oauth-text-panel">
 							<label className="oauth-label">Code Challenge Method</label>
-							<select className="oauth-select apikey-add-select" value={auth.oauth.codeChallengeMethod} onChange={(e) => onSetCodeChallengeMethod(e.target.value as CodeChallengeMethod)}>
-								{codeChallengeMethodOpt.map(({ value, name }) => <option value={value} key={value}>{name}</option>)}
+							<select
+								className="oauth-select apikey-add-select"
+								value={auth.oauth.codeChallengeMethod}
+								onChange={(e) =>
+									onSetCodeChallengeMethod(
+										e.target.value as CodeChallengeMethod,
+									)
+								}
+							>
+								{codeChallengeMethodOpt.map(({ value, name }) => (
+									<option value={value} key={value}>
+										{name}
+									</option>
+								))}
 							</select>
 						</div>
 					)}

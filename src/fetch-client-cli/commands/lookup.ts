@@ -1,6 +1,4 @@
-import {
-	Col_Repository_GetAllCollections,
-} from "../../fetch-client-core/db/collectionDB.repository";
+import { Col_Repository_GetAllCollections } from "../../fetch-client-core/db/collectionDB.repository";
 import {
 	IFolder,
 	IHistory,
@@ -12,10 +10,20 @@ import {
 	Main_Repository_GetCollectionRequests,
 } from "../../fetch-client-core/db/mainDB.repository";
 import { cliConfig } from "../config";
-import { CollectionRunContext, FolderRunContext, RequestLeaf, RequestRunContext, RunCollectionFileOptions } from "../types/common.types";
+import {
+	CollectionRunContext,
+	FolderRunContext,
+	RequestLeaf,
+	RequestRunContext,
+	RunCollectionFileOptions,
+} from "../types/common.types";
 import { IRequestModel } from "../../fetch-client-core/types/request.types";
 import { red } from "../utils/display";
-import { Var_Repository_FindAll, Var_Repository_FindById, Var_Repository_FindByIdSync } from "../../fetch-client-core/db/variableDB.repository";
+import {
+	Var_Repository_FindAll,
+	Var_Repository_FindById,
+	Var_Repository_FindByIdSync,
+} from "../../fetch-client-core/db/variableDB.repository";
 import { writeConsoleLog, wrtieConsleError } from "../utils/logger";
 import { fetchClientV2Importer } from "../../fetch-client-core/helpers/importers/collections/fetchClient/fetchClientImporter_2_0";
 import { ImportFCVariable } from "../../fetch-client-core/helpers/importers/variables/fetchClient/fcVariableImporter";
@@ -155,7 +163,8 @@ export async function resolveEffectiveForRun(
 		if (opts.varId || opts.varName) {
 			console.info(
 				red(
-					`Info: '${contextName}' is already linked to variable set '${varSet?.name ?? linkedVarId
+					`Info: '${contextName}' is already linked to variable set '${
+						varSet?.name ?? linkedVarId
 					}'. The --var-id/--var-name option has no effect here.`,
 				),
 			);
@@ -390,7 +399,9 @@ export async function resolveRequestContext(opts: {
 	};
 }
 
-export async function loadCollectionFromFile(opts: RunCollectionFileOptions): Promise<{
+export async function loadCollectionFromFile(
+	opts: RunCollectionFileOptions,
+): Promise<{
 	collection: ICollections;
 	requests: IRequestModel[];
 	variable: IVariable;
@@ -460,7 +471,10 @@ export function findFolderInCollection(
 }
 
 /** Finds a leaf's folderId within a single (already-loaded) collection tree. */
-export function findRequestFolderId(collection: ICollections, requestId: string): string {
+export function findRequestFolderId(
+	collection: ICollections,
+	requestId: string,
+): string {
 	const leaves: RequestLeaf[] = [];
 	collectLeaves(collection, "", leaves);
 	const leaf = leaves.find((l) => l.id === requestId);
@@ -475,7 +489,9 @@ export function findRequestFolderId(collection: ICollections, requestId: string)
  * requestMap (needed so pre-fetch chains referencing other requests still resolve).
  * All identifiers must belong to the same collection.
  */
-export async function resolveRequestsAcrossCollections(identifiers: string[]): Promise<{
+export async function resolveRequestsAcrossCollections(
+	identifiers: string[],
+): Promise<{
 	collection: ICollections;
 	leaves: RequestLeaf[];
 	requestMap: Map<string, IRequestModel>;
@@ -487,7 +503,9 @@ export async function resolveRequestsAcrossCollections(identifiers: string[]): P
 	const missing: string[] = [];
 
 	for (const ident of identifiers) {
-		const found = isUuid(ident) ? findLeafById(all, ident) : findLeafByName(all, ident);
+		const found = isUuid(ident)
+			? findLeafById(all, ident)
+			: findLeafByName(all, ident);
 		if (found) {
 			matches.push(found);
 		} else {
@@ -496,7 +514,9 @@ export async function resolveRequestsAcrossCollections(identifiers: string[]): P
 	}
 
 	if (matches.length === 0) {
-		wrtieConsleError(`None of the --req requests were found: ${identifiers.join(", ")}`);
+		wrtieConsleError(
+			`None of the --req requests were found: ${identifiers.join(", ")}`,
+		);
 		process.exit(1);
 	}
 
@@ -524,7 +544,8 @@ export async function resolveRequestsAcrossCollections(identifiers: string[]): P
 }
 
 /** Matches standard UUIDs (used to decide whether a --req identifier is a name or an id). */
-const UUID_PATTERN_LOCAL = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_PATTERN_LOCAL =
+	/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function isUuid(value: string): boolean {
 	return UUID_PATTERN_LOCAL.test(value);

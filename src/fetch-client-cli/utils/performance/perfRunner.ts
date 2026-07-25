@@ -1,10 +1,19 @@
 import { cliConfig } from "../../config";
-import { computeVUsForWave, shouldStopTest } from "../../../fetch-client-core/utils/performanceTestService/perfEngine";
+import {
+	computeVUsForWave,
+	shouldStopTest,
+} from "../../../fetch-client-core/utils/performanceTestService/perfEngine";
 import { executeRequest, resolveSettings } from "../../commands/helper";
 import { ExportFormat } from "../../../fetch-client-core/consts/export.consts";
 import { finalizePerfTest } from "./perfReporter";
-import { ICollections, IVariable } from "../../../fetch-client-core/types/sidebar.types";
-import { IPerfConfig, IPerfResultPoint } from "../../../fetch-client-core/types/perfTest.types";
+import {
+	ICollections,
+	IVariable,
+} from "../../../fetch-client-core/types/sidebar.types";
+import {
+	IPerfConfig,
+	IPerfResultPoint,
+} from "../../../fetch-client-core/types/perfTest.types";
 import { IPreFetchContextProvider } from "../../../fetch-client-core/utils/preFetchService/preFetch.types.ts";
 import { IRequestModel } from "../../../fetch-client-core/types/request.types";
 import { printPerfProgress, yellow, red } from "../display";
@@ -45,7 +54,10 @@ export async function runPerfEngine(
 			running = false;
 			cancelled = true;
 			writeConsoleLog(
-				"\n" + yellow("Stopping after in-flight wave finishes... press Ctrl+C again to force quit."),
+				"\n" +
+					yellow(
+						"Stopping after in-flight wave finishes... press Ctrl+C again to force quit.",
+					),
 			);
 
 			// Safety net: if the in-flight wave never resolves, don't hang forever.
@@ -66,7 +78,12 @@ export async function runPerfEngine(
 	const isTTY = !!process.stdout.isTTY;
 	const ticker = isTTY
 		? setInterval(() => {
-				printPerfProgress(results, Date.now() - testStartTime, waveIndex, isTTY);
+				printPerfProgress(
+					results,
+					Date.now() - testStartTime,
+					waveIndex,
+					isTTY,
+				);
 			}, 500)
 		: null;
 
@@ -88,7 +105,13 @@ export async function runPerfEngine(
 		};
 
 		if (!request) {
-			return { ...base, status: 0, statusText: "Request data not found", duration: 0, isError: true };
+			return {
+				...base,
+				status: 0,
+				statusText: "Request data not found",
+				duration: 0,
+				isError: true,
+			};
 		}
 
 		const settings = resolveSettings(collection, leaf.folderId);
@@ -112,18 +135,39 @@ export async function runPerfEngine(
 				isError: result.isError,
 			};
 		} catch (err: any) {
-			return { ...base, status: 0, statusText: String(err?.message ?? err), duration: 0, isError: true };
+			return {
+				...base,
+				status: 0,
+				statusText: String(err?.message ?? err),
+				duration: 0,
+				isError: true,
+			};
 		}
 	}
 
 	while (running) {
 		const elapsedMs = Date.now() - testStartTime;
 
-		if (shouldStopTest(cfg.loadModel, waveIndex, elapsedMs, cfg.iterations, testDurationMs, rampUpMs)) {
+		if (
+			shouldStopTest(
+				cfg.loadModel,
+				waveIndex,
+				elapsedMs,
+				cfg.iterations,
+				testDurationMs,
+				rampUpMs,
+			)
+		) {
 			break;
 		}
 
-		const vus = computeVUsForWave(cfg.loadModel, cfg.targetVUs, elapsedMs, rampUpMs, cfg.rampSteps);
+		const vus = computeVUsForWave(
+			cfg.loadModel,
+			cfg.targetVUs,
+			elapsedMs,
+			rampUpMs,
+			cfg.rampSteps,
+		);
 		const timestampBase = elapsedMs;
 
 		// Mirrors the UI's buildWavePayload: every VU replays the full selected leaf set.

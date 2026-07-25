@@ -21,7 +21,11 @@ import { pubSub } from "../../extension";
 import { pubSubTypes } from "../../fetch-client-core/consts/requestTypes.consts";
 import { v4 as uuidv4 } from "uuid";
 import { writeLog } from "../helpers/logger/logger";
-import { defaultSettings, findParentSettings, resolveParentSettings } from "../helpers/settings.helper";
+import {
+	defaultSettings,
+	findParentSettings,
+	resolveParentSettings,
+} from "../helpers/settings.helper";
 
 const {
 	getLoadedDB: getCollectionDB,

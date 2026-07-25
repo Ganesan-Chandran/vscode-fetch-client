@@ -15,8 +15,7 @@ export function logDetails(
 	duration: number,
 ): void {
 	try {
-
-		if(!vsCodeLogger){
+		if (!vsCodeLogger) {
 			return;
 		}
 

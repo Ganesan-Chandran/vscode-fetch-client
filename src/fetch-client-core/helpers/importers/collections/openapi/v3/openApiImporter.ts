@@ -54,9 +54,25 @@
 import { deepClone } from "../../../../common.helper";
 import { formatDate } from "../../../../dateTime.helper";
 import { IAuth, GrantType, ClientAuth } from "../../../../../types/auth.types";
-import { ICollections, IVariable, ISettings, IHistory, IFolder } from "../../../../../types/sidebar.types";
-import { InitialAuth, InitialBody, InitialTest, InitialSetVar, InitialPreFetch } from "../../../../../consts/initialValues.consts";
-import { IRequestModel, MethodType, IBodyData } from "../../../../../types/request.types";
+import {
+	ICollections,
+	IVariable,
+	ISettings,
+	IHistory,
+	IFolder,
+} from "../../../../../types/sidebar.types";
+import {
+	InitialAuth,
+	InitialBody,
+	InitialTest,
+	InitialSetVar,
+	InitialPreFetch,
+} from "../../../../../consts/initialValues.consts";
+import {
+	IRequestModel,
+	MethodType,
+	IBodyData,
+} from "../../../../../types/request.types";
 import { ITableData } from "../../../../../types/common.types";
 import { v4 as uuidv4 } from "uuid";
 import { writeLog } from "../../../../logger/logger";

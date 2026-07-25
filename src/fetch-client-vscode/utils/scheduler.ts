@@ -73,7 +73,10 @@ export class FCScheduler {
 		return this.instance ?? (this.instance = new FCScheduler());
 	}
 
-	public async CreateJobs(requests: IAutoRequest[], autoStart: boolean): Promise<void> {
+	public async CreateJobs(
+		requests: IAutoRequest[],
+		autoStart: boolean,
+	): Promise<void> {
 		for (const request of requests) {
 			if (!request?.id || !request?.colId || !request?.reqId) {
 				continue;
@@ -139,7 +142,6 @@ export class FCScheduler {
 					nextRunTime: getNextRunTime(job),
 					ownerSessionId: SESSION_ID,
 				});
-
 			} catch (err) {
 				writeLog(`CreateJobs [${request.id}]: ${err}`);
 
@@ -160,11 +162,13 @@ export class FCScheduler {
 
 	public GetSchedules(requests: IAutoRequest[]): IAutoRequestSchedule[] {
 		return requests.map((request) => {
-			const job = this.scheduledJobs.find((scheduled) => scheduled.id === request.id);
+			const job = this.scheduledJobs.find(
+				(scheduled) => scheduled.id === request.id,
+			);
 			return {
 				...request,
 				scheduleStatus:
-					job?.status === "scheduled" ? "stopped" : job?.status ?? "stopped",
+					job?.status === "scheduled" ? "stopped" : (job?.status ?? "stopped"),
 				nextRunTime: job?.status === "running" ? getNextRunTime(job.job) : "-",
 			};
 		});
@@ -225,7 +229,6 @@ export class FCScheduler {
 		}
 	}
 
-
 	private async executeAPI(autoReq: IAutoRequest): Promise<void> {
 		try {
 			const scheduledJob = this.scheduledJobs.find((j) => j.id === autoReq.id);
@@ -284,7 +287,8 @@ export class FCScheduler {
 				(nextTime.getTime() - scheduledJob.startTime.getTime()) / MS_PER_MINUTE,
 			);
 			const completed =
-				nextTime > scheduledJob.endTime || elapsedMinutes > MAX_JOB_DURATION_MINUTES;
+				nextTime > scheduledJob.endTime ||
+				elapsedMinutes > MAX_JOB_DURATION_MINUTES;
 			const failed = res.response.isError;
 			const willStop = completed || failed;
 
@@ -307,7 +311,6 @@ export class FCScheduler {
 				scheduledJob.job.stop();
 				scheduledJob.status = failed ? "failed" : "completed";
 			}
-
 		} catch (err) {
 			writeLog(`executeAPI [${autoReq.id}]: ${err}`);
 		}

@@ -1,8 +1,8 @@
 .prefetch-result-panel {
 	/* Every color below resolves to a VS Code theme token, with a plain
-	   fallback for storybook/browser preview where those tokens don't exist.
-	   Because they're real theme variables (not hex), switching the editor
-	   between light / dark / high-contrast themes updates this panel live. */
+		fallback for storybook/browser preview where those tokens don't exist.
+		Because they're real theme variables (not hex), switching the editor
+		between light / dark / high-contrast themes updates this panel live. */
 	--pf-surface: var(--vscode-editorWidget-background, #232428);
 	--pf-surface-hover: var(--vscode-list-hoverBackground, #2a2c31);
 	--pf-border: var(--vscode-widget-border, var(--vscode-panel-border, #35373c));
@@ -10,20 +10,26 @@
 	--pf-text-muted: var(--vscode-descriptionForeground, #8b8d94);
 
 	/* --vscode-testing-icon{Passed,Failed} are the same tokens VS Code's
-	   own Test Explorer uses, so pass/fail here matches the rest of the IDE. */
+		own Test Explorer uses, so pass/fail here matches the rest of the IDE. */
 	--pf-pass: var(--vscode-testing-iconPassed, #3ecf8e);
 	--pf-pass-bg: color-mix(in srgb, var(--pf-pass) 16%, transparent);
-	--pf-fail: var(--vscode-testing-iconFailed, var(--vscode-errorForeground, #f2555a));
+	--pf-fail: var(--vscode-testing-iconFailed,
+			var(--vscode-errorForeground, #f2555a));
 	--pf-fail-bg: color-mix(in srgb, var(--pf-fail) 16%, transparent);
 
 	--pf-collection: var(--vscode-charts-yellow, #f0b429);
 	--pf-collection-bg: color-mix(in srgb, var(--pf-collection) 16%, transparent);
-	--pf-request: var(--vscode-charts-blue, var(--vscode-textLink-foreground, #6c8cff));
+	--pf-request: var(--vscode-charts-blue,
+			var(--vscode-textLink-foreground, #6c8cff));
 	--pf-request-bg: color-mix(in srgb, var(--pf-request) 16%, transparent);
 	--pf-neutral-bg: color-mix(in srgb, var(--pf-text-muted) 16%, transparent);
 
 	--pf-radius: 4px;
-	--pf-mono: var(--vscode-editor-font-family, ui-monospace, SFMono-Regular, Menlo, monospace);
+	--pf-mono: var(--vscode-editor-font-family,
+			ui-monospace,
+			SFMono-Regular,
+			Menlo,
+			monospace);
 
 	/* font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif); */
 	font-size: var(--vscode-font-size, 13px);
@@ -57,7 +63,9 @@
 	border-radius: var(--pf-radius);
 	font-size: 12px;
 	cursor: pointer;
-	transition: background 0.12s ease, border-color 0.12s ease;
+	transition:
+		background 0.12s ease,
+		border-color 0.12s ease;
 }
 
 .prefetch-expand-btn:hover {

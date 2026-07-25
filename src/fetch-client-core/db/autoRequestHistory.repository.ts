@@ -38,7 +38,9 @@ function saveDatabase(db: loki): Promise<void> {
 	});
 }
 
-export async function AutoReqHistory_Repository_GetAll(): Promise<IAutoRequestHistory[]> {
+export async function AutoReqHistory_Repository_GetAll(): Promise<
+	IAutoRequestHistory[]
+> {
 	try {
 		const { collection } = await getHistoryCollection();
 		return collection
@@ -56,14 +58,17 @@ async function getHistoryCollection(): Promise<{
 	collection: Collection<IAutoRequestHistory>;
 }> {
 	const db = await loadDatabase();
-	const collection = db.getCollection<IAutoRequestHistory>("autoRequestHistory");
+	const collection =
+		db.getCollection<IAutoRequestHistory>("autoRequestHistory");
 	if (!collection) {
 		return { db, collection: null };
 	}
 	return { db, collection };
 }
 
-export async function AutoReqHistory_Repository_Add(entry: Omit<IAutoRequestHistory, "id">): Promise<void> {
+export async function AutoReqHistory_Repository_Add(
+	entry: Omit<IAutoRequestHistory, "id">,
+): Promise<void> {
 	try {
 		const { db, collection } = await getHistoryCollection();
 		collection.insert({ ...entry, id: uuidv4() });
@@ -73,7 +78,9 @@ export async function AutoReqHistory_Repository_Add(entry: Omit<IAutoRequestHist
 	}
 }
 
-export async function AutoReqHistory_Repository_Upsert(model: Omit<IAutoRequestHistory, "id">): Promise<void> {
+export async function AutoReqHistory_Repository_Upsert(
+	model: Omit<IAutoRequestHistory, "id">,
+): Promise<void> {
 	const { db, collection } = await getHistoryCollection();
 
 	const existing = collection.findOne({
@@ -106,7 +113,9 @@ export async function AutoReqHistory_Repository_GetByColId(
 	}
 }
 
-export async function AutoReqHistory_Repository_Delete(id: string): Promise<void> {
+export async function AutoReqHistory_Repository_Delete(
+	id: string,
+): Promise<void> {
 	try {
 		const { db, collection } = await getHistoryCollection();
 		collection.findAndRemove({ id });
@@ -133,7 +142,11 @@ export async function AutoReqHistory_Repository_StopAllRunning(): Promise<void> 
 		const { db, collection } = await getHistoryCollection();
 		const running = collection.find({ scheduleStatus: "running" });
 		for (const entry of running) {
-			collection.update({ ...entry, scheduleStatus: "stopped", nextRunTime: "-" });
+			collection.update({
+				...entry,
+				scheduleStatus: "stopped",
+				nextRunTime: "-",
+			});
 		}
 		await saveDatabase(db);
 	} catch (error) {
@@ -141,13 +154,19 @@ export async function AutoReqHistory_Repository_StopAllRunning(): Promise<void> 
 	}
 }
 
-export async function AutoReqHistory_Repository_GetDistinctRunningScheduleIds(): Promise<string[]> {
+export async function AutoReqHistory_Repository_GetDistinctRunningScheduleIds(): Promise<
+	string[]
+> {
 	try {
 		const { collection } = await getHistoryCollection();
 		const running = collection.find({ scheduleStatus: "running" });
-		return [...new Set(running.map((item) => item.scheduleId ?? item.autoReqId))];
+		return [
+			...new Set(running.map((item) => item.scheduleId ?? item.autoReqId)),
+		];
 	} catch (error) {
-		writeLog(`error::AutoReqHistory_Repository_GetDistinctRunningScheduleIds(): ${error}`);
+		writeLog(
+			`error::AutoReqHistory_Repository_GetDistinctRunningScheduleIds(): ${error}`,
+		);
 		return [];
 	}
 }
@@ -158,17 +177,26 @@ export async function AutoReqHistory_Repository_ReconcileOwnSession(
 	try {
 		const { db, collection } = await getHistoryCollection();
 		if (collection) {
-			const stale = collection.find({ scheduleStatus: "running" }).filter(
-				(item) => !item.ownerSessionId || item.ownerSessionId === currentSessionId,
-			);
+			const stale = collection
+				.find({ scheduleStatus: "running" })
+				.filter(
+					(item) =>
+						!item.ownerSessionId || item.ownerSessionId === currentSessionId,
+				);
 			for (const entry of stale) {
-				collection.update({ ...entry, scheduleStatus: "stopped", nextRunTime: "-" });
+				collection.update({
+					...entry,
+					scheduleStatus: "stopped",
+					nextRunTime: "-",
+				});
 			}
 			if (stale.length) {
 				await saveDatabase(db);
 			}
 		}
 	} catch (error) {
-		writeLog(`error::AutoReqHistory_Repository_ReconcileOwnSession(): ${error}`);
+		writeLog(
+			`error::AutoReqHistory_Repository_ReconcileOwnSession(): ${error}`,
+		);
 	}
 }

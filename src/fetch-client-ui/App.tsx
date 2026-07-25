@@ -40,7 +40,6 @@ const SecretManagerPanel = React.lazy(
 	() => import("./components/Variables/SecretManager/secretMangerPanel"),
 );
 
-
 function ErrorFallback({ error }) {
 	const errorData =
 		" Name : " +

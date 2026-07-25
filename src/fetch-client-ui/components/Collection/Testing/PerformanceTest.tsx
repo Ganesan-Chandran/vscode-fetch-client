@@ -9,7 +9,10 @@ import {
 	exportPerfXml,
 } from "../../../../fetch-client-core/utils/performanceTestService/perfHelper";
 import { getMethodClassName } from "../../SideBar/util";
-import { IPerfConfig, IPerfResultPoint } from "../../../../fetch-client-core/types/perfTest.types";
+import {
+	IPerfConfig,
+	IPerfResultPoint,
+} from "../../../../fetch-client-core/types/perfTest.types";
 import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
 import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";
 import { PerformanceTestSettings } from "./PerformanceTestSettings";
@@ -18,7 +21,10 @@ import {
 	responseTypes,
 } from "../../../../fetch-client-core/consts/requestTypes.consts";
 import { ResponseTimeChart } from "./ResponseTimeChart";
-import { shouldStopTest, computeVUsForWave } from "../../../../fetch-client-core/utils/performanceTestService/perfEngine";
+import {
+	shouldStopTest,
+	computeVUsForWave,
+} from "../../../../fetch-client-core/utils/performanceTestService/perfEngine";
 import PanelLayout from "../../Common/Layout/panelLayout";
 import React, { useEffect, useRef, useState } from "react";
 import vscode from "../../Common/vscodeAPI";
@@ -73,7 +79,9 @@ const PerformanceTest = () => {
 	};
 
 	const [selectedTab, setSelectedTab] = useState("Setup");
-	const [resultTab, setResultTab] = useState<"Overall" | "Request Breakdown">("Overall");
+	const [resultTab, setResultTab] = useState<"Overall" | "Request Breakdown">(
+		"Overall",
+	);
 	const [running, setRunning] = useState(false);
 	const [done, setDone] = useState(false);
 	const [cancelled, setCancelled] = useState(false);
@@ -382,7 +390,13 @@ const PerformanceTest = () => {
 		const elapsedSec = elapsedDisplay / 1000;
 		const metrics = computeMetrics(results, elapsedSec);
 		const breakdown = computeEndpointBreakdown(results, elapsedSec);
-		const data = exportPerfHtml(config, results, metrics, breakdown, sourceColName);
+		const data = exportPerfHtml(
+			config,
+			results,
+			metrics,
+			breakdown,
+			sourceColName,
+		);
 		vscode.postMessage({
 			type: requestTypes.exportData,
 			format: "html",
@@ -396,7 +410,13 @@ const PerformanceTest = () => {
 		const elapsedSec = elapsedDisplay / 1000;
 		const metrics = computeMetrics(results, elapsedSec);
 		const breakdown = computeEndpointBreakdown(results, elapsedSec);
-		const data = exportPerfXml(config, results, metrics, breakdown, sourceColName);
+		const data = exportPerfXml(
+			config,
+			results,
+			metrics,
+			breakdown,
+			sourceColName,
+		);
 		vscode.postMessage({
 			type: requestTypes.exportData,
 			format: "xml",
@@ -540,10 +560,7 @@ const PerformanceTest = () => {
 			return 0;
 		}
 		if (config.loadModel === "fixed") {
-			return Math.min(
-				100,
-				(refWaveIndex.current / config.iterations) * 100,
-			);
+			return Math.min(100, (refWaveIndex.current / config.iterations) * 100);
 		}
 		return Math.min(
 			100,
@@ -557,14 +574,8 @@ const PerformanceTest = () => {
 				{["Overall", "Request Breakdown"].map((tab) => (
 					<button
 						key={tab}
-						className={
-							resultTab === tab
-								? "tab-menu selected"
-								: "tab-menu"
-						}
-						onClick={() =>
-							setResultTab(tab as "Overall" | "Request Breakdown")
-						}
+						className={resultTab === tab ? "tab-menu selected" : "tab-menu"}
+						onClick={() => setResultTab(tab as "Overall" | "Request Breakdown")}
 					>
 						{tab}
 					</button>
@@ -599,13 +610,7 @@ const PerformanceTest = () => {
 						>
 							<div className="perf-status-left">
 								<span className="perf-status-icon">
-									{running
-										? "⏳"
-										: done
-											? cancelled
-												? "🟠"
-												: "✅"
-											: "⚪"}
+									{running ? "⏳" : done ? (cancelled ? "🟠" : "✅") : "⚪"}
 								</span>
 
 								<div>
@@ -621,12 +626,14 @@ const PerformanceTest = () => {
 
 									<div className="perf-status-subtitle">
 										Virtual Users : {currentVUs}
-										&nbsp;&nbsp;|&nbsp;&nbsp;
-										Elapsed : {elapsedSec.toFixed(1)} sec
+										&nbsp;&nbsp;|&nbsp;&nbsp; Elapsed : {elapsedSec.toFixed(
+											1,
+										)}{" "}
+										sec
 										{running && (
 											<>
-												&nbsp;&nbsp;|&nbsp;&nbsp;
-												Wave : {refWaveIndex.current + 1}
+												&nbsp;&nbsp;|&nbsp;&nbsp; Wave :{" "}
+												{refWaveIndex.current + 1}
 											</>
 										)}
 									</div>

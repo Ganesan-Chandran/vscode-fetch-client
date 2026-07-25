@@ -108,7 +108,9 @@ export function fetchClientV2Importer(
 			.filter((item) => item.parentId === undefined)
 			.sort((a, b) => a.order - b.order);
 
-		const newCollectionId = preserveIds ? parsed.metadata.id ?? uuidv4() : uuidv4();
+		const newCollectionId = preserveIds
+			? (parsed.metadata.id ?? uuidv4())
+			: uuidv4();
 
 		const colData: ICollections = {
 			id: newCollectionId,
@@ -183,7 +185,8 @@ export function fetchClientV2Importer(
 		};
 	} catch (err) {
 		writeLog(
-			`error::fetchClientV2Importer() - ${err instanceof Error ? err.message : String(err)
+			`error::fetchClientV2Importer() - ${
+				err instanceof Error ? err.message : String(err)
 			}`,
 		);
 		return null;
@@ -383,7 +386,9 @@ function mapAuth(exportAuth: IExportAuth): IAuth {
 			};
 			const oauth: IOAuth = {
 				authorizationUrl: creds.authorizationUrl ?? "",
-				codeChallengeMethod: (creds.codeChallengeMethod as CodeChallengeMethod) ?? CodeChallengeMethod.S256,
+				codeChallengeMethod:
+					(creds.codeChallengeMethod as CodeChallengeMethod) ??
+					CodeChallengeMethod.S256,
 				clientAuth: creds.clientAuth as ClientAuth,
 				clientId: creds.clientId,
 				clientSecret: creds.clientSecret,
@@ -570,19 +575,19 @@ function mapPreRunRequests(
 		.map((r) => {
 			const condition: ITest[] = r.condition
 				? (() => {
-					const { parameter, customParameter } = resolveParameter(
-						r.condition.source,
-						r.condition.path,
-					);
-					return [
-						{
-							parameter,
-							action: r.condition.action,
-							expectedValue: r.condition.expectedValue,
-							...(customParameter !== undefined && { customParameter }),
-						},
-					];
-				})()
+						const { parameter, customParameter } = resolveParameter(
+							r.condition.source,
+							r.condition.path,
+						);
+						return [
+							{
+								parameter,
+								action: r.condition.action,
+								expectedValue: r.condition.expectedValue,
+								...(customParameter !== undefined && { customParameter }),
+							},
+						];
+					})()
 				: [{ parameter: "", action: "", expectedValue: "" }];
 
 			return {

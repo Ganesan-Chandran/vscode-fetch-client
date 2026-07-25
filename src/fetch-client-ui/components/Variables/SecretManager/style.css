@@ -110,7 +110,7 @@
 	color: var(--vscode-descriptionForeground);
 }
 
-.check-btn{
+.check-btn {
 	width: fit-content;
 	margin-right: 10px;
 }

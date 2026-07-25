@@ -5,7 +5,10 @@ import { ITableData } from "../types/common.types";
 import { IVariable } from "../types/sidebar.types";
 import { ParametersModelMapping } from "../consts/test.consts";
 import { replaceDataWithVariable } from "./variable.helper";
-import { evaluateExpression, evaluateExpressionValue } from "./expression.helper";
+import {
+	evaluateExpression,
+	evaluateExpressionValue,
+} from "./expression.helper";
 
 export function setVariable(
 	variable: IVariable,
@@ -56,8 +59,11 @@ export function setVariable(
 					}
 				}
 			} else if (item.parameter === "Expression") {
-				const result = String(evaluateExpressionValue(item.key?.toString() ?? ""));
-				actualValue = result === null || result === undefined ? "" : String(result);
+				const result = String(
+					evaluateExpressionValue(item.key?.toString() ?? ""),
+				);
+				actualValue =
+					result === null || result === undefined ? "" : String(result);
 				index = variable.data.findIndex((d) => d.key === item.variableName);
 				if (index === -1) {
 					variable.data.push({
@@ -126,7 +132,11 @@ function formatExpressionValue(value: any): string {
 	}
 
 	// Numeric string
-	if (typeof value === "string" && value.trim() !== "" && !isNaN(Number(value))) {
+	if (
+		typeof value === "string" &&
+		value.trim() !== "" &&
+		!isNaN(Number(value))
+	) {
 		return value.trim();
 	}
 
@@ -205,13 +215,19 @@ export function executeTests(
 						return formatExpressionValue(variable?.value);
 					},
 				);
-			}
-			else {
-				const item = variableData?.find((t) => t.key === tests[i].expectedValue.replace("{{", "").replace("}}", "").trim());
+			} else {
+				const item = variableData?.find(
+					(t) =>
+						t.key ===
+						tests[i].expectedValue.replace("{{", "").replace("}}", "").trim(),
+				);
 				actualValue = item?.value;
 			}
 		} else {
-			actualValue = findHeader(responseValue.headers, mapping.replace("headers.", ""));
+			actualValue = findHeader(
+				responseValue.headers,
+				mapping.replace("headers.", ""),
+			);
 		}
 
 		if (tests[i].action === "length") {

@@ -1,6 +1,10 @@
 import React from "react";
 import "../style.css";
-import { IPerfConfig, LoadModel, TestScope } from "../../../../fetch-client-core/types/perfTest.types";
+import {
+	IPerfConfig,
+	LoadModel,
+	TestScope,
+} from "../../../../fetch-client-core/types/perfTest.types";
 
 interface IProps {
 	config: IPerfConfig;

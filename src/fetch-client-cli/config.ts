@@ -26,7 +26,7 @@ export function getCliConfig(): ICliConfig {
 		encryptionEnabled: null,
 		encryptionKey: null,
 		sslCheck: false,
-		tlsCertificate: []
+		tlsCertificate: [],
 	};
 
 	if (process.env.FC_SSL_CHECK !== undefined) {
@@ -186,9 +186,7 @@ export function resolveEncryptionKey(
 	return typeof key === "string" ? key : "";
 }
 
-export function resolveSSLCheck(
-	settings: Record<string, unknown>,
-): boolean {
+export function resolveSSLCheck(settings: Record<string, unknown>): boolean {
 	const value = settings["fetch-client.SSLCheck"];
 	return typeof value === "boolean" ? value : true;
 }
@@ -198,7 +196,5 @@ export function resolveTLSConfiguration(
 ): ITlsCertificate[] {
 	const value = settings["fetch-client.tlsConfiguration"];
 
-	return Array.isArray(value)
-		? (value as ITlsCertificate[])
-		: [];
+	return Array.isArray(value) ? (value as ITlsCertificate[]) : [];
 }

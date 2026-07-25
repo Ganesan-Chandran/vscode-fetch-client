@@ -4,7 +4,10 @@ import { codeSnippetLangunages } from "../../../../fetch-client-core/consts/code
 import { HTTPSnippet, type TargetId, type ClientId } from "httpsnippet";
 import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
 import { IRootState } from "../../../reducer/combineReducer";
-import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
+import {
+	requestTypes,
+	responseTypes,
+} from "../../../../fetch-client-core/consts/requestTypes.consts";
 import { useSelector } from "react-redux";
 import React, { useEffect, useRef, useState } from "react";
 import vscode from "../vscodeAPI";

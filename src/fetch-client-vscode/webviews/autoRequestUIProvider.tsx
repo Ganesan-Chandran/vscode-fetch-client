@@ -52,7 +52,11 @@ export const AutoRequestProviderUI = (extensionUri: vscode.Uri) => {
 				} else if (
 					message.type === requestTypes.deleteAutoRequestHistoryRequest
 				) {
-					DeleteAutoRequestHistory(message.data, colId, autoRequestPanel.webview);
+					DeleteAutoRequestHistory(
+						message.data,
+						colId,
+						autoRequestPanel.webview,
+					);
 				} else if (message.type === requestTypes.saveAutoRequestRequest) {
 					SaveAutoRequest(message.data, SESSION_ID, autoRequestPanel.webview);
 				}

@@ -1,5 +1,9 @@
 import { escapeXml } from "../escapeHelpers";
-import { IDataDrivenConfig, IDataDrivenResult, IDataDrivenRowResult } from "./dataDriven.types";
+import {
+	IDataDrivenConfig,
+	IDataDrivenResult,
+	IDataDrivenRowResult,
+} from "./dataDriven.types";
 
 function isRowPassed(r: IDataDrivenRowResult): boolean {
 	return !r.isError && (r.testTotal === 0 || r.testPassed === r.testTotal);
@@ -19,7 +23,7 @@ export function toDataDrivenXml(
 
 	return `<?xml version="1.0" encoding="UTF-8"?>
 <dataDrivenReport name="${escapeXml(testName)}" fileFormat="${escapeXml(config.fileFormat)}" stopOnRowFailure="${!!config.stopOnRowFailure}">
-  <summary totalRows="${result.totalRows}" totalRequests="${result.totalRequests}" passedRequests="${result.passedRequests}" failedRequests="${result.failedRequests}" startTime="${escapeXml(result.startTime)}" endTime="${escapeXml(result.endTime)}" />
+	<summary totalRows="${result.totalRows}" totalRequests="${result.totalRequests}" passedRequests="${result.passedRequests}" failedRequests="${result.failedRequests}" startTime="${escapeXml(result.startTime)}" endTime="${escapeXml(result.endTime)}" />
 ${rowsXml}
 </dataDrivenReport>
 `;

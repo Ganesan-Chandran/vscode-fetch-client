@@ -6,14 +6,12 @@ import { IVariable, ICollections } from "../../types/sidebar.types";
 import { setVariable } from "../../helpers/tests.helper";
 import { resolveParentSettings } from "../../helpers/settings.helper";
 
-export class CliPreFetchContextProvider
-	implements IPreFetchContextProvider {
-
+export class CliPreFetchContextProvider implements IPreFetchContextProvider {
 	constructor(
 		private readonly collection: ICollections,
 		private readonly requestMap: Map<string, IRequestModel>,
 		private _variable: IVariable | undefined,
-	) { }
+	) {}
 
 	get variable(): IVariable | undefined {
 		return this._variable;
@@ -24,20 +22,16 @@ export class CliPreFetchContextProvider
 		_parentName: string,
 		_key: string | null,
 	): Promise<RequestContext | undefined> {
-
 		const request = this.requestMap.get(runRequest.reqId);
 
 		if (!request) {
 			return undefined;
 		}
 
-		const settings =
-			resolveParentSettings(
-				this.collection,
-				runRequest.parentId === runRequest.colId
-					? ""
-					: runRequest.parentId,
-			);
+		const settings = resolveParentSettings(
+			this.collection,
+			runRequest.parentId === runRequest.colId ? "" : runRequest.parentId,
+		);
 
 		return {
 			request,
@@ -60,11 +54,7 @@ export class CliPreFetchContextProvider
 			return variable;
 		}
 
-		const updated = setVariable(
-			variable,
-			request.setvar,
-			response,
-		);
+		const updated = setVariable(variable, request.setvar, response);
 
 		// update memory
 		this._variable = updated;

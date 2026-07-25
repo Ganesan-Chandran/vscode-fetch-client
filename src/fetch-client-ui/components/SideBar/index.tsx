@@ -37,7 +37,7 @@ const SideBar = () => {
 		colId: "",
 		foldId: "",
 		itemId: "",
-		varId: ""
+		varId: "",
 	});
 	const [colSort, setColSort] = useState(0);
 	const [varSort, setVarSort] = useState(0);
@@ -95,7 +95,7 @@ const SideBar = () => {
 	function onSecretMangerOpen(evt: any) {
 		evt.preventDefault();
 		vscode.postMessage({
-			type: requestTypes.secretManagerUIOpen
+			type: requestTypes.secretManagerUIOpen,
 		});
 		setMenuShow(false);
 	}
@@ -393,7 +393,7 @@ const SideBar = () => {
 					colId: event.data.colId,
 					foldId: event.data.folId,
 					itemId: event.data.id,
-					varId: event.data.varId
+					varId: event.data.varId,
 				});
 			} else if (
 				event.data &&
@@ -404,7 +404,7 @@ const SideBar = () => {
 						colId: "",
 						foldId: "",
 						itemId: "",
-						varId: ""
+						varId: "",
 					});
 				}
 			} else if (
@@ -507,7 +507,9 @@ const SideBar = () => {
 					Sort {varSort === 0 || varSort === 2 ? "(A-Z)" : "(Z-A)"}
 				</button>
 				<hr />
-				<button onClick={(e) => onSecretMangerOpen(e)}>Secrets Integration</button>
+				<button onClick={(e) => onSecretMangerOpen(e)}>
+					Secrets Integration
+				</button>
 			</>
 		);
 	}

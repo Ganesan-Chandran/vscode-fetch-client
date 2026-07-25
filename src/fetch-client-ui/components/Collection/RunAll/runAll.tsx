@@ -3,7 +3,13 @@ import {
 	executeTests,
 	setVariable,
 } from "../../../../fetch-client-core/helpers/tests.helper";
-import { exportCSV, exportHTML, exportJson, exportNunit, exportXML } from "./helper";
+import {
+	exportCSV,
+	exportHTML,
+	exportJson,
+	exportNunit,
+	exportXML,
+} from "./helper";
 import { getMethodClassName } from "../../SideBar/util";
 import { GetResponseTime } from "../../../../fetch-client-core/helpers/dateTime.helper";
 import { IReponseModel } from "../../../../fetch-client-core/types/response.types";
@@ -409,8 +415,8 @@ const RunAll = () => {
 				: res[selectedIteration][index].response.status === 0
 					? ""
 					: res[selectedIteration][index].response.status +
-					" " +
-					res[selectedIteration][index].response.statusText
+						" " +
+						res[selectedIteration][index].response.statusText
 			: "";
 	}
 
@@ -588,7 +594,6 @@ const RunAll = () => {
 		});
 	}
 
-	
 	function onClickExportNUnit(e: any) {
 		e.preventDefault();
 		let data = exportNunit(
@@ -884,9 +889,9 @@ const RunAll = () => {
 												{(selectedOption === 1 &&
 													curIndex === index &&
 													processing) ||
-													(selectedOption === 2 &&
-														processing &&
-														selectedReq[index])
+												(selectedOption === 2 &&
+													processing &&
+													selectedReq[index])
 													? "loading..."
 													: getResponseStatus(index)}
 											</span>
@@ -896,9 +901,9 @@ const RunAll = () => {
 												{(selectedOption === 1 &&
 													curIndex === index &&
 													processing) ||
-													(selectedOption === 2 &&
-														processing &&
-														selectedReq[index])
+												(selectedOption === 2 &&
+													processing &&
+													selectedReq[index])
 													? "loading..."
 													: getResponseDuration(index)}
 											</span>
@@ -910,9 +915,9 @@ const RunAll = () => {
 												{(selectedOption === 1 &&
 													curIndex === index &&
 													processing) ||
-													(selectedOption === 2 &&
-														processing &&
-														selectedReq[index])
+												(selectedOption === 2 &&
+													processing &&
+													selectedReq[index])
 													? "loading..."
 													: getTestResult(index)}
 											</span>

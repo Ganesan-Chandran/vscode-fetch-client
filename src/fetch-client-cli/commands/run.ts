@@ -1,5 +1,10 @@
 import { CliPreFetchContextProvider } from "../../fetch-client-core/utils/preFetchService/cliPreFetchContextProvider";
-import { CollectionRunContext, FolderRunContext, RequestLeaf, RunCollectionFileOptions } from "../types/common.types";
+import {
+	CollectionRunContext,
+	FolderRunContext,
+	RequestLeaf,
+	RunCollectionFileOptions,
+} from "../types/common.types";
 import {
 	collectLeaves,
 	findFolderInCollection,
@@ -11,21 +16,37 @@ import {
 } from "./lookup";
 import { ConvertCurlToRequest } from "../../fetch-client-core/utils/curlToRequest";
 import { DbPreFetchContextProvider } from "../../fetch-client-core/utils/preFetchService/dbPreFetchContextProvider";
-import { executeCollection, executeFolder, executeRequest, executeSingleRequest } from "./helper";
+import {
+	executeCollection,
+	executeFolder,
+	executeRequest,
+	executeSingleRequest,
+} from "./helper";
 import { ExportFormat } from "../../fetch-client-core/consts/export.consts";
 import { formatDate } from "../../fetch-client-core/helpers/dateTime.helper";
 import { History_Repository_InsertHistory } from "../../fetch-client-core/db/history.repository";
-import { IHistory, ISettings } from "../../fetch-client-core/types/sidebar.types";
+import {
+	IHistory,
+	ISettings,
+} from "../../fetch-client-core/types/sidebar.types";
 import { Main_Repository_SaveRequest } from "../../fetch-client-core/db/mainDB.repository";
-import { printRunResult, printRunSummary, printSection } from "../utils/display";
+import {
+	printRunResult,
+	printRunSummary,
+	printSection,
+} from "../utils/display";
 import { v4 as uuidv4 } from "uuid";
 import { wrtieConsleError } from "../utils/logger";
 
 // --- run --req / --col / --fol (DB-backed) -- unchanged from before ----------
 
 export async function runRequest(opts: {
-	name?: string; id?: string; varId?: string; varName?: string;
-	exportFormat?: ExportFormat; exportPath?: string;
+	name?: string;
+	id?: string;
+	varId?: string;
+	varName?: string;
+	exportFormat?: ExportFormat;
+	exportPath?: string;
 }): Promise<void> {
 	const context = await resolveRequestContext(opts);
 	const provider = new DbPreFetchContextProvider();
@@ -33,17 +54,27 @@ export async function runRequest(opts: {
 }
 
 export async function runCollection(opts: {
-	all?: boolean; name?: string; id?: string; varId?: string; varName?: string;
-	exportFormat?: ExportFormat; exportPath?: string;
+	all?: boolean;
+	name?: string;
+	id?: string;
+	varId?: string;
+	varName?: string;
+	exportFormat?: ExportFormat;
+	exportPath?: string;
 }): Promise<void> {
-	const contexts: CollectionRunContext[] = await resolveCollectionContexts(opts);
+	const contexts: CollectionRunContext[] =
+		await resolveCollectionContexts(opts);
 	const provider = new DbPreFetchContextProvider();
 	await executeCollection(contexts, opts, provider);
 }
 
 export async function runFolder(opts: {
-	name?: string; id?: string; varId?: string; varName?: string;
-	exportFormat?: ExportFormat; exportPath?: string;
+	name?: string;
+	id?: string;
+	varId?: string;
+	varName?: string;
+	exportFormat?: ExportFormat;
+	exportPath?: string;
 }): Promise<void> {
 	const context: FolderRunContext = await resolveFolderContext(opts);
 	const provider = new DbPreFetchContextProvider();
@@ -91,10 +122,18 @@ export async function runCollectionFromFile(opts: RunCollectionFileOptions) {
 	collectLeaves(collection, "", leaves);
 
 	const requestMap = new Map(requests.map((r) => [r.id, r]));
-	const provider = new CliPreFetchContextProvider(collection, requestMap, variable);
+	const provider = new CliPreFetchContextProvider(
+		collection,
+		requestMap,
+		variable,
+	);
 
 	const context: CollectionRunContext = {
-		collection, leaves, requestMap, variable, effectiveVarId: "",
+		collection,
+		leaves,
+		requestMap,
+		variable,
+		effectiveVarId: "",
 	};
 
 	await executeCollection(
@@ -105,8 +144,12 @@ export async function runCollectionFromFile(opts: RunCollectionFileOptions) {
 }
 
 export async function runFolderFromFile(opts: {
-	file: string; name?: string; id?: string; varFile?: string;
-	exportFormat?: ExportFormat; exportPath?: string;
+	file: string;
+	name?: string;
+	id?: string;
+	varFile?: string;
+	exportFormat?: ExportFormat;
+	exportPath?: string;
 }): Promise<void> {
 	const { collection, requests, variable } = await loadCollectionFromFile(opts);
 
@@ -126,7 +169,11 @@ export async function runFolderFromFile(opts: {
 	collectLeaves(folder, folder.id, leaves);
 
 	const requestMap = new Map(requests.map((r) => [r.id, r]));
-	const provider = new CliPreFetchContextProvider(collection, requestMap, variable);
+	const provider = new CliPreFetchContextProvider(
+		collection,
+		requestMap,
+		variable,
+	);
 
 	await executeFolder(
 		{ folder, collection, leaves, requestMap, variable, effectiveVarId: "" },
@@ -136,8 +183,12 @@ export async function runFolderFromFile(opts: {
 }
 
 export async function runRequestFromFile(opts: {
-	file: string; name?: string; id?: string; varFile?: string;
-	exportFormat?: ExportFormat; exportPath?: string;
+	file: string;
+	name?: string;
+	id?: string;
+	varFile?: string;
+	exportFormat?: ExportFormat;
+	exportPath?: string;
 }) {
 	const { collection, requests, variable } = await loadCollectionFromFile(opts);
 
@@ -152,7 +203,11 @@ export async function runRequestFromFile(opts: {
 
 	const folderId = findRequestFolderId(collection, request.id);
 	const requestMap = new Map(requests.map((r) => [r.id, r]));
-	const provider = new CliPreFetchContextProvider(collection, requestMap, variable);
+	const provider = new CliPreFetchContextProvider(
+		collection,
+		requestMap,
+		variable,
+	);
 
 	await executeSingleRequest(
 		{ request, collection, folderId, variable, effectiveVarId: "", requestMap },

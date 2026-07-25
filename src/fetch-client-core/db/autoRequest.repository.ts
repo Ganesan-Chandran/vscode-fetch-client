@@ -77,8 +77,8 @@ export async function Auto_Repository_SaveAutoRequests(
 				return;
 			}
 
-				existing.id = item.id;
-				existing.scheduleId = item.scheduleId;
+			existing.id = item.id;
+			existing.scheduleId = item.scheduleId;
 			existing.colId = item.colId;
 			existing.reqId = item.reqId;
 			existing.parentId = item.parentId;

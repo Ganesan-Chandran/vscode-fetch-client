@@ -1,5 +1,9 @@
 import { buildSummary } from "../../../../fetch-client-core/helpers/exporters/reports/reportBuilder";
-import { ExportContext, ExportReport, ExportScope } from "../../../../fetch-client-core/types/export.types";
+import {
+	ExportContext,
+	ExportReport,
+	ExportScope,
+} from "../../../../fetch-client-core/types/export.types";
 import { IReponseModel } from "../../../../fetch-client-core/types/response.types";
 import { IRequestModel } from "../../../../fetch-client-core/types/request.types";
 import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";
@@ -38,9 +42,7 @@ export function uiResponsesToRunResults(
 				? 0
 				: (response?.response?.duration ?? 0),
 
-			size: response?.response?.size
-				? Number(response.response.size)
-				: 0,
+			size: response?.response?.size ? Number(response.response.size) : 0,
 
 			isError: response?.response?.isError ?? true,
 
@@ -67,8 +69,14 @@ export function exportJson(
 	_selectedVariable: IVariable,
 	totalIterations: number,
 ): any {
-
-	let iteration: ExportReport[] = buildData(req, selectedReq, res, sourceType, sourceColName, totalIterations);
+	let iteration: ExportReport[] = buildData(
+		req,
+		selectedReq,
+		res,
+		sourceType,
+		sourceColName,
+		totalIterations,
+	);
 	return JSON.parse(toJson(iteration));
 }
 
@@ -81,8 +89,14 @@ export function exportCSV(
 	_selectedVariable: IVariable,
 	totalIterations: number,
 ): string {
-
-	let iteration: ExportReport[] = buildData(req, selectedReq, res, sourceType, sourceColName, totalIterations);
+	let iteration: ExportReport[] = buildData(
+		req,
+		selectedReq,
+		res,
+		sourceType,
+		sourceColName,
+		totalIterations,
+	);
 	return toCsv(iteration);
 }
 
@@ -95,8 +109,14 @@ export function exportHTML(
 	_selectedVariable: IVariable,
 	totalIterations: number,
 ): string {
-
-	let iteration: ExportReport[] = buildData(req, selectedReq, res, sourceType, sourceColName, totalIterations);
+	let iteration: ExportReport[] = buildData(
+		req,
+		selectedReq,
+		res,
+		sourceType,
+		sourceColName,
+		totalIterations,
+	);
 	return toHtml(iteration);
 }
 
@@ -109,8 +129,14 @@ export function exportXML(
 	_selectedVariable: IVariable,
 	totalIterations: number,
 ): string {
-
-	let iteration: ExportReport[] = buildData(req, selectedReq, res, sourceType, sourceColName, totalIterations);
+	let iteration: ExportReport[] = buildData(
+		req,
+		selectedReq,
+		res,
+		sourceType,
+		sourceColName,
+		totalIterations,
+	);
 	return toXml(iteration);
 }
 
@@ -123,8 +149,14 @@ export function exportNunit(
 	_selectedVariable: IVariable,
 	totalIterations: number,
 ): string {
-
-	let iteration: ExportReport[] = buildData(req, selectedReq, res, sourceType, sourceColName, totalIterations);
+	let iteration: ExportReport[] = buildData(
+		req,
+		selectedReq,
+		res,
+		sourceType,
+		sourceColName,
+		totalIterations,
+	);
 	return toNUnit(iteration);
 }
 
@@ -134,7 +166,7 @@ function buildData(
 	res: IReponseModel[][],
 	sourceType: ExportScope,
 	sourceColName: string,
-	totalIterations: number
+	totalIterations: number,
 ): ExportReport[] {
 	let iteration: ExportReport[] = [];
 
@@ -144,12 +176,12 @@ function buildData(
 		const results = toExportRequestResults(runResults);
 		const context: ExportContext = {
 			scope: sourceType,
-			name: sourceColName
+			name: sourceColName,
 		};
 		iteration.push({
-			"context": context,
-			"summary": summary,
-			"results": results
+			context: context,
+			summary: summary,
+			results: results,
 		});
 	}
 

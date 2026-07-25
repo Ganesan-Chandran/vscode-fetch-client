@@ -1,5 +1,9 @@
 import { escapeHtml } from "../../../utils/escapeHelpers";
-import { ExportPreFetchStep, ExportReport, ExportRequestResult } from "../../../types/export.types";
+import {
+	ExportPreFetchStep,
+	ExportReport,
+	ExportRequestResult,
+} from "../../../types/export.types";
 
 function renderTestsRows(tests: ExportRequestResult["tests"]): string {
 	if (tests.length === 0) {
@@ -71,42 +75,40 @@ function renderRequestCard(r: ExportRequestResult): string {
 function renderIteration(report: ExportReport, iteration: number): string {
 	const { summary } = report;
 
-	const requestCards = report.results
-		.map(renderRequestCard)
-		.join("\n");
+	const requestCards = report.results.map(renderRequestCard).join("\n");
 
 	return `
 <section class="iteration">
-    <h4>Iteration ${iteration}</h4>   
+		<h4>Iteration ${iteration}</h4>
 
-    <div class="summary">
-        <div class="stat">
-            <div class="value">${summary.totalRequests}</div>
-            <div class="label">Requests</div>
-        </div>
+		<div class="summary">
+				<div class="stat">
+						<div class="value">${summary.totalRequests}</div>
+						<div class="label">Requests</div>
+				</div>
 
-        <div class="stat">
-            <div class="value">${summary.passedRequests}</div>
-            <div class="label">Passed</div>
-        </div>
+				<div class="stat">
+						<div class="value">${summary.passedRequests}</div>
+						<div class="label">Passed</div>
+				</div>
 
-        <div class="stat">
-            <div class="value">${summary.failedRequests}</div>
-            <div class="label">Failed</div>
-        </div>
+				<div class="stat">
+						<div class="value">${summary.failedRequests}</div>
+						<div class="label">Failed</div>
+				</div>
 
-        <div class="stat">
-            <div class="value">${summary.totalDurationMs} ms</div>
-            <div class="label">Total Duration</div>
-        </div>
+				<div class="stat">
+						<div class="value">${summary.totalDurationMs} ms</div>
+						<div class="label">Total Duration</div>
+				</div>
 
-        <div class="stat">
-            <div class="value">${summary.passedTests}/${summary.totalTests}</div>
-            <div class="label">Tests Passed</div>
-        </div>
-    </div>
+				<div class="stat">
+						<div class="value">${summary.passedTests}/${summary.totalTests}</div>
+						<div class="label">Tests Passed</div>
+				</div>
+		</div>
 
-    ${requestCards}
+		${requestCards}
 		<br/>
 </section>`;
 }
@@ -156,14 +158,14 @@ export function toHtml(reports: ExportReport[]): string {
 </style>
 </head>
 <body>
-    <h1>Fetch Client Report</h1>
+		<h1>Fetch Client Report</h1>
 		<p class="subtitle">
-        ${escapeHtml(context.scope).toLocaleUpperCase()}:
-        ${escapeHtml(context.name)}
-        -
-        generated ${escapeHtml(summary.generatedAt)}
-    </p>
-    ${iterationsHtml}
+				${escapeHtml(context.scope).toLocaleUpperCase()}:
+				${escapeHtml(context.name)}
+				-
+				generated ${escapeHtml(summary.generatedAt)}
+		</p>
+		${iterationsHtml}
 </body>
 </html>
 `;

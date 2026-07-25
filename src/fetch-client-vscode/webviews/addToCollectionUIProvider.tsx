@@ -44,14 +44,20 @@ import { getVariableEncryptionConfiguration } from "../../fetch-client-core/util
 import { IDataDrivenConfig } from "../../fetch-client-core/utils/dataDrivenTestService/dataDriven.types";
 import { IRequestModel } from "../../fetch-client-core/types/request.types";
 import { resolveParentSettings } from "../../fetch-client-core/helpers/settings.helper";
-import { runDataDrivenTest, IDataDrivenCancelRef } from "../../fetch-client-core/utils/dataDrivenTestService/dataDrivenRunner";
+import {
+	runDataDrivenTest,
+	IDataDrivenCancelRef,
+} from "../../fetch-client-core/utils/dataDrivenTestService/dataDrivenRunner";
 import { Var_Repository_FindByIdSync } from "../../fetch-client-core/db/variableDB.repository";
 import * as fs from "fs";
 import * as vscode from "vscode";
 import axios from "axios";
 
 // Per-panel cancel ref for data-driven test runs
-const dataDrivenCancelRefs = new WeakMap<vscode.WebviewPanel, IDataDrivenCancelRef>();
+const dataDrivenCancelRefs = new WeakMap<
+	vscode.WebviewPanel,
+	IDataDrivenCancelRef
+>();
 
 export const AddToColUI = (extensionUri: vscode.Uri) => {
 	const disposable = vscode.commands.registerCommand(
@@ -300,7 +306,10 @@ export const AddToColUI = (extensionUri: vscode.Uri) => {
 							: null;
 
 						// Load full collection (needed for parent-settings resolution and CliPreFetchContextProvider)
-						const collection = await Col_Repository_GetCollectionById(ddColId, "");
+						const collection = await Col_Repository_GetCollectionById(
+							ddColId,
+							"",
+						);
 
 						// Load ALL requests in the collection for pre-fetch lookup
 						const { requests: allColReqs } =

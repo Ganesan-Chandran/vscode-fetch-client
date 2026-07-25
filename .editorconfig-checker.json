@@ -1,9 +1,9 @@
 {
-  "Exclude": [
-    "^\\.vscode/",
-    ".editorconfig-checker.json",
-    ".prettierignore",
-    ".markdownlint.json",
-    ".eslintrc.json"
-  ]
+	"Exclude": [
+		"^\\.vscode/",
+		".editorconfig-checker.json",
+		".prettierignore",
+		".markdownlint.json",
+		".eslintrc.json"
+	]
 }

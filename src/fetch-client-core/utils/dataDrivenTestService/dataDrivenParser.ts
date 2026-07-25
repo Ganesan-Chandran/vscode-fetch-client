@@ -1,4 +1,8 @@
-import { CsvSeparator, DataFileFormat, IDataParseResult } from "./dataDriven.types";
+import {
+	CsvSeparator,
+	DataFileFormat,
+	IDataParseResult,
+} from "./dataDriven.types";
 
 export const MAX_DATA_ROWS = 100;
 
@@ -73,7 +77,8 @@ function parseCSV(content: string, separator: CsvSeparator): IDataParseResult {
 		const values = parseCSVLine(line, separator);
 		const row: Record<string, string> = {};
 		columns.forEach((col, i) => {
-			row[col] = values[i] !== undefined ? values[i].replace(/^["']|["']$/g, "") : "";
+			row[col] =
+				values[i] !== undefined ? values[i].replace(/^["']|["']$/g, "") : "";
 		});
 		return row;
 	});
@@ -90,10 +95,8 @@ function parseJSON(content: string): IDataParseResult {
 		if (Array.isArray(parsed)) {
 			rows = parsed;
 		} else if (typeof parsed === "object" && parsed !== null) {
-			rows =
-				(parsed as any).data ??
-				(parsed as any).rows ??
-				[(parsed as Record<string, unknown>)];
+			rows = (parsed as any).data ??
+				(parsed as any).rows ?? [parsed as Record<string, unknown>];
 		} else {
 			return {
 				rows: [],

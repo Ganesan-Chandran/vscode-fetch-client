@@ -71,7 +71,10 @@ export function getSSLConfiguration(): boolean {
 }
 
 export function getTlsCertificate(): ITlsCertificate[] {
-	return getFetchClientConfiguration().get<ITlsCertificate[]>("tlsConfiguration", []);
+	return getFetchClientConfiguration().get<ITlsCertificate[]>(
+		"tlsConfiguration",
+		[],
+	);
 }
 
 export function getHistoryLimitConfiguration(): string {
@@ -174,11 +177,11 @@ export function getExportCollectionConfiguration(): boolean {
 }
 
 export function getSecretCacheTtlMs(): number {
-  return getFetchClientConfiguration().get<number>("secretsCacheDuration", 0);
+	return getFetchClientConfiguration().get<number>("secretsCacheDuration", 0);
 }
 
 export function getFallbackRegion(): string | undefined {
-  return getFetchClientConfiguration().get<string>("awsDefaultRegion");
+	return getFetchClientConfiguration().get<string>("awsDefaultRegion");
 }
 
 export function updateVariableEncryptionKey(key: string) {

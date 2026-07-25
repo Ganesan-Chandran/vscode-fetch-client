@@ -18,7 +18,7 @@ export async function getHttpsAgent(
 	const rejectUnauthorized = getSSLCheck();
 	const certificates = getTLSCertificates();
 
-  // No matching client certificate
+	// No matching client certificate
 	if (!certificates || certificates?.length === 0) {
 		return getDefaultHttpsAgent(rejectUnauthorized);
 	}
@@ -94,9 +94,7 @@ export async function getHttpsAgent(
 	return agent;
 }
 
-function getDefaultHttpsAgent(
-	rejectUnauthorized: boolean,
-): https.Agent {
+function getDefaultHttpsAgent(rejectUnauthorized: boolean): https.Agent {
 	const cacheKey = `default:${rejectUnauthorized}`;
 
 	const cached = httpsAgentCache.get(cacheKey);
@@ -121,9 +119,7 @@ export function findCertificate(
 
 	// Exact match first
 	const exact = certificates.find(
-		(c) =>
-			c.enabled !== false &&
-			c.host.toLowerCase() === host,
+		(c) => c.enabled !== false && c.host.toLowerCase() === host,
 	);
 
 	if (exact) {
@@ -139,10 +135,7 @@ export function findCertificate(
 
 			const pattern = c.host.toLowerCase();
 
-			return (
-				pattern.startsWith("*.") &&
-				host.endsWith(pattern.substring(1))
-			);
+			return pattern.startsWith("*.") && host.endsWith(pattern.substring(1));
 		})
 		.sort((a, b) => b.host.length - a.host.length);
 

@@ -277,9 +277,9 @@ export async function BulkExportVariables(
 					if (error) {
 						vscode.window.showErrorMessage(
 							"Could not save to '" +
-							path +
-							"'. Error Message : " +
-							error.message,
+								path +
+								"'. Error Message : " +
+								error.message,
 							{ modal: true },
 						);
 						writeLog("error::BulkExport()::FileWrite()" + error.message);
@@ -307,9 +307,9 @@ export async function ExportVariable(
 				if (error) {
 					vscode.window.showErrorMessage(
 						"Could not save to '" +
-						path +
-						"'. Error Message : " +
-						error.message,
+							path +
+							"'. Error Message : " +
+							error.message,
 						{ modal: true },
 					);
 					writeLog("error::ExportVariable()::FileWrite()" + error.message);
@@ -372,7 +372,7 @@ function ValidateData(data: string): VariableImportType | null {
 			);
 			writeLog(
 				"error::ImportVariable::ValidateData() " +
-				"Error Message : Could not import the variable - Empty Data.",
+					"Error Message : Could not import the variable - Empty Data.",
 			);
 			return null;
 		}
@@ -415,8 +415,8 @@ function ValidateData(data: string): VariableImportType | null {
 		);
 		writeLog(
 			"error::ImportVariable::ValidateData() " +
-			"Error Message : Could not import the variable - " +
-			err,
+				"Error Message : Could not import the variable - " +
+				err,
 		);
 		return null;
 	}

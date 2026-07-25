@@ -57,7 +57,15 @@ import {
 	UpdateToEncryptedVariables,
 	UpdateWithAnotherKey,
 } from "./fetch-client-vscode/db/varDBUtil";
-import { setVariableEncryptionConfiguration, setSSLCheck, setTLSCertificates, getTLSCertificates, setVariableEncryptionKey, setAwsDefaultRegion, setSecretsCacheDuration } from "./fetch-client-core/utils/commonConfig";
+import {
+	setVariableEncryptionConfiguration,
+	setSSLCheck,
+	setTLSCertificates,
+	getTLSCertificates,
+	setVariableEncryptionKey,
+	setAwsDefaultRegion,
+	setSecretsCacheDuration,
+} from "./fetch-client-core/utils/commonConfig";
 import { access, mkdir } from "fs/promises";
 import { backupFile } from "./fetch-client-vscode/utils/common.utils";
 import { clearHttpsAgentCache } from "./fetch-client-core/utils/httpsAgent";
@@ -371,7 +379,7 @@ function registerProviders(context: vscode.ExtensionContext): void {
 				webviewOptions: {
 					retainContextWhenHidden: true,
 				},
-			}
+			},
 		),
 		AddToColUI(context.extensionUri),
 		VariableUI(context.extensionUri),
@@ -401,9 +409,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
 		}),
 		vscode.commands.registerCommand("fetch-client.documentation", () => {
 			vscode.env.openExternal(
-				vscode.Uri.parse(
-					"https://fetchclient.github.io",
-				),
+				vscode.Uri.parse("https://fetchclient.github.io"),
 			);
 		}),
 		vscode.commands.registerCommand("fetch-client.raiseRequest", () => {
@@ -685,7 +691,8 @@ async function showConfirmationMessage(): Promise<boolean> {
 			"No",
 		);
 
-		if (!choice) { // Dialog dismissed - signal caller to revert
+		if (!choice) {
+			// Dialog dismissed - signal caller to revert
 			return false;
 		}
 

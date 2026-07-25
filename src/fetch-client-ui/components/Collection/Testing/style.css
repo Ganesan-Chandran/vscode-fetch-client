@@ -577,7 +577,7 @@
 .perf-status-subtitle {
 	margin-top: 4px;
 	font-size: 12px;
-	opacity: .85;
+	opacity: 0.85;
 }
 
 .perf-progress {
@@ -591,7 +591,7 @@
 .perf-progress-fill {
 	height: 100%;
 	background: #4caf50;
-	transition: width .3s ease;
+	transition: width 0.3s ease;
 }
 
 .perf-live-stats {
@@ -610,7 +610,7 @@
 .perf-live-stats label {
 	display: block;
 	font-size: 11px;
-	opacity: .7;
+	opacity: 0.7;
 	margin-bottom: 4px;
 }
 

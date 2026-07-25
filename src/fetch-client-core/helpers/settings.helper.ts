@@ -14,10 +14,7 @@ export function resolveParentSettings(
 		return collection.settings ?? defaultSettings();
 	}
 
-	return (
-		findParentSettings(collection, folderId) ??
-		defaultSettings()
-	);
+	return findParentSettings(collection, folderId) ?? defaultSettings();
 }
 
 export function findParentSettings(

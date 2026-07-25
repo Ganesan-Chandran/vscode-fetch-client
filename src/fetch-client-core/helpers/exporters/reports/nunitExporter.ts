@@ -18,21 +18,16 @@ function testCaseResult(r: ExportRequestResult): "Passed" | "Failed" {
 	return httpOk && testsOk ? "Passed" : "Failed";
 }
 
-function renderTestCase(
-	r: ExportRequestResult,
-	id: number,
-): string {
+function renderTestCase(r: ExportRequestResult, id: number): string {
 	const result = testCaseResult(r);
 	const durationSeconds = (r.durationMs / 1000).toFixed(3);
 	const asserts = r.tests.length;
 
 	let failureMessage = "";
 
-
 	if (r.outcome !== "Passed") {
 		failureMessage =
-			r.details ??
-			`Expected status 2xx-3xx, got ${r.status} ${r.statusText}`;
+			r.details ?? `Expected status 2xx-3xx, got ${r.status} ${r.statusText}`;
 	} else {
 		const failedTests = r.tests.filter((t) => !t.passed);
 
@@ -46,45 +41,45 @@ function renderTestCase(
 	const failureBlock =
 		result === "Failed"
 			? `
-      <failure>
-        <message><![CDATA[${failureMessage}]]></message>
-      </failure>`
+			<failure>
+				<message><![CDATA[${failureMessage}]]></message>
+			</failure>`
 			: "";
 
 	const assertionsBlock =
 		r.tests.length > 0
 			? `
-      <assertions>
-	${r.tests.map(
-				(t) => `        <assertion result="${t.passed ? "Passed" : "Failed"}">
-          <message><![CDATA[${t.name}${t.actualValue !== undefined
-						? ` (actual: ${t.actualValue})`
-						: ""
+			<assertions>
+	${r.tests
+		.map(
+			(t) => `			<assertion result="${t.passed ? "Passed" : "Failed"}">
+					<message><![CDATA[${t.name}${
+						t.actualValue !== undefined ? ` (actual: ${t.actualValue})` : ""
 					}]]></message>
-        </assertion>`,
-			)
-				.join("\n")}
-      </assertions>`
+				</assertion>`,
+		)
+		.join("\n")}
+			</assertions>`
 			: "";
 
 	const preFetchSummary = summarizePreFetch(r.preFetch);
 
 	const propertiesBlock = preFetchSummary
 		? `
-      <properties>
-        <property name="preFetch" value="${escapeXml(preFetchSummary)}" />
-      </properties>`
+			<properties>
+				<property name="preFetch" value="${escapeXml(preFetchSummary)}" />
+			</properties>`
 		: "";
 
 	const body = `${failureBlock}${assertionsBlock}${propertiesBlock}`;
 
 	if (!body.trim()) {
-		return `    <test-case id="${id}" name="${escapeXml(r.name)}" fullname="${escapeXml(`${r.method.toUpperCase()} ${r.url}`)}" method="${escapeXml(r.method.toUpperCase())}" classname="FetchClient.CLI" result="${result}" duration="${durationSeconds}" asserts="${asserts}"/>`;
+		return `		<test-case id="${id}" name="${escapeXml(r.name)}" fullname="${escapeXml(`${r.method.toUpperCase()} ${r.url}`)}" method="${escapeXml(r.method.toUpperCase())}" classname="FetchClient.CLI" result="${result}" duration="${durationSeconds}" asserts="${asserts}"/>`;
 	}
 
-	return `    <test-case id="${id}" name="${escapeXml(r.name)}" fullname="${escapeXml(`${r.method.toUpperCase()} ${r.url}`)}" method="${escapeXml(r.method.toUpperCase())}" classname="FetchClient.CLI" result="${result}" duration="${durationSeconds}" asserts="${asserts}" >
+	return `		<test-case id="${id}" name="${escapeXml(r.name)}" fullname="${escapeXml(`${r.method.toUpperCase()} ${r.url}`)}" method="${escapeXml(r.method.toUpperCase())}" classname="FetchClient.CLI" result="${result}" duration="${durationSeconds}" asserts="${asserts}" >
 ${body}
-    </test-case>`;
+		</test-case>`;
 }
 
 /**
@@ -94,15 +89,18 @@ ${body}
  * header say "passed" while its own test-case says "Failed".
  */
 export function toNUnit(reports: ExportReport[]): string {
-
 	const { context, summary } = reports[0];
 
-	const allResults = reports.flatMap(r => r.results);
+	const allResults = reports.flatMap((r) => r.results);
 
 	const total = allResults.length;
-	const passed = allResults.filter(r => testCaseResult(r) === "Passed").length;
+	const passed = allResults.filter(
+		(r) => testCaseResult(r) === "Passed",
+	).length;
 	const failed = total - passed;
-	const totalDurationSeconds = (allResults.reduce((s, r) => s + r.durationMs, 0) / 1000).toFixed(3);
+	const totalDurationSeconds = (
+		allResults.reduce((s, r) => s + r.durationMs, 0) / 1000
+	).toFixed(3);
 
 	const overallResult = failed > 0 ? "Failed" : "Passed";
 	let testCaseId = 1;
@@ -114,7 +112,7 @@ export function toNUnit(reports: ExportReport[]): string {
 
 			const total = report.results.length;
 			const passed = report.results.filter(
-				r => testCaseResult(r) === "Passed",
+				(r) => testCaseResult(r) === "Passed",
 			).length;
 			const failed = total - passed;
 			const duration = (
@@ -122,19 +120,19 @@ export function toNUnit(reports: ExportReport[]): string {
 			).toFixed(3);
 
 			return `
-        <test-suite
-            type="TestSuite"
-            id="${1001 + iteration}"
-            name="Iteration ${iteration + 1}"
-            fullname="${escapeXml(context.name)}.Iteration${iteration + 1}"
-            testcasecount="${total}"
-            result="${overallResult}"
-            total="${total}"
-            passed="${passed}"
-            failed="${failed}"
-            duration="${duration}">
+				<test-suite
+						type="TestSuite"
+						id="${1001 + iteration}"
+						name="Iteration ${iteration + 1}"
+						fullname="${escapeXml(context.name)}.Iteration${iteration + 1}"
+						testcasecount="${total}"
+						result="${overallResult}"
+						total="${total}"
+						passed="${passed}"
+						failed="${failed}"
+						duration="${duration}">
 ${cases}
-        </test-suite>`;
+				</test-suite>`;
 		})
 		.join("\n");
 
