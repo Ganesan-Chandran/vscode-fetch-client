@@ -9,6 +9,7 @@ bool
 Chandran
 Changelog
 CLI
+colorized
 CSV
 Customization
 customize
@@ -37,11 +38,13 @@ NUnit
 OAuth
 OAuth2
 OpenAPI
+organization
 Organize
 Param
 PEM
 PFX
 PostFetch
+Pre-request
 pre-requests
 Pre-requests
 Pre-Requests
@@ -56,6 +59,7 @@ strspl
 TLS
 UI
 url
+v2
 VSCode
 vscode-fetch-client
 vsix

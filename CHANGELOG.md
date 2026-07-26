@@ -2,6 +2,93 @@
 
 All notable changes to the "Fetch Client" extension will be documented in this file.
 
+## 🚀 v2.1.0 - 25 July 2026
+
+A feature-packed release introducing **Data-Driven Testing**, **AWS Secrets Manager integration**, **SSL/TLS certificates**, enhanced **CLI capabilities**, and expanded reporting options.
+
+## ✨ Major Features
+
+### 🧪 Data-Driven Testing
+- Added [**Data-Driven Testing**](https://fetchclient.github.io/docs/extension/features/advanced/data-driven-testing) in the UI.
+- Added [**Data-Driven Testing**](https://fetchclient.github.io/docs/cli/data-driven-testing) in the CLI.
+
+### ⚡ Performance Testing Enhancements
+- Added [**Performance Testing**](https://fetchclient.github.io/docs/cli/performance-testing) support in the CLI.
+- Improved the [**Performance Testing UI**](https://fetchclient.github.io/docs/extension/features/advanced/performance-testing#-breakdown-by-request) with a progress bar.
+- Added **HTML**, **XML**, and **NUnit** export formats for Performance Test and Data-Driven Test results.
+
+### ☁️ AWS Secrets Manager Integration
+- Added [**AWS integration**](https://fetchclient.github.io/docs/extension/features/advanced/secrets-integration#-setting-up-a-secret-backed-variable) for variables.
+- Added support for [**AWS Secrets Manager**](https://fetchclient.github.io/docs/extension/features/advanced/secrets-integration#-opening-the-secrets-integration-panel) to securely retrieve secrets.
+
+### 🔐 SSL/TLS Support
+- Added support for [**SSL/TLS client certificates**](https://fetchclient.github.io/docs/extension/features/advanced/tls-certificates) for secure API communication.
+
+### 🖥️ CLI Improvements
+
+- Added support to [**run exported collections**](https://fetchclient.github.io/docs/cli/run#-run-an-exported-collection) directly from the CLI.
+
+### 📊 Reporting
+
+- Added **HTML**, **XML**, and **NUnit** export formats for **Run All** results.
+
+### 🎨 User Experience Improvements
+
+- Added **Variable Conditions** for the first Pre-request.
+- Added [**Expression Conditions**](https://fetchclient.github.io/docs/extension/features/environment-variables#-expression-engine) in the Post-fetch Variable section.
+- Improved the **Auto Request** UI.
+- Added **Summary** and **History** views for Auto Requests.
+
+## 🐞 Bug Fixes
+
+- Fixed an issue where **OAuth variables** were not resolved correctly.
+
+
+## 🚀 v2.0.0 - 10 July 2026
+
+A major release introducing the **Fetch Client CLI**, **Performance Testing**, improved **import/export capabilities**, and significant productivity enhancements.
+
+## ✨ Major Features
+
+### 🖥️ Fetch Client CLI
+- Introduced the [**Fetch Client CLI**](https://www.npmjs.com/package/@fetch-client/cli) for running and automating API requests from the command line.
+
+### 📚 Documentation Website
+- Published the official **Fetch Client Documentation Website** with comprehensive guides, tutorials, and feature documentation.
+- Documentation: https://fetchclient.github.io/
+
+### ⚡ Performance Testing
+- Added **Performance Testing** to measure API performance and load.
+
+### 📦 Import & Export
+- Added **Postman Export** support.
+- Added **Insomnia Import** support.
+- Added **OpenAPI Import** support.
+- Introduced **Fetch Client v2** Export/Import.
+- Added **Collection with Variables** Export/Import.
+
+### 🎨 User Experience Improvements
+
+- Added **Bulk Parameter Editing** for faster request updates.
+- Improved the **Pre-request** user interface.
+- Added **Search** in JSON/XML Viewer.
+- Added **Folder Sorting** in Collections.
+- Added **Collection Item Realignment** for better organization.
+- Sidebar now **remembers its expanded/collapsed state** (Quick Access).
+- Improved **cURL Import** compatibility.
+- Enhanced **Logger Output** with colorized messages.
+- Added support for a **custom database path**.
+
+### 🔒 Security Improvements
+
+- Removed the dependency on the private npm package.
+- Introduced a user-configurable **encryption key**, allowing users to manage their own encryption.
+
+## 🐞 Bug Fixes
+
+- Fixed an issue where clicking the same item in **Quick Access** (Sidebar) opened multiple tabs instead of focusing the existing tab.
+
+
 ## v1.8.0 - September, 2024
 
 ### 🎉 New Features
