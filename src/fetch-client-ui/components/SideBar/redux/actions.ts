@@ -4,6 +4,7 @@ import {
 	IVariable,
 	IFolder,
 } from "../../../../fetch-client-core/types/sidebar.types";
+import { IMockServer } from "../../../../fetch-client-core/types/mockServer.types";
 import {
 	FETCH_CLIENT_SET_ACTIVE_INACTIVE_VARIABLE,
 	FETCH_CLIENT_SET_ATTACH_DETACH_VARIABLE,
@@ -28,6 +29,10 @@ import {
 	FETCH_CLIENT_SET_UPDATE_COLLECTION_ITEM,
 	FETCH_CLIENT_SET_UPDATE_HISTORY_ITEM,
 	FETCH_CLIENT_SET_VARIABLE,
+	FETCH_CLIENT_SET_MOCK_SERVERS,
+	FETCH_CLIENT_ADD_MOCK_SERVER,
+	FETCH_CLIENT_UPDATE_MOCK_SERVER,
+	FETCH_CLIENT_DELETE_MOCK_SERVER,
 	SideBarActionTypes,
 } from "./types";
 
@@ -307,3 +312,29 @@ export const SetUpdateHistoryItemAction = (
 		},
 	};
 };
+
+export const SetMockServersAction = (
+	servers: IMockServer[],
+): SideBarActionTypes => ({
+	type: FETCH_CLIENT_SET_MOCK_SERVERS,
+	payload: { servers },
+});
+
+export const AddMockServerAction = (
+	server: IMockServer,
+): SideBarActionTypes => ({
+	type: FETCH_CLIENT_ADD_MOCK_SERVER,
+	payload: { server },
+});
+
+export const UpdateMockServerAction = (
+	server: IMockServer,
+): SideBarActionTypes => ({
+	type: FETCH_CLIENT_UPDATE_MOCK_SERVER,
+	payload: { server },
+});
+
+export const DeleteMockServerAction = (id: string): SideBarActionTypes => ({
+	type: FETCH_CLIENT_DELETE_MOCK_SERVER,
+	payload: { id },
+});

@@ -38,6 +38,11 @@ import {
 	RenameVariable,
 } from "../db/varDBUtil";
 import {
+	DeleteMockServer,
+	GetAllMockServers,
+	RenameMockServer,
+} from "../db/mockServerDBUtil";
+import {
 	AddToCollection,
 	AttachVariable,
 	CreateNewCollection,
@@ -64,6 +69,7 @@ import {
 	OpenDataDrivenTestUI,
 	OpenExistingItem,
 	OpenPerfTestUI,
+	OpenQualityGateUI,
 	OpenReOrderUI,
 	OpenRunAllUI,
 	OpenSecretMangerUI,
@@ -312,6 +318,25 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 				case requestTypes.getAllVariableRequest:
 					GetAllVariable(webviewView.webview);
 					break;
+				case requestTypes.getAllMockServersRequest:
+					GetAllMockServers(webviewView.webview);
+					break;
+				case requestTypes.renameMockServerRequest:
+					this.showInputBox(reqData.name).then((name: any) => {
+						if (name) {
+							RenameMockServer(reqData.data, name, webviewView);
+						}
+					});
+					break;
+				case requestTypes.deleteMockServerRequest:
+					this.showConfirmationBox(
+						`Do you want to delete the '${reqData.name}' mock server?`,
+					).then((data: any) => {
+						if (data === "Yes") {
+							DeleteMockServer(reqData.data, webviewView.webview, webviewView);
+						}
+					});
+					break;
 				case requestTypes.renameVariableRequest:
 					this.showInputBox().then((name: any) => {
 						if (name) {
@@ -333,6 +358,12 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					break;
 				case requestTypes.openVariableItemRequest:
 					OpenVariableUI(reqData.data);
+					break;
+				case requestTypes.newMockServerRequest:
+					vscode.commands.executeCommand(
+						"fetch-client.newMockServer",
+						reqData.data?.id,
+					);
 					break;
 				case requestTypes.attachVariableRequest:
 					OpenAttachVariableUI(reqData.data.id, reqData.data.name);
@@ -414,6 +445,16 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 						reqData.data.folderId,
 						reqData.data.name,
 						reqData.data.varId,
+					);
+					break;
+				case requestTypes.openQualityGateRequest:
+					OpenQualityGateUI(
+						reqData.data.colId,
+						reqData.data.folderId,
+						reqData.data.itemId ?? "",
+						reqData.data.name,
+						reqData.data.varId,
+						reqData.data.scope,
 					);
 					break;
 				case requestTypes.reOrderItemUIOpenRequest:

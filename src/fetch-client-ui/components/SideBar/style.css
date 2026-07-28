@@ -130,9 +130,9 @@
 }
 
 .activity-search {
-	background-color: transparent;
+	background-color: var(--input-background-color);
 	color: var(--text-color);
-	border: 1px solid gray;
+	border: 1px solid var(--vscode-input-border, transparent);
 	outline: none;
 	border-radius: 5px;
 	padding: 5px 10px;
@@ -142,6 +142,7 @@
 
 .activity-search:focus {
 	outline: none;
+	border-color: var(--vscode-focusBorder);
 }
 
 .activity-filter {

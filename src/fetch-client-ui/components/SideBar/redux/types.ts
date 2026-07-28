@@ -4,6 +4,7 @@ import {
 	IVariable,
 	IFolder,
 } from "../../../../fetch-client-core/types/sidebar.types";
+import { IMockServer } from "../../../../fetch-client-core/types/mockServer.types";
 
 export const FETCH_CLIENT_SET_HISTORY: "FETCH_CLIENT_SET_HISTORY" =
 	"FETCH_CLIENT_SET_HISTORY";
@@ -53,6 +54,14 @@ export const FETCH_CLIENT_SET_UPDATE_COLLECTION_ITEM: "FETCH_CLIENT_SET_UPDATE_C
 	"FETCH_CLIENT_SET_UPDATE_COLLECTION_ITEM";
 export const FETCH_CLIENT_SET_UPDATE_HISTORY_ITEM: "FETCH_CLIENT_SET_UPDATE_HISTORY_ITEM" =
 	"FETCH_CLIENT_SET_UPDATE_HISTORY_ITEM";
+export const FETCH_CLIENT_SET_MOCK_SERVERS: "FETCH_CLIENT_SET_MOCK_SERVERS" =
+	"FETCH_CLIENT_SET_MOCK_SERVERS";
+export const FETCH_CLIENT_ADD_MOCK_SERVER: "FETCH_CLIENT_ADD_MOCK_SERVER" =
+	"FETCH_CLIENT_ADD_MOCK_SERVER";
+export const FETCH_CLIENT_UPDATE_MOCK_SERVER: "FETCH_CLIENT_UPDATE_MOCK_SERVER" =
+	"FETCH_CLIENT_UPDATE_MOCK_SERVER";
+export const FETCH_CLIENT_DELETE_MOCK_SERVER: "FETCH_CLIENT_DELETE_MOCK_SERVER" =
+	"FETCH_CLIENT_DELETE_MOCK_SERVER";
 
 export interface ISetHistory {
 	type: typeof FETCH_CLIENT_SET_HISTORY;
@@ -247,6 +256,26 @@ export interface ISetUpdateHistoryItem {
 	};
 }
 
+export interface ISetMockServers {
+	type: typeof FETCH_CLIENT_SET_MOCK_SERVERS;
+	payload: { servers: IMockServer[] };
+}
+
+export interface IAddMockServer {
+	type: typeof FETCH_CLIENT_ADD_MOCK_SERVER;
+	payload: { server: IMockServer };
+}
+
+export interface IUpdateMockServer {
+	type: typeof FETCH_CLIENT_UPDATE_MOCK_SERVER;
+	payload: { server: IMockServer };
+}
+
+export interface IDeleteMockServer {
+	type: typeof FETCH_CLIENT_DELETE_MOCK_SERVER;
+	payload: { id: string };
+}
+
 export type SideBarActionTypes =
 	| ISetHistory
 	| ISetCollection
@@ -271,4 +300,8 @@ export type SideBarActionTypes =
 	| ISetNewRequestToCollection
 	| ISetNewFolderToCollection
 	| ISetUpdateCollectionItem
-	| ISetUpdateHistoryItem;
+	| ISetUpdateHistoryItem
+	| ISetMockServers
+	| IAddMockServer
+	| IUpdateMockServer
+	| IDeleteMockServer;

@@ -1,8 +1,4 @@
-.public-DraftStyleDefault-block {
-	overflow-x: auto;
-	white-space: pre;
-}
-
+/* Scrollbar hiding */
 .outer-container *::-webkit-scrollbar {
 	height: 0px;
 	background: transparent;
@@ -12,13 +8,29 @@
 	scrollbar-width: none;
 }
 
+/* Position context so the absolute placeholder aligns correctly */
+.DraftEditor-root {
+	position: relative;
+}
+
+/* Placeholder — absolutely overlaid on the editor */
 .public-DraftEditorPlaceholder-inner {
 	position: absolute;
+	top: 0;
+	left: 0;
 	pointer-events: none;
+	user-select: none;
 	color: gray;
 	padding: 10px;
 }
 
-.DraftEditor-root {
-	position: relative;
+/* Allow horizontal scrolling in the editable area */
+.DraftEditor-editorContainer {
+	overflow-x: auto;
+}
+
+/* Keep paragraph on a single line (no wrapping) */
+.DraftEditor-editorContainer p {
+	margin: 0;
+	white-space: nowrap;
 }

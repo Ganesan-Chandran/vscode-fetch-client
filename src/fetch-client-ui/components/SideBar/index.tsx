@@ -7,6 +7,7 @@ import {
 	ICollections,
 	IVariable,
 } from "../../../fetch-client-core/types/sidebar.types";
+import { IMockServer } from "../../../fetch-client-core/types/mockServer.types";
 import {
 	pubSubTypes,
 	requestTypes,
@@ -21,10 +22,16 @@ import vscode from "../Common/vscodeAPI";
 const SideBar = () => {
 	const CollectionBar = React.lazy(() => import("./Collection"));
 	const VariableSection = React.lazy(() => import("./Variables"));
+	const MockServerSection = React.lazy(() => import("./MockServers"));
 
 	const dispatch = useDispatch<AppDispatch>();
 
-	const [tabOptions] = useState(["History", "Collection", "Variable"]);
+	const [tabOptions] = useState([
+		"History",
+		"Collection",
+		"Variable",
+		"Mock Server",
+	]);
 	const [selectedTab, setSelectedTab] = useState("History");
 	const [historyView, setHistoryView] = useState<"List" | "Folder">("List");
 	const [menuShow, setMenuShow] = useState(false);
@@ -161,6 +168,12 @@ const SideBar = () => {
 			setVarLoading(false);
 		}
 	}, [isHostReady]);
+
+	useEffect(() => {
+		if (selectedTab === "Mock Server") {
+			vscode.postMessage({ type: requestTypes.getAllMockServersRequest });
+		}
+	}, [selectedTab]);
 
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
@@ -438,6 +451,34 @@ const SideBar = () => {
 				>;
 				const historyView = config["historyView"] as string;
 				setHistoryView(historyView === "List" ? "List" : "Folder");
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.getAllMockServersResponse
+			) {
+				dispatch(
+					SideBarActions.SetMockServersAction(event.data.data as IMockServer[]),
+				);
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.saveMockServerResponse
+			) {
+				dispatch(
+					SideBarActions.AddMockServerAction(event.data.data as IMockServer),
+				);
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.updateMockServerResponse
+			) {
+				dispatch(
+					SideBarActions.UpdateMockServerAction(event.data.data as IMockServer),
+				);
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.deleteMockServerResponse
+			) {
+				dispatch(
+					SideBarActions.DeleteMockServerAction(event.data.data.id as string),
+				);
 			}
 		};
 		window.addEventListener("message", handleMessage);
@@ -446,6 +487,7 @@ const SideBar = () => {
 		vscode.postMessage({ type: requestTypes.getAllHistoryRequest });
 		vscode.postMessage({ type: requestTypes.getAllCollectionsRequest });
 		vscode.postMessage({ type: requestTypes.getAllVariableRequest });
+		vscode.postMessage({ type: requestTypes.getAllMockServersRequest });
 
 		document.body.style.backgroundColor = "transparent";
 
@@ -457,6 +499,19 @@ const SideBar = () => {
 			window.removeEventListener("message", handleMessage);
 		};
 	}, []);
+
+	function getMockServerMenuItems() {
+		return (
+			<button
+				onClick={() => {
+					vscode.postMessage({ type: requestTypes.newMockServerRequest });
+					setMenuShow(false);
+				}}
+			>
+				New Mock Server
+			</button>
+		);
+	}
 
 	function getHistoryMenuItems() {
 		return <button onClick={(e) => onClearActivity(e)}>Clear History</button>;
@@ -560,7 +615,9 @@ const SideBar = () => {
 									? getHistoryMenuItems()
 									: selectedTab === "Collection"
 										? getCollectionsMenuItems()
-										: getVariableMenuItems()}
+										: selectedTab === "Mock Server"
+											? getMockServerMenuItems()
+											: getVariableMenuItems()}
 							</div>
 						)}
 					</div>
@@ -598,6 +655,18 @@ const SideBar = () => {
 								isLoading={isVarLoading}
 								selectedItem={selectedItem}
 								sort={varSort}
+							/>
+						</React.Suspense>
+					</div>
+					<div
+						style={{
+							display: selectedTab === "Mock Server" ? "block" : "none",
+						}}
+					>
+						<React.Suspense fallback={<div>loading...</div>}>
+							<MockServerSection
+								filterCondition={filterCondititon?.toLowerCase()}
+								isLoading={false}
 							/>
 						</React.Suspense>
 					</div>

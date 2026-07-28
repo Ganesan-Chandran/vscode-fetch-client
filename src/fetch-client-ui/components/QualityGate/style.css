@@ -1,0 +1,575 @@
+/* ─── CSS custom properties ─────────────────────────────────────────────────── */
+.qg-root {
+	--qg-green: #4caf50;
+	--qg-orange: #ff9800;
+	--qg-red: #f44336;
+	--qg-yellow: #fdd835;
+	--qg-blue: #2196f3;
+	--qg-bg1: var(--vscode-editor-background, #0d1117);
+	--qg-bg2: var(--vscode-sideBar-background, #161b22);
+	--qg-bg3: var(--vscode-input-background, #1f2937);
+	--qg-border: var(--vscode-panel-border, #30363d);
+	--qg-fg: var(--vscode-foreground, #e6edf3);
+	--qg-fg-muted: var(--vscode-descriptionForeground, #8b949e);
+
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+	background: var(--qg-bg1);
+	color: var(--qg-fg);
+	font-family: var(--vscode-font-family, "Segoe UI", system-ui, sans-serif);
+	font-size: 13px;
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────────── */
+.qg-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 14px;
+	background: var(--qg-bg2);
+	border-bottom: 1px solid var(--qg-border);
+	flex-shrink: 0;
+}
+
+.qg-title {
+	font-size: 14px;
+	font-weight: 700;
+	white-space: nowrap;
+}
+
+.qg-subtitle {
+	font-size: 12px;
+	color: var(--qg-fg-muted);
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.qg-run-btn {
+	background: var(--vscode-button-background, #238636);
+	color: var(--vscode-button-foreground, #fff);
+	border: none;
+	border-radius: 5px;
+	padding: 5px 14px;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: opacity 0.15s;
+}
+
+.qg-run-btn:hover:not(:disabled) {
+	opacity: 0.85;
+}
+
+.qg-run-btn:disabled {
+	opacity: 0.45;
+	cursor: default;
+}
+
+/* ─── Loading / Empty ────────────────────────────────────────────────────────── */
+.qg-loading {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	padding: 40px;
+	color: var(--qg-fg-muted);
+}
+
+.qg-spinner {
+	width: 20px;
+	height: 20px;
+	border: 3px solid var(--qg-border);
+	border-top-color: var(--qg-blue);
+	border-radius: 50%;
+	animation: qg-spin 0.8s linear infinite;
+}
+
+@keyframes qg-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.qg-empty {
+	padding: 30px 20px;
+	text-align: center;
+	color: var(--qg-fg-muted);
+	line-height: 1.6;
+}
+
+.qg-empty-hint {
+	font-size: 12px;
+	margin-top: 8px;
+}
+
+/* ─── Aggregate banner ───────────────────────────────────────────────────────── */
+.qg-aggregate-banner {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 12px 14px;
+	background: var(--qg-bg2);
+	border-bottom: 1px solid var(--qg-border);
+	flex-shrink: 0;
+	flex-wrap: wrap;
+}
+
+.qg-aggregate-info {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	flex: 1;
+	min-width: 0;
+}
+
+.qg-aggregate-name {
+	font-weight: 700;
+	font-size: 14px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.qg-aggregate-meta {
+	font-size: 11px;
+	color: var(--qg-fg-muted);
+}
+
+.qg-badge-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.qg-gate-badge {
+	display: inline-block;
+	padding: 3px 10px;
+	border-radius: 4px;
+	font-size: 11px;
+	font-weight: 700;
+	white-space: nowrap;
+	border: 1px solid currentColor;
+}
+
+.qg-gate-pass {
+	color: var(--qg-green);
+	background: rgba(76, 175, 80, 0.12);
+}
+
+.qg-gate-fail {
+	color: var(--qg-red);
+	background: rgba(244, 67, 54, 0.12);
+}
+
+.qg-suppressed-note {
+	padding: 8px 12px;
+	font-size: 11px;
+	color: var(--qg-fg-muted);
+}
+
+.qg-suppressed-note code {
+	font-family: var(--vscode-editor-font-family, monospace);
+	background: var(--qg-bg3);
+	padding: 1px 4px;
+	border-radius: 3px;
+}
+
+/* Score ring */
+.qg-score-ring {
+	flex-shrink: 0;
+}
+
+.qg-ring-text {
+	font-size: 14px;
+	font-weight: 800;
+	font-family: var(--vscode-font-family);
+}
+
+/* ─── Verdict badges ─────────────────────────────────────────────────────────── */
+.qg-verdict-badge {
+	display: inline-block;
+	padding: 3px 10px;
+	border-radius: 4px;
+	font-size: 12px;
+	font-weight: 700;
+	white-space: nowrap;
+}
+
+.qg-pass {
+	background: var(--qg-green);
+	color: #fff;
+}
+
+.qg-conditional {
+	background: var(--qg-orange);
+	color: #fff;
+}
+
+.qg-fail {
+	background: var(--qg-red);
+	color: #fff;
+}
+
+/* ─── Export toolbar ─────────────────────────────────────────────────────────── */
+.qg-export-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+}
+
+.qg-export-label {
+	font-size: 11px;
+	color: var(--qg-fg-muted);
+}
+
+.qg-export-btn {
+	background: var(--qg-bg3);
+	color: var(--qg-fg);
+	border: 1px solid var(--qg-border);
+	border-radius: 4px;
+	padding: 3px 10px;
+	font-size: 11px;
+	cursor: pointer;
+	transition: background 0.15s;
+}
+
+.qg-export-btn:hover {
+	background: var(--vscode-list-hoverBackground, #2a313c);
+}
+
+/* ─── Results list ───────────────────────────────────────────────────────────── */
+.qg-results {
+	flex: 1;
+	overflow-y: auto;
+	padding: 10px 14px;
+}
+
+/* ─── Per-request result panel ───────────────────────────────────────────────── */
+.qg-result-panel {
+	border: 1px solid var(--qg-border);
+	border-radius: 8px;
+	margin-bottom: 12px;
+	overflow: hidden;
+}
+
+.qg-result-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 9px 12px;
+	background: var(--qg-bg2);
+	cursor: pointer;
+	user-select: none;
+	flex-wrap: wrap;
+}
+
+.qg-result-header:hover {
+	background: var(--vscode-list-hoverBackground, #2a313c);
+}
+
+.qg-method {
+	padding: 2px 6px;
+	border-radius: 3px;
+	font-size: 11px;
+	font-weight: 700;
+	white-space: nowrap;
+}
+
+.qg-method-get {
+	background: #1565c0;
+	color: #fff;
+}
+
+.qg-method-post {
+	background: #1b5e20;
+	color: #fff;
+}
+
+.qg-method-put {
+	background: #e65100;
+	color: #fff;
+}
+
+.qg-method-patch {
+	background: #4a148c;
+	color: #fff;
+}
+
+.qg-method-delete {
+	background: #b71c1c;
+	color: #fff;
+}
+
+.qg-method-options,
+.qg-method-head {
+	background: #37474f;
+	color: #fff;
+}
+
+.qg-result-name {
+	font-size: 13px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.qg-result-url {
+	font-size: 11px;
+	color: var(--qg-fg-muted);
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.qg-result-score {
+	font-size: 13px;
+	font-weight: 700;
+	white-space: nowrap;
+}
+
+.qg-result-chevron {
+	font-size: 12px;
+	color: var(--qg-fg-muted);
+}
+
+.qg-result-body {
+	padding: 10px 12px;
+	background: var(--qg-bg1);
+}
+
+/* ─── Summary severity pills ─────────────────────────────────────────────────── */
+.qg-summary-row {
+	display: flex;
+	gap: 8px;
+	margin-bottom: 12px;
+	flex-wrap: wrap;
+}
+
+.qg-sev-pill {
+	padding: 2px 8px;
+	border-radius: 4px;
+	font-size: 11px;
+	font-weight: 600;
+}
+
+.qg-sev-pill.qg-sev-critical {
+	background: #e53935;
+	color: #fff;
+}
+
+.qg-sev-pill.qg-sev-high {
+	background: #fb8c00;
+	color: #fff;
+}
+
+.qg-sev-pill.qg-sev-medium {
+	background: #fdd835;
+	color: #222;
+}
+
+.qg-sev-pill.qg-sev-low {
+	background: #66bb6a;
+	color: #fff;
+}
+
+/* ─── Dimension cards ────────────────────────────────────────────────────────── */
+.qg-dim-card {
+	border: 1px solid var(--qg-border);
+	border-radius: 6px;
+	margin-bottom: 8px;
+	overflow: hidden;
+}
+
+.qg-dim-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 12px;
+	background: var(--qg-bg2);
+	cursor: pointer;
+	user-select: none;
+}
+
+.qg-dim-header:hover {
+	background: var(--vscode-list-hoverBackground, #2a313c);
+}
+
+.qg-dim-name {
+	font-size: 13px;
+	font-weight: 600;
+	min-width: 110px;
+}
+
+.qg-dim-score {
+	font-size: 12px;
+	font-weight: 700;
+	min-width: 50px;
+	text-align: right;
+}
+
+.qg-dim-bar-wrap {
+	flex: 1;
+	min-width: 60px;
+}
+
+.qg-score-bar-track {
+	height: 8px;
+	background: var(--qg-bg3);
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.qg-score-bar-fill {
+	height: 100%;
+	border-radius: 4px;
+	transition: width 0.4s ease;
+}
+
+.qg-dim-issues {
+	font-size: 11px;
+	color: var(--qg-fg-muted);
+	min-width: 55px;
+	text-align: right;
+}
+
+.qg-dim-chevron {
+	font-size: 11px;
+	color: var(--qg-fg-muted);
+}
+
+.qg-dim-issues-list {
+	padding: 8px 10px;
+	background: var(--qg-bg1);
+}
+
+.qg-no-issues {
+	padding: 8px 12px;
+	color: var(--qg-green);
+	font-size: 12px;
+}
+
+/* ─── Issue rows ─────────────────────────────────────────────────────────────── */
+.qg-issue-row {
+	border: 1px solid var(--qg-border);
+	border-radius: 5px;
+	margin-bottom: 6px;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+.qg-issue-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 7px 10px;
+	background: var(--qg-bg2);
+}
+
+.qg-issue-header:hover {
+	background: var(--vscode-list-hoverBackground, #2a313c);
+}
+
+.qg-issue-desc {
+	flex: 1;
+	font-size: 12px;
+}
+
+.qg-issue-chevron {
+	font-size: 11px;
+	color: var(--qg-fg-muted);
+}
+
+.qg-issue-detail {
+	padding: 8px 12px;
+	background: var(--qg-bg1);
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.qg-issue-detail-row {
+	display: flex;
+	gap: 8px;
+	font-size: 12px;
+}
+
+.qg-issue-label {
+	min-width: 110px;
+	font-weight: 600;
+	color: var(--qg-fg-muted);
+	flex-shrink: 0;
+}
+
+.qg-issue-fix {
+	font-family: var(--vscode-editor-font-family, monospace);
+	font-size: 11px;
+	background: var(--qg-bg3);
+	padding: 2px 6px;
+	border-radius: 3px;
+	word-break: break-all;
+}
+
+/* ─── Severity badges ────────────────────────────────────────────────────────── */
+.qg-severity-badge {
+	padding: 2px 7px;
+	border-radius: 3px;
+	font-size: 11px;
+	font-weight: 700;
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+.qg-sev-critical {
+	background: #e53935;
+	color: #fff;
+}
+
+.qg-sev-high {
+	background: #fb8c00;
+	color: #fff;
+}
+
+.qg-sev-medium {
+	background: #fdd835;
+	color: #222;
+}
+
+.qg-sev-low {
+	background: #66bb6a;
+	color: #fff;
+}
+
+.qg-rule-summary {
+	margin-top: 12px;
+}
+
+.qg-rule-section {
+	margin-bottom: 16px;
+}
+
+.qg-rule-title {
+	font-weight: 600;
+	margin-bottom: 8px;
+}
+
+.qg-rule-pass {
+	color: var(--qg-green);
+	padding: 4px 0;
+}
+
+.qg-rule-fail {
+	color: var(--qg-red);
+	padding: 4px 0;
+}
+
+.qg-rule-none {
+	color: var(--qg-fg-muted);
+	font-style: italic;
+}

@@ -40,6 +40,10 @@ const SecretManagerPanel = React.lazy(
 	() => import("./components/Variables/SecretManager/secretMangerPanel"),
 );
 
+const MockServer = React.lazy(() => import("./components/MockServer"));
+
+const QualityGate = React.lazy(() => import("./components/QualityGate"));
+
 function ErrorFallback({ error }) {
 	const errorData =
 		" Name : " +
@@ -129,6 +133,10 @@ function renderUI() {
 		return <DataDrivenTest />;
 	} else if (document.title.includes("scmanager")) {
 		return <SecretManagerPanel />;
+	} else if (document.title.includes("mockserver")) {
+		return <MockServer />;
+	} else if (document.title.includes("qualitygate")) {
+		return <QualityGate />;
 	} else {
 		return <MainUI />;
 	}

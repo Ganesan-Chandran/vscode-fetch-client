@@ -1,5 +1,6 @@
 import { IAuth } from "./auth.types";
 import { ITableData } from "./common.types";
+import { IMockServer } from "./mockServer.types";
 import { IPreFetch } from "./prefetch.types";
 
 export interface IHistory {
@@ -51,4 +52,5 @@ export interface ISideBarModel {
 	history: IHistory[];
 	collections: ICollections[];
 	variable: IVariable[];
+	mockServers: IMockServer[];
 }

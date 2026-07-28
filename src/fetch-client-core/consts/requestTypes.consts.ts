@@ -114,6 +114,25 @@ export const requestTypes = {
 	tokenRequest: "tokenRequest",
 	updateVariableRequest: "updateVariableRequest",
 	viewLogRequest: "viewLogRequest",
+	// Quality Gate
+	openQualityGateRequest: "openQualityGateRequest",
+	getQualityGateInitRequest: "getQualityGateInitRequest",
+	runQualityGateRequest: "runQualityGateRequest",
+	exportQualityGateReportRequest: "exportQualityGateReportRequest",
+	// Mock Server
+	getAllMockServersRequest: "getAllMockServersRequest",
+	getMockServerByIdRequest: "getMockServerByIdRequest",
+	saveMockServerRequest: "saveMockServerRequest",
+	updateMockServerRequest: "updateMockServerRequest",
+	deleteMockServerRequest: "deleteMockServerRequest",
+	startMockServerRequest: "startMockServerRequest",
+	stopMockServerRequest: "stopMockServerRequest",
+	getMockServerLogsRequest: "getMockServerLogsRequest",
+	clearMockServerLogsRequest: "clearMockServerLogsRequest",
+	generateMockFromCollectionRequest: "generateMockFromCollectionRequest",
+	generateMockFromOpenAPIRequest: "generateMockFromOpenAPIRequest",
+	newMockServerRequest: "newMockServerRequest",
+	renameMockServerRequest: "renameMockServerRequest",
 };
 
 export const responseTypes = {
@@ -209,6 +228,14 @@ export const responseTypes = {
 	tokenResponse: "tokenResponse",
 	updateCollectionHistoryItem: "updateCollectionHistoryItem",
 	updateVariableResponse: "updateVariableResponse",
+	// Mock Server
+	getAllMockServersResponse: "getAllMockServersResponse",
+	getMockServerByIdResponse: "getMockServerByIdResponse",
+	saveMockServerResponse: "saveMockServerResponse",
+	updateMockServerResponse: "updateMockServerResponse",
+	deleteMockServerResponse: "deleteMockServerResponse",
+	mockServerStatusResponse: "mockServerStatusResponse",
+	mockServerLogResponse: "mockServerLogResponse",
 };
 
 export const pubSubTypes = {
