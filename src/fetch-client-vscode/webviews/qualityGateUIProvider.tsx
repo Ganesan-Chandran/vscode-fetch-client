@@ -22,14 +22,15 @@ import {
 import { IReponseModel } from "../../fetch-client-core/types/response.types";
 import { IRequestModel } from "../../fetch-client-core/types/request.types";
 import { ISettings } from "../../fetch-client-core/types/sidebar.types";
-import { IPreFetch } from "../../fetch-client-core/types/prefetch.types";
-import { apiFetch, FetchConfig } from "../../fetch-client-core/utils/fetchUtil";
+import { FetchConfig } from "../../fetch-client-core/utils/fetchUtil";
 import {
 	getHeadersConfiguration,
 	getRunMainRequestOption,
 	getTimeOutConfiguration,
+	getVariableEncryptionKey,
 } from "../../fetch-client-core/utils/vscodeConfig";
-import { PreFetchRunner } from "../../fetch-client-core/utils/preFetchService/preFetchRunner";
+import { getVariableEncryptionConfiguration } from "../../fetch-client-core/utils/commonConfig";
+import { runLiveQualityGateRequest } from "../../fetch-client-core/utils/preFetchService/qualityGateLiveRunner";
 import { DbPreFetchContextProvider } from "../../fetch-client-core/utils/preFetchService/dbPreFetchContextProvider";
 import {
 	requestTypes,
@@ -263,46 +264,10 @@ async function handleSaveRuleSelection(disabledRules: string[]): Promise<void> {
 
 // ─── Live execution fallback (no saved response exists for a request) ───────
 // A saved response is optional - not every request has one. When it's missing,
-// we run the request live so the gate always has a real response to analyze:
-// its configured pre-request chain (parent-level + request-level, e.g. for
-// token setup) is executed first via PreFetchRunner (headless, DB-backed, same
-// mechanism the interactive Run flow uses), then the main request itself is
-// fired directly with apiFetch(). Each apiFetch() call measures its own
-// duration with a fresh axios instance, so the reported duration always
-// reflects only the main request - never the pre-request calls' time.
-
-async function runLivePreRequests(
-	request: IRequestModel,
-	preFetch: IPreFetch,
-	isCollectionPreRequest: boolean,
-	fetchConfig: FetchConfig,
-): Promise<boolean> {
-	const runner = new PreFetchRunner(
-		fetchConfig,
-		request.id,
-		new DbPreFetchContextProvider(),
-	);
-
-	await runner.RunPreRequests(
-		preFetch,
-		0,
-		request.name,
-		isCollectionPreRequest,
-	);
-
-	if (runner.message) {
-		if (fetchConfig.runMainRequest === true) {
-			writeLog(`warn::runLivePreRequests(): ${runner.message}`);
-			return true;
-		}
-		writeLog(
-			`warn::runLivePreRequests(): main request skipped - ${runner.message}`,
-		);
-		return false;
-	}
-
-	return true;
-}
+// we run the request live so the gate always has a real response to analyze -
+// pre-requests, the main request, test assertions and set-vars all go through
+// runLiveQualityGateRequest(), the same core runner the CLI's `fc-cli qc` uses,
+// so both surfaces behave identically instead of duplicating this logic.
 
 async function runLiveRequest(
 	request: IRequestModel,
@@ -316,61 +281,27 @@ async function runLiveRequest(
 			runMainRequest: getRunMainRequestOption(),
 		};
 
-		let allow = true;
-
-		if ((settings?.preFetch?.requests?.length ?? 0) > 0) {
-			allow = await runLivePreRequests(
-				request,
-				settings!.preFetch,
-				true,
-				fetchConfig,
-			);
-		}
-
-		if (
-			allow &&
-			(request.preFetch?.requests?.length ?? 0) > 0 &&
-			request.preFetch.requests[0]?.reqId
-		) {
-			allow = await runLivePreRequests(
-				request,
-				request.preFetch,
-				false,
-				fetchConfig,
-			);
-		}
-
-		if (!allow) {
-			return undefined;
-		}
-
-		// Pre-requests may have refreshed a token (or other) variable via the DB -
-		// reload it so the main request uses the latest value.
 		const variable = varId ? await GetVariableByIdSync(varId) : undefined;
+		const encryptionKey = getVariableEncryptionConfiguration()
+			? getVariableEncryptionKey()
+			: null;
 
-		const res = await apiFetch(
+		const { response, skippedReason } = await runLiveQualityGateRequest({
 			request,
-			variable?.data,
-			settings ?? ({} as ISettings),
-			null,
+			settings,
+			variable,
+			effectiveVarId: varId,
+			provider: new DbPreFetchContextProvider(),
 			fetchConfig,
-		);
+			encryptionKey,
+			reloadVariable: (id) => GetVariableByIdSync(id),
+		});
 
-		return {
-			id: request.id,
-			response: {
-				duration: res.response.duration,
-				isError: res.response.isError,
-				responseData: res.response.responseData,
-				responseType: res.response.responseType,
-				size: res.response.size as string,
-				status: res.response.status,
-				statusText: res.response.statusText,
-			},
-			headers: res.headers,
-			cookies: res.cookies,
-			loading: false,
-		};
+		if (skippedReason) {
+			writeLog(`warn::runLiveRequest(): ${skippedReason}`);
+		}
+
+		return response;
 	} catch (err) {
 		writeLog("error::runLiveRequest(): " + err);
 		return undefined;

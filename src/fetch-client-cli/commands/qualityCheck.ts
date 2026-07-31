@@ -13,14 +13,14 @@ import { resolveSettings } from "./helper";
 import { cliConfig } from "../config";
 import { CliPreFetchContextProvider } from "../../fetch-client-core/utils/preFetchService/cliPreFetchContextProvider";
 import { DbPreFetchContextProvider } from "../../fetch-client-core/utils/preFetchService/dbPreFetchContextProvider";
-import { PreFetchRunner } from "../../fetch-client-core/utils/preFetchService/preFetchRunner";
 import { IPreFetchContextProvider } from "../../fetch-client-core/utils/preFetchService/preFetch.types.ts";
-import { apiFetch, FetchConfig } from "../../fetch-client-core/utils/fetchUtil";
+import { FetchConfig } from "../../fetch-client-core/utils/fetchUtil";
 import {
 	getHeadersConfiguration,
 	getTimeOutConfiguration,
 } from "../../fetch-client-core/utils/vscodeConfig";
 import { Var_Repository_FindByIdSync } from "../../fetch-client-core/db/variableDB.repository";
+import { runLiveQualityGateRequest } from "../../fetch-client-core/utils/preFetchService/qualityGateLiveRunner";
 import {
 	EXTENSION_BY_FORMAT,
 	ExportFormat,
@@ -46,7 +46,6 @@ import {
 } from "../../fetch-client-core/types/sidebar.types";
 import { IRequestModel } from "../../fetch-client-core/types/request.types";
 import { IReponseModel } from "../../fetch-client-core/types/response.types";
-import { ITableData } from "../../fetch-client-core/types/common.types";
 import { RequestLeaf } from "../types/common.types";
 import {
 	bold,
@@ -138,12 +137,12 @@ export function printQualityGateRules(): void {
 	);
 }
 
-// ─── Live execution (mirrors the extension's runLiveRequest, CLI-flavoured) ──
+// ─── Live execution (delegates to the shared core runner used by the extension too) ──
 
 async function runLiveForQualityGate(
 	request: IRequestModel,
 	settings: ISettings,
-	variableData: ITableData[],
+	variable: IVariable | undefined,
 	effectiveVarId: string,
 	provider: IPreFetchContextProvider,
 ): Promise<IReponseModel | undefined> {
@@ -152,80 +151,23 @@ async function runLiveForQualityGate(
 		headersCase: getHeadersConfiguration(),
 	};
 
-	let currentVariableData = variableData;
-	let isVariableUpdated = false;
-
-	if (settings.preFetch?.requests?.length > 0) {
-		const runner = new PreFetchRunner(fetchConfig, request.id, provider);
-		await runner.RunPreRequests(settings.preFetch, 0, request.name, true);
-
-		if (!runner.allow) {
-			writeConsoleLog(
-				yellow(`  Skipped - pre-request failed: ${runner.message}`),
-			);
-			return undefined;
-		}
-		isVariableUpdated = true;
-	}
-
-	if (
-		request.preFetch?.requests?.length > 0 &&
-		request.preFetch.requests[0]?.reqId
-	) {
-		const runner = new PreFetchRunner(fetchConfig, request.id, provider);
-		await runner.RunPreRequests(request.preFetch, 0, request.name, false);
-
-		if (!runner.allow) {
-			writeConsoleLog(
-				yellow(`  Skipped - pre-request failed: ${runner.message}`),
-			);
-			return undefined;
-		}
-		isVariableUpdated = true;
-	}
-
-	// Pre-requests may have refreshed a token (or other) variable - reload it
-	// so the main request under analysis uses the latest value.
-	if (isVariableUpdated) {
-		const updatedVariable = provider?.getVariable();
-
-		if (updatedVariable) {
-			currentVariableData = updatedVariable.data;
-		} else if (effectiveVarId) {
-			const updated = await Var_Repository_FindByIdSync(
-				effectiveVarId,
-				cliConfig.encryptionKey,
-			);
-
-			if (updated?.data) {
-				currentVariableData = updated.data;
-			}
-		}
-	}
-
-	const raw = await apiFetch(
+	const { response, skippedReason } = await runLiveQualityGateRequest({
 		request,
-		currentVariableData,
 		settings,
-		null,
+		variable,
+		effectiveVarId,
+		provider,
 		fetchConfig,
-	);
+		encryptionKey: cliConfig.encryptionKey,
+		reloadVariable: (varId) =>
+			Var_Repository_FindByIdSync(varId, cliConfig.encryptionKey),
+	});
 
-	return {
-		id: request.id,
-		response: {
-			duration: raw.response.duration,
-			isError: raw.response.isError,
-			responseData: raw.response.responseData,
-			responseType: raw.response.responseType,
-			size: raw.response.size as string,
-			status: raw.response.status,
-			statusText: raw.response.statusText,
-		},
-		headers: raw.headers,
-		cookies: raw.cookies,
-		loading: false,
-	};
+	if (skippedReason) {
+		writeConsoleLog(yellow(`  Skipped - pre-request failed: ${skippedReason}`));
+	}
+
+	return response;
 }
 
 // ─── Core runner (shared by request/collection/folder, DB or file-backed) ───
@@ -266,7 +208,7 @@ async function runQualityCheckCore(
 		const response = await runLiveForQualityGate(
 			request,
 			settings,
-			variable?.data ?? [],
+			variable ?? undefined,
 			effectiveVarId,
 			provider,
 		);
