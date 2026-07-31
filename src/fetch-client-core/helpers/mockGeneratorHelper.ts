@@ -13,7 +13,9 @@ export function generateMockFromCollection(
 	const routes: IMockRoute[] = [];
 
 	function processItems(items: any[]): void {
-		if (!Array.isArray(items)) { return; }
+		if (!Array.isArray(items)) {
+			return;
+		}
 		for (const item of items) {
 			if (item.type === "folder") {
 				processItems(item.data ?? []);
@@ -50,8 +52,8 @@ export function generateMockFromCollection(
 				bodyMatcher: {
 					enabled: false,
 					matchType: "none",
-					value: ""
-				}
+					value: "",
+				},
 			});
 		}
 	}
@@ -62,7 +64,9 @@ export function generateMockFromCollection(
 	const seen = new Set<string>();
 	return routes.filter((r) => {
 		const key = `${r.method}:${r.path}`;
-		if (seen.has(key)) { return false; }
+		if (seen.has(key)) {
+			return false;
+		}
 		seen.add(key);
 		return true;
 	});

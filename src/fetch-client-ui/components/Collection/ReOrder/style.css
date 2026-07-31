@@ -4,16 +4,16 @@
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	background: var(--vscode-editor-background);
-	color: var(--vscode-foreground);
-	font-family: var(--vscode-font-family);
-	font-size: var(--vscode-font-size);
+	background: var(--editor-background-color);
+	color: var(--text-color);
+	font-family: var(--font-family);
+	font-size: var(--font-size);
 }
 
 .reorder-header {
 	padding: 10px 16px;
-	border-bottom: 1px solid var(--vscode-editorGroup-border);
-	background: var(--vscode-sideBar-background);
+	border-bottom: 1px solid var(--panel-header-border-color);
+	background: var(--sidebar-background-color);
 	font-style: normal;
 	font-size: x-large;
 	text-align: center;
@@ -39,20 +39,20 @@
 
 .reorder-col-label {
 	font-size: 12px;
-	color: var(--vscode-descriptionForeground);
+	color: var(--description-text-color);
 }
 
 .reorder-col-value {
 	font-size: 12px;
 	font-weight: 600;
-	color: var(--vscode-foreground);
+	color: var(--text-color);
 }
 
 /* ── Hint bar ──────────────────────────────────────────────────────────────── */
 
 .reorder-hint {
 	font-size: 11px;
-	color: var(--vscode-descriptionForeground);
+	color: var(--description-text-color);
 	padding: 4px 0;
 }
 
@@ -66,9 +66,9 @@
 .reorder-tree-panel {
 	flex: 1;
 	overflow-y: auto;
-	border: 1px solid var(--vscode-editorGroup-border);
+	border: 1px solid var(--panel-header-border-color);
 	border-radius: 4px;
-	background: var(--vscode-sideBar-background);
+	background: var(--sidebar-background-color);
 }
 
 /* ── Tree row ──────────────────────────────────────────────────────────────── */
@@ -88,7 +88,7 @@
 }
 
 .reorder-row:hover {
-	background: var(--vscode-list-hoverBackground);
+	background: var(--list-hover-background-color);
 }
 
 .reorder-row--dragging {
@@ -97,23 +97,23 @@
 }
 
 .reorder-row--over-inside {
-	background: var(--vscode-list-activeSelectionBackground);
-	border-color: var(--vscode-focusBorder);
+	background: var(--list-active-background-color);
+	border-color: var(--focus-border-color);
 	border-radius: 3px;
 }
 
 .reorder-row--over-before {
-	border-top: 2px solid var(--vscode-focusBorder);
+	border-top: 2px solid var(--focus-border-color);
 }
 
 .reorder-row--over-after {
-	border-bottom: 2px solid var(--vscode-focusBorder);
+	border-bottom: 2px solid var(--focus-border-color);
 }
 
 /* ── Row parts ─────────────────────────────────────────────────────────────── */
 
 .reorder-handle {
-	color: var(--vscode-descriptionForeground);
+	color: var(--description-text-color);
 	font-size: 14px;
 	cursor: grab;
 	flex-shrink: 0;
@@ -126,7 +126,7 @@
 
 .reorder-chevron {
 	font-size: 10px;
-	color: var(--vscode-foreground);
+	color: var(--text-color);
 	cursor: pointer;
 	flex-shrink: 0;
 	display: inline-block;
@@ -154,12 +154,12 @@
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	color: var(--vscode-foreground);
+	color: var(--text-color);
 }
 
 .reorder-url {
 	font-size: 11px;
-	color: var(--vscode-descriptionForeground);
+	color: var(--description-text-color);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -169,7 +169,7 @@
 /* ── Children indent ───────────────────────────────────────────────────────── */
 
 .reorder-children {
-	border-left: 1px solid var(--vscode-tree-indentGuidesStroke, #404040);
+	border-left: 1px solid var(--tree-indent-guide-color);
 	margin-left: 20px;
 }
 
@@ -235,20 +235,14 @@
 }
 
 .reorder-status--ok {
-	background: var(
-		--vscode-diffEditor-insertedTextBackground,
-		rgba(99, 153, 34, 0.15)
-	);
-	color: var(--vscode-gitDecoration-addedResourceForeground, #89d185);
+	background: var(--diff-inserted-background-color);
+	color: var(--added-text-color);
 	border-left: 3px solid #89d185;
 }
 
 .reorder-status--error {
-	background: var(
-		--vscode-diffEditor-removedTextBackground,
-		rgba(255, 60, 60, 0.1)
-	);
-	color: var(--vscode-errorForeground, #f48771);
+	background: var(--diff-removed-background-color);
+	color: var(--error-foreground-color);
 	border-left: 3px solid #f48771;
 }
 
@@ -266,18 +260,18 @@
 	font-size: 12px;
 	border-radius: 2px;
 	cursor: pointer;
-	background: var(--vscode-button-background);
-	color: var(--vscode-button-foreground);
+	background: var(--button-background-color);
+	color: var(--button-text-color);
 	border: none;
 }
 
 .reorder-btn:hover {
-	background: var(--vscode-button-hoverBackground);
+	background: var(--button-hover-color);
 }
 
 .reorder-btn--saved {
-	background: var(--vscode-button-secondaryBackground, #3a3d41);
-	color: var(--vscode-button-secondaryForeground, #cccccc);
+	background: var(--button-secondary-background-color);
+	color: var(--button-secondary-text-color);
 }
 
 /* ── Spinner (reuse existing .spinner.loading) ─────────────────────────────── */
@@ -285,6 +279,6 @@
 .loading-history-text {
 	text-align: center;
 	font-size: 12px;
-	color: var(--vscode-descriptionForeground);
+	color: var(--description-text-color);
 	margin-top: 8px;
 }

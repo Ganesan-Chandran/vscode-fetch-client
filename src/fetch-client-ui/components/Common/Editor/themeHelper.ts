@@ -3,28 +3,28 @@ export function syncAceWithVSCodeTheme() {
 
 	const get = (v: string) => style.getPropertyValue(v).trim();
 
-	const bg = get("--vscode-editor-background");
-	const fg = get("--vscode-editor-foreground");
-	const selBg = get("--vscode-editor-selectionBackground");
-	const lineHL = get("--vscode-editor-lineHighlightBackground");
-	const cursor = get("--vscode-editorCursor-foreground");
-	const gutterBg = get("--vscode-editorGutter-background") || bg;
-	const lineNumFg = get("--vscode-editorLineNumber-foreground");
-	const lineNumAFg = get("--vscode-editorLineNumber-activeForeground") || fg;
-	const scrollbarBg = get("--vscode-scrollbarSlider-background");
-	const scrollbarHv = get("--vscode-scrollbarSlider-hoverBackground");
-	const borderColor = get("--vscode-editorWidget-border") || "transparent";
-	const findBg = get("--vscode-editorWidget-background") || bg;
-	const findFg = get("--vscode-editorWidget-foreground") || fg;
+	const bg = get("--editor-background-color");
+	const fg = get("--editor-foreground-color");
+	const selBg = get("--editor-selection-background-color");
+	const lineHL = get("--editor-line-highlight-background-color");
+	const cursor = get("--editor-cursor-color");
+	const gutterBg = get("--editor-gutter-background-color") || bg;
+	const lineNumFg = get("--editor-line-number-color");
+	const lineNumAFg = get("--editor-line-number-active-color") || fg;
+	const scrollbarBg = get("--scrollbar-slider-background-color");
+	const scrollbarHv = get("--scrollbar-slider-hover-color");
+	const borderColor = get("--editor-widget-border-color") || "transparent";
+	const findBg = get("--editor-widget-background-color") || bg;
+	const findFg = get("--editor-foreground-color") || fg;
 
 	// Syntax tokens
-	const keyword = get("--vscode-symbolIcon-keywordForeground");
-	const string = get("--vscode-debugTokenExpression-string");
-	const number = get("--vscode-debugTokenExpression-number");
-	const comment = get("--vscode-editorLineNumber-foreground");
-	const fnColor = get("--vscode-symbolIcon-functionForeground");
-	const varColor = get("--vscode-symbolIcon-variableForeground");
-	const typeColor = get("--vscode-symbolIcon-classForeground");
+	const keyword = get("--syntax-keyword-color");
+	const string = get("--syntax-string-color");
+	const number = get("--syntax-number-color");
+	const comment = get("--syntax-comment-color");
+	const fnColor = get("--syntax-function-color");
+	const varColor = get("--syntax-variable-color");
+	const typeColor = get("--syntax-type-color");
 
 	const cssId = "ace-vscode-theme-sync";
 	let el = document.getElementById(cssId) as HTMLStyleElement | null;

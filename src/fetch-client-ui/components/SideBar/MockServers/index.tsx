@@ -33,7 +33,9 @@ const MockServerSection = (props: IMockServerSectionProps) => {
 	useEffect(() => {
 		const handler = (event: MessageEvent) => {
 			const msg = event.data;
-			if (!msg?.type) { return; }
+			if (!msg?.type) {
+				return;
+			}
 
 			// Only handle status updates locally; Redux list updates are
 			// managed by the parent SideBar handleMessage to avoid timing issues.
@@ -41,8 +43,11 @@ const MockServerSection = (props: IMockServerSectionProps) => {
 				const { id, status } = msg.data;
 				setRunningIds((prev) => {
 					const next = new Set(prev);
-					if (status === "running") { next.add(id); }
-					else { next.delete(id); }
+					if (status === "running") {
+						next.add(id);
+					} else {
+						next.delete(id);
+					}
 					return next;
 				});
 			}
@@ -57,8 +62,8 @@ const MockServerSection = (props: IMockServerSectionProps) => {
 			const triggerEl = moreMenuWrapperRef.current[refIndex.current];
 			const filtered = props.filterCondition
 				? mockServers.filter((s) =>
-					s.name.toLowerCase().includes(props.filterCondition.toLowerCase()),
-				)
+						s.name.toLowerCase().includes(props.filterCondition.toLowerCase()),
+					)
 				: mockServers;
 			const itemId = filtered[refIndex.current]?.id ?? "";
 			const menuEl = document.getElementById("drop-down-menu-ms-" + itemId);
@@ -85,8 +90,8 @@ const MockServerSection = (props: IMockServerSectionProps) => {
 
 	const filtered = props.filterCondition
 		? mockServers.filter((s) =>
-			s.name.toLowerCase().includes(props.filterCondition.toLowerCase()),
-		)
+				s.name.toLowerCase().includes(props.filterCondition.toLowerCase()),
+			)
 		: mockServers;
 
 	function openContextMenu(index: number) {
@@ -168,14 +173,14 @@ const MockServerSection = (props: IMockServerSectionProps) => {
 							className={`mock-server-item${selectedItem === server.id ? " selected" : ""}`}
 							onClick={() => onOpenServer(server.id)}
 							onContextMenu={(e) => onItemRightClick(e, index)}
-							title={`${server.name} — port ${server.port}`}
+							title={`${server.name} - port ${server.port}`}
 						>
 							<span
 								className="mock-server-status-dot"
 								style={{
 									background: running
-										? "var(--vscode-testing-iconPassed, #4caf50)"
-										: "var(--vscode-descriptionForeground, #858585)",
+										? "var(--test-passed-color)"
+										: "var(--description-text-color)",
 								}}
 								title={running ? "Running" : "Stopped"}
 							/>

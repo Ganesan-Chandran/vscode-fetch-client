@@ -24,11 +24,11 @@ const BODY_TYPES: { label: string; value: MockBodyType }[] = [
 	{ label: "HTML", value: "html" },
 	{ label: "None", value: "none" },
 ];
-const BODY_MATCH_TYPES: { label: string; value: MockBodyMatchType; }[] = [
-	{ label: "None", value: "none", },
-	{ label: "Exact", value: "exact", },
-	{ label: "Contains", value: "contains", },
-	{ label: "JSON", value: "json", },
+const BODY_MATCH_TYPES: { label: string; value: MockBodyMatchType }[] = [
+	{ label: "None", value: "none" },
+	{ label: "Exact", value: "exact" },
+	{ label: "Contains", value: "contains" },
+	{ label: "JSON", value: "json" },
 ];
 const STATUS_CODES = [
 	200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 429, 500, 502, 503,
@@ -83,9 +83,7 @@ const RouteDetail: React.FC<RouteDetailProps> = ({
 			<div className="ms-detail-scroll">
 				{/* Name */}
 				<div className="ms-form-row">
-					<span className="ms-field-label">
-						Name
-					</span>
+					<span className="ms-field-label">Name</span>
 					<input
 						className="ms-text-input name"
 						style={{ flex: 1 }}
@@ -95,9 +93,7 @@ const RouteDetail: React.FC<RouteDetailProps> = ({
 						placeholder="Route name"
 					/>
 					<label className="ms-toggle-row">
-						<span className="ms-field-label">
-							Enabled
-						</span>
+						<span className="ms-field-label">Enabled</span>
 						<label className="ms-toggle">
 							<input
 								type="checkbox"
@@ -174,17 +170,14 @@ const RouteDetail: React.FC<RouteDetailProps> = ({
 									</option>
 								))}
 							</select>
-							<span className="ms-field-label">
-								Body type
-							</span>
+							<span className="ms-field-label">Body type</span>
 							<select
 								className="ms-select body-type"
 								value={route.bodyType}
 								disabled={disabled}
 								onChange={(e) =>
 									update({
-										bodyType:
-											e.target.value as MockBodyType,
+										bodyType: e.target.value as MockBodyType,
 									})
 								}
 							>
@@ -194,9 +187,7 @@ const RouteDetail: React.FC<RouteDetailProps> = ({
 									</option>
 								))}
 							</select>
-							<span className="ms-field-label">
-								Delay (ms)
-							</span>
+							<span className="ms-field-label">Delay (ms)</span>
 							<input
 								type="number"
 								className="ms-delay-input"
@@ -207,10 +198,7 @@ const RouteDetail: React.FC<RouteDetailProps> = ({
 								disabled={disabled}
 								onChange={(e) =>
 									update({
-										delayMs: Math.max(
-											0,
-											parseInt(e.target.value, 10) || 0,
-										),
+										delayMs: Math.max(0, parseInt(e.target.value, 10) || 0),
 									})
 								}
 							/>
@@ -219,9 +207,7 @@ const RouteDetail: React.FC<RouteDetailProps> = ({
 						{/* NEW */}
 						{route.bodyType !== "none" && (
 							<div className="ms-form-section">
-								<div className="ms-section-title">
-									Response Body
-								</div>
+								<div className="ms-section-title">Response Body</div>
 								<textarea
 									className="ms-body-editor"
 									rows={14}
@@ -274,7 +260,7 @@ const RouteDetail: React.FC<RouteDetailProps> = ({
 											colSpan={disabled ? 2 : 3}
 											style={{
 												padding: "10px 6px",
-												color: "var(--vscode-descriptionForeground)",
+												color: "var(--description-text-color)",
 												fontSize: 12,
 											}}
 										>
@@ -320,14 +306,9 @@ const RouteDetail: React.FC<RouteDetailProps> = ({
 					</div>
 				)}
 				{activeTab === "Request Match" && (
-					<div
-						className="ms-form-section"
-						style={{ marginTop: 12 }}
-					>
+					<div className="ms-form-section" style={{ marginTop: 12 }}>
 						<div className="ms-form-row">
-							<span className="ms-field-label">
-								Enable Body Match
-							</span>
+							<span className="ms-field-label">Enable Body Match</span>
 							<label className="ms-toggle">
 								<input
 									type="checkbox"
@@ -346,31 +327,22 @@ const RouteDetail: React.FC<RouteDetailProps> = ({
 							</label>
 						</div>
 						<div className="ms-form-row">
-							<span className="ms-field-label">
-								Match Type
-							</span>
+							<span className="ms-field-label">Match Type</span>
 							<select
 								className="ms-select"
 								value={route.bodyMatcher.matchType}
-								disabled={
-									disabled ||
-									!route.bodyMatcher.enabled
-								}
+								disabled={disabled || !route.bodyMatcher.enabled}
 								onChange={(e) =>
 									update({
 										bodyMatcher: {
 											...route.bodyMatcher,
-											matchType:
-												e.target.value as MockBodyMatchType,
+											matchType: e.target.value as MockBodyMatchType,
 										},
 									})
 								}
 							>
-								{BODY_MATCH_TYPES.map(type => (
-									<option
-										key={type.value}
-										value={type.value}
-									>
+								{BODY_MATCH_TYPES.map((type) => (
+									<option key={type.value} value={type.value}>
 										{type.label}
 									</option>
 								))}
@@ -378,7 +350,6 @@ const RouteDetail: React.FC<RouteDetailProps> = ({
 						</div>
 
 						{route.bodyMatcher.enabled && (
-
 							<div
 								className="ms-help-text"
 								style={{
@@ -388,15 +359,16 @@ const RouteDetail: React.FC<RouteDetailProps> = ({
 									opacity: 0.75,
 								}}
 							>
-								{route.bodyMatcher.matchType === "exact" && "Entire request body must exactly match."}
-								{route.bodyMatcher.matchType === "contains" && "Request body must contain the specified text."}
-								{route.bodyMatcher.matchType === "json" && "Only the specified JSON properties are compared."}
+								{route.bodyMatcher.matchType === "exact" &&
+									"Entire request body must exactly match."}
+								{route.bodyMatcher.matchType === "contains" &&
+									"Request body must contain the specified text."}
+								{route.bodyMatcher.matchType === "json" &&
+									"Only the specified JSON properties are compared."}
 							</div>
 						)}
 						<div className="ms-form-section">
-							<div className="ms-section-title">
-								Body Match Pattern
-							</div>
+							<div className="ms-section-title">Body Match Pattern</div>
 							<textarea
 								className="ms-body-editor"
 								rows={8}

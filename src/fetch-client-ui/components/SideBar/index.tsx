@@ -1,6 +1,6 @@
 import "./style.css";
 import { AppDispatch } from "../../store/appStore";
-import { getColFolDotMenu } from "../Common/icons";
+import { getColFolDotMenu, getSideBarTabIcon } from "../Common/icons";
 import { HistoryBar } from "./History";
 import {
 	IHistory,
@@ -8,6 +8,7 @@ import {
 	IVariable,
 } from "../../../fetch-client-core/types/sidebar.types";
 import { IMockServer } from "../../../fetch-client-core/types/mockServer.types";
+import { IRootState } from "../../reducer/combineReducer";
 import {
 	pubSubTypes,
 	requestTypes,
@@ -15,16 +16,18 @@ import {
 } from "../../../fetch-client-core/consts/requestTypes.consts";
 import { SideBarActions } from "./redux";
 import { UIActions } from "../MainUI/redux";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import React, { useEffect, useRef, useState } from "react";
 import vscode from "../Common/vscodeAPI";
 
-const SideBar = () => {
-	const CollectionBar = React.lazy(() => import("./Collection"));
-	const VariableSection = React.lazy(() => import("./Variables"));
-	const MockServerSection = React.lazy(() => import("./MockServers"));
+const CollectionBar = React.lazy(() => import("./Collection"));
+const VariableSection = React.lazy(() => import("./Variables"));
+const MockServerSection = React.lazy(() => import("./MockServers"));
 
+const SideBar = () => {
 	const dispatch = useDispatch<AppDispatch>();
+
+	const { variable } = useSelector((state: IRootState) => state.sideBarData);
 
 	const [tabOptions] = useState([
 		"History",
@@ -40,6 +43,7 @@ const SideBar = () => {
 	const [isColLoading, setColLoading] = useState(true);
 	const [isVarLoading, setVarLoading] = useState(true);
 	const [isViewLogOpen, setViewLogOpen] = useState(false);
+	const [selectedEnvId, setSelectedEnvId] = useState("");
 	const [selectedItem, _setSelectedItem] = useState({
 		colId: "",
 		foldId: "",
@@ -174,6 +178,30 @@ const SideBar = () => {
 			vscode.postMessage({ type: requestTypes.getAllMockServersRequest });
 		}
 	}, [selectedTab]);
+
+	// Default the dropdown to "Global" for display until the host reports a
+	// real selection (host itself stays unset until the user actually changes it).
+	useEffect(() => {
+		if (selectedEnvId || !variable.length) {
+			return;
+		}
+		const globalVar = variable.find(
+			(item) =>
+				item.name.toUpperCase().trim() === "GLOBAL" && item.isActive === true,
+		);
+		if (globalVar) {
+			setSelectedEnvId(globalVar.id);
+		}
+	}, [variable, selectedEnvId]);
+
+	function onEnvironmentChange(evt: React.ChangeEvent<HTMLSelectElement>) {
+		const id = evt.target.value;
+		setSelectedEnvId(id);
+		vscode.postMessage({
+			type: requestTypes.setSelectedEnvironmentRequest,
+			data: id,
+		});
+	}
 
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
@@ -479,6 +507,11 @@ const SideBar = () => {
 				dispatch(
 					SideBarActions.DeleteMockServerAction(event.data.data.id as string),
 				);
+			} else if (
+				event.data &&
+				event.data.type === responseTypes.getSelectedEnvironmentResponse
+			) {
+				setSelectedEnvId((event.data.data as string) || "");
 			}
 		};
 		window.addEventListener("message", handleMessage);
@@ -488,6 +521,7 @@ const SideBar = () => {
 		vscode.postMessage({ type: requestTypes.getAllCollectionsRequest });
 		vscode.postMessage({ type: requestTypes.getAllVariableRequest });
 		vscode.postMessage({ type: requestTypes.getAllMockServersRequest });
+		vscode.postMessage({ type: requestTypes.getSelectedEnvironmentRequest });
 
 		document.body.style.backgroundColor = "transparent";
 
@@ -591,7 +625,9 @@ const SideBar = () => {
 								? "filter history"
 								: selectedTab === "Collection"
 									? "filter collection"
-									: "filter variable"
+									: selectedTab === "Variable"
+										? "filter variable"
+										: "filter mock server"
 						}
 						onChange={onFilterChange}
 					/>
@@ -694,9 +730,11 @@ const SideBar = () => {
 							? "sidebar-tab-menu selected"
 							: "sidebar-tab-menu"
 					}
+					title={tab}
 					onClick={() => onSelectedTab(tab)}
 				>
-					{tab}
+					<span className="sidebar-tab-icon">{getSideBarTabIcon(tab)}</span>
+					<span className="sidebar-tab-label">{tab}</span>
 				</button>
 			);
 		});
@@ -706,8 +744,38 @@ const SideBar = () => {
 		vscode.postMessage({ type: requestTypes.newRequest });
 	}
 
+	function getEnvironmentOptions() {
+		return variable
+			.filter((item) => item.isActive)
+			.map((item) => (
+				<option key={item.id} value={item.id}>
+					{item.name}
+				</option>
+			));
+	}
+
 	return (
 		<div className="sidebar-panel">
+			<div className="environment-panel">
+				<label className="environment-label">
+					Environment
+					<span
+						className="environment-info-label"
+						title="Variable used by requests that aren't linked to a specific collection or folder variable. Linked requests keep using their own variable."
+					>
+						ⓘ
+					</span>
+				</label>
+				<div className="environment-select-wrapper">
+					<select
+						className="environment-select"
+						value={selectedEnvId}
+						onChange={onEnvironmentChange}
+					>
+						{getEnvironmentOptions()}
+					</select>
+				</div>
+			</div>
 			<div className="new-request-panel">
 				<button
 					type="submit"

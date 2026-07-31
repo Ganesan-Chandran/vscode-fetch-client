@@ -16,7 +16,9 @@ export async function MockServer_Repository_GetAll(): Promise<IMockServer[]> {
 	try {
 		const db = await getMockServerDB();
 		const col = db.getCollection("mockServers");
-		if (!col) { return []; }
+		if (!col) {
+			return [];
+		}
 		return col
 			.chain()
 			.data({ forceClones: true, removeMeta: true }) as IMockServer[];
@@ -32,7 +34,9 @@ export async function MockServer_Repository_GetById(
 	try {
 		const db = await getMockServerDB();
 		const col = db.getCollection("mockServers");
-		if (!col) { return null; }
+		if (!col) {
+			return null;
+		}
 		const results = col
 			.chain()
 			.find({ id })
@@ -50,7 +54,9 @@ export async function MockServer_Repository_Insert(
 	try {
 		const db = await getMockServerDB();
 		const col = db.getCollection("mockServers");
-		if (!col) { return; }
+		if (!col) {
+			return;
+		}
 		col.insert({ ...item });
 		await saveDB(db);
 	} catch (err) {

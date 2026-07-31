@@ -49,8 +49,8 @@ function defaultRoute(): IMockRoute {
 		bodyMatcher: {
 			enabled: false,
 			matchType: "none",
-			value: ""
-		}
+			value: "",
+		},
 	};
 }
 
@@ -106,7 +106,9 @@ const MockServer: React.FC = () => {
 
 		const handleMessage = (event: MessageEvent) => {
 			const msg = event.data;
-			if (!msg?.type) { return; }
+			if (!msg?.type) {
+				return;
+			}
 
 			switch (msg.type) {
 				case responseTypes.getMockServerByIdResponse:
@@ -164,14 +166,18 @@ const MockServer: React.FC = () => {
 
 	// ── Server field updates ─────────────────────────────────────────
 	function updateServer(partial: Partial<IMockServer>) {
-		if (!server) { return; }
+		if (!server) {
+			return;
+		}
 		dispatch(SetServerAction({ ...server, ...partial }));
 		dispatch(SetLocalChangeAction(true));
 	}
 
 	// ── Route operations ─────────────────────────────────────────────
 	function addRoute() {
-		if (!server || isRunning) { return; }
+		if (!server || isRunning) {
+			return;
+		}
 		const r = defaultRoute();
 		const updated = [...server.routes, r];
 		dispatch(SetRoutesAction(updated));
@@ -180,7 +186,9 @@ const MockServer: React.FC = () => {
 	}
 
 	function deleteRoute(id: string) {
-		if (!server || isRunning) { return; }
+		if (!server || isRunning) {
+			return;
+		}
 		const updated = server.routes.filter((r) => r.id !== id);
 		dispatch(SetRoutesAction(updated));
 		if (state.selectedRouteId === id) {
@@ -192,14 +200,18 @@ const MockServer: React.FC = () => {
 	}
 
 	function updateRoute(route: IMockRoute) {
-		if (!server) { return; }
+		if (!server) {
+			return;
+		}
 		const updated = server.routes.map((r) => (r.id === route.id ? route : r));
 		dispatch(SetRoutesAction(updated));
 		dispatch(SetLocalChangeAction(true));
 	}
 
 	function handleGeneratedRoutes(newRoutes: IMockRoute[]) {
-		if (!server) { return; }
+		if (!server) {
+			return;
+		}
 		const merged = deduplicateMerge(server.routes, newRoutes);
 		dispatch(SetRoutesAction(merged));
 		dispatch(SetLocalChangeAction(true));
@@ -220,7 +232,9 @@ const MockServer: React.FC = () => {
 
 	// ── Save ─────────────────────────────────────────────────────────
 	function handleSave() {
-		if (!server) { return; }
+		if (!server) {
+			return;
+		}
 		const err = validatePort(server.port);
 		if (err) {
 			setPortError(err);
@@ -239,7 +253,9 @@ const MockServer: React.FC = () => {
 
 	// ── Start / Stop ─────────────────────────────────────────────────
 	function handleStart() {
-		if (!server) { return; }
+		if (!server) {
+			return;
+		}
 		const err = validatePort(server.port);
 		if (err) {
 			setPortError(err);
@@ -256,7 +272,9 @@ const MockServer: React.FC = () => {
 	}
 
 	function handleStop() {
-		if (!server) { return; }
+		if (!server) {
+			return;
+		}
 		vscode.postMessage({
 			type: requestTypes.stopMockServerRequest,
 			data: { id: server.id },
@@ -265,7 +283,9 @@ const MockServer: React.FC = () => {
 
 	// ── Delete ───────────────────────────────────────────────────────
 	function handleDelete() {
-		if (!server) { return; }
+		if (!server) {
+			return;
+		}
 		vscode.postMessage({
 			type: requestTypes.deleteMockServerRequest,
 			data: { id: server.id, name: server.name },
@@ -281,7 +301,9 @@ const MockServer: React.FC = () => {
 
 	// ── Clear logs ────────────────────────────────────────────────────
 	function handleClearLogs() {
-		if (!server) { return; }
+		if (!server) {
+			return;
+		}
 		vscode.postMessage({
 			type: requestTypes.clearMockServerLogsRequest,
 			data: { id: server.id },

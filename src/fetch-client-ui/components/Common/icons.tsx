@@ -23,6 +23,124 @@ export function getPlusIconSVG(
 	);
 }
 
+export function getSideBarTabIcon(tab: string) {
+	switch (tab) {
+		case "History":
+			return (
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="16"
+					height="16"
+					viewBox="0 0 16 16"
+					className="sidebar-tab-svg sidebar-tab-svg-history"
+					fill="none"
+					stroke="currentColor"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					strokeWidth="1.3"
+				>
+					<circle
+						cx="8"
+						cy="8"
+						r="6.25"
+						fill="currentColor"
+						fillOpacity="0.15"
+					></circle>
+					<path d="M8 4.5V8l2.5 1.5"></path>
+				</svg>
+			);
+		case "Collection":
+			return (
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="16"
+					height="16"
+					viewBox="0 0 16 16"
+					className="sidebar-tab-svg sidebar-tab-svg-collection"
+					fill="none"
+					stroke="currentColor"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					strokeWidth="1.3"
+				>
+					<path
+						d="M2 4.5h4l1.2 1.5H14v6.5H2z"
+						fill="currentColor"
+						fillOpacity="0.2"
+					></path>
+				</svg>
+			);
+		case "Variable":
+			return (
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="16"
+					height="16"
+					viewBox="0 0 16 16"
+					className="sidebar-tab-svg sidebar-tab-svg-variable"
+					fill="none"
+					stroke="currentColor"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					strokeWidth="1.3"
+				>
+					<path d="M5.5 2.5c-1.2 0-1.5.6-1.5 1.6v1.8c0 .8-.3 1.1-1 1.6.7.5 1 .8 1 1.6v1.8c0 1 .3 1.6 1.5 1.6"></path>
+					<path d="M10.5 2.5c1.2 0 1.5.6 1.5 1.6v1.8c0 .8.3 1.1 1 1.6-.7.5-1 .8-1 1.6v1.8c0 1-.3 1.6-1.5 1.6"></path>
+				</svg>
+			);
+		case "Mock Server":
+			return (
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="16"
+					height="16"
+					viewBox="0 0 16 16"
+					className="sidebar-tab-svg sidebar-tab-svg-mockserver"
+					fill="none"
+					stroke="currentColor"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					strokeWidth="1.3"
+				>
+					<rect
+						x="2.5"
+						y="3"
+						width="11"
+						height="3.6"
+						rx="0.6"
+						fill="currentColor"
+						fillOpacity="0.18"
+					></rect>
+					<rect
+						x="2.5"
+						y="9.4"
+						width="11"
+						height="3.6"
+						rx="0.6"
+						fill="currentColor"
+						fillOpacity="0.18"
+					></rect>
+					<circle
+						cx="4.3"
+						cy="4.8"
+						r="0.5"
+						fill="currentColor"
+						stroke="none"
+					></circle>
+					<circle
+						cx="4.3"
+						cy="11.2"
+						r="0.5"
+						fill="currentColor"
+						stroke="none"
+					></circle>
+				</svg>
+			);
+		default:
+			return null;
+	}
+}
+
 export function getColFolDotMenu(
 	id: string,
 	toolTip: string,

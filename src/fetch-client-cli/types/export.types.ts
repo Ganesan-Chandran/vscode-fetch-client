@@ -26,3 +26,9 @@ export function isSupportedDataDrivenExportFormat(
 ): value is (typeof DD_EXPORT_FORMATS)[number] {
 	return (DD_EXPORT_FORMATS as readonly string[]).includes(value);
 }
+
+export function isSupportedQGExportFormat(
+	value: string,
+): value is "json" | "csv" | "html" | "xml" {
+	return PERF_EXPORT_FORMATS.includes(value as ExportFormat);
+}

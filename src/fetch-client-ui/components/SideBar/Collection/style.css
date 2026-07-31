@@ -23,11 +23,11 @@ summary:before {
 }
 
 summary:hover {
-	background-color: var(--vscode-dropdown-border);
+	background-color: var(--dropdown-border-color);
 }
 
 details[open] summary {
-	background-color: var(--vscode-dropdown-border);
+	background-color: var(--dropdown-border-color);
 }
 
 .collection-items:hover .more-icon,

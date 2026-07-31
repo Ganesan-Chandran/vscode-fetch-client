@@ -17,13 +17,17 @@ export function generateMockFromCollection(
 	const routes: IMockRoute[] = [];
 
 	function processItems(items: any[]): void {
-		if (!Array.isArray(items)) { return; }
+		if (!Array.isArray(items)) {
+			return;
+		}
 		for (const item of items) {
 			if (item.type === "folder") {
 				processItems(item.data ?? []);
 			} else {
 				const req = item as IRequestModel;
-				if (!req.url) { continue; }
+				if (!req.url) {
+					continue;
+				}
 
 				let routePath = "/";
 				try {
@@ -49,7 +53,7 @@ export function generateMockFromCollection(
 					bodyMatcher: {
 						enabled: false,
 						matchType: "none",
-						value: ""
+						value: "",
 					},
 				});
 			}
@@ -130,7 +134,9 @@ function extractRoutesFromSpec(spec: any): IMockRoute[] {
 		];
 		for (const method of methods) {
 			const operation: any = (pathItem as any)[method];
-			if (!operation) { continue; }
+			if (!operation) {
+				continue;
+			}
 
 			const statusCode = pickFirstSuccessStatus(operation.responses);
 			const body = extractExampleBody(operation, statusCode);
@@ -155,8 +161,8 @@ function extractRoutesFromSpec(spec: any): IMockRoute[] {
 				bodyMatcher: {
 					enabled: false,
 					matchType: "none",
-					value: ""
-				}
+					value: "",
+				},
 			});
 		}
 	}
@@ -165,9 +171,13 @@ function extractRoutesFromSpec(spec: any): IMockRoute[] {
 }
 
 function pickFirstSuccessStatus(responses: any): number {
-	if (!responses) { return 200; }
+	if (!responses) {
+		return 200;
+	}
 	for (const code of ["200", "201", "202", "204"]) {
-		if (responses[code]) { return parseInt(code, 10); }
+		if (responses[code]) {
+			return parseInt(code, 10);
+		}
 	}
 	const keys = Object.keys(responses).filter((k) => k.startsWith("2"));
 	return keys.length > 0 ? parseInt(keys[0], 10) : 200;
@@ -176,7 +186,9 @@ function pickFirstSuccessStatus(responses: any): number {
 function pickContentType(operation: any, statusCode: number): string {
 	const response =
 		operation?.responses?.[statusCode] ?? operation?.responses?.["default"];
-	if (!response?.content) { return "application/json"; }
+	if (!response?.content) {
+		return "application/json";
+	}
 	const types = Object.keys(response.content);
 	const preferred = [
 		"application/json",
@@ -185,7 +197,9 @@ function pickContentType(operation: any, statusCode: number): string {
 		"text/html",
 	];
 	for (const t of preferred) {
-		if (types.includes(t)) { return t; }
+		if (types.includes(t)) {
+			return t;
+		}
 	}
 	return types[0] ?? "application/json";
 }
@@ -193,7 +207,9 @@ function pickContentType(operation: any, statusCode: number): string {
 function extractExampleBody(operation: any, statusCode: number): string {
 	const response =
 		operation?.responses?.[statusCode] ?? operation?.responses?.["default"];
-	if (!response?.content) { return "{}"; }
+	if (!response?.content) {
+		return "{}";
+	}
 
 	for (const [, mediaType] of Object.entries<any>(response.content)) {
 		// Named examples
@@ -217,12 +233,22 @@ function extractExampleBody(operation: any, statusCode: number): string {
 }
 
 function schemaToExample(schema: any, depth = 0): unknown {
-	if (!schema || depth > 4) { return null; }
+	if (!schema || depth > 4) {
+		return null;
+	}
 
-	if (schema.example !== undefined) { return schema.example; }
-	if (schema.default !== undefined) { return schema.default; }
-	if (schema.enum && schema.enum.length > 0) { return schema.enum[0]; }
-	if (schema.const !== undefined) { return schema.const; }
+	if (schema.example !== undefined) {
+		return schema.example;
+	}
+	if (schema.default !== undefined) {
+		return schema.default;
+	}
+	if (schema.enum && schema.enum.length > 0) {
+		return schema.enum[0];
+	}
+	if (schema.const !== undefined) {
+		return schema.const;
+	}
 
 	switch (schema.type) {
 		case "object": {
@@ -254,10 +280,18 @@ function openApiPathToExpressPath(openApiPath: string): string {
 }
 
 function contentTypeToBodyType(ct: string): IMockRoute["bodyType"] {
-	if (ct.includes("json")) { return "json"; }
-	if (ct.includes("xml")) { return "xml"; }
-	if (ct.includes("html")) { return "html"; }
-	if (ct.includes("text")) { return "text"; }
+	if (ct.includes("json")) {
+		return "json";
+	}
+	if (ct.includes("xml")) {
+		return "xml";
+	}
+	if (ct.includes("html")) {
+		return "html";
+	}
+	if (ct.includes("text")) {
+		return "text";
+	}
 	return "json";
 }
 
@@ -272,7 +306,9 @@ function deduplicateRoutes(routes: IMockRoute[]): IMockRoute[] {
 	const seen = new Set<string>();
 	return routes.filter((r) => {
 		const key = `${r.method}:${r.path}`;
-		if (seen.has(key)) { return false; }
+		if (seen.has(key)) {
+			return false;
+		}
 		seen.add(key);
 		return true;
 	});

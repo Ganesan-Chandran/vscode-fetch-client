@@ -53,4 +53,5 @@ export interface IReqColModel {
 export interface IReqSettings {
 	skipParentHeaders: boolean;
 	skipParentPreFetch: boolean;
+	isLinkedVariable: boolean;
 }

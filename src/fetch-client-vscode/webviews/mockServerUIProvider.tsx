@@ -187,7 +187,9 @@ export const MockServerUI = (extensionUri: vscode.Uri) => {
 			});
 
 			panel.onDidDispose(() => {
-				if (id) { openPanels.delete(id); }
+				if (id) {
+					openPanels.delete(id);
+				}
 			});
 		},
 	);

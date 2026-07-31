@@ -36,19 +36,19 @@
 .json-searchbox {
 	width: 100%;
 	padding: 7px 32px 7px 34px;
-	font-family: var(--vscode-editor-font-family);
+	font-family: var(--editor-font-family);
 	font-size: 13px;
-	background: var(--vscode-input-background);
-	color: var(--vscode-input-foreground);
-	border: 1px solid var(--vscode-input-border, transparent);
+	background: var(--input-background-color);
+	color: var(--editor-text-color);
+	border: 1px solid var(--input-border-color);
 	outline: none;
 	box-sizing: border-box;
 }
 
 .json-searchbox::placeholder {
-	color: var(--vscode-input-placeholderForeground);
+	color: var(--input-placeholder-color);
 }
 
 .json-searchbox:focus {
-	border-color: var(--vscode-focusBorder);
+	border-color: var(--focus-border-color);
 }

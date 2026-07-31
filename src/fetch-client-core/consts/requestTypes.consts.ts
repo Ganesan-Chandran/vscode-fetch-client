@@ -59,6 +59,7 @@ export const requestTypes = {
 	getOpenAndRunItemDataRequest: "getOpenAndRunItemDataRequest",
 	getParentSettingsRequest: "getParentSettingsRequest",
 	getRunItemDataRequest: "getRunItemDataRequest",
+	getSelectedEnvironmentRequest: "getSelectedEnvironmentRequest",
 	getVariableItemRequest: "getVariableItemRequest",
 	importCurlRequest: "importCurlRequest",
 	importRequest: "importRequest",
@@ -108,6 +109,7 @@ export const requestTypes = {
 	selectFileRequest: "selectFileRequest",
 	selectItemRequest: "selectItemRequest",
 	selectPathRequest: "selectPathRequest",
+	setSelectedEnvironmentRequest: "setSelectedEnvironmentRequest",
 	setToVariableRequest: "setToVariableRequest",
 	showMessageRequest: "showMessageRequest",
 	themeRequest: "themeRequest",
@@ -119,6 +121,8 @@ export const requestTypes = {
 	getQualityGateInitRequest: "getQualityGateInitRequest",
 	runQualityGateRequest: "runQualityGateRequest",
 	exportQualityGateReportRequest: "exportQualityGateReportRequest",
+	getQGRulesRequest: "getQGRulesRequest",
+	saveQGRuleSelectionRequest: "saveQGRuleSelectionRequest",
 	// Mock Server
 	getAllMockServersRequest: "getAllMockServersRequest",
 	getMockServerByIdRequest: "getMockServerByIdRequest",
@@ -191,6 +195,7 @@ export const responseTypes = {
 	getOpenAndRunItemDataResponse: "getOpenAndRunItemDataResponse",
 	getParentSettingsResponse: "getParentSettingsResponse",
 	getRunItemDataResponse: "getRunItemDataResponse",
+	getSelectedEnvironmentResponse: "getSelectedEnvironmentResponse",
 	getVariableItemResponse: "getVariableItemResponse",
 	importResponse: "importResponse",
 	importVariableResponse: "importVariableResponse",
@@ -228,6 +233,8 @@ export const responseTypes = {
 	tokenResponse: "tokenResponse",
 	updateCollectionHistoryItem: "updateCollectionHistoryItem",
 	updateVariableResponse: "updateVariableResponse",
+	// Quality Gate
+	getQGRulesResponse: "getQGRulesResponse",
 	// Mock Server
 	getAllMockServersResponse: "getAllMockServersResponse",
 	getMockServerByIdResponse: "getMockServerByIdResponse",
@@ -240,6 +247,7 @@ export const responseTypes = {
 
 export const pubSubTypes = {
 	addCurrentVariable: "addCurrentVariable",
+	environmentChanged: "environmentChanged",
 	removeCurrentVariable: "removeCurrentVariable",
 	themeChanged: "themeChanged",
 	updateVariables: "updateVariables",

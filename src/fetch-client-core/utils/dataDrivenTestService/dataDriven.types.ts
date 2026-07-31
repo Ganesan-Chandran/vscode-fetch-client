@@ -1,3 +1,5 @@
+import { IReponseModel } from "../../types/response.types";
+
 export type DataFileFormat = "csv" | "json";
 export type CsvSeparator = "," | ";" | "\t";
 
@@ -22,6 +24,8 @@ export interface IDataDrivenRowResult {
 	testPassed: number;
 	isError: boolean;
 	error?: string;
+	// full response/test detail for opening the row in the request/response viewer
+	fullResponse?: IReponseModel;
 }
 
 export interface IDataDrivenResult {

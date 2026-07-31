@@ -86,11 +86,11 @@ function suppressedNoteHtml(result: IQualityGateResult): string {
 	const rows = items
 		.map(
 			(i) =>
-				`<li><code style="color:#8b949e">${esc(i.ruleId)}</code> — ${esc(i.description)}</li>`,
+				`<li><code style="color:#8b949e">${esc(i.ruleId)}</code> - ${esc(i.description)}</li>`,
 		)
 		.join("");
 	return `<details style="margin-top:10px;color:#8b949e;font-size:12px">
-    <summary style="cursor:pointer">🔇 ${items.length} issue${items.length !== 1 ? "s" : ""} suppressed by config / @qg-disable</summary>
+    <summary style="cursor:pointer">🔇 ${items.length} issue${items.length !== 1 ? "s" : ""} would have failed but suppressed by an inline @qg-disable tag</summary>
     <ul style="margin:6px 0 0 18px;padding:0">${rows}</ul>
   </details>`;
 }
@@ -181,7 +181,7 @@ export function toQGHtml(report: IQGReport): string {
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>API Quality Gate Report — ${esc(report.name)}</title>
+  <title>API Quality Gate Report - ${esc(report.name)}</title>
   <style>
     *{box-sizing:border-box}
     body{margin:0;padding:24px;background:#0d1117;color:#e6edf3;font-family:"Segoe UI",system-ui,sans-serif;font-size:14px}

@@ -12,7 +12,7 @@ export type MockBodyType = "json" | "text" | "xml" | "html" | "none";
 
 export type MockServerStatus = "running" | "stopped" | "error";
 
-export type MockBodyMatchType = | "none" | "exact" | "contains" | "json";
+export type MockBodyMatchType = "none" | "exact" | "contains" | "json";
 
 export interface IMockHeader {
 	key: string;

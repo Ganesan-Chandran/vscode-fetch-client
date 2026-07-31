@@ -43,9 +43,9 @@ export async function GetMockServerById(
 				server,
 				runtime: {
 					status: getServerStatus(server.id),
-					logs: getRequestLogs(server.id)
-				}
-			}
+					logs: getRequestLogs(server.id),
+				},
+			},
 		});
 	} catch (err) {
 		writeLog("error::GetMockServerById(): " + err);

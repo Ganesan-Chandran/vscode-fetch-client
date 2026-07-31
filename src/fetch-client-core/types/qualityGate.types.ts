@@ -25,9 +25,11 @@ export interface IQualityGateIssue {
 	impact: string;
 	recommendation: string;
 	suggestedFix?: string;
-	/** True when the issue was detected but suppressed by config or an
-	 *  inline @qg-disable tag. Suppressed issues are excluded from scoring
-	 *  and from summary counts, but kept here for audit purposes. */
+	/** True when the issue was detected but suppressed by an inline
+	 *  @qg-disable tag in the request's Notes. Rules disabled via .qgrc.json /
+	 *  the Rules tab are skipped entirely and never reach this state - only
+	 *  tag-based suppression is tracked here, for audit purposes. Suppressed
+	 *  issues are excluded from scoring and from summary counts. */
 	suppressed?: boolean;
 }
 
@@ -81,18 +83,29 @@ export interface IQGGateStatus {
 }
 
 export interface IQGRuleResult {
-    ruleId: string;
-    name: string;
-    passed: boolean;
-    severity?: QGSeverity;
-    message?: string;
+	ruleId: string;
+	name: string;
+	passed: boolean;
+	severity?: QGSeverity;
+	message?: string;
+}
+
+/** Static metadata describing a registered rule - used by the Rules tab to
+ *  render checkboxes without having to execute anything. */
+export interface IQGRuleMeta {
+	/** Full id, e.g. "security/no-auth-mutation" */
+	ruleId: string;
+	dimension: QGDimension;
+	name: string;
+	description: string;
+	defaultSeverity: QGSeverity;
 }
 
 export interface IQGDimensionResult {
-    dimension: QGDimension;
-    score: number;
-    issues: IQualityGateIssue[];
-    rules: IQGRuleResult[];
+	dimension: QGDimension;
+	score: number;
+	issues: IQualityGateIssue[];
+	rules: IQGRuleResult[];
 }
 
 export interface IQGRequestInput {
@@ -128,7 +141,7 @@ export interface IQGReport {
 	results: IQualityGateResult[];
 	aggregateScore: number;
 	aggregateVerdict: QGVerdict;
-	/** The (merged, effective) config used for this run — included for auditability. */
+	/** The (merged, effective) config used for this run - included for auditability. */
 	config?: IQGConfig;
 	/** CI/CD gate result, independent of aggregateVerdict; use gateStatus.exitCode in build scripts. */
 	gateStatus: IQGGateStatus;
@@ -141,4 +154,6 @@ export interface IQGOpenRequest {
 	name: string;
 	varId: string;
 	scope: "collection" | "folder" | "request";
+	/** When present, only these request ids are analyzed (Requests tab selection). */
+	selectedRequestIds?: string[];
 }

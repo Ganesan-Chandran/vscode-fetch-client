@@ -37,7 +37,9 @@ export const MockServerReducer = (
 			};
 
 		case MS_SET_ROUTES:
-			if (!state.server) { return state; }
+			if (!state.server) {
+				return state;
+			}
 			return {
 				...state,
 				server: { ...state.server, routes: action.payload.routes },
@@ -48,7 +50,9 @@ export const MockServerReducer = (
 
 		case MS_APPEND_LOG: {
 			const logs = [...state.logs, action.payload.log];
-			if (logs.length > MAX_UI_LOG_ENTRIES) { logs.shift(); }
+			if (logs.length > MAX_UI_LOG_ENTRIES) {
+				logs.shift();
+			}
 			return { ...state, logs };
 		}
 

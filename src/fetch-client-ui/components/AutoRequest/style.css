@@ -9,7 +9,7 @@
 .autorequest-tabs {
 	display: flex;
 	gap: 8px;
-	border-bottom: 1px solid var(--vscode-editorGroup-border);
+	border-bottom: 1px solid var(--panel-header-border-color);
 }
 
 .autorequest-tab {
@@ -22,13 +22,13 @@
 }
 
 .autorequest-tab.active {
-	border-bottom-color: var(--vscode-focusBorder);
+	border-bottom-color: var(--focus-border-color);
 	font-weight: 600;
 }
 
 .autorequest-message {
 	margin: 8px 0;
-	color: var(--vscode-testing-iconPassed, #2ea043);
+	color: var(--test-passed-color);
 }
 
 .autorequest-summary {
@@ -45,7 +45,7 @@
 }
 
 .autorequest-table {
-	border: 1px solid var(--vscode-editorGroup-border);
+	border: 1px solid var(--panel-header-border-color);
 	overflow: auto;
 }
 
@@ -55,11 +55,11 @@
 	gap: 10px;
 	align-items: center;
 	padding: 9px 12px;
-	border-bottom: 1px solid var(--vscode-editorGroup-border);
+	border-bottom: 1px solid var(--panel-header-border-color);
 }
 
 .autorequest-table-row.header {
-	background: var(--vscode-sideBar-background);
+	background: var(--sidebar-background-color);
 	font-weight: 600;
 	position: sticky;
 	top: 0;
@@ -159,14 +159,14 @@
 	align-items: center;
 	gap: 10px;
 	padding: 10px 12px;
-	border-bottom: 1px solid var(--vscode-editorGroup-border);
+	border-bottom: 1px solid var(--panel-header-border-color);
 }
 
 /* Header */
 .autorequest-row--header {
 	position: sticky;
 	top: 0;
-	background: var(--vscode-sideBar-background);
+	background: var(--sidebar-background-color);
 	font-weight: 600;
 	z-index: 2;
 }
@@ -201,13 +201,13 @@
 	align-items: center;
 	gap: 10px;
 	padding: 10px 12px;
-	border-bottom: 1px solid var(--vscode-editorGroup-border);
+	border-bottom: 1px solid var(--panel-header-border-color);
 }
 
 .autorequest-history-row--header {
 	position: sticky;
 	top: 0;
-	background: var(--vscode-sideBar-background);
+	background: var(--sidebar-background-color);
 	font-weight: 600;
 	z-index: 2;
 }
@@ -248,13 +248,13 @@
 	align-items: center;
 	gap: 10px;
 	padding: 10px 12px;
-	border-bottom: 1px solid var(--vscode-editorGroup-border);
+	border-bottom: 1px solid var(--panel-header-border-color);
 }
 
 .autorequest-history-row--header {
 	position: sticky;
 	top: 0;
-	background: var(--vscode-sideBar-background);
+	background: var(--sidebar-background-color);
 	font-weight: 600;
 	z-index: 2;
 }
@@ -291,7 +291,7 @@
 	align-items: center;
 	gap: 10px;
 	padding: 10px 12px;
-	border-bottom: 1px solid var(--vscode-editorGroup-border);
+	border-bottom: 1px solid var(--panel-header-border-color);
 }
 
 .history-status--pending {
@@ -326,16 +326,16 @@
 .autorequest-overlay-message {
 	padding: 12px 18px;
 	border-radius: 6px;
-	background: var(--vscode-editorWidget-background);
-	border: 1px solid var(--vscode-panel-border);
+	background: var(--editor-widget-background-color);
+	border: 1px solid var(--panel-border-color);
 	text-align: center;
 	font-weight: 600;
 	max-width: 320px;
 }
 
 .autorequest-table-row.selected {
-	background: var(--vscode-list-activeSelectionBackground);
-	color: var(--vscode-list-activeSelectionForeground);
+	background: var(--list-active-background-color);
+	color: var(--list-active-text-color);
 }
 
 .schedule-table .autorequest-table-row:not(.header) {
@@ -344,18 +344,18 @@
 }
 
 .schedule-table .autorequest-table-row:not(.header):hover {
-	background-color: var(--vscode-list-hoverBackground);
+	background-color: var(--list-hover-background-color);
 }
 
 .schedule-table .autorequest-table-row.selected-row {
-	background-color: var(--vscode-list-activeSelectionBackground);
-	color: var(--vscode-list-activeSelectionForeground);
+	background-color: var(--list-active-background-color);
+	color: var(--list-active-text-color);
 }
 
 .schedule-table .autorequest-table-row.selected-row:hover {
-	background-color: var(--vscode-list-activeSelectionBackground);
+	background-color: var(--list-active-background-color);
 }
 
 .schedule-table .autorequest-table-row.selected-row {
-	outline: 1px solid var(--vscode-focusBorder);
+	outline: 1px solid var(--focus-border-color);
 }

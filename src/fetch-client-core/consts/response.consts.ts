@@ -12,7 +12,6 @@ export const responseOptions = [
 	{ name: "Cookies", value: "cookies" },
 	{ name: "PreFetch Results", value: "prefetchresults" },
 	{ name: "Test Results", value: "testresults" },
-	{ name: "Notes", value: "notes" },
 ];
 
 export const curlResponseOptions = [

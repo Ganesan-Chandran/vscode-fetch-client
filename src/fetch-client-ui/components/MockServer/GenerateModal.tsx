@@ -26,7 +26,7 @@ const GenerateModal: React.FC<GenerateModalProps> = ({
 	const [selectedColId, setSelectedColId] = useState(
 		collections.length > 0 ? collections[0].id : "",
 	);
-	const [openapiSource, setOpenapiSource] = useState<OpenAPISource>("url");
+	const [openapiSource, _setOpenapiSource] = useState<OpenAPISource>("file");
 	const [openapiValue, setOpenapiValue] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
@@ -45,7 +45,7 @@ const GenerateModal: React.FC<GenerateModalProps> = ({
 			return;
 		}
 
-		// OpenAPI — delegate to extension host
+		// OpenAPI - delegate to extension host
 		if (!openapiValue.trim()) {
 			setError("Please enter a URL or file path.");
 			return;
@@ -108,7 +108,7 @@ const GenerateModal: React.FC<GenerateModalProps> = ({
 								<span
 									style={{
 										fontSize: 12,
-										color: "var(--vscode-descriptionForeground)",
+										color: "var(--description-text-color)",
 									}}
 								>
 									No collections found.
@@ -137,7 +137,7 @@ const GenerateModal: React.FC<GenerateModalProps> = ({
 				{/* ── OpenAPI mode ── */}
 				{mode === "openapi" && (
 					<div>
-						<div className="ms-radio-group">
+						{/* <div className="ms-radio-group">
 							<label className="ms-radio-label">
 								<input
 									type="radio"
@@ -154,7 +154,7 @@ const GenerateModal: React.FC<GenerateModalProps> = ({
 								/>
 								Local file path
 							</label>
-						</div>
+						</div> */}
 						<input
 							className="ms-url-input"
 							value={openapiValue}

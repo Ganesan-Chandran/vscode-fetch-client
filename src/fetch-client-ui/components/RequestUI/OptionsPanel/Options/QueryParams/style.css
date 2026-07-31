@@ -25,10 +25,10 @@
 	padding: 8px 10px;
 	border: 1px solid var(--border-color);
 	border-radius: 4px;
-	background: var(--vscode-editor-background);
-	color: var(--vscode-editor-foreground);
-	font-size: var(--vscode-editor-font-size) !important;
-	font-family: var(--vscode-editor-font-family) !important;
+	background: var(--editor-background-color);
+	color: var(--editor-foreground-color);
+	font-size: var(--editor-font-size) !important;
+	font-family: var(--editor-font-family) !important;
 	line-height: 1.5;
 	resize: vertical;
 	box-sizing: border-box;
@@ -39,9 +39,9 @@
 }
 
 .bulk-edit-textarea:focus {
-	border-color: var(--vscode-focusBorder);
+	border-color: var(--focus-border-color);
 }
 
 .bulk-edit-textarea::placeholder {
-	color: var(--vscode-input-placeholderForeground);
+	color: var(--input-placeholder-color);
 }

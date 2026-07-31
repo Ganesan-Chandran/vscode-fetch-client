@@ -10,6 +10,18 @@ import { useSelector } from "react-redux";
 import QueryParams from "./Options/QueryParams";
 import React, { useState } from "react";
 
+const AuthPanel = React.lazy(() => import("./Options/Auth"));
+const RequestHeadersPanel = React.lazy(
+	() => import("./Options/Headers/requestHeaders"),
+);
+const Body = React.lazy(() => import("./Options/Body"));
+const Settings = React.lazy(() => import("./Options/Settings"));
+const PreFetch = React.lazy(() => import("./Options/PreFetch"));
+const PostFetch = React.lazy(() => import("./Options/PostFetch"));
+const NotesEditor = React.lazy(() =>
+	import("../../Common/NotesEditor").then((m) => ({ default: m.NotesEditor })),
+);
+
 export const OptionsPanel = () => {
 	const { selectedVariable } = useSelector(
 		(state: IRootState) => state.variableData,
@@ -20,15 +32,6 @@ export const OptionsPanel = () => {
 	const [selectedTab, setSelectedTab] = useState(
 		runItem ? "postFetch" : "params",
 	);
-
-	const AuthPanel = React.lazy(() => import("./Options/Auth"));
-	const RequestHeadersPanel = React.lazy(
-		() => import("./Options/Headers/requestHeaders"),
-	);
-	const Body = React.lazy(() => import("./Options/Body"));
-	const Settings = React.lazy(() => import("./Options/Settings"));
-	const PreFetch = React.lazy(() => import("./Options/PreFetch"));
-	const PostFetch = React.lazy(() => import("./Options/PostFetch"));
 
 	const renderOptionsUI = (tab: string) => {
 		switch (tab) {
@@ -65,6 +68,12 @@ export const OptionsPanel = () => {
 				return (
 					<React.Suspense fallback={<div>loading...</div>}>
 						<PreFetch />
+					</React.Suspense>
+				);
+			case "notes":
+				return (
+					<React.Suspense fallback={<div>loading...</div>}>
+						<NotesEditor />
 					</React.Suspense>
 				);
 			default:

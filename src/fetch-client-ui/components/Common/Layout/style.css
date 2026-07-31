@@ -2,16 +2,16 @@
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	background: var(--vscode-editor-background);
-	color: var(--vscode-foreground);
-	font-family: var(--vscode-font-family);
-	font-size: var(--vscode-font-size);
+	background: var(--editor-background-color);
+	color: var(--text-color);
+	font-family: var(--font-family);
+	font-size: var(--font-size);
 }
 
 .layout-header {
 	padding: 10px 16px;
-	border-bottom: 1px solid var(--vscode-editorGroup-border);
-	background: var(--vscode-sideBar-background);
+	border-bottom: 1px solid var(--panel-header-border-color);
+	background: var(--sidebar-background-color);
 	font-style: normal;
 	font-size: x-large;
 	text-align: center;

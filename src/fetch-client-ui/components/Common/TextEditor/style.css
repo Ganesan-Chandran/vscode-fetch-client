@@ -13,7 +13,7 @@
 	position: relative;
 }
 
-/* Placeholder — absolutely overlaid on the editor */
+/* Placeholder - absolutely overlaid on the editor */
 .public-DraftEditorPlaceholder-inner {
 	position: absolute;
 	top: 0;

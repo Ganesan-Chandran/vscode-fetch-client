@@ -137,30 +137,32 @@ export async function runDataDrivenTest(
 				const statusText = res?.response?.statusText ?? "";
 				const isError = !res || status === 0 || status >= 400;
 
+				const responseModel: IReponseModel = {
+					id: req.id,
+					response: {
+						duration: res?.response?.duration ?? duration,
+						isError,
+						responseData: res?.response?.responseData,
+						responseType: res?.response?.responseType,
+						size: res?.response?.size as string,
+						status,
+						statusText,
+					},
+					headers: res?.headers ?? [],
+					cookies: res?.cookies ?? [],
+					loading: false,
+					testResults: [],
+				};
+
 				let testTotal = 0;
 				let testPassed = 0;
 				if (req.tests?.length > 0) {
-					const responseModel: IReponseModel = {
-						id: req.id,
-						response: {
-							duration: res?.response?.duration ?? duration,
-							isError,
-							responseData: res?.response?.responseData,
-							responseType: res?.response?.responseType,
-							size: res?.response?.size as string,
-							status,
-							statusText,
-						},
-						headers: res?.headers ?? [],
-						cookies: res?.cookies ?? [],
-						loading: false,
-						testResults: [],
-					};
 					const testResults = executeTests(
 						req.tests,
 						responseModel,
 						currentVariable.data,
 					);
+					responseModel.testResults = testResults;
 					testTotal = testResults.length;
 					testPassed = testResults.filter((t) => t.result === true).length;
 				}
@@ -177,6 +179,7 @@ export async function runDataDrivenTest(
 					testTotal,
 					testPassed,
 					isError,
+					fullResponse: responseModel,
 				};
 			} catch (err) {
 				rowResult = {

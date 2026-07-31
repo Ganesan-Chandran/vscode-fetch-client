@@ -105,6 +105,16 @@ let storageManager: LocalStorageService;
 let extensionUri: vscode.Uri;
 let extCache: MemoryCache<string>;
 
+let selectedEnvironmentId = "";
+
+export function getSelectedEnvironmentId(): string {
+	return selectedEnvironmentId;
+}
+
+export function setSelectedEnvironmentId(id: string): void {
+	selectedEnvironmentId = id;
+}
+
 export function OpenExistingItem(
 	id?: string,
 	name?: string,

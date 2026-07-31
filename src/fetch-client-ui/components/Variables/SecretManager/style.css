@@ -20,29 +20,29 @@
 	flex: 1;
 	overflow: auto;
 	min-height: 0;
-	border: 1px solid var(--vscode-editorGroup-border);
+	border: 1px solid var(--panel-header-border-color);
 	border-radius: 4px;
 }
 
 .aws-results-table {
 	width: 100%;
 	border-collapse: collapse;
-	font-size: var(--vscode-font-size);
+	font-size: var(--font-size);
 }
 
 .aws-results-table thead td {
 	position: sticky;
 	top: 0;
-	background: var(--vscode-sideBar-background);
+	background: var(--sidebar-background-color);
 	font-weight: 600;
 	padding: 6px 10px;
-	border-bottom: 1px solid var(--vscode-editorGroup-border);
+	border-bottom: 1px solid var(--panel-header-border-color);
 	text-align: left;
 }
 
 .aws-results-table tbody td {
 	padding: 6px 10px;
-	border-bottom: 1px solid var(--vscode-editorGroup-border);
+	border-bottom: 1px solid var(--panel-header-border-color);
 	vertical-align: middle;
 }
 
@@ -51,7 +51,7 @@
 }
 
 .aws-results-table tbody tr:hover {
-	background: var(--vscode-list-hoverBackground);
+	background: var(--list-hover-background-color);
 }
 
 .aws-status {
@@ -62,11 +62,11 @@
 }
 
 .aws-status--ok {
-	color: var(--vscode-testing-iconPassed, #3fb950);
+	color: var(--test-passed-color);
 }
 
 .aws-status--fail {
-	color: var(--vscode-testing-iconFailed, #f85149);
+	color: var(--test-failed-color);
 }
 
 .aws-status-dot {
@@ -78,15 +78,15 @@
 }
 
 .aws-status-dot--ok {
-	background: var(--vscode-testing-iconPassed, #3fb950);
+	background: var(--test-passed-color);
 }
 
 .aws-status-dot--fail {
-	background: var(--vscode-testing-iconFailed, #f85149);
+	background: var(--test-failed-color);
 }
 
 .aws-detail-cell {
-	color: var(--vscode-descriptionForeground);
+	color: var(--description-text-color);
 	font-size: 0.9em;
 	max-width: 320px;
 	overflow: hidden;
@@ -99,15 +99,15 @@
 	padding: 1px 6px;
 	border-radius: 3px;
 	font-size: 0.75em;
-	background: var(--vscode-badge-background);
-	color: var(--vscode-badge-foreground);
+	background: var(--badge-background-color);
+	color: var(--badge-text-color);
 	margin-left: 6px;
 }
 
 .aws-empty-state {
 	padding: 16px;
 	text-align: center;
-	color: var(--vscode-descriptionForeground);
+	color: var(--description-text-color);
 }
 
 .check-btn {

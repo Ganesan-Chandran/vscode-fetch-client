@@ -7,12 +7,12 @@
 	padding: 16px 12px;
 	text-align: center;
 	font-size: 12px;
-	color: var(--vscode-descriptionForeground);
+	color: var(--description-text-color);
 	line-height: 1.6;
 }
 
 .mock-server-new-link {
-	color: var(--vscode-textLink-foreground, #3794ff);
+	color: var(--link-text-color);
 	cursor: pointer;
 	font-size: 12px;
 }
@@ -32,12 +32,12 @@
 }
 
 .mock-server-item:hover {
-	background: var(--vscode-list-hoverBackground);
+	background: var(--list-hover-background-color);
 }
 
 .mock-server-item.selected {
-	background: var(--vscode-list-activeSelectionBackground);
-	color: var(--vscode-list-activeSelectionForeground);
+	background: var(--list-active-background-color);
+	color: var(--list-active-text-color);
 }
 
 .mock-server-status-dot {
@@ -56,15 +56,15 @@
 
 .mock-server-port {
 	font-size: 11px;
-	color: var(--vscode-descriptionForeground);
-	font-family: var(--vscode-editor-font-family, monospace);
+	color: var(--description-text-color);
+	font-family: var(--editor-font-family);
 	white-space: nowrap;
 }
 
 .mock-server-route-count {
 	font-size: 10px;
-	background: var(--vscode-badge-background, #4d4d4d);
-	color: var(--vscode-badge-foreground, #fff);
+	background: var(--badge-background-color);
+	color: var(--badge-text-color);
 	border-radius: 8px;
 	padding: 0 5px;
 	min-width: 16px;

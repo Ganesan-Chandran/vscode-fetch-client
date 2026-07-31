@@ -218,7 +218,9 @@ function VariablePlugin({ varWords }: { varWords: string[] }) {
 			const text = node.getTextContent();
 			VAR_REGEX.lastIndex = 0;
 			const match = VAR_REGEX.exec(text);
-			if (!match) { return; }
+			if (!match) {
+				return;
+			}
 
 			const before = text.slice(0, match.index);
 			const varToken = match[0];
@@ -260,7 +262,9 @@ function SingleLinePlugin({
 		const unregEnter = editor.registerCommand(
 			KEY_ENTER_COMMAND,
 			(e: KeyboardEvent | null) => {
-				if (e) { e.preventDefault(); }
+				if (e) {
+					e.preventDefault();
+				}
 				onKeyPress?.(13);
 				return true;
 			},
@@ -276,7 +280,9 @@ function SingleLinePlugin({
 		const unregPaste = editor.registerCommand(
 			PASTE_COMMAND,
 			(e: ClipboardEvent | InputEvent | null) => {
-				if (!e) { return false; }
+				if (!e) {
+					return false;
+				}
 				e.preventDefault();
 
 				let text = "";
@@ -290,7 +296,9 @@ function SingleLinePlugin({
 
 				if (maxLength) {
 					const remaining = maxLength - textLengthRef.current;
-					if (remaining <= 0) { return true; }
+					if (remaining <= 0) {
+						return true;
+					}
 					text = text.slice(0, remaining);
 				}
 
@@ -323,7 +331,7 @@ function SetValuePlugin({ value }: { value: string }) {
 	const isFirstRender = useRef(true);
 
 	useEffect(() => {
-		// Skip first render — initial value was set via initialConfig
+		// Skip first render - initial value was set via initialConfig
 		if (isFirstRender.current) {
 			isFirstRender.current = false;
 			return;
@@ -335,8 +343,10 @@ function SetValuePlugin({ value }: { value: string }) {
 			.read(() => $getRoot().getTextContent());
 
 		// If the incoming value already matches the editor, the parent is just
-		// echoing back a user-typed change — no reset needed.
-		if (value === currentText) { return; }
+		// echoing back a user-typed change - no reset needed.
+		if (value === currentText) {
+			return;
+		}
 
 		editor.update(
 			() => {
@@ -453,7 +463,9 @@ export const TextEditor = (props: TextEditorProps) => {
 
 	const handleChange = useCallback(
 		(editorState: any, _editor: any, tags: Set<string>) => {
-			if (tags.has(EXTERNAL_TAG)) { return; }
+			if (tags.has(EXTERNAL_TAG)) {
+				return;
+			}
 
 			editorState.read(() => {
 				const text = $getRoot().getTextContent();
@@ -472,8 +484,9 @@ export const TextEditor = (props: TextEditorProps) => {
 						<PlainTextPlugin
 							contentEditable={
 								<ContentEditable
-									className={`DraftEditor-editorContainer${props.className ? " " + props.className : ""
-										}`}
+									className={`DraftEditor-editorContainer${
+										props.className ? " " + props.className : ""
+									}`}
 								/>
 							}
 							placeholder={

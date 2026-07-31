@@ -32,10 +32,10 @@ function parseDocumentTitle() {
 	};
 }
 
+const ReponsePanel = React.lazy(() => import("../ResponseUI/ResponsePanel"));
+
 const MainUI = () => {
 	const dispatch = useDispatch<AppDispatch>();
-
-	const ReponsePanel = React.lazy(() => import("../ResponseUI/ResponsePanel"));
 
 	const { open } = useSelector((state: IRootState) => state.uiData);
 	const { loading, response } = useSelector(
@@ -46,7 +46,7 @@ const MainUI = () => {
 	const { parentSettings, collectionList } = useSelector(
 		(state: IRootState) => state.reqColData,
 	);
-	const { selectedVariable } = useSelector(
+	const { selectedVariable, isLocalChange } = useSelector(
 		(state: IRootState) => state.variableData,
 	);
 	const reqSettings = useSelector((state: IRootState) => state.reqSettings);
@@ -87,14 +87,21 @@ const MainUI = () => {
 	const [varId, setVarId] = useState(
 		titleVarId !== "undefined" ? titleVarId : "",
 	);
-	const [layout, setLayout] = useState("");
-	const [horiLayout, setHoriLayout] = useState("");
+	const [envId, setEnvId] = useState("");
+	const [layout, setLayout] = useState(window.__initialConfig?.layout ?? "");
+	const [horiLayout, setHoriLayout] = useState(
+		window.__initialConfig?.horizontalLayout ?? "",
+	);
 	const [saveVisible, setSaveVisible] = useState(false);
 	const [loadingApp, setLoadingApp] = useState(true);
 
 	const onSaved = useCallback(() => setSaveVisible(true), []);
 	const onSetVarId = useCallback((id: string) => setVarId(id), []);
-	const onClearVarId = useCallback(() => setVarId(""), []);
+	const onClearVarId = useCallback(() => {
+		setVarId("");
+		dispatch(Actions.SetLinkedVariableAction(false));
+	}, [dispatch]);
+	const onEnvironmentChanged = useCallback((id: string) => setEnvId(id), []);
 
 	useWindowMessages(
 		dispatch,
@@ -113,6 +120,7 @@ const MainUI = () => {
 			onSaved,
 			onSetVarId,
 			onClearVarId,
+			onEnvironmentChanged,
 		},
 	);
 
@@ -150,6 +158,7 @@ const MainUI = () => {
 	useEffect(() => {
 		vscode.postMessage({ type: requestTypes.configRequest });
 		vscode.postMessage({ type: requestTypes.getAllVariableRequest });
+		vscode.postMessage({ type: requestTypes.getSelectedEnvironmentRequest });
 
 		if (reqId !== "undefined" && isRunItem === "undefined") {
 			vscode.postMessage({
@@ -232,10 +241,10 @@ const MainUI = () => {
 		}
 		if (varId) {
 			updateVariableData(varId);
-		} else {
-			setRequiredGlobalVariable();
+		} else if (!isLocalChange) {
+			applyEnvironment(envId);
 		}
-	}, [variables, varId]);
+	}, [variables, varId, envId, isLocalChange]);
 
 	useEffect(() => {
 		if (parentSettings?.auth.authType === "apikey") {
@@ -251,19 +260,23 @@ const MainUI = () => {
 		const index = variables.findIndex((item) => item.id === id);
 		if (index !== -1) {
 			dispatch(VariableActions.SetReqVariableAction(variables[index]));
+			dispatch(Actions.SetLinkedVariableAction(true));
 		} else {
-			setRequiredGlobalVariable();
+			applyEnvironment(envId);
 		}
 	}
 
-	function setRequiredGlobalVariable() {
-		const index = variables.findIndex(
-			(item) =>
-				item.name.toUpperCase().trim() === "GLOBAL" && item.isActive === true,
-		);
+	function applyEnvironment(id: string) {
+		let index = variables.findIndex((item) => item.id === id);
+		if (index === -1) {
+			index = variables.findIndex(
+				(item) =>
+					item.name.toUpperCase().trim() === "GLOBAL" && item.isActive === true,
+			);
+		}
 		if (index !== -1) {
 			dispatch(VariableActions.SetReqVariableAction(variables[index]));
-			setVarId(variables[index].id);
+			dispatch(Actions.SetLinkedVariableAction(false));
 		}
 	}
 

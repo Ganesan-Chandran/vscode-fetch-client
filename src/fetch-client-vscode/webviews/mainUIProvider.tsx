@@ -26,6 +26,7 @@ import {
 import { GetExitingItem, SaveRequest, UpdateRequest } from "../db/mainDBUtil";
 import { GetExitingItemResponse } from "../db/responseDBUtil";
 import {
+	getSelectedEnvironmentId,
 	getStorageManager,
 	OpenCookieUI,
 	OpenVariableUI,
@@ -295,6 +296,13 @@ export class WebAppPanel {
 						);
 					} else if (message.type === requestTypes.getAllVariableRequest) {
 						GetAllVariable(this._panel.webview);
+					} else if (
+						message.type === requestTypes.getSelectedEnvironmentRequest
+					) {
+						this._panel.webview.postMessage({
+							type: responseTypes.getSelectedEnvironmentResponse,
+							data: getSelectedEnvironmentId(),
+						});
 					} else if (message.type === requestTypes.getRunItemDataRequest) {
 						this._panel.webview.postMessage({
 							type: responseTypes.getRunItemDataResponse,
@@ -462,6 +470,11 @@ export class WebAppPanel {
 			});
 		} else if (message.messageType === pubSubTypes.themeChanged) {
 			this._panel.webview.postMessage({ type: message.messageType });
+		} else if (message.messageType === pubSubTypes.environmentChanged) {
+			this._panel.webview.postMessage({
+				type: message.messageType,
+				data: message.message,
+			});
 		}
 	}
 
@@ -473,10 +486,18 @@ export class WebAppPanel {
 		type?: string,
 		folderId?: string,
 	): string {
+		const config = JSON.parse(getConfiguration().configData) as Record<
+			string,
+			unknown
+		>;
 		return buildWebviewHtml(
 			webview,
 			this._extensionUri,
 			`${id}@:@${colId}@:@${varId}@:@${type}@:@${folderId}`,
+			{
+				layout: config["layout"] as string,
+				horizontalLayout: config["horizontalLayout"] as string,
+			},
 		);
 	}
 }

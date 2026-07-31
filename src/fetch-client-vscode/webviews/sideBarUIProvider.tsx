@@ -58,6 +58,7 @@ import {
 	RenameCollectionItem,
 } from "../db/collectionDBUtil";
 import {
+	getSelectedEnvironmentId,
 	getStorageManager,
 	OpenAddToColUI,
 	OpenAttachVariableUI,
@@ -75,6 +76,7 @@ import {
 	OpenSecretMangerUI,
 	OpenVariableUI,
 	pubSub,
+	setSelectedEnvironmentId,
 	vsCodeLogger,
 } from "../../extension";
 import {
@@ -317,6 +319,21 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					break;
 				case requestTypes.getAllVariableRequest:
 					GetAllVariable(webviewView.webview);
+					break;
+				case requestTypes.getSelectedEnvironmentRequest:
+					webviewView.webview.postMessage({
+						type: responseTypes.getSelectedEnvironmentResponse,
+						data: getSelectedEnvironmentId(),
+					});
+					break;
+				case requestTypes.setSelectedEnvironmentRequest:
+					setSelectedEnvironmentId(reqData.data);
+					if (pubSub.size > 0) {
+						pubSub.publish({
+							messageType: pubSubTypes.environmentChanged,
+							message: reqData.data,
+						});
+					}
 					break;
 				case requestTypes.getAllMockServersRequest:
 					GetAllMockServers(webviewView.webview);

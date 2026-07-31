@@ -9,7 +9,6 @@ import { requestTypes } from "../../../../../../fetch-client-core/consts/request
 import { responseType } from "../../../../../../fetch-client-core/consts/response.consts";
 import { useSelector } from "react-redux";
 import { XMLViewer } from "../../../../Common/Viewer/XMLViewer";
-import FetchClientIcon from "../../../../../../../icons/fetch-client.png";
 import React, { useMemo, useState } from "react";
 import vscode from "../../../../Common/vscodeAPI";
 
@@ -109,11 +108,23 @@ export const ResponseSection = (props: any) => {
 	function getIdealSection() {
 		return (
 			<div className="fetch-image-panel">
-				<img src={FetchClientIcon} className="fetch-client-image" />
+				<div className="animated-logo-wrap">
+					<svg viewBox="0 0 256 256">
+						<polygon
+							className="logo-arrow logo-arrow-right"
+							points="66,78 155,78 155,60 193,95 155,130 155,112 66,112"
+						/>
+						<polygon
+							className="logo-arrow logo-arrow-left"
+							points="190,144 101,144 101,126 63,161 101,196 101,178 190,178"
+						/>
+						<circle className="logo-ring" cx="128" cy="128" r="118" />
+					</svg>
+				</div>
 				<span className="fetch-data-text">
 					{props.isCurl
 						? "Enter the curl command and click Run to get a response."
-						: "Enter the URL and click send to get a response."}
+						: "Enter the URL and click Send to get a response."}
 				</span>
 			</div>
 		);

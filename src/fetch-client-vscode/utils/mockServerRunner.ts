@@ -64,7 +64,7 @@ export function startMockServer(
 		// Read body (needed for POST/PUT/PATCH matching) but ignore content
 		let body = "";
 
-		req.on("data", chunk => {
+		req.on("data", (chunk) => {
 			body += chunk.toString();
 
 			if (body.length > MAX_REQUEST_BODY_SIZE) {
@@ -197,17 +197,13 @@ function buildRouteGroups(routes: IMockRoute[]): IRouteGroup[] {
 function buildRouter(server: IMockServer, onLog: LogCallback) {
 	const router = Router({ defaultRoute: defaultHandler(server.id, onLog) });
 
-	const enabledRoutes = server.routes.filter(r => r.isEnabled);
+	const enabledRoutes = server.routes.filter((r) => r.isEnabled);
 
 	const routeGroups = buildRouteGroups(enabledRoutes);
 
 	for (const group of routeGroups) {
 		try {
-			router.on(
-				group.method,
-				group.path,
-				makeHandler(group, server.id, onLog),
-			);
+			router.on(group.method, group.path, makeHandler(group, server.id, onLog));
 		} catch (err) {
 			writeLog(
 				`warn::buildRouter: skipping invalid route "${group.method} ${group.path}": ${err}`,
@@ -222,13 +218,9 @@ function findMatchedRoute(
 	req: http.IncomingMessage,
 	routes: IMockRoute[],
 ): IMockRoute | undefined {
-
 	// First try routes with body matcher enabled
 	for (const route of routes) {
-		if (
-			route.bodyMatcher?.enabled &&
-			isBodyMatched(req, route)
-		) {
+		if (route.bodyMatcher?.enabled && isBodyMatched(req, route)) {
 			return route;
 		}
 	}
@@ -248,9 +240,7 @@ function makeHandler(
 	serverId: string,
 	onLog: LogCallback,
 ): http.RequestListener {
-
 	return (req, res) => {
-
 		const route = findMatchedRoute(req, group.routes);
 
 		if (!route) {
@@ -269,14 +259,9 @@ function makeHandler(
 				...headersObject(route.headers),
 			});
 
-			res.end(route.bodyType === "none" ? "" : route.body,);
+			res.end(route.bodyType === "none" ? "" : route.body);
 
-			const log = buildLog(
-				req,
-				route.statusCode,
-				route.id,
-				Date.now() - start,
-			);
+			const log = buildLog(req, route.statusCode, route.id, Date.now() - start);
 
 			pushLog(serverId, log);
 			onLog(serverId, log);
@@ -290,11 +275,7 @@ function makeHandler(
 	};
 }
 
-function isBodyMatched(
-	req: http.IncomingMessage,
-	route: IMockRoute,
-): boolean {
-
+function isBodyMatched(req: http.IncomingMessage, route: IMockRoute): boolean {
 	if (!route.bodyMatcher?.enabled) {
 		return true;
 	}
@@ -303,7 +284,6 @@ function isBodyMatched(
 	const matcher = route.bodyMatcher;
 
 	switch (matcher.matchType) {
-
 		case "none":
 			return true;
 
@@ -321,45 +301,32 @@ function isBodyMatched(
 	}
 }
 
-function matchJson(
-	requestBody: string,
-	expectedBody: string,
-): boolean {
-
+function matchJson(requestBody: string, expectedBody: string): boolean {
 	try {
-
 		const actual = JSON.parse(requestBody);
 		const expected = JSON.parse(expectedBody);
 
 		return deepContains(actual, expected);
-
 	} catch {
 		return false;
 	}
 }
 
-function deepContains(
-	actual: any,
-	expected: any,
-): boolean {
-
+function deepContains(actual: any, expected: any): boolean {
 	if (typeof expected !== "object" || expected === null) {
 		return actual === expected;
 	}
 
 	if (Array.isArray(expected)) {
-
 		if (!Array.isArray(actual)) {
 			return false;
 		}
 
-		return expected.every((v, i) =>
-			deepContains(actual[i], v)
-		);
+		return expected.every((v, i) => deepContains(actual[i], v));
 	}
 
-	return Object.keys(expected).every(key =>
-		deepContains(actual[key], expected[key])
+	return Object.keys(expected).every((key) =>
+		deepContains(actual[key], expected[key]),
 	);
 }
 
