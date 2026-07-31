@@ -57,19 +57,19 @@ function renderRequest(r: IQualityGateResult, suiteId: string): string {
 		)
 		.join("\n      ");
 
-	return `    <testcase name="${esc(r.requestName)} [${esc(r.method)} ${esc(r.url)}]"
-              classname="${esc(suiteId)}"
-              time="${durationSec}"
-              status="${cls}">
-      <properties>
-        <property name="overallScore" value="${r.overallScore}" />
-        <property name="verdict" value="${esc(r.verdict)}" />
-        ${propertiesBlock}
-        ${suppressedBlock}
-      </properties>
-      ${failureMsg}
-      ${systemOut}
-    </testcase>`;
+	return `		<testcase name="${esc(r.requestName)} [${esc(r.method)} ${esc(r.url)}]"
+							classname="${esc(suiteId)}"
+							time="${durationSec}"
+							status="${cls}">
+			<properties>
+				<property name="overallScore" value="${r.overallScore}" />
+				<property name="verdict" value="${esc(r.verdict)}" />
+				${propertiesBlock}
+				${suppressedBlock}
+			</properties>
+			${failureMsg}
+			${systemOut}
+		</testcase>`;
 }
 
 export function toQGXml(report: IQGReport): string {
@@ -85,11 +85,11 @@ export function toQGXml(report: IQGReport): string {
 
 	return `<?xml version="1.0" encoding="utf-8"?>
 <testsuites name="API Quality Gate" tests="${report.results.length}" failures="${failed}" timestamp="${esc(ts)}"
-            gateStatus="${gatePassed ? "passed" : "failed"}">
-  <testsuite name="${esc(report.name)}" tests="${report.results.length}" failures="${failed}" passed="${passed}"
-             timestamp="${esc(ts)}" aggregateScore="${report.aggregateScore}" verdict="${esc(report.aggregateVerdict)}"
-             gateStatus="${gatePassed ? "passed" : "failed"}">
+						gateStatus="${gatePassed ? "passed" : "failed"}">
+	<testsuite name="${esc(report.name)}" tests="${report.results.length}" failures="${failed}" passed="${passed}"
+							timestamp="${esc(ts)}" aggregateScore="${report.aggregateScore}" verdict="${esc(report.aggregateVerdict)}"
+							gateStatus="${gatePassed ? "passed" : "failed"}">
 ${testCases}
-  </testsuite>
+	</testsuite>
 </testsuites>`;
 }

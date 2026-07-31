@@ -179,7 +179,7 @@ fc-cli qc --file <collection.json> --var-file <vars.json>       Override embedde
 fc-cli qc --rules                                               List all available quality-gate rules, grouped by dimension
 
 --config <file.qgrc.json>                       [default: .qgrc.json in the current directory, if present]
-                                                                Thresholds/weights/disabledRules/failOn overrides.
+																															Thresholds/weights/disabledRules/failOn overrides.
 --export <json|csv|html|xml>                    [default: none]       Export a quality-gate report after the run
 --export-path <dir>                             [default: fetch-client-exports folder]
 
