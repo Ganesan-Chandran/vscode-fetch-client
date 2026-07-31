@@ -3,6 +3,8 @@ export enum ImportType {
 	FetchClient_2_0 = "FetchClient_2_0",
 	Postman_2_1 = "Postman_2_1",
 	ThunderClient_1_2 = "ThunderClient_1_2",
+	ThunderClient_1_3 = "ThunderClient_1_3",
+	ThunderClient_1_4 = "ThunderClient_1_4",
 	OpenAPI_V_3 = "OpenAPI_V_3",
 	Insomnia_4_5 = "Insomnia_4_5",
 }

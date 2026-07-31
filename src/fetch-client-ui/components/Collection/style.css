@@ -205,7 +205,7 @@
 	background-color: var(--list-hover-background-color);
 }
 
-.runall-tbl > tbody > tr:first-child > td {
+.runall-tbl>tbody>tr:first-child>td {
 	border-top: none !important;
 	border-right: var(--border-size) solid var(--border-color) !important;
 	border-left: var(--border-size) solid var(--border-color) !important;
@@ -259,7 +259,15 @@
 }
 
 .runall-method-label {
-	padding: 3px;
+	padding: 2px 8px;
+	color: #fff;
+	display: inline-block;
+	font-weight: 500;
+	border-radius: 3px;
+	word-break: break-word;
+	box-sizing: border-box;
+	width: 72px;
+	height: auto !important;
 }
 
 .runall-col-0 {
