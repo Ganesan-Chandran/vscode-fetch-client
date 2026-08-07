@@ -5,21 +5,26 @@
   "version": "2.2.0",
   "publisher": "GanesanChandran",
   "author": {
-    "name": "Ganesan Chandran <https://ganesan-chandran.github.io/>"
+    "name": "Ganesan Chandran",
+    "url": "https://ganesan-chandran.github.io"
   },
   "engines": {
     "vscode": "^1.118.0"
   },
   "icon": "icons/fetch-client.png",
+  "bugs": {
+    "url": "https://github.com/Ganesan-Chandran/vscode-fetch-client/issues"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Ganesan-Chandran/vscode-fetch-client.git"
   },
   "license": "MIT",
-  "homepage": "https://github.com/Ganesan-Chandran/vscode-fetch-client",
+  "homepage": "https://fetchclient.github.io/",
   "categories": [
     "Programming Languages",
     "Testing",
+    "Snippets",
     "Other"
   ],
   "keywords": [

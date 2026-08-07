@@ -26,7 +26,9 @@ The Fetch Client extension lets you build, test, organize, and debug REST APIs w
 - 🌍 Global, Collection, Request, and Environment variables
 - 🔄 Dynamic variables and expression support
 - 🧪 Built-in visual API testing (no scripting required)
+- ✅ API Quality Check with security and best-practice validation
 - ⚙️ Pre-requests with conditional execution
+- 🎭 Built-in Mock Server for developing and testing APIs
 - 📁 Collections, folders, request history, and cookie management
 - ▶️ Run individual requests, folders, or entire collections
 - 🔁 Data-driven testing using JSON, CSV, and Excel
@@ -36,7 +38,7 @@ The Fetch Client extension lets you build, test, organize, and debug REST APIs w
 - 🔒 TLS/mTLS client certificate support (PEM & PFX)
 - 📥 Import from Fetch Client, Postman, Thunder Client, Insomnia, cURL, and OpenAPI
 - 📤 Export collections to Fetch Client and Postman
-- 📄 Export test and performance results as JSON, CSV, HTML and XML
+- 📄 Export test and performance results as JSON, CSV, HTML, and XML
 - 💻 Generate code snippets in multiple programming languages
 - ⚡ Import and run cURL commands instantly
 - 📊 Beautiful response viewer with Tree, Raw, HTML Preview, Headers, and Cookies
@@ -60,7 +62,7 @@ The Fetch Client CLI brings your API collections to the command line. It uses th
 - ⚡ Performance testing with configurable virtual users and load models
 - 📊 Data-driven testing using CSV or JSON data files
 - 🧪 Execute API tests and validate responses
-- 📦 Execute exported collections without requiring the Fetch Client database
+- ✅ API Quality Check with security and best-practice validation
 - 🔗 Automatically execute Pre-Requests
 - ⚙️ Configure and override variable sets
 - 🔄 Import and execute raw cURL commands
@@ -70,7 +72,7 @@ The Fetch Client CLI brings your API collections to the command line. It uses th
 
 You don't need separate collections for your IDE and your automation. The CLI works directly with your existing Fetch Client database. The CLI and the VS Code extension share the same database. Any change you make in one shows up in the other right away.
 
-### NEW FEATURE
+### **** NEW FEATURE ****
 
 Running an exported collection is completely self-contained.
 
