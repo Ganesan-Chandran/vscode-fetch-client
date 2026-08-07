@@ -548,7 +548,7 @@
     "@smithy/shared-ini-file-loader": "4.6.10",
     "ace-builds": "1.44.0",
     "aws4": "1.13.2",
-    "axios": "1.18.1",
+    "axios": "1.19.0",
     "cron": "3.5.0",
     "fast-xml-parser": "5.8.0",
     "find-my-way": "^9.7.0",
