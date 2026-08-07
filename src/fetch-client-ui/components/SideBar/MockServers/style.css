@@ -1,0 +1,72 @@
+.mock-server-section {
+	display: flex;
+	flex-direction: column;
+}
+
+.mock-server-empty {
+	padding: 16px 12px;
+	text-align: center;
+	font-size: 12px;
+	color: var(--description-text-color);
+	line-height: 1.6;
+}
+
+.mock-server-new-link {
+	color: var(--link-text-color);
+	cursor: pointer;
+	font-size: 12px;
+}
+
+.mock-server-new-link:hover {
+	text-decoration: underline;
+}
+
+.mock-server-item {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 10px;
+	cursor: pointer;
+	font-size: 12px;
+	user-select: none;
+}
+
+.mock-server-item:hover {
+	background: var(--list-hover-background-color);
+}
+
+.mock-server-item.selected {
+	background: var(--list-active-background-color);
+	color: var(--list-active-text-color);
+}
+
+.mock-server-status-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.mock-server-name {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.mock-server-port {
+	font-size: 11px;
+	color: var(--description-text-color);
+	font-family: var(--editor-font-family);
+	white-space: nowrap;
+}
+
+.mock-server-route-count {
+	font-size: 10px;
+	background: var(--badge-background-color);
+	color: var(--badge-text-color);
+	border-radius: 8px;
+	padding: 0 5px;
+	min-width: 16px;
+	text-align: center;
+}

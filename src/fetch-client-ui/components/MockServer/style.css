@@ -1,0 +1,775 @@
+/* ------------------------------------------------------------------ */
+/* Mock Server Panel - CSS                                             */
+/* Uses only the semantic theme bridge variables (see index.css) for   */
+/* full theme compatibility across hosts (VS Code, JetBrains, ...).    */
+/* ------------------------------------------------------------------ */
+
+/* ── Layout ──────────────────────────────────────────────────────── */
+.ms-panel {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.ms-header {
+	flex-shrink: 0;
+	padding: 10px 16px 8px;
+	border-bottom: 1px solid var(--panel-header-border-color);
+	background: var(--sidebar-background-color);
+}
+
+.ms-header-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.ms-header-title {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--text-color);
+	white-space: nowrap;
+}
+
+.ms-header-meta {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+	margin-top: 6px;
+}
+
+.ms-description-input {
+	flex: 1;
+	min-width: 160px;
+	background: transparent;
+	border: 1px solid var(--input-border-color);
+	color: var(--editor-text-color);
+	font-size: 12px;
+	padding: 3px 8px;
+	height: 26px;
+	outline: none;
+}
+
+.ms-description-input:focus {
+	border-color: var(--focus-border-color);
+}
+
+.ms-body {
+	display: flex;
+	flex: 1;
+	overflow: hidden;
+}
+
+/* ── Status bar ───────────────────────────────────────────────────── */
+.ms-status-bar {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 11px;
+	margin-top: 4px;
+}
+
+.ms-status-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.ms-status-dot.running {
+	background: var(--test-passed-color);
+}
+
+.ms-status-dot.stopped {
+	background: var(--description-text-color);
+}
+
+.ms-status-dot.error {
+	background: var(--test-failed-color);
+}
+
+.ms-status-label {
+	color: var(--description-text-color);
+}
+
+.ms-status-error {
+	color: var(--test-failed-color);
+	font-size: 11px;
+	margin-left: 4px;
+}
+
+/* ── Name / Port row ─────────────────────────────────────────────── */
+.ms-field-label {
+	font-size: 12px;
+	color: var(--description-text-color);
+	white-space: nowrap;
+}
+
+.ms-text-input {
+	background: transparent;
+	border: 1px solid var(--input-border-color);
+	color: var(--editor-text-color);
+	font-size: 12px;
+	padding: 3px 8px;
+	height: 26px;
+	outline: none;
+}
+
+.ms-text-input:focus {
+	border-color: var(--focus-border-color);
+}
+
+.ms-text-input.name {
+	width: 180px;
+}
+
+.ms-text-input.port {
+	width: 70px;
+}
+
+.ms-text-input.error {
+	border-color: var(--input-error-border-color);
+}
+
+.ms-port-hint {
+	font-size: 10px;
+	color: var(--description-text-color);
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────── */
+.ms-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 10px;
+	font-size: 12px;
+	cursor: pointer;
+	border: 1px solid var(--button-border-color);
+	border-radius: 2px;
+	white-space: nowrap;
+	height: 26px;
+}
+
+.ms-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.ms-btn-primary {
+	background: var(--button-background-color);
+	color: var(--button-text-color);
+}
+
+.ms-btn-primary:hover:not(:disabled) {
+	background: var(--button-hover-color);
+}
+
+.ms-btn-secondary {
+	background: var(--button-secondary-background-color);
+	color: var(--button-secondary-text-color);
+}
+
+.ms-btn-secondary:hover:not(:disabled) {
+	background: var(--button-secondary-hover-color);
+}
+
+.ms-btn-danger {
+	background: transparent;
+	color: var(--test-failed-color);
+	border-color: var(--test-failed-color);
+}
+
+.ms-btn-danger:hover:not(:disabled) {
+	background: var(--test-failed-color);
+	color: #fff;
+}
+
+.ms-btn-icon {
+	background: transparent;
+	border-color: transparent;
+	color: var(--text-color);
+	padding: 2px 6px;
+}
+
+.ms-btn-icon:hover:not(:disabled) {
+	background: var(--list-hover-background-color);
+}
+
+/* ── Split (route list + detail) ─────────────────────────────────── */
+.ms-split {
+	display: flex;
+	flex: 1;
+	overflow: hidden;
+}
+
+.ms-route-list {
+	width: 210px;
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	border-right: 1px solid var(--panel-header-border-color);
+	overflow: hidden;
+}
+
+.ms-route-list-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 6px 10px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--description-text-color);
+	border-bottom: 1px solid var(--panel-header-border-color);
+	flex-shrink: 0;
+}
+
+.ms-route-list-body {
+	flex: 1;
+	overflow-y: auto;
+}
+
+.ms-route-item {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 10px;
+	cursor: pointer;
+	font-size: 12px;
+	border-bottom: 1px solid transparent;
+	user-select: none;
+}
+
+.ms-route-item:hover {
+	background: var(--list-hover-background-color);
+}
+
+.ms-route-item.selected {
+	background: var(--list-active-background-color);
+	color: var(--list-active-text-color);
+}
+
+.ms-route-item.disabled-route {
+	opacity: 0.5;
+}
+
+.ms-route-path {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-family: var(--editor-font-family);
+	font-size: 11px;
+}
+
+.ms-route-list-empty {
+	padding: 20px 12px;
+	text-align: center;
+	font-size: 12px;
+	color: var(--description-text-color);
+}
+
+/* ── Method badge ─────────────────────────────────────────────────── */
+.ms-method-badge {
+	display: inline-block;
+	font-size: 10px;
+	font-weight: 700;
+	padding: 1px 5px;
+	border-radius: 2px;
+	white-space: nowrap;
+	font-family: var(--editor-font-family);
+	min-width: 38px;
+	text-align: center;
+}
+
+.ms-method-GET {
+	background: #1a6b1a;
+	color: #a8e6a8;
+}
+
+.ms-method-POST {
+	background: #1a4b7a;
+	color: #a8d0f5;
+}
+
+.ms-method-PUT {
+	background: #5a4a00;
+	color: #f5d580;
+}
+
+.ms-method-PATCH {
+	background: #3a2a5a;
+	color: #c5a8f5;
+}
+
+.ms-method-DELETE {
+	background: #5a1a1a;
+	color: #f5a8a8;
+}
+
+.ms-method-OPTIONS {
+	background: #1a4a4a;
+	color: #a8e0e0;
+}
+
+.ms-method-HEAD {
+	background: #3a3a1a;
+	color: #d5d590;
+}
+
+.ms-method-star {
+	background: #3a3a3a;
+	color: #d0d0d0;
+}
+
+/* ── Route detail ─────────────────────────────────────────────────── */
+.ms-detail {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.ms-detail-scroll {
+	flex: 1;
+	overflow-y: auto;
+	padding: 14px 16px;
+}
+
+.ms-detail-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	color: var(--description-text-color);
+	font-size: 13px;
+}
+
+.ms-form-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 10px;
+	flex-wrap: wrap;
+}
+
+.ms-form-section {
+	margin-bottom: 14px;
+}
+
+.ms-section-title {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--description-text-color);
+	margin-bottom: 8px;
+	border-bottom: 1px solid var(--panel-header-border-color);
+	padding-bottom: 4px;
+}
+
+.ms-select {
+	background: var(--dropdown-background-color);
+	color: var(--dropdown-text-color);
+	border: 1px solid var(--dropdown-border-color);
+	font-size: 12px;
+	height: 26px;
+	padding: 0 4px;
+	outline: none;
+	cursor: pointer;
+}
+
+.ms-select:focus {
+	border-color: var(--focus-border-color);
+}
+
+.ms-select.method {
+	width: 90px;
+}
+
+.ms-select.status {
+	width: 80px;
+}
+
+.ms-select.body-type {
+	width: 80px;
+}
+
+.ms-path-input {
+	flex: 1;
+	min-width: 160px;
+	background: transparent;
+	border: 1px solid var(--input-border-color);
+	color: var(--editor-text-color);
+	font-family: var(--editor-font-family);
+	font-size: 12px;
+	padding: 3px 8px;
+	height: 26px;
+	outline: none;
+}
+
+.ms-path-input:focus {
+	border-color: var(--focus-border-color);
+}
+
+.ms-delay-input {
+	width: 64px;
+	background: transparent;
+	border: 1px solid var(--input-border-color);
+	color: var(--editor-text-color);
+	font-size: 12px;
+	padding: 3px 8px;
+	height: 26px;
+	outline: none;
+	text-align: right;
+}
+
+.ms-delay-input:focus {
+	border-color: var(--focus-border-color);
+}
+
+/* ── Code body editor ─────────────────────────────────────────────── */
+.ms-body-editor {
+	width: 100%;
+	min-height: 120px;
+	background: var(--editor-background-color);
+	color: var(--editor-foreground-color);
+	border: 1px solid var(--input-border-color);
+	font-family: var(--editor-font-family);
+	font-size: 12px;
+	padding: 8px;
+	resize: vertical;
+	outline: none;
+	box-sizing: border-box;
+	tab-size: 2;
+}
+
+.ms-body-editor:focus {
+	border-color: var(--focus-border-color);
+}
+
+/* ── Header table ─────────────────────────────────────────────────── */
+.ms-header-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 12px;
+}
+
+.ms-header-table th {
+	text-align: left;
+	padding: 4px 6px;
+	color: var(--description-text-color);
+	font-weight: 600;
+	border-bottom: 1px solid var(--panel-header-border-color);
+}
+
+.ms-header-table td {
+	padding: 3px 4px;
+	vertical-align: middle;
+}
+
+.ms-header-input {
+	width: 100%;
+	background: transparent;
+	border: 1px solid transparent;
+	color: var(--editor-text-color);
+	font-size: 12px;
+	padding: 2px 6px;
+	height: 24px;
+	outline: none;
+}
+
+.ms-header-input:focus {
+	border-color: var(--focus-border-color);
+	background: var(--input-background-color);
+}
+
+.ms-header-del {
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	color: var(--description-text-color);
+	padding: 2px 4px;
+	font-size: 14px;
+	line-height: 1;
+}
+
+.ms-header-del:hover {
+	color: var(--test-failed-color);
+}
+
+/* ── Toggle ───────────────────────────────────────────────────────── */
+.ms-toggle-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 12px;
+}
+
+.ms-toggle {
+	position: relative;
+	width: 32px;
+	height: 18px;
+	flex-shrink: 0;
+}
+
+.ms-toggle input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.ms-toggle-slider {
+	position: absolute;
+	inset: 0;
+	background: var(--button-secondary-background-color);
+	border-radius: 18px;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+
+.ms-toggle-slider::before {
+	content: "";
+	position: absolute;
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	background: var(--button-secondary-text-color);
+	left: 3px;
+	top: 3px;
+	transition: transform 0.2s;
+}
+
+.ms-toggle input:checked + .ms-toggle-slider {
+	background: var(--button-background-color);
+}
+
+.ms-toggle input:checked + .ms-toggle-slider::before {
+	transform: translateX(14px);
+	background: var(--button-text-color);
+}
+
+/* ── Log panel ────────────────────────────────────────────────────── */
+.ms-log-panel {
+	flex-shrink: 0;
+	height: 100%;
+	border-top: 1px solid var(--panel-header-border-color);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.ms-log-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 4px 12px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--description-text-color);
+	border-bottom: 1px solid var(--panel-header-border-color);
+	flex-shrink: 0;
+}
+
+.ms-log-body {
+	flex: 1;
+	overflow-y: auto;
+	font-family: var(--editor-font-family);
+	font-size: 11px;
+}
+
+.ms-log-row {
+	display: grid;
+	grid-template-columns: 78px 60px 1fr 44px 56px 60px;
+	gap: 4px;
+	padding: 5px 12px;
+	border-bottom: 1px solid var(--panel-header-border-color);
+	align-items: center;
+}
+
+.ms-log-row:hover {
+	background: var(--list-hover-background-color);
+}
+
+.ms-log-time {
+	color: var(--description-text-color);
+}
+
+.ms-log-method {
+	font-weight: 700;
+}
+
+.ms-log-path {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	padding-left: 10px;
+}
+
+.ms-log-status {
+}
+
+.ms-log-duration {
+	color: var(--description-text-color);
+	text-align: right;
+}
+
+.ms-log-matched {
+	color: var(--test-passed-color);
+	text-align: center;
+}
+
+.ms-log-unmatched {
+	color: var(--test-failed-color);
+	text-align: center;
+}
+
+.ms-log-header-row {
+	display: grid;
+	grid-template-columns: 78px 60px 1fr 44px 56px 60px;
+	gap: 4px;
+	padding: 5px 12px;
+	font-size: 10px;
+	font-weight: 600;
+	color: var(--description-text-color);
+	text-transform: uppercase;
+	border-bottom: 1px solid var(--panel-header-border-color);
+}
+
+.ms-log-empty {
+	padding: 20px;
+	text-align: center;
+	color: var(--description-text-color);
+	font-size: 12px;
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────────── */
+.ms-tabs {
+	display: flex;
+	border-bottom: 1px solid var(--panel-header-border-color);
+	flex-shrink: 0;
+}
+
+.ms-tab {
+	padding: 6px 14px;
+	font-size: 12px;
+	cursor: pointer;
+	background: transparent;
+	border: none;
+	border-bottom: 2px solid transparent;
+	color: var(--description-text-color);
+	white-space: nowrap;
+}
+
+.ms-tab:hover {
+	color: var(--text-color);
+}
+
+.ms-tab.active {
+	color: var(--text-color);
+	border-bottom-color: var(--button-background-color);
+}
+
+/* ── Generate modal ───────────────────────────────────────────────── */
+.ms-modal-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.6);
+	z-index: 100;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.ms-modal {
+	background: var(--editor-background-color);
+	border: 1px solid var(--panel-header-border-color);
+	padding: 20px;
+	min-width: 380px;
+	max-width: 520px;
+	width: 90%;
+}
+
+.ms-modal-title {
+	font-size: 14px;
+	font-weight: 600;
+	margin-bottom: 14px;
+}
+
+.ms-modal-footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin-top: 16px;
+}
+
+.ms-radio-group {
+	display: flex;
+	gap: 16px;
+	margin-bottom: 14px;
+}
+
+.ms-radio-label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 12px;
+	cursor: pointer;
+}
+
+.ms-url-input {
+	width: 100%;
+	box-sizing: border-box;
+	background: transparent;
+	border: 1px solid var(--input-border-color);
+	color: var(--editor-text-color);
+	font-size: 12px;
+	padding: 4px 8px;
+	height: 28px;
+	outline: none;
+	font-family: var(--editor-font-family);
+}
+
+.ms-url-input:focus {
+	border-color: var(--focus-border-color);
+}
+
+.ms-modal-note {
+	font-size: 11px;
+	color: var(--description-text-color);
+	margin-top: 8px;
+}
+
+.ms-modal-error {
+	font-size: 11px;
+	color: var(--test-failed-color);
+	margin-top: 6px;
+}
+
+.ms-select.full-width {
+	width: 100%;
+}
+
+/* ── Scrollbar (webkit) ───────────────────────────────────────────── */
+.ms-route-list-body::-webkit-scrollbar,
+.ms-detail-scroll::-webkit-scrollbar,
+.ms-log-body::-webkit-scrollbar {
+	width: 6px;
+}
+
+.ms-route-list-body::-webkit-scrollbar-thumb,
+.ms-detail-scroll::-webkit-scrollbar-thumb,
+.ms-log-body::-webkit-scrollbar-thumb {
+	background: var(--scrollbar-slider-background-color);
+	border-radius: 3px;
+}
+
+.log-header-path {
+	padding-left: 10px;
+}

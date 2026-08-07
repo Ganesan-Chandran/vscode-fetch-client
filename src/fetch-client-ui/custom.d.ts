@@ -35,3 +35,7 @@ declare module "*.webp" {
 }
 
 declare module "*.css";
+
+interface Window {
+	__initialConfig?: { layout?: string; horizontalLayout?: string };
+}

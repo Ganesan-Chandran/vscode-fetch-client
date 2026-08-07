@@ -31,12 +31,17 @@ import {
 	SideBarActionTypes,
 	FETCH_CLIENT_SET_UPDATE_COLLECTION_ITEM,
 	FETCH_CLIENT_SET_UPDATE_HISTORY_ITEM,
+	FETCH_CLIENT_SET_MOCK_SERVERS,
+	FETCH_CLIENT_ADD_MOCK_SERVER,
+	FETCH_CLIENT_UPDATE_MOCK_SERVER,
+	FETCH_CLIENT_DELETE_MOCK_SERVER,
 } from "./types";
 
 export const InitialState: ISideBarModel = {
 	history: [],
 	collections: [],
 	variable: [],
+	mockServers: [],
 };
 
 export const SideBarReducer: (
@@ -250,6 +255,27 @@ export const SideBarReducer: (
 				]),
 			};
 		}
+		case FETCH_CLIENT_SET_MOCK_SERVERS:
+			return { ...state, mockServers: action.payload.servers };
+		case FETCH_CLIENT_ADD_MOCK_SERVER:
+			return {
+				...state,
+				mockServers: [...state.mockServers, action.payload.server],
+			};
+		case FETCH_CLIENT_UPDATE_MOCK_SERVER:
+			return {
+				...state,
+				mockServers: state.mockServers.map((s) =>
+					s.id === action.payload.server.id ? action.payload.server : s,
+				),
+			};
+		case FETCH_CLIENT_DELETE_MOCK_SERVER:
+			return {
+				...state,
+				mockServers: state.mockServers.filter(
+					(s) => s.id !== action.payload.id,
+				),
+			};
 		default: {
 			return state;
 		}

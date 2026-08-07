@@ -19,13 +19,24 @@ import { checkDbFiles } from "./commands/check";
 import {
 	DD_EXPORT_FORMATS,
 	ExportFormat,
+	PERF_EXPORT_FORMATS,
 	SUPPORTED_EXPORT_FORMATS,
 } from "../fetch-client-core/consts/export.consts";
 import {
 	isSupportedDataDrivenExportFormat,
 	isSupportedExportFormat,
+	isSupportedQGExportFormat,
 } from "./types/export.types";
 import { listCollections, listFolders, listVariables } from "./commands/list";
+import {
+	printQualityGateRules,
+	qualityCheckCollection,
+	qualityCheckCollectionFromFile,
+	qualityCheckFolder,
+	qualityCheckFolderFromFile,
+	qualityCheckRequest,
+	qualityCheckRequestFromFile,
+} from "./commands/qualityCheck";
 import {
 	perfCollection,
 	perfCollectionFromFile,
@@ -152,6 +163,29 @@ invalid, out-of-range, or irrelevant flags for the chosen load model.
 
 Press Ctrl+C once to stop gracefully and print results so far; press it again to force-quit.
 
+── QUALITY CHECK ───────────────────────────────────────────────────────────────────────────────────
+
+fc-cli qc --req <name/id>                                       Run a quality check against a single request
+fc-cli qc --col <name/id>                                       Run a quality check against every request in a collection
+fc-cli qc --col --all                                           Run a quality check against every collection
+fc-cli qc --fol <name/id>                                       Run a quality check against every request in a folder
+fc-cli qc --var <name/id>                                       Override variable set (same priority rule as run)
+
+fc-cli qc --file <collection.json>                              Run a quality check against an exported collection
+fc-cli qc --file <collection.json> --fol <name/id>              Restrict to a folder within it
+fc-cli qc --file <collection.json> --req <name/id>              Restrict to a request within it
+fc-cli qc --file <collection.json> --var-file <vars.json>       Override embedded variables
+
+fc-cli qc --rules                                               List all available quality-gate rules, grouped by dimension
+
+--config <file.qgrc.json>                       [default: .qgrc.json in the current directory, if present]
+																															Thresholds/weights/disabledRules/failOn overrides.
+--export <json|csv|html|xml>                    [default: none]       Export a quality-gate report after the run
+--export-path <dir>                             [default: fetch-client-exports folder]
+
+The process exits with code 1 when the gate's CI check (report.gateStatus) fails,
+so 'qc' can be used directly in build pipelines.
+
 ── DATA-DRIVEN TEST ────────────────────────────────────────────────────────────────────────────────
 
 fc-cli dd --col <name/id> --data <file.csv|file.json>              Run every request in a collection once per data row
@@ -230,6 +264,8 @@ interface ParsedArgs {
 	ddSeparator?: string;
 	stopOnFail: boolean;
 	validate: boolean;
+	config?: string;
+	rules: boolean;
 }
 
 const VALUE_FLAGS = new Set([
@@ -252,6 +288,7 @@ const VALUE_FLAGS = new Set([
 	"--data",
 	"--dd-format",
 	"--dd-separator",
+	"--config",
 ]);
 
 /** Flags that support an inline `--flag <value>` shorthand for name/id. */
@@ -273,6 +310,7 @@ function parseArgs(argv: string[]): ParsedArgs {
 		version: false,
 		stopOnFail: false,
 		validate: false,
+		rules: false,
 	};
 
 	for (let i = 0; i < argv.length; i++) {
@@ -334,6 +372,11 @@ function parseArgs(argv: string[]): ParsedArgs {
 
 		if (arg === "--validate") {
 			result.validate = true;
+			continue;
+		}
+
+		if (arg === "--rules") {
+			result.rules = true;
 			continue;
 		}
 
@@ -472,6 +515,10 @@ async function main(): Promise<void> {
 
 		case "dd":
 			await handleDataDriven(argv);
+			break;
+
+		case "qc":
+			await handleQualityCheck(argv);
 			break;
 
 		default:
@@ -847,6 +894,155 @@ async function handleDataDriven(argv: ParsedArgs): Promise<void> {
 		exportFormat: argv.export as ExportFormat | undefined,
 		exportPath: argv.exportPath,
 	});
+}
+
+// - qc -
+
+async function handleQualityCheck(argv: ParsedArgs): Promise<void> {
+	if (argv.rules) {
+		printQualityGateRules();
+		return;
+	}
+
+	if (argv.export && !isSupportedQGExportFormat(argv.export)) {
+		wrtieConsleError(
+			`Invalid --export format '${argv.export}' for 'qc'. Supported formats: ${PERF_EXPORT_FORMATS.join(", ")}.`,
+		);
+		process.exit(1);
+	}
+
+	const exportFormat = argv.export as ExportFormat | undefined;
+	const baseOpts = {
+		configPath: argv.config,
+		exportFormat,
+		exportPath: argv.exportPath,
+	};
+
+	if (argv.file) {
+		if (argv.col || argv.all) {
+			wrtieConsleError("'--col' and '--all' cannot be used with '--file'.");
+			process.exit(1);
+		}
+
+		if (argv.req) {
+			const { name, id } = resolveEntityFilter(
+				argv.name,
+				argv.id,
+				argv.reqValue,
+			);
+
+			if (!name && !id) {
+				wrtieConsleError(
+					"'fc-cli qc --file' with '--req' requires a name or id, e.g. 'fc-cli qc --file <file> --req <name/id>'.",
+				);
+				process.exit(1);
+			}
+
+			await qualityCheckRequestFromFile({
+				...baseOpts,
+				file: argv.file,
+				name,
+				id,
+				varFile: argv.varFile,
+			});
+			return;
+		}
+
+		if (argv.fol) {
+			const { name, id } = resolveEntityFilter(
+				argv.name,
+				argv.id,
+				argv.folValue,
+			);
+
+			if (!name && !id) {
+				wrtieConsleError(
+					"'fc-cli qc --file' with '--fol' requires a name or id, e.g. 'fc-cli qc --file <file> --fol <name/id>'.",
+				);
+				process.exit(1);
+			}
+
+			await qualityCheckFolderFromFile({
+				...baseOpts,
+				file: argv.file,
+				name,
+				id,
+				varFile: argv.varFile,
+			});
+			return;
+		}
+
+		await qualityCheckCollectionFromFile({
+			...baseOpts,
+			file: argv.file,
+			varFile: argv.varFile,
+		});
+		return;
+	}
+
+	if (argv.req) {
+		const { name, id } = resolveEntityFilter(argv.name, argv.id, argv.reqValue);
+
+		if (!name && !id) {
+			wrtieConsleError(
+				"'fc-cli qc --req' requires a name or id, e.g. 'fc-cli qc --req <name/id>'.",
+			);
+			process.exit(1);
+		}
+
+		const { varId, varName } = resolveVarOverride(
+			argv.varId,
+			argv.varName,
+			argv.varValue,
+		);
+
+		await qualityCheckRequest({ ...baseOpts, name, id, varId, varName });
+		return;
+	}
+
+	if (argv.col) {
+		const { name, id } = resolveEntityFilter(argv.name, argv.id, argv.colValue);
+		const { varId, varName } = resolveVarOverride(
+			argv.varId,
+			argv.varName,
+			argv.varValue,
+		);
+
+		await qualityCheckCollection({
+			...baseOpts,
+			all: argv.all,
+			name,
+			id,
+			varId,
+			varName,
+		});
+		return;
+	}
+
+	if (argv.fol) {
+		const { name, id } = resolveEntityFilter(argv.name, argv.id, argv.folValue);
+
+		if (!name && !id) {
+			wrtieConsleError(
+				"'fc-cli qc --fol' requires a name or id, e.g. 'fc-cli qc --fol <name/id>'.",
+			);
+			process.exit(1);
+		}
+
+		const { varId, varName } = resolveVarOverride(
+			argv.varId,
+			argv.varName,
+			argv.varValue,
+		);
+
+		await qualityCheckFolder({ ...baseOpts, name, id, varId, varName });
+		return;
+	}
+
+	wrtieConsleError(
+		"Specify --req, --col, --fol, --file, or --rules after 'qc'. Run 'fc-cli --help' for usage.",
+	);
+	process.exit(1);
 }
 
 // - Entry -

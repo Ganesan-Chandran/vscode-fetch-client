@@ -189,12 +189,12 @@ function validateImportData(data: string): ImportType | null {
 		if (isFetchClientV2(parsedData)) {
 			return ImportType.FetchClient_2_0;
 		}
-	} catch {}
+	} catch { }
 
 	try {
 		FetchClientDataProxy.Parse(data);
 		return ImportType.FetchClient_1_0;
-	} catch {}
+	} catch { }
 
 	const postmanData = parsedData as PostmanSchema_2_1;
 	if (
@@ -205,11 +205,18 @@ function validateImportData(data: string): ImportType | null {
 	}
 
 	const thunderData = parsedData as ThunderClient_Schema_1_2;
-	if (
-		thunderData.clientName === "Thunder Client" &&
-		thunderData.version === "1.2"
-	) {
-		return ImportType.ThunderClient_1_2;
+
+	if (thunderData.clientName === "Thunder Client") {
+		switch (thunderData.version) {
+			case "1.2":
+				return ImportType.ThunderClient_1_2;
+
+			case "1.3":
+				return ImportType.ThunderClient_1_3;
+
+			case "1.4":
+				return ImportType.ThunderClient_1_4;
+		}
 	}
 
 	const insomniaData = parsedData as InsomniaExport;
@@ -689,6 +696,8 @@ export async function Main_Repository_Import(
 		case ImportType.Postman_2_1:
 			return importPostman(data, key);
 		case ImportType.ThunderClient_1_2:
+		case ImportType.ThunderClient_1_3:
+		case ImportType.ThunderClient_1_4:
 			return importThunderClient(data);
 		case ImportType.OpenAPI_V_3:
 			return importOpenAPI(data);

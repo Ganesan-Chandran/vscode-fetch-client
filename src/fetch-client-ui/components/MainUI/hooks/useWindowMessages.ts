@@ -38,6 +38,7 @@ export interface IWindowMessageCallbacks {
 	onSaved: () => void;
 	onSetVarId: (varId: string) => void;
 	onClearVarId: () => void;
+	onEnvironmentChanged: (variableId: string) => void;
 }
 
 export function useWindowMessages(
@@ -219,6 +220,16 @@ export function useWindowMessages(
 
 				case pubSubTypes.addCurrentVariable: {
 					cb.onSetVarId(data.data.varId as string);
+					break;
+				}
+
+				case pubSubTypes.environmentChanged: {
+					cb.onEnvironmentChanged(data.data as string);
+					break;
+				}
+
+				case responseTypes.getSelectedEnvironmentResponse: {
+					cb.onEnvironmentChanged(data.data as string);
 					break;
 				}
 

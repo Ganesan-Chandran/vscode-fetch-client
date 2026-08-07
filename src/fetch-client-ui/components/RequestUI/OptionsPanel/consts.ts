@@ -5,6 +5,7 @@ export const requestOptions = [
 	{ name: "Body", value: "body" },
 	{ name: "PreFetch", value: "preFetch" },
 	{ name: "PostFetch", value: "postFetch" },
+	{ name: "Notes", value: "notes" },
 ];
 
 export const postFetchOptions = [

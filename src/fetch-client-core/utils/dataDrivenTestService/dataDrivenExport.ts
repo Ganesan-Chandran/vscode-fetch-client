@@ -22,7 +22,10 @@ export function exportDataDrivenJson(
 				passedRequests: result.passedRequests,
 				failedRequests: result.failedRequests,
 			},
-			results: result.rows,
+			// exclude fullResponse - it's only needed for the in-app row viewer, not the report
+			results: result.rows.map(
+				({ fullResponse: _fullResponse, ...row }) => row,
+			),
 		},
 		null,
 		2,

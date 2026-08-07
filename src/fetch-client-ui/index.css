@@ -18,11 +18,77 @@ body {
 	--text-color: var(--vscode-foreground);
 	--list-hover-background-color: var(--vscode-list-hoverBackground);
 	--required-color: red;
+
+	/* Semantic theme bridge: component CSS reads only these names, never
+		--vscode-* directly, so a non-VS-Code host only needs to define this set. */
+	--panel-header-border-color: var(--vscode-editorGroup-border);
+	--focus-border-color: var(--vscode-focusBorder);
+	--sidebar-background-color: var(--vscode-sideBar-background);
+	--sidebar-section-header-border-color: var(--vscode-sideBarSectionHeader-border);
+	--description-text-color: var(--vscode-descriptionForeground);
+	--panel-border-color: var(--vscode-panel-border, #444);
+	--editor-widget-background-color: var(--vscode-editorWidget-background);
+	--editor-widget-border-color: var(--vscode-editorWidget-border,
+			var(--vscode-panel-border));
+	--editor-background-color: var(--vscode-editor-background);
+	--editor-foreground-color: var(--vscode-editor-foreground);
+	--editor-font-family: var(--vscode-editor-font-family, monospace);
+	--editor-font-size: var(--vscode-editor-font-size);
+	--test-passed-color: var(--vscode-testing-iconPassed, #3fb950);
+	--test-failed-color: var(--vscode-testing-iconFailed, #f85149);
+	--error-foreground-color: var(--vscode-errorForeground, #f48771);
+	--added-text-color: var(--vscode-gitDecoration-addedResourceForeground,
+			#89d185);
+	--diff-inserted-background-color: var(--vscode-diffEditor-insertedTextBackground,
+			rgba(99, 153, 34, 0.15));
+	--diff-removed-background-color: var(--vscode-diffEditor-removedTextBackground,
+			rgba(255, 60, 60, 0.1));
+	--tree-indent-guide-color: var(--vscode-tree-indentGuidesStroke, #404040);
+	--charts-blue-color: var(--vscode-charts-blue, #3794ff);
+	--charts-yellow-color: var(--vscode-charts-yellow, #f0b429);
+	--charts-purple-color: var(--vscode-charts-purple, #b180d7);
+	--charts-green-color: var(--vscode-charts-green, #89d185);
+	--link-text-color: var(--vscode-textLink-foreground, #3794ff);
+	--link-active-text-color: var(--vscode-textLink-activeForeground);
+	--list-active-background-color: var(--vscode-list-activeSelectionBackground);
+	--list-active-text-color: var(--vscode-list-activeSelectionForeground);
+	--button-secondary-background-color: var(--vscode-button-secondaryBackground,
+			#3a3d41);
+	--button-secondary-text-color: var(--vscode-button-secondaryForeground,
+			#cccccc);
+	--button-secondary-hover-color: var(--vscode-button-secondaryHoverBackground);
+	--button-border-color: var(--vscode-button-border, transparent);
+	--input-border-color: var(--vscode-input-border, transparent);
+	--input-placeholder-color: var(--vscode-input-placeholderForeground);
+	--input-error-border-color: var(--vscode-inputValidation-errorBorder,
+			#f44747);
+	--dropdown-background-color: var(--vscode-dropdown-background);
+	--dropdown-text-color: var(--vscode-dropdown-foreground);
+	--dropdown-border-color: var(--vscode-dropdown-border);
+	--badge-background-color: var(--vscode-badge-background, #4d4d4d);
+	--badge-text-color: var(--vscode-badge-foreground, #fff);
+	--scrollbar-slider-background-color: var(--vscode-scrollbarSlider-background);
+	--scrollbar-slider-hover-color: var(--vscode-scrollbarSlider-hoverBackground);
+
+	/* Ace editor theme-sync tokens (see Common/Editor/themeHelper.ts) */
+	--editor-selection-background-color: var(--vscode-editor-selectionBackground);
+	--editor-line-highlight-background-color: var(--vscode-editor-lineHighlightBackground);
+	--editor-cursor-color: var(--vscode-editorCursor-foreground);
+	--editor-gutter-background-color: var(--vscode-editorGutter-background);
+	--editor-line-number-color: var(--vscode-editorLineNumber-foreground);
+	--editor-line-number-active-color: var(--vscode-editorLineNumber-activeForeground);
+	--syntax-keyword-color: var(--vscode-symbolIcon-keywordForeground);
+	--syntax-string-color: var(--vscode-debugTokenExpression-string);
+	--syntax-number-color: var(--vscode-debugTokenExpression-number);
+	--syntax-comment-color: var(--vscode-editorLineNumber-foreground);
+	--syntax-function-color: var(--vscode-symbolIcon-functionForeground);
+	--syntax-variable-color: var(--vscode-symbolIcon-variableForeground);
+	--syntax-type-color: var(--vscode-symbolIcon-classForeground);
 }
 
 code {
-	font-size: var(--vscode-editor-font-size);
-	font-family: var(--vscode-editor-font-family);
+	font-size: var(--editor-font-size);
+	font-family: var(--editor-font-family);
 }
 
 .spinner.loading {

@@ -1,6 +1,5 @@
 import "./style.css";
 import { IRootState } from "../../../reducer/combineReducer";
-import { NotesEditor } from "../../Common/NotesEditor";
 import { PreFetchResponse } from "../OptionsPanel/Options/PreFetchResponse";
 import { ResponseCookies } from "../OptionsPanel/Options/Cookies";
 import { ResponseHeaders } from "../OptionsPanel/Options/Headers";
@@ -16,16 +15,16 @@ export interface ResponsePanelProps {
 	isCurl: boolean;
 }
 
+const CodeSnippetGenerator = React.lazy(
+	() => import("../../Common/CodeGenerator"),
+);
+
 export const ReponsePanel = (props: ResponsePanelProps) => {
 	const { loading } = useSelector((state: IRootState) => state.responseData);
 	const { runItem } = useSelector((state: IRootState) => state.uiData);
 
 	const [selectedTab, setSelectedTab] = useState(
 		runItem ? "testresults" : "response",
-	);
-
-	const CodeSnippetGenerator = React.lazy(
-		() => import("../../Common/CodeGenerator"),
 	);
 
 	const renderOptionsUI = (tab: string) => {
@@ -48,8 +47,6 @@ export const ReponsePanel = (props: ResponsePanelProps) => {
 						<TypesGenerator />
 					</React.Suspense>
 				);
-			case "notes":
-				return <NotesEditor />;
 			case "prefetchresults":
 				return <PreFetchResponse />;
 			default:

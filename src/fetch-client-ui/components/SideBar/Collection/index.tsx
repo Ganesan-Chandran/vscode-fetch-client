@@ -597,6 +597,25 @@ export const CollectionBar = (props: ICollectionProps) => {
 		setCurrentHeadIndex("");
 	}
 
+	function onQualityGate(
+		evt: React.MouseEvent<HTMLElement>,
+		colId: string,
+		folderId: string,
+		itemId: string,
+		name: string,
+		varId: string,
+		scope: "collection" | "folder" | "request",
+	) {
+		evt.preventDefault();
+		evt.stopPropagation();
+		vscode.postMessage({
+			type: requestTypes.openQualityGateRequest,
+			data: { colId, folderId, itemId, name, varId, scope },
+		});
+		setCurrentHeadIndex("");
+		setCurrentIndex("");
+	}
+
 	function onReOrderItems(
 		evt: React.MouseEvent<HTMLElement>,
 		colId: string,
@@ -943,6 +962,21 @@ export const CollectionBar = (props: ICollectionProps) => {
 									>
 										Data-Driven Test
 									</button>
+									<button
+										onClick={(e) =>
+											onQualityGate(
+												e,
+												cols.id,
+												item.id,
+												"",
+												cols.name + " \\ " + item.name,
+												cols.variableId,
+												"folder",
+											)
+										}
+									>
+										Quality Gate
+									</button>
 								</div>
 							</div>
 							<button onClick={(e) => onReOrderItems(e, cols.id, item.id)}>
@@ -1119,6 +1153,21 @@ export const CollectionBar = (props: ICollectionProps) => {
 															}
 														>
 															Run Request
+														</button>
+														<button
+															onClick={(e) =>
+																onQualityGate(
+																	e,
+																	cols.id,
+																	item.id,
+																	listItem.id,
+																	listItem.name,
+																	cols.variableId,
+																	"request",
+																)
+															}
+														>
+															Quality Gate
 														</button>
 														<div className="divider"></div>
 														<button
@@ -1306,6 +1355,21 @@ export const CollectionBar = (props: ICollectionProps) => {
 									<button onClick={(e) => onAutoRequest(e, item.id, item.name)}>
 										Scheduled Runs
 									</button>
+									<button
+										onClick={(e) =>
+											onQualityGate(
+												e,
+												item.id,
+												"",
+												"",
+												item.name,
+												item.variableId,
+												"collection",
+											)
+										}
+									>
+										Quality Gate
+									</button>
 								</div>
 							</div>
 							<button onClick={(e) => onReOrderItems(e, item.id)}>
@@ -1487,6 +1551,21 @@ export const CollectionBar = (props: ICollectionProps) => {
 																}
 															>
 																Run Request
+															</button>
+															<button
+																onClick={(e) =>
+																	onQualityGate(
+																		e,
+																		item.id,
+																		"",
+																		listItem.id,
+																		listItem.name,
+																		item.variableId,
+																		"request",
+																	)
+																}
+															>
+																Quality Gate
 															</button>
 															<div className="divider"></div>
 															<button

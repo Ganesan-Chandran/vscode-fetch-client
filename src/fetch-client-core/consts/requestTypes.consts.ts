@@ -59,6 +59,7 @@ export const requestTypes = {
 	getOpenAndRunItemDataRequest: "getOpenAndRunItemDataRequest",
 	getParentSettingsRequest: "getParentSettingsRequest",
 	getRunItemDataRequest: "getRunItemDataRequest",
+	getSelectedEnvironmentRequest: "getSelectedEnvironmentRequest",
 	getVariableItemRequest: "getVariableItemRequest",
 	importCurlRequest: "importCurlRequest",
 	importRequest: "importRequest",
@@ -108,12 +109,34 @@ export const requestTypes = {
 	selectFileRequest: "selectFileRequest",
 	selectItemRequest: "selectItemRequest",
 	selectPathRequest: "selectPathRequest",
+	setSelectedEnvironmentRequest: "setSelectedEnvironmentRequest",
 	setToVariableRequest: "setToVariableRequest",
 	showMessageRequest: "showMessageRequest",
 	themeRequest: "themeRequest",
 	tokenRequest: "tokenRequest",
 	updateVariableRequest: "updateVariableRequest",
 	viewLogRequest: "viewLogRequest",
+	// Quality Gate
+	openQualityGateRequest: "openQualityGateRequest",
+	getQualityGateInitRequest: "getQualityGateInitRequest",
+	runQualityGateRequest: "runQualityGateRequest",
+	exportQualityGateReportRequest: "exportQualityGateReportRequest",
+	getQGRulesRequest: "getQGRulesRequest",
+	saveQGRuleSelectionRequest: "saveQGRuleSelectionRequest",
+	// Mock Server
+	getAllMockServersRequest: "getAllMockServersRequest",
+	getMockServerByIdRequest: "getMockServerByIdRequest",
+	saveMockServerRequest: "saveMockServerRequest",
+	updateMockServerRequest: "updateMockServerRequest",
+	deleteMockServerRequest: "deleteMockServerRequest",
+	startMockServerRequest: "startMockServerRequest",
+	stopMockServerRequest: "stopMockServerRequest",
+	getMockServerLogsRequest: "getMockServerLogsRequest",
+	clearMockServerLogsRequest: "clearMockServerLogsRequest",
+	generateMockFromCollectionRequest: "generateMockFromCollectionRequest",
+	generateMockFromOpenAPIRequest: "generateMockFromOpenAPIRequest",
+	newMockServerRequest: "newMockServerRequest",
+	renameMockServerRequest: "renameMockServerRequest",
 };
 
 export const responseTypes = {
@@ -172,6 +195,7 @@ export const responseTypes = {
 	getOpenAndRunItemDataResponse: "getOpenAndRunItemDataResponse",
 	getParentSettingsResponse: "getParentSettingsResponse",
 	getRunItemDataResponse: "getRunItemDataResponse",
+	getSelectedEnvironmentResponse: "getSelectedEnvironmentResponse",
 	getVariableItemResponse: "getVariableItemResponse",
 	importResponse: "importResponse",
 	importVariableResponse: "importVariableResponse",
@@ -209,10 +233,21 @@ export const responseTypes = {
 	tokenResponse: "tokenResponse",
 	updateCollectionHistoryItem: "updateCollectionHistoryItem",
 	updateVariableResponse: "updateVariableResponse",
+	// Quality Gate
+	getQGRulesResponse: "getQGRulesResponse",
+	// Mock Server
+	getAllMockServersResponse: "getAllMockServersResponse",
+	getMockServerByIdResponse: "getMockServerByIdResponse",
+	saveMockServerResponse: "saveMockServerResponse",
+	updateMockServerResponse: "updateMockServerResponse",
+	deleteMockServerResponse: "deleteMockServerResponse",
+	mockServerStatusResponse: "mockServerStatusResponse",
+	mockServerLogResponse: "mockServerLogResponse",
 };
 
 export const pubSubTypes = {
 	addCurrentVariable: "addCurrentVariable",
+	environmentChanged: "environmentChanged",
 	removeCurrentVariable: "removeCurrentVariable",
 	themeChanged: "themeChanged",
 	updateVariables: "updateVariables",

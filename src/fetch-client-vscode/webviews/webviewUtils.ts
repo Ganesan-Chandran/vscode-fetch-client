@@ -7,6 +7,7 @@ export function buildWebviewHtml(
 	webview: vscode.Webview,
 	extensionUri: vscode.Uri,
 	title: string,
+	initialLayoutConfig?: { layout: string; horizontalLayout: string },
 ): string {
 	const nonce = getNonce();
 	const scriptUri = webview.asWebviewUri(
@@ -27,6 +28,12 @@ export function buildWebviewHtml(
 		`font-src ${webview.cspSource} data:`,
 	].join("; ");
 
+	const initialConfigScript = initialLayoutConfig
+		? `<script nonce="${nonce}">window.__initialConfig = ${JSON.stringify(
+				initialLayoutConfig,
+			).replace(/</g, "\\u003c")};</script>\n\t\t`
+		: "";
+
 	return `<!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -39,7 +46,7 @@ export function buildWebviewHtml(
 	<body>
 		<noscript>You need to enable JavaScript to run this app.</noscript>
 		<div id="root"></div>
-		<script nonce="${nonce}" src="${scriptUri}"></script>
+		${initialConfigScript}<script nonce="${nonce}" src="${scriptUri}"></script>
 	</body>
 </html>`;
 }

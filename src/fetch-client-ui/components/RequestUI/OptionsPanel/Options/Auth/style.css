@@ -44,9 +44,9 @@
 	padding: 10px;
 	border-radius: 3px;
 	resize: none;
-	font-size: var(--vscode-editor-font-size) !important;
-	font-family: var(--vscode-editor-font-family) !important;
-	font-weight: var(--vscode-font-weight);
+	font-size: var(--editor-font-size) !important;
+	font-family: var(--editor-font-family) !important;
+	font-weight: var(--font-weight);
 }
 
 .auth-token-prefix-text,

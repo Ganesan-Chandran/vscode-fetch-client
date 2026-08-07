@@ -9,6 +9,7 @@ import {
 	cookieDBPath,
 	historyDBPath,
 	mainDBPath,
+	mockServerDBPath,
 	responseDBPath,
 	variableDBPath,
 } from "./dbHelper";
@@ -169,4 +170,17 @@ export function CreateAutoRequestHistoryDB(): Promise<void> {
 			}
 		},
 	);
+}
+
+export function CreateMockServerDB(): Promise<void> {
+	return createDatabase(mockServerDBPath(), "CreateMockServerDB", (db) => {
+		if (db.getCollection("mockServers") === null) {
+			db.addCollection("mockServers", {
+				autoupdate: true,
+				disableMeta: true,
+				unique: ["id"],
+				indices: ["id"],
+			});
+		}
+	});
 }

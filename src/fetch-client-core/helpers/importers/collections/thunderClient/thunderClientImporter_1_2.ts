@@ -247,10 +247,16 @@ export class ThunderClientImport {
 			case "json":
 			case "xml":
 			case "text": {
-				const rawData = body.raw ?? "";
+				let rawData = body.raw ?? "";
+				if (Array.isArray(rawData)) {
+					rawData = rawData.join("\n");
+				} else if (typeof rawData !== "string") {
+					rawData = JSON.stringify(rawData, null, 2);
+				}
+
 				fcBody.bodyType = "raw";
 				fcBody.raw.data = rawData;
-				fcBody.raw.lang = this.getRawBodyType(
+				fcBody.raw.lang = body.type ?? this.getRawBodyType(
 					rawData.replace(NEWLINE_REGEX, ""),
 				);
 				return fcBody;

@@ -64,7 +64,7 @@ export function toDataDrivenHtml(
 </head>
 <body>
 	<h1>Fetch Client Data-Driven Report</h1>
-	<p class="subtitle">${escapeHtml(testName)} — format: ${escapeHtml(config.fileFormat)}${config.stopOnRowFailure ? ", stop-on-failure" : ""}</p>
+	<p class="subtitle">${escapeHtml(testName)} - format: ${escapeHtml(config.fileFormat)}${config.stopOnRowFailure ? ", stop-on-failure" : ""}</p>
 
 	<div class="summary">
 		<div class="stat"><div class="value">${result.totalRows}</div><div class="label">Rows</div></div>

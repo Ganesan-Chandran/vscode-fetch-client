@@ -114,7 +114,7 @@ export function toPerfHtml(
 </head>
 <body>
 	<h1>Fetch Client Performance Report</h1>
-	<p class="subtitle">${escapeHtml(testName)} — scope: ${escapeHtml(config.scope)}, load model: ${escapeHtml(config.loadModel)}</p>
+	<p class="subtitle">${escapeHtml(testName)} - scope: ${escapeHtml(config.scope)}, load model: ${escapeHtml(config.loadModel)}</p>
 
 	<div class="summary">
 		<div class="stat"><div class="value">${metrics.total}</div><div class="label">Total</div></div>

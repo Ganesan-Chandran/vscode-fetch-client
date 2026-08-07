@@ -20,6 +20,7 @@ import {
 	FETCH_CLIENT_SET_COLLECTION_LIST,
 	FETCH_CLIENT_SET_DELETE_PRECONDITION,
 	FETCH_CLIENT_SET_DELETE_PREREQUEST,
+	FETCH_CLIENT_SET_LINKED_VARIABLE,
 	FETCH_CLIENT_SET_NOTES,
 	FETCH_CLIENT_SET_OAUTH_TOKEN,
 	FETCH_CLIENT_SET_PRECONDITION,
@@ -352,6 +353,15 @@ export const SetSkipHeadersAction = (value: boolean): RequestActionTypes => {
 		type: FETCH_CLIENT_SET_SKIP_PARENT_HEADERS,
 		payload: {
 			skip: value,
+		},
+	};
+};
+
+export const SetLinkedVariableAction = (value: boolean): RequestActionTypes => {
+	return {
+		type: FETCH_CLIENT_SET_LINKED_VARIABLE,
+		payload: {
+			isLinked: value,
 		},
 	};
 };

@@ -7,3 +7,5 @@ export { AutoRequestProviderUI } from "./autoRequestUIProvider";
 export { BulkExportProviderUI } from "./bulkExportUIProvider";
 export { CookieUI } from "./cookieUIProvider";
 export { AddToColUI } from "./addToCollectionUIProvider";
+export { MockServerUI } from "./mockServerUIProvider";
+export { QualityGateUI } from "./qualityGateUIProvider";

@@ -23,11 +23,11 @@ summary:before {
 }
 
 summary:hover {
-	background-color: var(--vscode-dropdown-border);
+	background-color: var(--dropdown-border-color);
 }
 
 details[open] summary {
-	background-color: var(--vscode-dropdown-border);
+	background-color: var(--dropdown-border-color);
 }
 
 .collection-items:hover .more-icon,
@@ -39,7 +39,7 @@ details[open] summary {
 	padding-right: 0 !important;
 	min-width: 220px;
 	padding-top: 8px;
-	padding-bottom: 9px;
+	padding-bottom: 8px;
 }
 
 .folder-items {

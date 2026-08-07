@@ -5,6 +5,8 @@ import {
 	CookieUI,
 	CurlProviderUI,
 	ErrorLogUI,
+	MockServerUI,
+	QualityGateUI,
 	SideBarProvider,
 	VariableUI,
 	WebAppPanel,
@@ -19,6 +21,7 @@ import {
 	getGlobalStorageUri,
 	historyDBPath,
 	mainDBPath,
+	mockServerDBPath,
 	responseDBPath,
 	setGlobalStorageUri,
 	variableDBPath,
@@ -30,6 +33,7 @@ import {
 	CreateCookieDB,
 	CreateHistoryDB,
 	CreateMainDB,
+	CreateMockServerDB,
 	CreateResponseDB,
 	CreateVariableDB,
 } from "./fetch-client-core/db/dbUtil";
@@ -73,10 +77,13 @@ import { FCScheduler } from "./fetch-client-vscode/utils/scheduler";
 import { flushCollectionDB } from "./fetch-client-core/db/collectionDB.repository";
 import { flushHistoryDB } from "./fetch-client-core/db/history.repository";
 import { flushMainDB } from "./fetch-client-core/db/mainDB.repository";
+import { flushMockServerDB } from "./fetch-client-core/db/mockServerDB.repository";
 import { flushVariableDB } from "./fetch-client-core/db/variableDB.repository";
 import { GetAllCollections } from "./fetch-client-vscode/db/collectionDBUtil";
 import { GetAllHistory } from "./fetch-client-vscode/db/historyDBUtil";
+import { GetAllMockServers } from "./fetch-client-vscode/db/mockServerDBUtil";
 import { IPubSubMessage, PubSub } from "./fetch-client-core/utils/pubSub";
+import { stopAllMockServers } from "./fetch-client-vscode/utils/mockServerRunner";
 import { LocalStorageService } from "./fetch-client-vscode/utils/localStorageService";
 import { logPath } from "./fetch-client-core/helpers/logger/constants";
 import { MemoryCache } from "./fetch-client-vscode/utils/memoryCache";
@@ -97,6 +104,16 @@ export let oauthAuthorizationService: OAuthAuthorizationService;
 let storageManager: LocalStorageService;
 let extensionUri: vscode.Uri;
 let extCache: MemoryCache<string>;
+
+let selectedEnvironmentId = "";
+
+export function getSelectedEnvironmentId(): string {
+	return selectedEnvironmentId;
+}
+
+export function setSelectedEnvironmentId(id: string): void {
+	selectedEnvironmentId = id;
+}
 
 export function OpenExistingItem(
 	id?: string,
@@ -233,6 +250,25 @@ export function OpenSecretMangerUI(): void {
 	vscode.commands.executeCommand("fetch-client.newVar", "scmanager");
 }
 
+export function OpenQualityGateUI(
+	colId: string,
+	folderId: string,
+	itemId: string,
+	name: string,
+	varId: string,
+	scope: "collection" | "folder" | "request",
+): void {
+	vscode.commands.executeCommand(
+		"fetch-client.openQualityGate",
+		colId,
+		folderId,
+		itemId,
+		name,
+		varId,
+		scope,
+	);
+}
+
 export function OpenColSettings(
 	colId: string,
 	folderId: string,
@@ -309,6 +345,7 @@ export function getStorageManager(): LocalStorageService {
 }
 
 export async function deactivate(): Promise<void> {
+	stopAllMockServers();
 	FCScheduler.Instance.StopAllJobs();
 	pubSub?.clear();
 	await Promise.allSettled([
@@ -316,6 +353,7 @@ export async function deactivate(): Promise<void> {
 		flushCollectionDB(),
 		flushHistoryDB(),
 		flushVariableDB(),
+		flushMockServerDB(),
 	]);
 }
 
@@ -360,6 +398,7 @@ async function initializeStorage(): Promise<void> {
 		ensureDb(autoRequestDBPath(), CreateAutoRequestDB),
 		ensureDb(autoRequestHistoryDBPath(), CreateAutoRequestHistoryDB),
 		ensureDb(responseDBPath(), CreateResponseDB),
+		ensureDb(mockServerDBPath(), CreateMockServerDB),
 		ensureDb(path.resolve(extPath, logPath), createLogFile),
 	]);
 }
@@ -388,6 +427,8 @@ function registerProviders(context: vscode.ExtensionContext): void {
 		CurlProviderUI(context.extensionUri),
 		BulkExportProviderUI(context.extensionUri),
 		AutoRequestProviderUI(context.extensionUri),
+		MockServerUI(context.extensionUri),
+		QualityGateUI(context.extensionUri),
 	);
 }
 
@@ -406,6 +447,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
 			GetAllCollections(sideBarProvider?.view?.webview);
 			GetAllHistory(sideBarProvider?.view);
 			GetAllVariable(sideBarProvider?.view?.webview);
+			GetAllMockServers(sideBarProvider?.view?.webview);
 		}),
 		vscode.commands.registerCommand("fetch-client.documentation", () => {
 			vscode.env.openExternal(

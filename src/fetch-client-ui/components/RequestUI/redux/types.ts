@@ -73,6 +73,8 @@ export const FETCH_CLIENT_SET_SKIP_PARENT_PREFETCH: "FETCH_CLIENT_SET_SKIP_PAREN
 	"FETCH_CLIENT_SET_SKIP_PARENT_PREFETCH";
 export const FETCH_CLIENT_SET_SKIP_PARENT_HEADERS: "FETCH_CLIENT_SET_SKIP_PARENT_HEADERS" =
 	"FETCH_CLIENT_SET_SKIP_PARENT_HEADERS";
+export const FETCH_CLIENT_SET_LINKED_VARIABLE: "FETCH_CLIENT_SET_LINKED_VARIABLE" =
+	"FETCH_CLIENT_SET_LINKED_VARIABLE";
 
 export interface ISetTest {
 	type: typeof FETCH_CLIENT_SET_TEST;
@@ -285,6 +287,13 @@ export interface ISetSkipHeaders {
 	};
 }
 
+export interface ISetLinkedVariable {
+	type: typeof FETCH_CLIENT_SET_LINKED_VARIABLE;
+	payload: {
+		isLinked: boolean;
+	};
+}
+
 export type RequestActionTypes =
 	| ISetURL
 	| ISetMethod
@@ -314,4 +323,5 @@ export type RequestActionTypes =
 	| ISetSelectedRequest
 	| ISetPreFetch
 	| ISetSkipPreFetch
-	| ISetSkipHeaders;
+	| ISetSkipHeaders
+	| ISetLinkedVariable;

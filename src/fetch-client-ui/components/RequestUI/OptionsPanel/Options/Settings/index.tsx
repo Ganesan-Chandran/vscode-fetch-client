@@ -15,6 +15,9 @@ export const Settings = () => {
 	const { selectedVariable, variables, isLocalChange } = useSelector(
 		(state: IRootState) => state.variableData,
 	);
+	const { isLinkedVariable } = useSelector(
+		(state: IRootState) => state.reqSettings,
+	);
 	const { url } = useSelector((state: IRootState) => state.requestData);
 	const { cookies } = useSelector((state: IRootState) => state.cookieData);
 	const responseData = useSelector((state: IRootState) => state.responseData);
@@ -32,21 +35,20 @@ export const Settings = () => {
 	useEffect(() => {
 		if (isLocalChange) {
 			setEnabled(true);
-		} else if (
-			selectedVariable.id &&
-			selectedVariable.name.toUpperCase().trim() !== "GLOBAL"
-		) {
+		} else if (isLinkedVariable) {
 			setEnabled(false);
 		} else {
+			setEnabled(true);
 			let globalVar = variables.filter(
 				(item) =>
 					item.name.toUpperCase().trim() === "GLOBAL" && item.isActive === true,
 			);
-			if (globalVar && globalVar.length > 0) {
-				setGlobalActive(true);
-			}
+			setGlobalActive(
+				globalVar.length > 0 &&
+					selectedVariable.name?.toUpperCase().trim() === "GLOBAL",
+			);
 		}
-	}, []);
+	}, [isLocalChange, isLinkedVariable, selectedVariable, variables]);
 
 	function getVariableData() {
 		let colNames = [{ name: "Select", value: "", disabled: true }];
@@ -138,6 +140,16 @@ export const Settings = () => {
 				</button>
 				<br />
 				<br />
+				{isLinkedVariable && (
+					<span className="global-var-text">
+						<b>Note : </b>
+						<span>
+							This request is linked to the &apos;{selectedVariable.name}&apos;
+							variable via its collection/folder. Unlink it to choose a
+							different variable for this request.
+						</span>
+					</span>
+				)}
 				{globalActive && (
 					<span className="global-var-text">
 						<b>Note : </b>

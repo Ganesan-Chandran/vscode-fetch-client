@@ -64,11 +64,75 @@
 	font-weight: 400;
 }
 
-.fetch-client-image {
+.animated-logo-wrap {
 	width: 60px;
 	height: 60px;
 	margin-bottom: 20px;
-	filter: brightness(85%);
+}
+
+.animated-logo-wrap svg {
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+}
+
+.logo-ring {
+	fill: none;
+	stroke: var(--button-background-color);
+	stroke-width: 13;
+	stroke-linecap: round;
+	stroke-dasharray: 742;
+	transform-origin: 128px 128px;
+	transform: rotate(-90deg);
+	animation: logo-draw-circle 3.5s ease-in-out infinite;
+}
+
+.logo-arrow {
+	fill: var(--button-background-color);
+}
+
+.logo-arrow-right {
+	animation: logo-slide-right 3.5s ease-out infinite;
+}
+
+.logo-arrow-left {
+	animation: logo-slide-left 3.5s ease-out infinite;
+}
+
+@keyframes logo-draw-circle {
+	0% {
+		stroke-dashoffset: 742;
+	}
+	26%,
+	100% {
+		stroke-dashoffset: 0;
+	}
+}
+
+@keyframes logo-slide-right {
+	0%,
+	26% {
+		opacity: 0;
+		transform: translateX(-50px);
+	}
+	43%,
+	100% {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@keyframes logo-slide-left {
+	0%,
+	30% {
+		opacity: 0;
+		transform: translateX(50px);
+	}
+	47%,
+	100% {
+		opacity: 1;
+		transform: translateX(0);
+	}
 }
 
 .fetch-image-panel {
@@ -231,7 +295,7 @@
 	left: 0;
 	right: 0;
 	z-index: 15;
-	background-color: var(--vscode-editor-background);
+	background-color: var(--editor-background-color);
 }
 
 .fullscreen-btn-invisible {

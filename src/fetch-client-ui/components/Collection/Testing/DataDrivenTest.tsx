@@ -283,6 +283,27 @@ const DataDrivenTest = () => {
 		setDone(true);
 	}
 
+	function onRowClick(r: IDataDrivenRowResult) {
+		if (!r.fullResponse) {
+			return;
+		}
+		const reqData = req.find((item) => item.id === r.requestId);
+		if (!reqData) {
+			return;
+		}
+		vscode.postMessage({
+			type: requestTypes.openRunRequest,
+			data: {
+				reqData,
+				resData: r.fullResponse,
+				id: r.requestId,
+				varId,
+				colId,
+				folderId,
+			},
+		});
+	}
+
 	function buildPartialResult(): IDataDrivenResult {
 		const rows = refResults.current;
 		const passed = rows.filter(
@@ -615,7 +636,11 @@ const DataDrivenTest = () => {
 							{results.map((r, i) => (
 								<tr
 									key={i}
-									className={r.isError ? "dd-row-fail" : "dd-row-pass"}
+									className={
+										(r.isError ? "dd-row-fail" : "dd-row-pass") +
+										(r.fullResponse ? " dd-row-clickable" : "")
+									}
+									onClick={() => onRowClick(r)}
 								>
 									<td>{r.rowIndex}</td>
 									<td title={r.url}>{r.requestName}</td>

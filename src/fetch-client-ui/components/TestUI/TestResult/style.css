@@ -24,7 +24,7 @@ tr {
 	border: var(--border-size) solid var(--border-color);
 }
 
-tbody > tr:hover {
+tbody>tr:hover {
 	background-color: var(--list-hover-background-color);
 }
 
@@ -62,9 +62,8 @@ tbody > tr:hover {
 	display: block;
 	width: 50px;
 	border-radius: 3px;
-	height: 23px;
-	margin: 5px;
-	padding: 4px 0 0;
+	height: 20px;
+	margin: 9px 5px;
 	text-align: center;
 	font-weight: bold;
 }
