@@ -2,6 +2,34 @@
 
 All notable changes to the "Fetch Client" extension will be documented in this file.
 
+## 🚀 v2.2.0 - 07 August 2026
+
+This release introduces a built-in **Mock Server**, **Quality Gate** support, **Thunder Client v1.4 import**, and several improvements to the Data-Driven Testing experience.
+
+## ✨ Major Features
+
+### 🌐 Mock Server
+
+- Added a built-in [**Mock Server**](https://fetchclient.github.io/docs/extension/features/advanced/mock-server) for testing APIs without external services.
+
+### ✅ Quality Gate
+
+- Added [**Quality Gate**](https://fetchclient.github.io/docs/extension/features/advanced/api-quality-gate) support in the UI to validate API execution results against configurable quality rules.
+- Added **Quality Gate** support in the CLI.
+
+### 📥 Import Improvements
+
+- Added support for importing **Thunder Client Collection v1.4**.
+
+### 🧪 Data-Driven Testing Improvements
+
+- Added the ability to **open a request directly from Data-Driven Test results** to inspect individual test case execution details.
+
+## 🐞 Bug Fixes
+
+- Fixed multiple issues related to **Data-Driven Testing** execution and test case handling.
+
+
 ## 🚀 v2.1.0 - 25 July 2026
 
 A feature-packed release introducing **Data-Driven Testing**, **AWS Secrets Manager integration**, **SSL/TLS certificates**, enhanced **CLI capabilities**, and expanded reporting options.
