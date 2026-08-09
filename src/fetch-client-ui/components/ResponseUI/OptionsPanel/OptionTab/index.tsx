@@ -154,6 +154,24 @@ export const ResponseOptionsTab = (props: any) => {
 			return false;
 		}
 
+		if (
+			opt === "jsonschema" &&
+			!response.isError &&
+			response.responseData &&
+			response.responseType?.format === "json"
+		) {
+			return false;
+		}
+
+		if (
+			opt === "xmltojson" &&
+			!response.isError &&
+			response.responseData &&
+			response.responseType?.format === "xml"
+		) {
+			return false;
+		}
+
 		return true;
 	}
 
@@ -230,6 +248,18 @@ export const ResponseOptionsTab = (props: any) => {
 									>
 										Code Types
 									</button>
+									<button
+										className="save-to-file-button"
+										disabled={isDisabled("jsonschema")}
+										onClick={() => onSelectTab("jsonschema")}
+									>
+										JSON Schema
+									</button>
+									<button className="save-to-file-button"
+										disabled={isDisabled("xmltojson")}
+										onClick={() => onSelectTab("xmltojson")}>
+										XML to JSON
+									</button>
 								</div>
 							)}
 						</div>
@@ -254,8 +284,8 @@ export const ResponseOptionsTab = (props: any) => {
 										onClick={(e) => onSaveResponse(e)}
 										disabled={
 											response.responseData &&
-											!response.responseType.isBinaryFile &&
-											!response.isError
+												!response.responseType.isBinaryFile &&
+												!response.isError
 												? false
 												: true
 										}

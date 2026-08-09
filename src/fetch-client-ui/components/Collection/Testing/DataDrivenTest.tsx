@@ -5,10 +5,11 @@ import {
 	exportDataDrivenHtml,
 	exportDataDrivenJson,
 	exportDataDrivenNUnit,
+	exportDataDrivenTemplate,
 	exportDataDrivenXml,
 } from "../../../../fetch-client-core/utils/dataDrivenTestService/dataDrivenExport";
 import { parseDataFile } from "../../../../fetch-client-core/utils/dataDrivenTestService/dataDrivenParser";
-import { validateVariables } from "../../../../fetch-client-core/utils/dataDrivenTestService/dataDrivenVariables";
+import { collectRequiredVariables, validateVariables } from "../../../../fetch-client-core/utils/dataDrivenTestService/dataDrivenVariables";
 import {
 	CsvSeparator,
 	DataFileFormat,
@@ -213,6 +214,10 @@ const DataDrivenTest = () => {
 		vscode.postMessage({ type: requestTypes.selectFileRequest });
 	}
 
+	function onGenerateFakeData() {
+		vscode.postMessage({ type: requestTypes.runFakeDataUIOpenRequest });
+	}
+
 	function onFileFormatChange(f: DataFileFormat) {
 		setFileFormat(f);
 		refFileFormat.current = f;
@@ -236,6 +241,30 @@ const DataDrivenTest = () => {
 		const requestMap = buildRequestMap();
 		const result = validateVariables(selected, requestMap, parseResult.columns);
 		setValidationResult(result);
+	}
+
+	function onDownloadTemplate() {
+		const selected = getSelectedRequests();
+		if (selected.length === 0) {
+			return;
+		}
+		const requestMap = buildRequestMap();
+		const required = collectRequiredVariables(selected, requestMap);
+		// keep existing loaded columns first so the user's current file layout is preserved
+		const mergedColumns = Array.from(
+			new Set([...(parseResult?.columns ?? []), ...required]),
+		);
+		const content = exportDataDrivenTemplate(
+			mergedColumns,
+			fileFormat,
+			csvSeparator,
+		);
+		vscode.postMessage({
+			type: requestTypes.exportData,
+			format: fileFormat,
+			data: content,
+			name: `${sourceColName}-template`,
+		});
 	}
 
 	function onRun() {
@@ -437,10 +466,13 @@ const DataDrivenTest = () => {
 					fileName={fileName}
 					fileLoadError={fileLoadError}
 					disabled={running}
+					downloadTemplateDisabled={getSelectedRequests().length === 0}
 					onFileFormatChange={onFileFormatChange}
 					onSeparatorChange={onSeparatorChange}
 					onStopOnRowFailureChange={setStopOnRowFailure}
 					onBrowseFile={onBrowseFile}
+					onDownloadTemplate={onDownloadTemplate}
+					onGenerateFakeData={onGenerateFakeData}
 				/>
 
 				{req.length > 0 && (
@@ -551,15 +583,15 @@ const DataDrivenTest = () => {
 						</li>
 						<li>
 							Variables from the attached collection variable set are merged
-							with the row data. <strong>Row data takes precedence.</strong>
-						</li>
-						<li>
-							Requests run <strong>sequentially</strong> per row.
+							with the row data. <strong>Row data takes precedence.</strong> Requests run <strong>sequentially</strong> per row.
 						</li>
 						<li>
 							Use <em>Validate</em> to check that all{" "}
 							<code>{"{{variable}}"}</code> placeholders in selected requests
 							are present in your data file before running.
+						</li>
+						<li>
+							Download a template file pre-filled with the variable columns required by the selected requests
 						</li>
 					</ul>
 				</div>

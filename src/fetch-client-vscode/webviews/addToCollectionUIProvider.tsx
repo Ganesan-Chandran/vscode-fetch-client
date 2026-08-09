@@ -30,6 +30,7 @@ import {
 	getStorageManager,
 	oauthAuthorizationService,
 	OpenExistingItem,
+	OpenFakeDataGenUI,
 	sideBarProvider,
 } from "../../extension";
 import {
@@ -192,6 +193,10 @@ export const AddToColUI = (extensionUri: vscode.Uri) => {
 						fileExt = "html";
 					} else if (format === "XML") {
 						fileExt = "xml";
+					} else if (format === "CSV") {
+						fileExt = "csv";
+					} else if (format === "JSON") {
+						fileExt = "json";
 					}
 					await saveToFile(
 						vscode.Uri.file(
@@ -386,6 +391,8 @@ export const AddToColUI = (extensionUri: vscode.Uri) => {
 					if (cancelRef) {
 						cancelRef.cancelled = true;
 					}
+				} else if (message.type === requestTypes.runFakeDataUIOpenRequest) {
+					OpenFakeDataGenUI();
 				}
 			});
 		},

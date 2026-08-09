@@ -1,5 +1,5 @@
 import { formatDate } from "../../helpers/dateTime.helper";
-import { IDataDrivenConfig, IDataDrivenResult } from "./dataDriven.types";
+import { CsvSeparator, DataFileFormat, IDataDrivenConfig, IDataDrivenResult } from "./dataDriven.types";
 import { toDataDrivenHtml } from "./dataDrivenHtmlExporter";
 import { toDataDrivenNUnit } from "./dataDrivenNunitExporter";
 import { toDataDrivenXml } from "./dataDrivenXmlExporter";
@@ -90,4 +90,20 @@ export function exportDataDrivenNUnit(
 	testName: string,
 ): string {
 	return toDataDrivenNUnit(result, testName);
+}
+
+export function exportDataDrivenTemplate(
+	columns: string[],
+	format: DataFileFormat,
+	separator: CsvSeparator,
+): string {
+	if (format === "json") {
+		const sample: Record<string, string> = {};
+		columns.forEach((c) => (sample[c] = ""));
+		return JSON.stringify([sample], null, 2);
+	}
+
+	const header = columns.join(separator);
+	const sampleRow = columns.map(() => "").join(separator);
+	return [header, sampleRow].join("\n");
 }

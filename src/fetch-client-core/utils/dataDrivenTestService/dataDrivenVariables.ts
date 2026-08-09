@@ -99,55 +99,64 @@ export function extractSetVarNames(req: IRequestModel): Set<string> {
 }
 
 /**
+ * Collect all {{variable}} names required by the given requests, including
+ * their pre-requests' used variables and setvar output names.
+ */
+export function collectRequiredVariables(
+    requests: IRequestModel[],
+    requestMap: Map<string, IRequestModel>,
+): string[] {
+    const allUsedVars = new Set<string>();
+
+    for (const req of requests) {
+        extractVariablesFromRequest(req).forEach((v) => allUsedVars.add(v));
+
+        const preReqIds =
+            req.preFetch?.requests
+                ?.map((r) => r.reqId)
+                .filter((id) => !!id && id !== "undefined") ?? [];
+
+        for (const preId of preReqIds) {
+            const preReq = requestMap.get(preId);
+            if (preReq) {
+                extractVariablesFromRequest(preReq).forEach((v) => allUsedVars.add(v));
+                extractSetVarNames(preReq).forEach((v) => allUsedVars.add(v));
+            }
+        }
+
+        extractSetVarNames(req).forEach((v) => allUsedVars.add(v));
+    }
+
+    return Array.from(allUsedVars).sort();
+}
+
+/**
  * Validate that all {{variable}} placeholders used in the selected requests
  * (and their pre-requests' setvar outputs) are present as columns in the
  * data file. Values may be empty - they will be filled at runtime by pre-req.
  */
 export function validateVariables(
-	requests: IRequestModel[],
-	requestMap: Map<string, IRequestModel>,
-	csvColumns: string[],
+    requests: IRequestModel[],
+    requestMap: Map<string, IRequestModel>,
+    csvColumns: string[],
 ): IValidationResult {
-	const allUsedVars = new Set<string>();
+    const allUsedVars = collectRequiredVariables(requests, requestMap);
 
-	for (const req of requests) {
-		// Variables used in the main request
-		extractVariablesFromRequest(req).forEach((v) => allUsedVars.add(v));
+    const columnSet = new Set(csvColumns);
+    const presentVars: string[] = [];
+    const missingVars: string[] = [];
 
-		// For each pre-request: variables used + setvar output names
-		const preReqIds =
-			req.preFetch?.requests
-				?.map((r) => r.reqId)
-				.filter((id) => !!id && id !== "undefined") ?? [];
+    allUsedVars.forEach((v) => {
+        if (columnSet.has(v)) {
+            presentVars.push(v);
+        } else {
+            missingVars.push(v);
+        }
+    });
 
-		for (const preId of preReqIds) {
-			const preReq = requestMap.get(preId);
-			if (preReq) {
-				extractVariablesFromRequest(preReq).forEach((v) => allUsedVars.add(v));
-				// setvar output column must also be present (empty value allowed)
-				extractSetVarNames(preReq).forEach((v) => allUsedVars.add(v));
-			}
-		}
-
-		// Also check setvar on the main request itself
-		extractSetVarNames(req).forEach((v) => allUsedVars.add(v));
-	}
-
-	const columnSet = new Set(csvColumns);
-	const presentVars: string[] = [];
-	const missingVars: string[] = [];
-
-	allUsedVars.forEach((v) => {
-		if (columnSet.has(v)) {
-			presentVars.push(v);
-		} else {
-			missingVars.push(v);
-		}
-	});
-
-	return {
-		valid: missingVars.length === 0,
-		missingVars,
-		presentVars,
-	};
+    return {
+        valid: missingVars.length === 0,
+        missingVars,
+        presentVars,
+    };
 }

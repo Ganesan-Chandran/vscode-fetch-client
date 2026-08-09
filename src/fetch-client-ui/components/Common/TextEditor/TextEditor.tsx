@@ -356,7 +356,10 @@ function SetValuePlugin({ value }: { value: string }) {
 				paragraph.append($createTextNode(value));
 				root.append(paragraph);
 				// Place cursor at the end after external replacement
-				paragraph.selectEnd();
+				const rootElement = editor.getRootElement();
+				if (rootElement && rootElement === document.activeElement) {
+					paragraph.selectEnd();
+				}
 			},
 			{ tag: EXTERNAL_TAG },
 		);
@@ -484,9 +487,8 @@ export const TextEditor = (props: TextEditorProps) => {
 						<PlainTextPlugin
 							contentEditable={
 								<ContentEditable
-									className={`DraftEditor-editorContainer${
-										props.className ? " " + props.className : ""
-									}`}
+									className={`DraftEditor-editorContainer${props.className ? " " + props.className : ""
+										}`}
 								/>
 							}
 							placeholder={

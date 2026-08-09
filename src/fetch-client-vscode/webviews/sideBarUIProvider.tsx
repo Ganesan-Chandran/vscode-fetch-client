@@ -68,6 +68,7 @@ import {
 	OpenCopyToColUI,
 	OpenCurlUI,
 	OpenDataDrivenTestUI,
+	OpenDevToolsUI,
 	OpenExistingItem,
 	OpenPerfTestUI,
 	OpenQualityGateUI,
@@ -570,6 +571,9 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					break;
 				case requestTypes.importCurlRequest:
 					OpenCurlUI();
+					break;
+				case requestTypes.openDevToolRequest:
+					OpenDevToolsUI();
 					break;
 				case requestTypes.removeVariableFromColRequest:
 					if (reqData.data.varId) {

@@ -5,26 +5,21 @@
   "version": "2.2.0",
   "publisher": "GanesanChandran",
   "author": {
-    "name": "Ganesan Chandran",
-    "url": "https://ganesan-chandran.github.io"
+    "name": "Ganesan Chandran <https://ganesan-chandran.github.io/>"
   },
   "engines": {
     "vscode": "^1.118.0"
   },
   "icon": "icons/fetch-client.png",
-  "bugs": {
-    "url": "https://github.com/Ganesan-Chandran/vscode-fetch-client/issues"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Ganesan-Chandran/vscode-fetch-client.git"
   },
   "license": "MIT",
-  "homepage": "https://fetchclient.github.io/",
+  "homepage": "https://github.com/Ganesan-Chandran/vscode-fetch-client",
   "categories": [
     "Programming Languages",
     "Testing",
-    "Snippets",
     "Other"
   ],
   "keywords": [
@@ -502,6 +497,7 @@
     "@types/lokijs": "1.5.14",
     "@types/markdown-it": "14.1.2",
     "@types/node": "22.19.19",
+    "@types/chance": "1.1.8",
     "@types/prettier": "2.7.3",
     "@types/react": "18.3.7",
     "@types/react-dom": "18.3.7",
@@ -549,13 +545,14 @@
     "ace-builds": "1.44.0",
     "aws4": "1.13.2",
     "axios": "1.18.1",
+    "chance": "1.1.13",
     "cron": "3.5.0",
     "fast-xml-parser": "5.8.0",
     "find-my-way": "^9.7.0",
     "form-data": "4.0.6",
     "httpsnippet": "3.0.10",
     "jexl": "2.3.0",
-    "js-yaml": "4.3.0",
+    "js-yaml": "4.3.1",
     "json-edit-react": "1.30.1",
     "lexical": "0.35.0",
     "lokijs": "1.5.12",
@@ -567,6 +564,7 @@
     "react-dom": "18.3.1",
     "react-error-boundary": "6.1.1",
     "react-redux": "9.2.0",
+    "randexp": "0.5.3",
     "react-simple-wysiwyg": "3.4.1",
     "react-split": "2.0.14",
     "redux": "5.0.1",

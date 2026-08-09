@@ -53,9 +53,9 @@
 .save-to-file-button[disabled],
 .save-to-file-button:disabled:hover,
 .save-to-file-button[disabled]:hover {
-	color: #666;
+	color: #bdbcbc;
 	cursor: not-allowed;
-	background-color: lightgrey;
+	background-color: rgb(82, 82, 82);
 }
 
 .save-to-file-button:hover {

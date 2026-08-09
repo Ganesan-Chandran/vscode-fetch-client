@@ -1,6 +1,6 @@
 import "./style.css";
 import { AppDispatch } from "../../store/appStore";
-import { getColFolDotMenu, getSideBarTabIcon } from "../Common/icons";
+import { getColFolDotMenu, getQuickAddIcon, getSideBarTabIcon, getSortAscIcon, getSortDescIcon } from "../Common/icons";
 import { HistoryBar } from "./History";
 import {
 	IHistory,
@@ -612,6 +612,10 @@ const SideBar = () => {
 		vscode.postMessage({ type: requestTypes.viewLogRequest });
 	}
 
+	function onDevToolsClick(_e: any) {
+		vscode.postMessage({ type: requestTypes.openDevToolRequest });
+	}
+
 	function getBody() {
 		return (
 			<div className="sidebar-body">
@@ -622,15 +626,49 @@ const SideBar = () => {
 						value={filterCondititon}
 						placeholder={
 							selectedTab === "History"
-								? "filter history"
+								? "🔍︎ Search History"
 								: selectedTab === "Collection"
-									? "filter collection"
+									? "🔍︎ Search Collection"
 									: selectedTab === "Variable"
-										? "filter variable"
-										: "filter mock server"
+										? "🔍︎ Search Variable"
+										: "🔍︎ Search Mock Server"
 						}
 						onChange={onFilterChange}
 					/>
+					{(selectedTab === "Collection" || selectedTab === "Variable") && (
+						<>
+							<button
+								type="button"
+								className="quick-action-btn quick-add-btn"
+								title={
+									selectedTab === "Collection" ? "New Collection" : "New Variable"
+								}
+								onClick={(e) =>
+									selectedTab === "Collection" ? onNewCollection(e) : onNewVariable(e)
+								}
+							>
+								{getQuickAddIcon("quick-icon")}
+							</button>
+							<button
+								type="button"
+								className="quick-action-btn quick-sort-btn"
+								title={
+									(selectedTab === "Collection" ? colSort : varSort) === 0 ||
+										(selectedTab === "Collection" ? colSort : varSort) === 2
+										? "Sort (A-Z)"
+										: "Sort (Z-A)"
+								}
+								onClick={(e) =>
+									selectedTab === "Collection" ? onColSort(e) : onVariableSort(e)
+								}
+							>
+								{(selectedTab === "Collection" ? colSort : varSort) === 0 ||
+									(selectedTab === "Collection" ? colSort : varSort) === 2
+									? getSortAscIcon("quick-icon")
+									: getSortDescIcon("quick-icon")}
+							</button>
+						</>
+					)}
 					<div className="hamburger-menu-panel dropdown" ref={wrapperRef}>
 						{getColFolDotMenu(
 							"hamburger-menu",
@@ -708,13 +746,13 @@ const SideBar = () => {
 					</div>
 				</div>
 				<footer className="bottom-menu-panel">
-					<a className="view-log" onClick={onViewLogClick}>
-						{isViewLogOpen ? (
-							<span className="log-span">📝 Close Log</span>
-						) : (
-							<span className="log-span">📝 View Log</span>
-						)}
-					</a>
+					<div className="view-log">
+						<a className="log-span" onClick={onDevToolsClick}>🛠️ Dev Tools</a>
+						{/* <a className="log-span" onClick={onViewLogClick}>🔄 Git Sync</a> */}
+						<a className="log-span" onClick={onViewLogClick}>
+							{isViewLogOpen ? '📝 Close Log' : '📝 View Log'}
+						</a>
+					</div>
 				</footer>
 			</div>
 		);
