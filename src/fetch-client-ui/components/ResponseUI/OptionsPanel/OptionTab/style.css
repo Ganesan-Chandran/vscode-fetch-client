@@ -28,6 +28,7 @@
 	cursor: pointer;
 	transform: scale(1.2);
 	margin-right: 5px;
+	margin-bottom: 4px;
 }
 
 .code-snippet-icon path {

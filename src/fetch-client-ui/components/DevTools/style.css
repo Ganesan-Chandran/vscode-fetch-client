@@ -115,6 +115,7 @@
     color: var(--vscode-input-foreground);
     padding: 7px;
     font: inherit;
+    border-radius: 5px;
 }
 
 .dev-tool textarea {
@@ -141,6 +142,7 @@
     color: var(--vscode-button-foreground);
     padding: 6px 10px;
     cursor: pointer;
+    border-radius: 3px;
 }
 
 .dev-tool button:hover {
@@ -205,6 +207,7 @@
     border: 1px solid var(--vscode-panel-border);
     background: var(--vscode-textCodeBlock-background);
     min-height: 80px;
+    border-radius: 5px;
 }
 
 /* =========================
