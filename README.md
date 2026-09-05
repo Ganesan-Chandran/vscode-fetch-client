@@ -32,6 +32,7 @@ The Fetch Client extension lets you build, test, organize, and debug REST APIs w
 - 📁 Collections, folders, request history, and cookie management
 - ▶️ Run individual requests, folders, or entire collections
 - 🔁 Data-driven testing using JSON, CSV, and Excel
+- 🎲 Fake data generation for Data-driven testing
 - ⚡ Performance testing with concurrent users and detailed metrics
 - ⏰ Schedule and automate API requests
 - 🔑 AWS Secrets Manager integration

@@ -2,7 +2,7 @@
   "name": "fetch-client",
   "displayName": "Fetch Client",
   "description": "REST API Client and GraphQL Client for VS Code. Test, automate, and validate REST, GraphQL, SOAP, and HTTP APIs with collections, environments, API testing, mock server, performance testing, data-driven testing, and CLI support.",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "publisher": "GanesanChandran",
   "author": {
     "name": "Ganesan Chandran <https://ganesan-chandran.github.io/>"
@@ -23,9 +23,14 @@
     "Other"
   ],
   "keywords": [
+    "api automation testing",
+    "api client alternative",
     "api client",
     "API Client",
+    "api development tool",
     "api key",
+    "api testing alternative",
+    "api testing tool",
     "api testing",
     "API Testing",
     "api",
@@ -52,6 +57,7 @@
     "GraphQL",
     "http client",
     "httpclient",
+    "insomnia alternative",
     "insomnia",
     "json viewer",
     "load testing",
@@ -60,6 +66,8 @@
     "openapi",
     "OpenAPI",
     "performance testing",
+    "postman alternative",
+    "postman replacement",
     "postman",
     "rest api client",
     "rest api test",
@@ -72,6 +80,8 @@
     "resttesting",
     "swagger",
     "testing",
+    "thunder client alternative",
+    "thunder client replacement",
     "xml viewer"
   ],
   "activationEvents": [

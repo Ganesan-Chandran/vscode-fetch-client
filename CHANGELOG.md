@@ -2,6 +2,72 @@
 
 All notable changes to the "Fetch Client" extension will be documented in this file.
 
+**## 🚀 v2.3.0 - 05 September 2026**
+
+This release introduces **Data-Driven Test Template Generation**, **Fake Data Generation**, **Collection & Variable Shortcuts**, an improved **Multi-line Text Editor**, and a new set of built-in **Developer Tools** to make API development and testing faster and more convenient.
+
+**## ✨ Major Features**
+
+**### 🧪 Data-Driven Test Improvements**
+
+* Added **Template Generation** for Data-Driven Testing to quickly create test data templates based on the request and test requirements.
+
+* Added **Fake Data Generation based on Templates**, allowing users to generate realistic test data automatically from a defined template.
+
+**### ⚡ Collection & Variable Shortcuts**
+
+* Added **shortcut menus (Create Collection/Variable, Sort Items)** for Collections and Variables to provide quick access to commonly used actions.
+
+**### 📝 Multi-line Text Editing**
+
+* Improved text editing support with a dedicated **Multi-line Text Editor** for easier editing of larger request bodies, variables, and other multi-line content.
+
+**### 🛠️ Developer Tools**
+
+* Added a built-in **Developer Tools** section with utilities for encoding, JSON, data generation, API inspection, security, and testing.
+
+* Added **Encoding Tools**:
+
+  * URL Encoder / Decoder
+  * Base64 Encoder / Decoder
+  * JWT Decoder
+
+* Added **JSON Tools**:
+
+  * JSON Formatter
+  * JSON Validator
+  * JSON Schema Generator
+  * JSONPath Tester
+  * XML → JSON Converter
+  * JSON → XML Converter
+
+* Added **Generator Tools**:
+
+  * UUID Generator
+  * Timestamp Generator
+  * Random Data Generator
+
+* Added **API Tools**:
+
+  * URL Parser
+  * Query String Parser
+
+* Added **Security Tools**:
+
+  * Hash Generator
+  * HMAC Generator
+  * JWT Generator
+
+* Added **Testing Tools**:
+
+  * Regex Tester
+
+**## 🎯 Improvements**
+
+* Improved the overall workflow for creating and managing **Data-Driven Tests**.
+* Added convenient utilities to perform common API development and testing tasks directly within Fetch Client.
+* Improved editing experience for multi-line content.
+
 ## 🚀 v2.2.0 - 07 August 2026
 
 This release introduces a built-in **Mock Server**, **Quality Gate** support, **Thunder Client v1.4 import**, and several improvements to the Data-Driven Testing experience.
