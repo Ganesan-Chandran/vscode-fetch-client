@@ -65,3 +65,46 @@ option[value=""][disabled] {
 .test-table > tbody > tr:focus .DraftEditor-editorContainer {
 	background-color: var(--list-hover-background-color) !important;
 }
+
+.value-cell-wrapper {
+	display: flex;
+	align-items: center;
+	width: 100%;
+}
+
+.value-cell-wrapper > *:first-child {
+	flex: 1;
+	min-width: 0;
+}
+
+.edit-button-wrapper {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	padding: 5px;
+	margin-right: 4px;
+	border-radius: 4px;
+	opacity: 0;
+	transition:
+		opacity 0.12s ease,
+		background-color 0.12s ease;
+}
+
+.test-table > tbody > tr:hover .edit-button-wrapper,
+.value-cell-wrapper:focus-within .edit-button-wrapper {
+	opacity: 0.6;
+}
+
+.edit-button-wrapper:hover {
+	opacity: 1 !important;
+	background-color: var(--list-hover-background-color);
+}
+
+.edit-button {
+	height: 13px;
+	width: 13px;
+}
+
+.edit-button path {
+	fill: var(--text-color) !important;
+}

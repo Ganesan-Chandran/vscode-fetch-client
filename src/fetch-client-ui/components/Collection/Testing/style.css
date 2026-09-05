@@ -62,7 +62,7 @@
 }
 
 .dd-browse-btn {
-	width: 60px;
+	width: fit-content;
 	height: 25px;
 }
 
@@ -395,6 +395,32 @@
 
 /* ── End Data-Driven Test ──────────────────────────────────────────────────── */
 
+/* ── Fake Data Generator ───────────────────────────────────────────────────── */
+
+.fd-row-count-input {
+	width: 70px;
+}
+
+.fd-preview-table-wrapper {
+	max-height: 260px;
+}
+
+.fd-cell-input {
+	width: 100%;
+	background: transparent;
+	border: 1px solid transparent;
+	color: var(--text-color);
+	font-size: 12px;
+	padding: 2px 4px;
+}
+
+.fd-cell-input:focus {
+	border-color: var(--border-color);
+	outline: none;
+}
+
+/* ── End Fake Data Generator ───────────────────────────────────────────────── */
+
 .perf-results-panel {
 	padding: 5px;
 }
@@ -644,4 +670,12 @@
 
 .dd-export-btn {
 	width: 95px;
+}
+
+.fake-gen-button {
+	width: fit-content !important;
+}
+
+.fake-panel {
+	height: 100% !important;
 }

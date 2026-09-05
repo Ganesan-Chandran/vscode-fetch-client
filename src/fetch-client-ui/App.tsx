@@ -4,6 +4,7 @@ import * as React from "react";
 
 const SideBar = React.lazy(() => import("./components/SideBar"));
 const MainUI = React.lazy(() => import("./components/MainUI"));
+const DevTools = React.lazy(() => import("./components/DevTools/DevTools"));
 const AddToCollection = React.lazy(
 	() => import("./components/Collection/AddTo/addTo"),
 );
@@ -35,6 +36,9 @@ const PerformanceTest = React.lazy(
 );
 const DataDrivenTest = React.lazy(
 	() => import("./components/Collection/Testing/DataDrivenTest"),
+);
+const FakeDataGenerator = React.lazy(
+	() => import("./components/Collection/Testing/FakeDataGenerator"),
 );
 const SecretManagerPanel = React.lazy(
 	() => import("./components/Variables/SecretManager/secretMangerPanel"),
@@ -129,14 +133,16 @@ function renderUI() {
 		return <PerformanceTest />;
 	} else if (document.title.includes("datadriventest")) {
 		return <DataDrivenTest />;
-	} else if (document.title.includes("datadriventest")) {
-		return <DataDrivenTest />;
+	} else if (document.title.includes("fakedatagen")) {
+		return <FakeDataGenerator />;
 	} else if (document.title.includes("scmanager")) {
 		return <SecretManagerPanel />;
 	} else if (document.title.includes("mockserver")) {
 		return <MockServer />;
 	} else if (document.title.includes("qualitygate")) {
 		return <QualityGate />;
+	} else if (document.title.includes("devtools")) {
+		return <DevTools />;
 	} else {
 		return <MainUI />;
 	}

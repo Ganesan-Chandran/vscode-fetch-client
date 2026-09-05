@@ -1274,7 +1274,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 						)}
 						{getColFolDotMenu(
 							"three-dots-" + item.id,
-							"collection Menu",
+							"Collection Menu",
 							"col-fol-icon",
 							(e) => {
 								e.stopPropagation();

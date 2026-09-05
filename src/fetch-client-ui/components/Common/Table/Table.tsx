@@ -13,8 +13,10 @@ import {
 } from "../../../../fetch-client-core/types/common.types";
 import { IVariable } from "../../../../fetch-client-core/types/sidebar.types";
 import { ReactComponent as BinLogo } from "../../../../../icons/bin.svg";
+import { ReactComponent as EditLogo } from "../../../../../icons/edit.svg";
 import { TextEditor } from "../TextEditor/TextEditor";
-import React from "react";
+import { ValueEditorModal } from "../ValueEditorModal";
+import React, { useState } from "react";
 
 export interface TableProps {
 	data: ITableData[];
@@ -46,6 +48,41 @@ export const Table = (props: TableProps) => {
 		selectedVariable,
 		valueType,
 	} = props;
+
+	const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+	function openValueEditor(index: number) {
+		if (isEnabled(data[index], index)) {
+			return;
+		}
+		setEditingIndex(index);
+	}
+
+	function closeValueEditor() {
+		setEditingIndex(null);
+	}
+
+	function saveValueEditor(value: string) {
+		const index = editingIndex as number;
+		if (index === data.length - 1) {
+			onRowAdd(value, index, false);
+		} else {
+			onRowUpdate(value, index, false);
+		}
+		setEditingIndex(null);
+	}
+
+	function getEditButton(index: number) {
+		return (
+			<span
+				className="edit-button-wrapper"
+				title="Edit in large editor"
+				onClick={() => openValueEditor(index)}
+			>
+				<EditLogo className="edit-button" />
+			</span>
+		);
+	}
 
 	function isEnabled(row: ITableData, index: number): boolean {
 		if (readOnly) {
@@ -89,22 +126,28 @@ export const Table = (props: TableProps) => {
 					/>
 				</td>
 				<td>
-					<Autocomplete
-						id={props.type + "_val_" + index.toString()}
-						value={row.value}
-						className={
-							isEnabled(row, index) ? "table-input disabled" : "table-input"
-						}
-						onSelect={(val: string) =>
-							index === data.length - 1
-								? onRowAdd(val, index, false)
-								: onRowUpdate(val, index, false)
-						}
-						suggestions={HerdersValues}
-						disabled={isEnabled(row, index) ? true : false}
-						placeholder="value"
-						selectedVariable={selectedVariable}
-					/>
+					<div
+						className="value-cell-wrapper"
+						onDoubleClick={() => openValueEditor(index)}
+					>
+						<Autocomplete
+							id={props.type + "_val_" + index.toString()}
+							value={row.value}
+							className={
+								isEnabled(row, index) ? "table-input disabled" : "table-input"
+							}
+							onSelect={(val: string) =>
+								index === data.length - 1
+									? onRowAdd(val, index, false)
+									: onRowUpdate(val, index, false)
+							}
+							suggestions={HerdersValues}
+							disabled={isEnabled(row, index) ? true : false}
+							placeholder="value"
+							selectedVariable={selectedVariable}
+						/>
+						{!isEnabled(row, index) && getEditButton(index)}
+					</div>
 				</td>
 			</>
 		);
@@ -155,44 +198,56 @@ export const Table = (props: TableProps) => {
 	function getValueHighlightedColumn(row: ITableData, index: number) {
 		return (
 			selectedVariable.id && (
-				<TextEditor
-					varWords={selectedVariable.data.map((item) => item.key)}
-					placeholder={props.placeholder ? props.placeholder.value : "value"}
-					onChange={(event) =>
-						index === data.length - 1
-							? onRowAdd(event, index, false)
-							: onRowUpdate(event, index, false)
-					}
-					value={row.value}
-					disabled={isEnabled(row, index) ? true : false}
-					focus={false}
-				/>
+				<div
+					className="value-cell-wrapper"
+					onDoubleClick={() => openValueEditor(index)}
+				>
+					<TextEditor
+						varWords={selectedVariable.data.map((item) => item.key)}
+						placeholder={props.placeholder ? props.placeholder.value : "value"}
+						onChange={(event) =>
+							index === data.length - 1
+								? onRowAdd(event, index, false)
+								: onRowUpdate(event, index, false)
+						}
+						value={row.value}
+						disabled={isEnabled(row, index) ? true : false}
+						focus={false}
+					/>
+					{!isEnabled(row, index) && getEditButton(index)}
+				</div>
 			)
 		);
 	}
 
 	function getValueNonHighlightedColumn(row: ITableData, index: number) {
 		return (
-			<input
-				id={props.type + "_val_" + index.toString()}
-				className={
-					(props.type !== "resHeaders" && props.type !== "resCookies"
-						? isEnabled(row, index)
-							? "table-input disabled"
-							: "table-input"
-						: "table-input") +
-					(valueType === "password" ? " password-textbox" : "")
-				}
-				value={row.value}
-				onChange={(event) =>
-					index === data.length - 1
-						? onRowAdd(event, index, false)
-						: onRowUpdate(event, index, false)
-				}
-				disabled={isEnabled(row, index) ? true : false}
-				placeholder={props.placeholder ? props.placeholder.value : "value"}
-				type={valueType === "password" ? "password" : "text"}
-			/>
+			<div
+				className="value-cell-wrapper"
+				onDoubleClick={() => openValueEditor(index)}
+			>
+				<input
+					id={props.type + "_val_" + index.toString()}
+					className={
+						(props.type !== "resHeaders" && props.type !== "resCookies"
+							? isEnabled(row, index)
+								? "table-input disabled"
+								: "table-input"
+							: "table-input") +
+						(valueType === "password" ? " password-textbox" : "")
+					}
+					value={row.value}
+					onChange={(event) =>
+						index === data.length - 1
+							? onRowAdd(event, index, false)
+							: onRowUpdate(event, index, false)
+					}
+					disabled={isEnabled(row, index) ? true : false}
+					placeholder={props.placeholder ? props.placeholder.value : "value"}
+					type={valueType === "password" ? "password" : "text"}
+				/>
+				{valueType !== "password" && !isEnabled(row, index) && getEditButton(index)}
+			</div>
 		);
 	}
 
@@ -304,19 +359,27 @@ export const Table = (props: TableProps) => {
 	};
 
 	return (
-		<table className="option-table">
-			<thead>
-				<tr>
-					{!readOnly && <th className="action-cell"></th>}
-					{props.type === "formData" && (
-						<th className="type-action-cell">Type</th>
-					)}
-					<th>{props.headers ? props.headers.key : "Key"}</th>
-					<th>{props.headers ? props.headers.value : "Value"}</th>
-					{!readOnly && <th className="action-cell"></th>}
-				</tr>
-			</thead>
-			<tbody>{makeTable(data)}</tbody>
-		</table>
+		<>
+			<table className="option-table">
+				<thead>
+					<tr>
+						{!readOnly && <th className="action-cell"></th>}
+						{props.type === "formData" && (
+							<th className="type-action-cell">Type</th>
+						)}
+						<th>{props.headers ? props.headers.key : "Key"}</th>
+						<th>{props.headers ? props.headers.value : "Value"}</th>
+						{!readOnly && <th className="action-cell"></th>}
+					</tr>
+				</thead>
+				<tbody>{makeTable(data)}</tbody>
+			</table>
+			<ValueEditorModal
+				show={editingIndex !== null}
+				value={editingIndex !== null ? data[editingIndex].value : ""}
+				onSave={saveValueEditor}
+				onCancel={closeValueEditor}
+			/>
+		</>
 	);
 };

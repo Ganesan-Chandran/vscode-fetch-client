@@ -16,10 +16,13 @@ interface IProps {
 	fileName: string;
 	fileLoadError: string;
 	disabled: boolean;
+	downloadTemplateDisabled: boolean;
 	onFileFormatChange: (f: DataFileFormat) => void;
 	onSeparatorChange: (s: CsvSeparator) => void;
 	onStopOnRowFailureChange: (v: boolean) => void;
 	onBrowseFile: () => void;
+	onDownloadTemplate: () => void;
+	onGenerateFakeData: () => void;
 }
 
 export const DataDrivenTestSettings: React.FC<IProps> = ({
@@ -30,10 +33,13 @@ export const DataDrivenTestSettings: React.FC<IProps> = ({
 	fileName,
 	fileLoadError,
 	disabled,
+	downloadTemplateDisabled,
 	onFileFormatChange,
 	onSeparatorChange,
 	onStopOnRowFailureChange,
 	onBrowseFile,
+	onDownloadTemplate,
+	onGenerateFakeData,
 }) => {
 	return (
 		<div className="dd-settings-panel">
@@ -98,6 +104,22 @@ export const DataDrivenTestSettings: React.FC<IProps> = ({
 						onClick={onBrowseFile}
 					>
 						Browse
+					</button>
+					<button
+						className="submit-button dd-browse-btn"
+						disabled={disabled || downloadTemplateDisabled}
+						onClick={onDownloadTemplate}
+						title="Download a template file pre-filled with the variable columns required by the selected requests"
+					>
+						Download Template
+					</button>
+					<button
+						className="submit-button dd-browse-btn"
+						disabled={disabled}
+						onClick={onGenerateFakeData}
+						title="Open the fake data generator to create a CSV/JSON data file"
+					>
+						Generate Fake Data
 					</button>
 					{fileName && (
 						<span className="dd-file-name" title={fileName}>

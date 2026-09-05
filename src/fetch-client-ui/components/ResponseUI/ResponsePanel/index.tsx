@@ -9,6 +9,7 @@ import { TestResult } from "../../TestUI/TestResult";
 import { useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
 import TypesGenerator from "../..//Common/TypesGenerator";
+import JsonSchemaGenerator from "../../Common/JsonSchemaGenerator";
 
 export interface ResponsePanelProps {
 	isVerticalLayout: boolean;
@@ -49,6 +50,18 @@ export const ReponsePanel = (props: ResponsePanelProps) => {
 				);
 			case "prefetchresults":
 				return <PreFetchResponse />;
+			case "jsonschema":
+				return (
+					<React.Suspense fallback={<div>loading...</div>}>
+						<JsonSchemaGenerator mode="jsonschema" />
+					</React.Suspense>
+				);
+			case "xmltojson":
+				return (
+					<React.Suspense fallback={<div>loading...</div>}>
+						<JsonSchemaGenerator mode="xmltojson" />
+					</React.Suspense>
+				);
 			default:
 				return <></>;
 		}

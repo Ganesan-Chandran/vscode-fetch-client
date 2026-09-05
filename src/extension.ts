@@ -71,8 +71,10 @@ import {
 	setSecretsCacheDuration,
 } from "./fetch-client-core/utils/commonConfig";
 import { access, mkdir } from "fs/promises";
+import { AutoReqHistory_Repository_ReconcileOwnSession } from "./fetch-client-core/db/autoRequestHistory.repository";
 import { backupFile } from "./fetch-client-vscode/utils/common.utils";
 import { clearHttpsAgentCache } from "./fetch-client-core/utils/httpsAgent";
+import { DevToolsUI } from "./fetch-client-vscode/webviews/devToolUIProvider";
 import { FCScheduler } from "./fetch-client-vscode/utils/scheduler";
 import { flushCollectionDB } from "./fetch-client-core/db/collectionDB.repository";
 import { flushHistoryDB } from "./fetch-client-core/db/history.repository";
@@ -83,18 +85,17 @@ import { GetAllCollections } from "./fetch-client-vscode/db/collectionDBUtil";
 import { GetAllHistory } from "./fetch-client-vscode/db/historyDBUtil";
 import { GetAllMockServers } from "./fetch-client-vscode/db/mockServerDBUtil";
 import { IPubSubMessage, PubSub } from "./fetch-client-core/utils/pubSub";
-import { stopAllMockServers } from "./fetch-client-vscode/utils/mockServerRunner";
 import { LocalStorageService } from "./fetch-client-vscode/utils/localStorageService";
 import { logPath } from "./fetch-client-core/helpers/logger/constants";
 import { MemoryCache } from "./fetch-client-vscode/utils/memoryCache";
+import { OAuthAuthorizationService } from "./fetch-client-vscode/oauthAuthorizationService";
 import { pubSubTypes } from "./fetch-client-core/consts/requestTypes.consts";
+import { stopAllMockServers } from "./fetch-client-vscode/utils/mockServerRunner";
 import { transferDbConfig } from "./fetch-client-vscode/db/transferDBConfig";
 import { VSCodeLogger } from "./fetch-client-vscode/logger/vsCodeLogger";
-import { OAuthAuthorizationService } from "./fetch-client-vscode/oauthAuthorizationService";
 import * as vscode from "vscode";
 import fs from "fs";
 import path from "path";
-import { AutoReqHistory_Repository_ReconcileOwnSession } from "./fetch-client-core/db/autoRequestHistory.repository";
 
 export let pubSub: PubSub<IPubSubMessage>;
 export let vsCodeLogger: VSCodeLogger;
@@ -230,12 +231,27 @@ export function OpenDataDrivenTestUI(
 	);
 }
 
+export function OpenFakeDataGenUI(): void {
+	vscode.commands.executeCommand(
+		"fetch-client.addToCol",
+		"",
+		"",
+		"Fake Data Generator",
+		"fakedatagen",
+		"",
+	);
+}
+
 export function OpenCookieUI(id?: string): void {
 	vscode.commands.executeCommand("fetch-client.manageCookies", id);
 }
 
 export function OpenCurlUI(): void {
 	vscode.commands.executeCommand("fetch-client.curlRequest");
+}
+
+export function OpenDevToolsUI(): void {
+	vscode.commands.executeCommand("fetch-client.devTools");
 }
 
 export function OpenBulkExportUI(type: string): void {
@@ -429,6 +445,7 @@ function registerProviders(context: vscode.ExtensionContext): void {
 		AutoRequestProviderUI(context.extensionUri),
 		MockServerUI(context.extensionUri),
 		QualityGateUI(context.extensionUri),
+		DevToolsUI(context.extensionUri),
 	);
 }
 

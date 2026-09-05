@@ -6,14 +6,16 @@ import { HerdersValues } from "../../../../fetch-client-core/consts/headers.cons
 import { IRootState } from "../../../reducer/combineReducer";
 import { ITest } from "../../../../fetch-client-core/types/prefetch.types";
 import { ReactComponent as BinLogo } from "../../../../../icons/bin.svg";
+import { ReactComponent as EditLogo } from "../../../../../icons/edit.svg";
 import {
 	TestCaseParameters,
 	ActionsParametersMapping,
 	TestValueSuggestions,
 } from "../../../../fetch-client-core/consts/test.consts";
 import { TextEditor } from "../../Common/TextEditor/TextEditor";
+import { ValueEditorModal } from "../../Common/ValueEditorModal";
 import { useDispatch, useSelector } from "react-redux";
-import React from "react";
+import React, { useState } from "react";
 
 export const TestPanel = () => {
 	const dispatch = useDispatch<AppDispatch>();
@@ -22,6 +24,45 @@ export const TestPanel = () => {
 	const { selectedVariable } = useSelector(
 		(state: IRootState) => state.variableData,
 	);
+
+	const [editingField, setEditingField] = useState<{
+		index: number;
+		type: "customParameter" | "expectedValue";
+	} | null>(null);
+
+	function openValueEditor(
+		index: number,
+		type: "customParameter" | "expectedValue",
+	) {
+		setEditingField({ index, type });
+	}
+
+	function closeValueEditor() {
+		setEditingField(null);
+	}
+
+	function saveValueEditor(value: string) {
+		if (!editingField) {
+			return;
+		}
+		onSelectItem(value, editingField.index, editingField.type);
+		setEditingField(null);
+	}
+
+	function getEditButton(
+		index: number,
+		type: "customParameter" | "expectedValue",
+	) {
+		return (
+			<span
+				className="edit-button-wrapper"
+				title="Edit in large editor"
+				onClick={() => openValueEditor(index, type)}
+			>
+				<EditLogo className="edit-button" />
+			</span>
+		);
+	}
 
 	const onSelectItem = (value: string, index: number, type: string) => {
 		let newRow: ITest = {
@@ -88,17 +129,23 @@ export const TestPanel = () => {
 			<>
 				{row.parameter === "Header" || row.parameter === "JSON" ? (
 					selectedVariable.id && (
-						<TextEditor
-							varWords={selectedVariable.data.map((item) => item.key)}
-							placeholder={
-								row.parameter === "Header"
-									? "header name"
-									: "ex: data or data.id"
-							}
-							onChange={(val) => onSelectItem(val, index, "customParameter")}
-							value={row.customParameter}
-							focus={true}
-						/>
+						<div
+							className="value-cell-wrapper"
+							onDoubleClick={() => openValueEditor(index, "customParameter")}
+						>
+							<TextEditor
+								varWords={selectedVariable.data.map((item) => item.key)}
+								placeholder={
+									row.parameter === "Header"
+										? "header name"
+										: "ex: data or data.id"
+								}
+								onChange={(val) => onSelectItem(val, index, "customParameter")}
+								value={row.customParameter}
+								focus={true}
+							/>
+							{getEditButton(index, "customParameter")}
+						</div>
 					)
 				) : (
 					<select
@@ -171,22 +218,34 @@ export const TestPanel = () => {
 				<td>{getParameterList(row, index)}</td>
 				<td>{getActionList(row, index)}</td>
 				<td>
-					<Autocomplete
-						id={"test_val_" + index.toString()}
-						value={row.expectedValue}
-						className={
-							row.parameter !== "" && row.action !== ""
-								? "table-input"
-								: "table-input disabled"
+					<div
+						className="value-cell-wrapper"
+						onDoubleClick={() =>
+							row.parameter !== "" &&
+							row.action !== "" &&
+							openValueEditor(index, "expectedValue")
 						}
-						onSelect={(val) => onSelectItem(val, index, "expectedValue")}
-						suggestions={[...HerdersValues, ...TestValueSuggestions]}
-						disabled={row.parameter !== "" && row.action !== "" ? false : true}
-						placeholder={
-							row.parameter !== "" && row.action !== "" ? "value" : ""
-						}
-						selectedVariable={selectedVariable}
-					/>
+					>
+						<Autocomplete
+							id={"test_val_" + index.toString()}
+							value={row.expectedValue}
+							className={
+								row.parameter !== "" && row.action !== ""
+									? "table-input"
+									: "table-input disabled"
+							}
+							onSelect={(val) => onSelectItem(val, index, "expectedValue")}
+							suggestions={[...HerdersValues, ...TestValueSuggestions]}
+							disabled={row.parameter !== "" && row.action !== "" ? false : true}
+							placeholder={
+								row.parameter !== "" && row.action !== "" ? "value" : ""
+							}
+							selectedVariable={selectedVariable}
+						/>
+						{row.parameter !== "" &&
+							row.action !== "" &&
+							getEditButton(index, "expectedValue")}
+					</div>
 				</td>
 				<td className="test-action-cell">
 					{index !== tests.length - 1 ? (
@@ -209,16 +268,26 @@ export const TestPanel = () => {
 	};
 
 	return (
-		<table className="test-table">
-			<thead>
-				<tr>
-					<th>Parameter</th>
-					<th>Action</th>
-					<th>Test Value</th>
-					<th className="test-action-cell"></th>
-				</tr>
-			</thead>
-			<tbody>{makeTable(tests)}</tbody>
-		</table>
+		<>
+			<table className="test-table">
+				<thead>
+					<tr>
+						<th>Parameter</th>
+						<th>Action</th>
+						<th>Test Value</th>
+						<th className="test-action-cell"></th>
+					</tr>
+				</thead>
+				<tbody>{makeTable(tests)}</tbody>
+			</table>
+			<ValueEditorModal
+				show={editingField !== null}
+				value={
+					editingField !== null ? tests[editingField.index][editingField.type] : ""
+				}
+				onSave={saveValueEditor}
+				onCancel={closeValueEditor}
+			/>
+		</>
 	);
 };
