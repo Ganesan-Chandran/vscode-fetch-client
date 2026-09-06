@@ -593,6 +593,9 @@
     },
     "axios": {
       "form-data": "^4.0.6"
+    },
+    "spellchecker-cli": {
+      "toml": "^4.1.3"
     }
   }
 }
