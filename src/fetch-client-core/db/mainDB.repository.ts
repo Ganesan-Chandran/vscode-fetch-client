@@ -189,12 +189,12 @@ function validateImportData(data: string): ImportType | null {
 		if (isFetchClientV2(parsedData)) {
 			return ImportType.FetchClient_2_0;
 		}
-	} catch { }
+	} catch {}
 
 	try {
 		FetchClientDataProxy.Parse(data);
 		return ImportType.FetchClient_1_0;
-	} catch { }
+	} catch {}
 
 	const postmanData = parsedData as PostmanSchema_2_1;
 	if (

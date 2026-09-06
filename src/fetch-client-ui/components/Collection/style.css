@@ -205,7 +205,7 @@
 	background-color: var(--list-hover-background-color);
 }
 
-.runall-tbl>tbody>tr:first-child>td {
+.runall-tbl > tbody > tr:first-child > td {
 	border-top: none !important;
 	border-right: var(--border-size) solid var(--border-color) !important;
 	border-left: var(--border-size) solid var(--border-color) !important;

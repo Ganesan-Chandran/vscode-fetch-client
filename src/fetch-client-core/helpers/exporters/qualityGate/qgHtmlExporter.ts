@@ -225,8 +225,8 @@ function gateStatusBannerHtml(report: IQGReport): string {
 	const color = gate.passed ? "#4caf50" : "#f44336";
 	const reasons = gate.reasons.length
 		? `<ul style="margin:6px 0 0 18px;padding:0;font-size:12px;color:#ccc">${gate.reasons
-			.map((r) => `<li>${esc(r)}</li>`)
-			.join("")}</ul>`
+				.map((r) => `<li>${esc(r)}</li>`)
+				.join("")}</ul>`
 		: "";
 	return `<div style="border-left:4px solid ${color};background:#161b22;border-radius:6px;padding:10px 16px;margin-bottom:20px">
 		<div style="font-weight:700;color:${color}">CI Gate: ${gate.passed ? "PASSED" : "FAILED"} (exit code ${gate.exitCode})</div>

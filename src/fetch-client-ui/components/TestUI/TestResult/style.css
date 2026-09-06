@@ -24,7 +24,7 @@ tr {
 	border: var(--border-size) solid var(--border-color);
 }
 
-tbody>tr:hover {
+tbody > tr:hover {
 	background-color: var(--list-hover-background-color);
 }
 

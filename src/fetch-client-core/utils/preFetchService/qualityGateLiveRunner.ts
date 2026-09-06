@@ -109,7 +109,12 @@ export async function runLiveQualityGateRequest(
 	}
 
 	if (request.setvar?.length > 0) {
-		await provider.updateVariable(request, variable, responseModel, encryptionKey);
+		await provider.updateVariable(
+			request,
+			variable,
+			responseModel,
+			encryptionKey,
+		);
 	}
 
 	return { response: responseModel };

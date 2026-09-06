@@ -10,63 +10,63 @@ This release introduces **Data-Driven Test Template Generation**, **Fake Data Ge
 
 **### 🧪 Data-Driven Test Improvements**
 
-* Added **Template Generation** for Data-Driven Testing to quickly create test data templates based on the request and test requirements.
+- Added **Template Generation** for Data-Driven Testing to quickly create test data templates based on the request and test requirements.
 
-* Added **Fake Data Generation based on Templates**, allowing users to generate realistic test data automatically from a defined template.
+- Added **Fake Data Generation based on Templates**, allowing users to generate realistic test data automatically from a defined template.
 
 **### ⚡ Collection & Variable Shortcuts**
 
-* Added **shortcut menus (Create Collection/Variable, Sort Items)** for Collections and Variables to provide quick access to commonly used actions.
+- Added **shortcut menus (Create Collection/Variable, Sort Items)** for Collections and Variables to provide quick access to commonly used actions.
 
 **### 📝 Multi-line Text Editing**
 
-* Improved text editing support with a dedicated **Multi-line Text Editor** for easier editing of larger request bodies, variables, and other multi-line content.
+- Improved text editing support with a dedicated **Multi-line Text Editor** for easier editing of larger request bodies, variables, and other multi-line content.
 
 **### 🛠️ Developer Tools**
 
-* Added a built-in **Developer Tools** section with utilities for encoding, JSON, data generation, API inspection, security, and testing.
+- Added a built-in **Developer Tools** section with utilities for encoding, JSON, data generation, API inspection, security, and testing.
 
-* Added **Encoding Tools**:
+- Added **Encoding Tools**:
 
-  * URL Encoder / Decoder
-  * Base64 Encoder / Decoder
-  * JWT Decoder
+  - URL Encoder / Decoder
+  - Base64 Encoder / Decoder
+  - JWT Decoder
 
-* Added **JSON Tools**:
+- Added **JSON Tools**:
 
-  * JSON Formatter
-  * JSON Validator
-  * JSON Schema Generator
-  * JSONPath Tester
-  * XML → JSON Converter
-  * JSON → XML Converter
+  - JSON Formatter
+  - JSON Validator
+  - JSON Schema Generator
+  - JSONPath Tester
+  - XML → JSON Converter
+  - JSON → XML Converter
 
-* Added **Generator Tools**:
+- Added **Generator Tools**:
 
-  * UUID Generator
-  * Timestamp Generator
-  * Random Data Generator
+  - UUID Generator
+  - Timestamp Generator
+  - Random Data Generator
 
-* Added **API Tools**:
+- Added **API Tools**:
 
-  * URL Parser
-  * Query String Parser
+  - URL Parser
+  - Query String Parser
 
-* Added **Security Tools**:
+- Added **Security Tools**:
 
-  * Hash Generator
-  * HMAC Generator
-  * JWT Generator
+  - Hash Generator
+  - HMAC Generator
+  - JWT Generator
 
-* Added **Testing Tools**:
+- Added **Testing Tools**:
 
-  * Regex Tester
+  - Regex Tester
 
 **## 🎯 Improvements**
 
-* Improved the overall workflow for creating and managing **Data-Driven Tests**.
-* Added convenient utilities to perform common API development and testing tasks directly within Fetch Client.
-* Improved editing experience for multi-line content.
+- Improved the overall workflow for creating and managing **Data-Driven Tests**.
+- Added convenient utilities to perform common API development and testing tasks directly within Fetch Client.
+- Improved editing experience for multi-line content.
 
 ## 🚀 v2.2.0 - 07 August 2026
 
@@ -95,7 +95,6 @@ This release introduces a built-in **Mock Server**, **Quality Gate** support, **
 
 - Fixed multiple issues related to **Data-Driven Testing** execution and test case handling.
 
-
 ## 🚀 v2.1.0 - 25 July 2026
 
 A feature-packed release introducing **Data-Driven Testing**, **AWS Secrets Manager integration**, **SSL/TLS certificates**, enhanced **CLI capabilities**, and expanded reporting options.
@@ -103,19 +102,23 @@ A feature-packed release introducing **Data-Driven Testing**, **AWS Secrets Mana
 ## ✨ Major Features
 
 ### 🧪 Data-Driven Testing
+
 - Added [**Data-Driven Testing**](https://fetchclient.github.io/docs/extension/features/advanced/data-driven-testing) in the UI.
 - Added [**Data-Driven Testing**](https://fetchclient.github.io/docs/cli/data-driven-testing) in the CLI.
 
 ### ⚡ Performance Testing Enhancements
+
 - Added [**Performance Testing**](https://fetchclient.github.io/docs/cli/performance-testing) support in the CLI.
 - Improved the [**Performance Testing UI**](https://fetchclient.github.io/docs/extension/features/advanced/performance-testing#-breakdown-by-request) with a progress bar.
 - Added **HTML**, **XML**, and **NUnit** export formats for Performance Test and Data-Driven Test results.
 
 ### ☁️ AWS Secrets Manager Integration
+
 - Added [**AWS integration**](https://fetchclient.github.io/docs/extension/features/advanced/secrets-integration#-setting-up-a-secret-backed-variable) for variables.
 - Added support for [**AWS Secrets Manager**](https://fetchclient.github.io/docs/extension/features/advanced/secrets-integration#-opening-the-secrets-integration-panel) to securely retrieve secrets.
 
 ### 🔐 SSL/TLS Support
+
 - Added support for [**SSL/TLS client certificates**](https://fetchclient.github.io/docs/extension/features/advanced/tls-certificates) for secure API communication.
 
 ### 🖥️ CLI Improvements
@@ -137,7 +140,6 @@ A feature-packed release introducing **Data-Driven Testing**, **AWS Secrets Mana
 
 - Fixed an issue where **OAuth variables** were not resolved correctly.
 
-
 ## 🚀 v2.0.0 - 10 July 2026
 
 A major release introducing the **Fetch Client CLI**, **Performance Testing**, improved **import/export capabilities**, and significant productivity enhancements.
@@ -145,16 +147,20 @@ A major release introducing the **Fetch Client CLI**, **Performance Testing**, i
 ## ✨ Major Features
 
 ### 🖥️ Fetch Client CLI
+
 - Introduced the [**Fetch Client CLI**](https://www.npmjs.com/package/@fetch-client/cli) for running and automating API requests from the command line.
 
 ### 📚 Documentation Website
+
 - Published the official **Fetch Client Documentation Website** with comprehensive guides, tutorials, and feature documentation.
 - Documentation: https://fetchclient.github.io/
 
 ### ⚡ Performance Testing
+
 - Added **Performance Testing** to measure API performance and load.
 
 ### 📦 Import & Export
+
 - Added **Postman Export** support.
 - Added **Insomnia Import** support.
 - Added **OpenAPI Import** support.
@@ -181,7 +187,6 @@ A major release introducing the **Fetch Client CLI**, **Performance Testing**, i
 ## 🐞 Bug Fixes
 
 - Fixed an issue where clicking the same item in **Quick Access** (Sidebar) opened multiple tabs instead of focusing the existing tab.
-
 
 ## v1.8.0 - September, 2024
 

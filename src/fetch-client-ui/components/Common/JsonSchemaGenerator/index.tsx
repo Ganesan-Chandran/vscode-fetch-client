@@ -9,54 +9,54 @@ import React, { useEffect, useState } from "react";
 export type JsonSchemaGeneratorMode = "jsonschema" | "xmltojson";
 
 interface JsonSchemaGeneratorProps {
-    mode: JsonSchemaGeneratorMode;
+	mode: JsonSchemaGeneratorMode;
 }
 
 const JsonSchemaGenerator = ({ mode }: JsonSchemaGeneratorProps) => {
-    const responseData = useSelector(
-        (state: IRootState) => state.responseData.response.responseData,
-    );
-    const [output, setOutput] = useState("");
-    const [error, setError] = useState("");
+	const responseData = useSelector(
+		(state: IRootState) => state.responseData.response.responseData,
+	);
+	const [output, setOutput] = useState("");
+	const [error, setError] = useState("");
 
-    useEffect(() => {
-        setError("");
-        setOutput("");
-        const task =
-            mode === "jsonschema"
-                ? generateJsonSchema(responseData)
-                : Promise.resolve(convertXmlToJson(responseData));
+	useEffect(() => {
+		setError("");
+		setOutput("");
+		const task =
+			mode === "jsonschema"
+				? generateJsonSchema(responseData)
+				: Promise.resolve(convertXmlToJson(responseData));
 
-        task
-            .then(setOutput)
-            .catch((err) =>
-                setError(
-                    mode === "jsonschema"
-                        ? "Unable to generate schema: " + err.message
-                        : "Unable to convert XML to JSON: " + err.message,
-                ),
-            );
-    }, [responseData, mode]);
+		task
+			.then(setOutput)
+			.catch((err) =>
+				setError(
+					mode === "jsonschema"
+						? "Unable to generate schema: " + err.message
+						: "Unable to convert XML to JSON: " + err.message,
+				),
+			);
+	}, [responseData, mode]);
 
-    return (
-        <div className="code-snippet-panel">
-            <hr />
-            {error && <div className="error-text">{error}</div>}
-            {output && (
-                <>
-                    <div className="code-snippet-editor-panel schema-editor-panel">
-                        <AceEditor
-                            value={output}
-                            language="json"
-                            readOnly={true}
-                            copyButtonVisible={true}
-                            format={true}
-                        />
-                    </div>
-                </>
-            )}
-        </div>
-    );
+	return (
+		<div className="code-snippet-panel">
+			<hr />
+			{error && <div className="error-text">{error}</div>}
+			{output && (
+				<>
+					<div className="code-snippet-editor-panel schema-editor-panel">
+						<AceEditor
+							value={output}
+							language="json"
+							readOnly={true}
+							copyButtonVisible={true}
+							format={true}
+						/>
+					</div>
+				</>
+			)}
+		</div>
+	);
 };
 
 export default JsonSchemaGenerator;

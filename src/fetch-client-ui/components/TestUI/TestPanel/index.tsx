@@ -236,7 +236,9 @@ export const TestPanel = () => {
 							}
 							onSelect={(val) => onSelectItem(val, index, "expectedValue")}
 							suggestions={[...HerdersValues, ...TestValueSuggestions]}
-							disabled={row.parameter !== "" && row.action !== "" ? false : true}
+							disabled={
+								row.parameter !== "" && row.action !== "" ? false : true
+							}
 							placeholder={
 								row.parameter !== "" && row.action !== "" ? "value" : ""
 							}
@@ -283,7 +285,9 @@ export const TestPanel = () => {
 			<ValueEditorModal
 				show={editingField !== null}
 				value={
-					editingField !== null ? tests[editingField.index][editingField.type] : ""
+					editingField !== null
+						? tests[editingField.index][editingField.type]
+						: ""
 				}
 				onSave={saveValueEditor}
 				onCancel={closeValueEditor}

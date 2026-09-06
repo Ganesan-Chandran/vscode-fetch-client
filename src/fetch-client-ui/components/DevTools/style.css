@@ -1,342 +1,342 @@
 .dev-tools {
-    display: flex;
-    height: 100%;
-    min-height: 0;
-    overflow: hidden;
+	display: flex;
+	height: 100%;
+	min-height: 0;
+	overflow: hidden;
 }
 
-/* =========================
-   Sidebar
-   ========================= */
+/*	=========================
+		Sidebar
+		========================= */
 
 .dev-tools-sidebar {
-    width: 220px;
-    min-width: 220px;
-    border-right: 1px solid var(--vscode-panel-border);
-    overflow-y: auto;
-    padding: 6px;
+	width: 220px;
+	min-width: 220px;
+	border-right: 1px solid var(--vscode-panel-border);
+	overflow-y: auto;
+	padding: 6px;
 }
 
 .dev-tools-category {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin: 8px 0 4px;
-    padding: 4px 8px;
-    color: var(--vscode-descriptionForeground);
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin: 8px 0 4px;
+	padding: 4px 8px;
+	color: var(--vscode-descriptionForeground);
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
 }
 
 .dev-tools-item {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    width: 100%;
-    box-sizing: border-box;
-    border: 0;
-    background: transparent;
-    color: var(--vscode-foreground);
-    text-align: left;
-    padding: 7px 8px;
-    cursor: pointer;
-    border-radius: 3px;
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	width: 100%;
+	box-sizing: border-box;
+	border: 0;
+	background: transparent;
+	color: var(--vscode-foreground);
+	text-align: left;
+	padding: 7px 8px;
+	cursor: pointer;
+	border-radius: 3px;
 }
 
 .dev-tools-item:hover,
 .dev-tools-item.active {
-    background: var(--vscode-list-hoverBackground);
+	background: var(--vscode-list-hoverBackground);
 }
 
 .dev-tools-item>span:first-child {
-    width: 18px;
-    min-width: 18px;
-    text-align: center;
+	width: 18px;
+	min-width: 18px;
+	text-align: center;
 }
 
 .dev-tools-item>span:last-child {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 /* =========================
-   Main Content
-   ========================= */
+		Main Content
+	========================= */
 
 .dev-tools-content {
-    flex: 1;
-    min-width: 0;
-    min-height: 0;
-    overflow: hidden;
+	flex: 1;
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
 }
 
 /* =========================
-   Tool
-   ========================= */
+		Tool
+	========================= */
 
 .dev-tool {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    height: 100%;
-    min-height: 0;
-    overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	height: 100%;
+	min-height: 0;
+	overflow: hidden;
 }
 
 .dev-tool-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    min-height: 0;
-    flex: 1;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px;
+	min-height: 0;
+	flex: 1;
 }
 
 .dev-tool-column {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    min-width: 0;
-    min-height: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-width: 0;
+	min-height: 0;
 }
 
 /* =========================
-   Inputs
-   ========================= */
+		Inputs
+	========================= */
 
 .dev-tool textarea,
 .dev-tool input,
 .dev-tool select {
-    box-sizing: border-box;
-    width: 100%;
-    border: 1px solid var(--vscode-input-border);
-    background: var(--vscode-input-background);
-    color: var(--vscode-input-foreground);
-    padding: 7px;
-    font: inherit;
-    border-radius: 5px;
+	box-sizing: border-box;
+	width: 100%;
+	border: 1px solid var(--vscode-input-border);
+	background: var(--vscode-input-background);
+	color: var(--vscode-input-foreground);
+	padding: 7px;
+	font: inherit;
+	border-radius: 5px;
 }
 
 .dev-tool textarea {
-    resize: vertical;
-    min-height: 180px;
-    flex: 1;
-    font-family: var(--vscode-editor-font-family);
+	resize: vertical;
+	min-height: 180px;
+	flex: 1;
+	font-family: var(--vscode-editor-font-family);
 }
 
 .dev-tool textarea:focus,
 .dev-tool input:focus,
 .dev-tool select:focus {
-    outline: 1px solid var(--vscode-focusBorder);
-    outline-offset: -1px;
+	outline: 1px solid var(--vscode-focusBorder);
+	outline-offset: -1px;
 }
 
 /* =========================
-   Buttons
-   ========================= */
+		Buttons
+	========================= */
 
 .dev-tool button {
-    border: 1px solid var(--vscode-button-border, transparent);
-    background: var(--vscode-button-background);
-    color: var(--vscode-button-foreground);
-    padding: 6px 10px;
-    cursor: pointer;
-    border-radius: 3px;
+	border: 1px solid var(--vscode-button-border, transparent);
+	background: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	padding: 6px 10px;
+	cursor: pointer;
+	border-radius: 3px;
 }
 
 .dev-tool button:hover {
-    background: var(--vscode-button-hoverBackground);
+	background: var(--vscode-button-hoverBackground);
 }
 
 .dev-tool button:disabled {
-    opacity: 0.5;
-    cursor: default;
+	opacity: 0.5;
+	cursor: default;
 }
 
 .dev-tool button:disabled:hover {
-    background: var(--vscode-button-background);
+	background: var(--vscode-button-background);
 }
 
 /* =========================
-   Actions / Footer
-   ========================= */
+		Actions / Footer
+	========================= */
 
 .dev-tool-actions {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 4px 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 6px;
+	padding: 4px 0;
 }
 
 /* =========================
-   Labels
-   ========================= */
+		Labels
+	========================= */
 
 .dev-tool-label {
-    color: var(--vscode-descriptionForeground);
-    font-size: 12px;
+	color: var(--vscode-descriptionForeground);
+	font-size: 12px;
 }
 
 /* =========================
-   Messages
-   ========================= */
+		Messages
+	========================= */
 
 .dev-tool-error {
-    color: var(--vscode-errorForeground);
-    white-space: pre-wrap;
+	color: var(--vscode-errorForeground);
+	white-space: pre-wrap;
 }
 
 .dev-tool-success {
-    color: var(--vscode-testing-iconPassed);
-    white-space: pre-wrap;
+	color: var(--vscode-testing-iconPassed);
+	white-space: pre-wrap;
 }
 
 /* =========================
-   Output
-   ========================= */
+		Output
+	========================= */
 
 .dev-tool-output {
-    white-space: pre-wrap;
-    word-break: break-word;
-    overflow: auto;
-    box-sizing: border-box;
-    padding: 8px;
-    border: 1px solid var(--vscode-panel-border);
-    background: var(--vscode-textCodeBlock-background);
-    min-height: 80px;
-    border-radius: 5px;
+	white-space: pre-wrap;
+	word-break: break-word;
+	overflow: auto;
+	box-sizing: border-box;
+	padding: 8px;
+	border: 1px solid var(--vscode-panel-border);
+	background: var(--vscode-textCodeBlock-background);
+	min-height: 80px;
+	border-radius: 5px;
 }
 
 /* =========================
-   Tables
-   ========================= */
+		Tables
+	========================= */
 
 .dev-tool-table {
-    width: 100%;
-    border-collapse: collapse;
+	width: 100%;
+	border-collapse: collapse;
 }
 
 .dev-tool-table th,
 .dev-tool-table td {
-    border: 1px solid var(--vscode-panel-border);
-    padding: 6px;
-    text-align: left;
+	border: 1px solid var(--vscode-panel-border);
+	padding: 6px;
+	text-align: left;
 }
 
 .dev-tool-table th {
-    color: var(--vscode-descriptionForeground);
-    font-weight: 600;
+	color: var(--vscode-descriptionForeground);
+	font-weight: 600;
 }
 
 /* =========================
-   Toolbar
-   ========================= */
+		Toolbar
+	========================= */
 
 .dev-tool-toolbar {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    align-items: center;
+	display: flex;
+	gap: 6px;
+	flex-wrap: wrap;
+	align-items: center;
 }
 
 .dev-tool-spacer {
-    flex: 1;
+	flex: 1;
 }
 
 /* =========================
-   Scrollbars
-   ========================= */
+		Scrollbars
+	========================= */
 
 .dev-tools-sidebar::-webkit-scrollbar,
 .dev-tool-output::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+	width: 8px;
+	height: 8px;
 }
 
 .dev-tools-sidebar::-webkit-scrollbar-thumb,
 .dev-tool-output::-webkit-scrollbar-thumb {
-    background: var(--vscode-scrollbarSlider-background);
+	background: var(--vscode-scrollbarSlider-background);
 }
 
 .dev-tools-sidebar::-webkit-scrollbar-thumb:hover,
 .dev-tool-output::-webkit-scrollbar-thumb:hover {
-    background: var(--vscode-scrollbarSlider-hoverBackground);
+	background: var(--vscode-scrollbarSlider-hoverBackground);
 }
 
 /* =========================
-   Responsive
-   ========================= */
+		Responsive
+	========================= */
 
 @media (max-width: 700px) {
-    .dev-tools-sidebar {
-        width: 170px;
-        min-width: 170px;
-    }
+	.dev-tools-sidebar {
+		width: 170px;
+		min-width: 170px;
+	}
 
-    .dev-tool-grid {
-        grid-template-columns: 1fr;
-    }
+	.dev-tool-grid {
+		grid-template-columns: 1fr;
+	}
 }
 
 /* =========================
-   Tables
-   ========================= */
+		Tables
+	========================= */
 
 .dev-tool-table-container {
-    flex: 1;
-    min-height: 0;
-    overflow: auto;
-    border: 1px solid var(--vscode-panel-border);
+	flex: 1;
+	min-height: 0;
+	overflow: auto;
+	border: 1px solid var(--vscode-panel-border);
 }
 
 .dev-tool-table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
+	width: 100%;
+	border-collapse: collapse;
+	table-layout: fixed;
 }
 
 .dev-tool-table th,
 .dev-tool-table td {
-    border-bottom: 1px solid var(--vscode-panel-border);
-    border-right: 1px solid var(--vscode-panel-border);
-    padding: 6px;
-    text-align: left;
+	border-bottom: 1px solid var(--vscode-panel-border);
+	border-right: 1px solid var(--vscode-panel-border);
+	padding: 6px;
+	text-align: left;
 }
 
 .dev-tool-table th:last-child,
 .dev-tool-table td:last-child {
-    border-right: 0;
+	border-right: 0;
 }
 
 .dev-tool-table th {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    background: var(--vscode-editor-background);
-    color: var(--vscode-descriptionForeground);
-    font-weight: 600;
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	background: var(--vscode-editor-background);
+	color: var(--vscode-descriptionForeground);
+	font-weight: 600;
 }
 
 .dev-tool-table td input,
 .dev-tool-table td select {
-    width: 100%;
-    box-sizing: border-box;
+	width: 100%;
+	box-sizing: border-box;
 }
 
 .dev-tool-message {
-    flex: 0 0 20px;
-    min-height: 25px;
-    overflow: hidden;
-    box-sizing: border-box;
+	flex: 0 0 20px;
+	min-height: 25px;
+	overflow: hidden;
+	box-sizing: border-box;
 }
 
 .dev-tool-error {
-    color: var(--vscode-errorForeground);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 20px;
+	color: var(--vscode-errorForeground);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	line-height: 20px;
 }

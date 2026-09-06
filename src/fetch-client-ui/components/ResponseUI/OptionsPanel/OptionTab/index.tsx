@@ -255,9 +255,11 @@ export const ResponseOptionsTab = (props: any) => {
 									>
 										JSON Schema
 									</button>
-									<button className="save-to-file-button"
+									<button
+										className="save-to-file-button"
 										disabled={isDisabled("xmltojson")}
-										onClick={() => onSelectTab("xmltojson")}>
+										onClick={() => onSelectTab("xmltojson")}
+									>
 										XML to JSON
 									</button>
 								</div>
@@ -284,8 +286,8 @@ export const ResponseOptionsTab = (props: any) => {
 										onClick={(e) => onSaveResponse(e)}
 										disabled={
 											response.responseData &&
-												!response.responseType.isBinaryFile &&
-												!response.isError
+											!response.responseType.isBinaryFile &&
+											!response.isError
 												? false
 												: true
 										}

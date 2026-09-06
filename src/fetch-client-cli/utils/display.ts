@@ -81,7 +81,10 @@ export function printSection(title: string): void {
 	writeConsoleLog(cyan("-".repeat(title.length)));
 }
 
-export function printTable(rows: string[][], separatorAroundHeader = false): void {
+export function printTable(
+	rows: string[][],
+	separatorAroundHeader = false,
+): void {
 	if (rows.length === 0) {
 		return;
 	}
@@ -91,7 +94,8 @@ export function printTable(rows: string[][], separatorAroundHeader = false): voi
 		Math.max(...rows.map((r) => stripAnsi(r[ci] ?? "").length)),
 	);
 
-	const totalWidth = widths.reduce((sum, w) => sum + w, 0) + (widths.length - 1) * 2;
+	const totalWidth =
+		widths.reduce((sum, w) => sum + w, 0) + (widths.length - 1) * 2;
 	const separator = dim("─".repeat(totalWidth));
 
 	if (separatorAroundHeader) {
@@ -387,14 +391,14 @@ export function printRunSummary(results: RunResult[]): void {
 	writeConsoleLog(separator);
 	writeConsoleLog(
 		fit("Id", 38) +
-		fit("Name", 22) +
-		fit("Method", 8) +
-		fit("URL", 35) +
-		fit("Location", 18) +
-		fit("Status", 8) +
-		fit("Duration", 11) +
-		fit("Pre", 7) +
-		fit("Test", 7),
+			fit("Name", 22) +
+			fit("Method", 8) +
+			fit("URL", 35) +
+			fit("Location", 18) +
+			fit("Status", 8) +
+			fit("Duration", 11) +
+			fit("Pre", 7) +
+			fit("Test", 7),
 	);
 	writeConsoleLog(separator);
 
@@ -414,14 +418,14 @@ export function printRunSummary(results: RunResult[]): void {
 
 		writeConsoleLog(
 			fitAnsi(`${icon} ${r.id}`, 40) +
-			fitAnsi(cyan(r.name), 22) +
-			fitAnsi(methodBadge(r.method.toUpperCase()), 8) +
-			fitAnsi(dim(shortUrl(r.url)), 35) +
-			fitAnsi(yellow(r.parent ?? "-"), 18) +
-			fitAnsi(statusBadge(r.status), 8) +
-			fitAnsi(dim(`${r.duration} ms`), 11) +
-			fitAnsi(pre, 7) +
-			fitAnsi(test, 7),
+				fitAnsi(cyan(r.name), 22) +
+				fitAnsi(methodBadge(r.method.toUpperCase()), 8) +
+				fitAnsi(dim(shortUrl(r.url)), 35) +
+				fitAnsi(yellow(r.parent ?? "-"), 18) +
+				fitAnsi(statusBadge(r.status), 8) +
+				fitAnsi(dim(`${r.duration} ms`), 11) +
+				fitAnsi(pre, 7) +
+				fitAnsi(test, 7),
 		);
 	}
 
@@ -686,28 +690,28 @@ export function printPerfSummary(
 	writeConsoleLog(separator);
 	writeConsoleLog(
 		fit("Request", 30) +
-		fit("Method", 8) +
-		fit("Total", 8) +
-		fit("Failed", 8) +
-		fit("Error %", 9) +
-		fit("Avg", 10) +
-		fit("P95", 10) +
-		fit("P99", 10) +
-		fit("RPS", 8),
+			fit("Method", 8) +
+			fit("Total", 8) +
+			fit("Failed", 8) +
+			fit("Error %", 9) +
+			fit("Avg", 10) +
+			fit("P95", 10) +
+			fit("P99", 10) +
+			fit("RPS", 8),
 	);
 	writeConsoleLog(separator);
 
 	for (const b of breakdown) {
 		writeConsoleLog(
 			fitAnsi(cyan(b.requestName), 30) +
-			fitAnsi(methodBadge(b.method.toUpperCase()), 8) +
-			fitAnsi(dim(String(b.total)), 8) +
-			fitAnsi(b.failed > 0 ? red(String(b.failed)) : dim("0"), 8) +
-			fitAnsi(dim(`${b.errorRate.toFixed(1)}%`), 9) +
-			fitAnsi(dim(`${b.avg.toFixed(0)}ms`), 10) +
-			fitAnsi(dim(`${b.p95.toFixed(0)}ms`), 10) +
-			fitAnsi(dim(`${b.p99.toFixed(0)}ms`), 10) +
-			fitAnsi(dim(b.rps.toFixed(1)), 8),
+				fitAnsi(methodBadge(b.method.toUpperCase()), 8) +
+				fitAnsi(dim(String(b.total)), 8) +
+				fitAnsi(b.failed > 0 ? red(String(b.failed)) : dim("0"), 8) +
+				fitAnsi(dim(`${b.errorRate.toFixed(1)}%`), 9) +
+				fitAnsi(dim(`${b.avg.toFixed(0)}ms`), 10) +
+				fitAnsi(dim(`${b.p95.toFixed(0)}ms`), 10) +
+				fitAnsi(dim(`${b.p99.toFixed(0)}ms`), 10) +
+				fitAnsi(dim(b.rps.toFixed(1)), 8),
 		);
 	}
 
