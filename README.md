@@ -11,6 +11,11 @@
 [![Visual Studio MarketplaceInstalls](https://vsmarketplacebadges.dev/installs-short/GanesanChandran.fetch-client.svg)](https://marketplace.visualstudio.com/items?itemName=GanesanChandran.fetch-client)
 [![Visual Studio Version](https://vsmarketplacebadges.dev/version-short/GanesanChandran.fetch-client.svg)](https://marketplace.visualstudio.com/items?itemName=GanesanChandran.fetch-client)
 
+<div>
+  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/fetch-client-intro.gif?raw=true" alt="Fetch Client">
+  <br/>
+</div>
+
 ## 🚀 VS Code Extension
 
 The Fetch Client extension lets you build, test, organize, and debug REST APIs without leaving VS Code. It stores all data locally and provides a fast, native experience for API development.
