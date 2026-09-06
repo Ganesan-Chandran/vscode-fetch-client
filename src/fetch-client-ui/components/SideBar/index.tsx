@@ -1,6 +1,12 @@
 import "./style.css";
 import { AppDispatch } from "../../store/appStore";
-import { getColFolDotMenu, getQuickAddIcon, getSideBarTabIcon, getSortAscIcon, getSortDescIcon } from "../Common/icons";
+import {
+	getColFolDotMenu,
+	getQuickAddIcon,
+	getSideBarTabIcon,
+	getSortAscIcon,
+	getSortDescIcon,
+} from "../Common/icons";
 import { HistoryBar } from "./History";
 import {
 	IHistory,
@@ -641,10 +647,14 @@ const SideBar = () => {
 								type="button"
 								className="quick-action-btn quick-add-btn"
 								title={
-									selectedTab === "Collection" ? "New Collection" : "New Variable"
+									selectedTab === "Collection"
+										? "New Collection"
+										: "New Variable"
 								}
 								onClick={(e) =>
-									selectedTab === "Collection" ? onNewCollection(e) : onNewVariable(e)
+									selectedTab === "Collection"
+										? onNewCollection(e)
+										: onNewVariable(e)
 								}
 							>
 								{getQuickAddIcon("quick-icon")}
@@ -654,16 +664,18 @@ const SideBar = () => {
 								className="quick-action-btn quick-sort-btn"
 								title={
 									(selectedTab === "Collection" ? colSort : varSort) === 0 ||
-										(selectedTab === "Collection" ? colSort : varSort) === 2
+									(selectedTab === "Collection" ? colSort : varSort) === 2
 										? "Sort (A-Z)"
 										: "Sort (Z-A)"
 								}
 								onClick={(e) =>
-									selectedTab === "Collection" ? onColSort(e) : onVariableSort(e)
+									selectedTab === "Collection"
+										? onColSort(e)
+										: onVariableSort(e)
 								}
 							>
 								{(selectedTab === "Collection" ? colSort : varSort) === 0 ||
-									(selectedTab === "Collection" ? colSort : varSort) === 2
+								(selectedTab === "Collection" ? colSort : varSort) === 2
 									? getSortAscIcon("quick-icon")
 									: getSortDescIcon("quick-icon")}
 							</button>
@@ -747,10 +759,12 @@ const SideBar = () => {
 				</div>
 				<footer className="bottom-menu-panel">
 					<div className="view-log">
-						<a className="log-span" onClick={onDevToolsClick}>🛠️ Dev Tools</a>
+						<a className="log-span" onClick={onDevToolsClick}>
+							🛠️ Dev Tools
+						</a>
 						{/* <a className="log-span" onClick={onViewLogClick}>🔄 Git Sync</a> */}
 						<a className="log-span" onClick={onViewLogClick}>
-							{isViewLogOpen ? '📝 Close Log' : '📝 View Log'}
+							{isViewLogOpen ? "📝 Close Log" : "📝 View Log"}
 						</a>
 					</div>
 				</footer>

@@ -9,7 +9,10 @@ import {
 	exportDataDrivenXml,
 } from "../../../../fetch-client-core/utils/dataDrivenTestService/dataDrivenExport";
 import { parseDataFile } from "../../../../fetch-client-core/utils/dataDrivenTestService/dataDrivenParser";
-import { collectRequiredVariables, validateVariables } from "../../../../fetch-client-core/utils/dataDrivenTestService/dataDrivenVariables";
+import {
+	collectRequiredVariables,
+	validateVariables,
+} from "../../../../fetch-client-core/utils/dataDrivenTestService/dataDrivenVariables";
 import {
 	CsvSeparator,
 	DataFileFormat,
@@ -583,7 +586,8 @@ const DataDrivenTest = () => {
 						</li>
 						<li>
 							Variables from the attached collection variable set are merged
-							with the row data. <strong>Row data takes precedence.</strong> Requests run <strong>sequentially</strong> per row.
+							with the row data. <strong>Row data takes precedence.</strong>{" "}
+							Requests run <strong>sequentially</strong> per row.
 						</li>
 						<li>
 							Use <em>Validate</em> to check that all{" "}
@@ -591,7 +595,8 @@ const DataDrivenTest = () => {
 							are present in your data file before running.
 						</li>
 						<li>
-							Download a template file pre-filled with the variable columns required by the selected requests
+							Download a template file pre-filled with the variable columns
+							required by the selected requests
 						</li>
 					</ul>
 				</div>

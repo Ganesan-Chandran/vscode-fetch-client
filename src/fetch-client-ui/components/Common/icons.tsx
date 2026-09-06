@@ -48,7 +48,6 @@ export function getSortDescIcon(className?: string) {
 	);
 }
 
-
 export function getPlusIconSVG(
 	toolTip: string,
 	className: string,

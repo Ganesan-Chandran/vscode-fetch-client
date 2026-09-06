@@ -132,7 +132,7 @@ export function printQualityGateRules(): void {
 	writeConsoleLog(
 		dim(
 			'\nDisable a rule via .qgrc.json { "disabledRules": ["<ruleId>"] }, ' +
-			'or an inline "@qg-disable <ruleId>" tag in a request\'s Notes.',
+				'or an inline "@qg-disable <ruleId>" tag in a request\'s Notes.',
 		),
 	);
 }
@@ -225,7 +225,7 @@ async function runQualityCheckCore(
 
 	let pos = 0;
 	for (const result of report.results) {
-		printSection(`\n\nRequest: ${inputs[pos].request?.name}`,);
+		printSection(`\n\nRequest: ${inputs[pos].request?.name}`);
 		printQGRequestResult(result);
 		pos++;
 	}
@@ -541,7 +541,12 @@ function printQGRequestResult(result: IQualityGateResult): void {
 		return;
 	}
 
-	const header = [bold("Severity"), bold("Dimension"), bold("Rule"), bold("Description")];
+	const header = [
+		bold("Severity"),
+		bold("Dimension"),
+		bold("Rule"),
+		bold("Description"),
+	];
 	const rows = [
 		header,
 		...allIssues.map((issue) => [

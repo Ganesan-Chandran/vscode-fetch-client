@@ -78,7 +78,7 @@ The Fetch Client CLI brings your API collections to the command line. It uses th
 
 You don't need separate collections for your IDE and your automation. The CLI works directly with your existing Fetch Client database. The CLI and the VS Code extension share the same database. Any change you make in one shows up in the other right away.
 
-### **** NEW FEATURE ****
+### \***\* NEW FEATURE \*\***
 
 Running an exported collection is completely self-contained.
 

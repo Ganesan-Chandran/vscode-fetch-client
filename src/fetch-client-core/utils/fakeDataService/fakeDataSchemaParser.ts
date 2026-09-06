@@ -162,7 +162,9 @@ function parseJsonSchema(content: string): IFakeDataSchemaParseResult {
 			return;
 		}
 		if (type === "regex" && !item.pattern) {
-			errors.push(`Column "${column}": regex type requires a "pattern" property.`);
+			errors.push(
+				`Column "${column}": regex type requires a "pattern" property.`,
+			);
 			return;
 		}
 

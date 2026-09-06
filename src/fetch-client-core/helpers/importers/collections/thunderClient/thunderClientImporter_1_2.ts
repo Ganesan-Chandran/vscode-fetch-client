@@ -256,9 +256,8 @@ export class ThunderClientImport {
 
 				fcBody.bodyType = "raw";
 				fcBody.raw.data = rawData;
-				fcBody.raw.lang = body.type ?? this.getRawBodyType(
-					rawData.replace(NEWLINE_REGEX, ""),
-				);
+				fcBody.raw.lang =
+					body.type ?? this.getRawBodyType(rawData.replace(NEWLINE_REGEX, ""));
 				return fcBody;
 			}
 

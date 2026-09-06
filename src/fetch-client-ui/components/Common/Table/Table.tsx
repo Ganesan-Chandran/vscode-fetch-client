@@ -246,7 +246,9 @@ export const Table = (props: TableProps) => {
 					placeholder={props.placeholder ? props.placeholder.value : "value"}
 					type={valueType === "password" ? "password" : "text"}
 				/>
-				{valueType !== "password" && !isEnabled(row, index) && getEditButton(index)}
+				{valueType !== "password" &&
+					!isEnabled(row, index) &&
+					getEditButton(index)}
 			</div>
 		);
 	}

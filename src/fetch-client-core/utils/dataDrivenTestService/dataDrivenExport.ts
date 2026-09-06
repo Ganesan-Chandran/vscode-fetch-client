@@ -1,5 +1,10 @@
 import { formatDate } from "../../helpers/dateTime.helper";
-import { CsvSeparator, DataFileFormat, IDataDrivenConfig, IDataDrivenResult } from "./dataDriven.types";
+import {
+	CsvSeparator,
+	DataFileFormat,
+	IDataDrivenConfig,
+	IDataDrivenResult,
+} from "./dataDriven.types";
 import { toDataDrivenHtml } from "./dataDrivenHtmlExporter";
 import { toDataDrivenNUnit } from "./dataDrivenNunitExporter";
 import { toDataDrivenXml } from "./dataDrivenXmlExporter";

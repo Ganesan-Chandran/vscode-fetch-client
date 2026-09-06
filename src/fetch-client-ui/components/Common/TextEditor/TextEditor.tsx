@@ -487,8 +487,9 @@ export const TextEditor = (props: TextEditorProps) => {
 						<PlainTextPlugin
 							contentEditable={
 								<ContentEditable
-									className={`DraftEditor-editorContainer${props.className ? " " + props.className : ""
-										}`}
+									className={`DraftEditor-editorContainer${
+										props.className ? " " + props.className : ""
+									}`}
 								/>
 							}
 							placeholder={

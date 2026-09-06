@@ -1,4 +1,8 @@
-import { FoldersEntity, RequestsEntity, Settings } from "./thunderClient_1_2_types";
+import {
+	FoldersEntity,
+	RequestsEntity,
+	Settings,
+} from "./thunderClient_1_2_types";
 
 export interface ThunderClient_Schema_1_4 {
 	clientName: string;

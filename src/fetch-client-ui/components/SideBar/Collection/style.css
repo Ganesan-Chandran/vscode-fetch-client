@@ -52,24 +52,24 @@ details[open] summary {
 	opacity: 0.6;
 }
 
-details.folder-details-items>summary {
+details.folder-details-items > summary {
 	list-style: none;
 	padding-left: var(--pl);
 	background-color: transparent !important;
 }
 
-details.folder-details-items>summary:before {
+details.folder-details-items > summary:before {
 	content: "📁";
 	padding-left: var(--b-pl);
 	color: var(--text-color);
 }
 
-details[open].folder-details-items>summary:before {
+details[open].folder-details-items > summary:before {
 	content: "📂";
 	color: var(--text-color);
 }
 
-details.folder-details-items>summary:hover {
+details.folder-details-items > summary:hover {
 	background-color: var(--list-hover-background-color) !important;
 }
 

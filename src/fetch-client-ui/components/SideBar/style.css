@@ -519,7 +519,9 @@
 	border: 0;
 	border-radius: 4px;
 	cursor: pointer;
-	transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+	transition:
+		background-color 0.15s ease-in-out,
+		color 0.15s ease-in-out;
 }
 
 .quick-action-btn svg {
@@ -558,7 +560,9 @@
 	border-radius: 4px;
 	color: var(--description-text-color);
 	cursor: pointer;
-	transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+	transition:
+		background-color 0.15s ease-in-out,
+		color 0.15s ease-in-out;
 }
 
 .hamburger-menu:hover {

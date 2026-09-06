@@ -18,7 +18,7 @@ Fetch Client uses LokiJS as the local runtime database. The VS Code extension an
 
 No changes to existing DB structure. All CRUD (create/update/delete/execute collection, CLI run, mock server, DDT, history) continues to operate on:
 
-```
+```text
 Database/
 ├── collections.db
 ├── variables.db
@@ -33,7 +33,7 @@ No Git operations occur during normal usage.
 
 Git never stores LokiJS `.db` files. Data is exported to logical JSON files instead:
 
-```
+```text
 fetch-client/
 ├── collections/
 │   ├── Customer_<id>.json
@@ -45,7 +45,7 @@ fetch-client/
 
 ## High-Level Architecture
 
-```
+```text
 VS Code / CLI
       │
 Collection Service
@@ -57,12 +57,12 @@ Import / Export Service ◄──► Repository Service ──► Git Provider �
 
 ## Responsibilities
 
-| Service | Responsible for | Never does |
-|---|---|---|
-| **Collection Service** | Create / update / delete / read collection | Talk to Git |
-| **Import / Export Service** | Convert LokiJS ⇄ portable JSON files | Contain Git logic |
-| **Repository Service** | Clone, pull, fetch, status, commit, push, branch ops | Read/write Loki DB directly |
-| **Git Provider** | Git CLI (recommended) / GitHub / GitLab / Azure DevOps / Bitbucket | — |
+| Service                     | Responsible for                                                    | Never does                  |
+| --------------------------- | ------------------------------------------------------------------ | --------------------------- |
+| **Collection Service**      | Create / update / delete / read collection                         | Talk to Git                 |
+| **Import / Export Service** | Convert LokiJS ⇄ portable JSON files                               | Contain Git logic           |
+| **Repository Service**      | Clone, pull, fetch, status, commit, push, branch ops               | Read/write Loki DB directly |
+| **Git Provider**            | Git CLI (recommended) / GitHub / GitLab / Azure DevOps / Bitbucket | —                           |
 
 ## Save Workflow
 
@@ -87,6 +87,7 @@ User edits collection → Collection Service → update `collections.db` → don
 
 - **Local Database**: the working database, always used by VS Code and CLI
 - **Git Repository**: the collaboration layer only, never accessed during request execution
+
 ## Conflict Scenario
 
 **Initial state (Git):** `Customer.json`, `Order.json`, `Student.json` — both developers at `Order.json` v1.
@@ -103,7 +104,7 @@ User edits collection → Collection Service → update `collections.db` → don
 
 No custom merge UI.
 
-```
+```text
 Conflict Detected → Stop Push → Show Message → Resolve using Git Client → Retry Sync
 ```
 
@@ -118,9 +119,12 @@ Conflicting collections listed (e.g. Order API, Customer API) with actions: **Ke
 ### Version 3 (future) — Visual merge editor
 
 Side-by-side Local vs Remote values, user edits the merged result and saves. Intended for enterprise scenarios.
+
 ## Why One File Per Collection?
 
-A single `collections.db` means every change touches the same file → large diffs, frequent conflicts. Exporting one JSON per collection (`Customer.json`, `Order.json`, `Payment.json`) lets Git track each independently → better reviews, better history, easier merges, smaller commits.
+A single `collections.db` means every change touches the same file → large diffs, frequent conflicts. Exporting
+one JSON per collection (`Customer.json`, `Order.json`, `Payment.json`)
+lets Git track each independently → better reviews, better history, easier merges, smaller commits.
 
 ## Advantages
 
@@ -143,7 +147,7 @@ Automatic synchronization, branch management, PR creation, Git history viewer, c
 
 ---
 
-# Version 2 — Finalized Decisions
+## Version 2 — Finalized Decisions
 
 Refinements agreed after design review. Supersedes conflicting details above; original sections kept for history.
 

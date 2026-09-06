@@ -15,7 +15,10 @@ import {
 	exportFakeDataJSON,
 } from "../../../../fetch-client-core/utils/fakeDataService/fakeDataExport";
 import { CsvSeparator } from "../../../../fetch-client-core/utils/dataDrivenTestService/dataDriven.types";
-import { requestTypes, responseTypes } from "../../../../fetch-client-core/consts/requestTypes.consts";
+import {
+	requestTypes,
+	responseTypes,
+} from "../../../../fetch-client-core/consts/requestTypes.consts";
 import PanelLayout from "../../Common/Layout/panelLayout";
 import React, { useEffect, useRef, useState } from "react";
 import vscode from "../../Common/vscodeAPI";
@@ -41,7 +44,9 @@ const FakeDataGenerator = () => {
 
 	const [fileName, setFileName] = useState("");
 	const [fileLoadError, setFileLoadError] = useState("");
-	const [schemaColumns, setSchemaColumns] = useState<IFakeDataColumn[] | null>(null);
+	const [schemaColumns, setSchemaColumns] = useState<IFakeDataColumn[] | null>(
+		null,
+	);
 	const [schemaError, setSchemaError] = useState("");
 
 	const [rowCount, setRowCount] = useState(10);
@@ -187,7 +192,7 @@ const FakeDataGenerator = () => {
 					<div className="perf-settings-option">
 						<label className="perf-settings-title">Schema Format</label>
 						<input
-							type="radio"							
+							type="radio"
 							checked={schemaFormat === "csv"}
 							onChange={() => onSchemaFormatChange("csv")}
 						/>{" "}
@@ -233,7 +238,10 @@ const FakeDataGenerator = () => {
 				<div className="dd-settings-section">
 					<div className="perf-settings-delay-panel">
 						<label className="perf-settings-title">Schema File</label>
-						<button className="submit-button dd-browse-btn" onClick={onBrowseFile}>
+						<button
+							className="submit-button dd-browse-btn"
+							onClick={onBrowseFile}
+						>
 							Browse
 						</button>
 						{fileName && (
@@ -242,10 +250,14 @@ const FakeDataGenerator = () => {
 							</span>
 						)}
 						{fileLoadError && (
-							<span className="dd-row-count dd-status-error">✗ {fileLoadError}</span>
+							<span className="dd-row-count dd-status-error">
+								✗ {fileLoadError}
+							</span>
 						)}
 						{schemaError && (
-							<span className="dd-row-count dd-status-error">✗ {schemaError}</span>
+							<span className="dd-row-count dd-status-error">
+								✗ {schemaError}
+							</span>
 						)}
 						{schemaColumns && schemaColumns.length > 0 && (
 							<span className="dd-row-count dd-status-ok">
@@ -277,7 +289,10 @@ const FakeDataGenerator = () => {
 							onChange={(e) => onRowCountChange(e.target.value)}
 							className="fd-row-count-input"
 						/>
-						<span className="dd-columns-label"> (max {MAX_FAKE_DATA_ROWS})</span>
+						<span className="dd-columns-label">
+							{" "}
+							(max {MAX_FAKE_DATA_ROWS})
+						</span>
 					</div>
 				</div>
 
@@ -290,7 +305,8 @@ const FakeDataGenerator = () => {
 							<code>{'{ "column", "type", ... }'}</code>. <strong>CSV</strong>:
 							row 1 = column names, row 2 = type per column (e.g.{" "}
 							<code>number:1-100</code>, <code>date:YYYY-MM-DD</code>,{" "}
-							<code>phone:(###) ###-####</code>, <code>regex:^[A-Z]{"{3}"}$</code>
+							<code>phone:(###) ###-####</code>,{" "}
+							<code>regex:^[A-Z]{"{3}"}$</code>
 							).
 						</li>
 						<li>
