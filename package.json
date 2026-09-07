@@ -518,7 +518,7 @@
     "assert": "2.1.0",
     "buffer": "6.0.3",
     "cross-env": "10.1.0",
-    "css-loader": "7.1.4",
+    "css-loader": "7.1.5",
     "editorconfig-checker": "6.1.1",
     "eslint": "8.57.0",
     "file-loader": "6.2.0",
