@@ -23,12 +23,43 @@
 	padding-top: 4px;
 }
 
+.response-toolbar-actions {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.response-layout-toggle {
+	width: 26px;
+	/* height: 26px; */
+	display: inline-flex;
+	justify-content: center;
+	border: 1px solid transparent;
+	background: transparent;
+	color: var(--text-color);
+	font-size: 20px;
+	line-height: 1;
+	cursor: pointer;
+	transform: scale(1.2);
+	margin-bottom: 3px;
+}
+
+/* .response-layout-toggle:hover {
+	background-color: var(--list-hover-background-color);
+	border-color: var(--focus-border-color);
+}
+
+.response-layout-toggle:focus-visible {
+	outline: 1px solid var(--focus-border-color);
+	outline-offset: 1px;
+} */
+
 .code-snippet-icon,
 .code-snippet-icon-disabled {
 	cursor: pointer;
 	transform: scale(1.2);
-	margin-right: 5px;
-	margin-bottom: 4px;
+	/* margin-right: 5px;
+	margin-bottom: 4px; */
 }
 
 .code-snippet-icon path {

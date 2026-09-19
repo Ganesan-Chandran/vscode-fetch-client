@@ -92,8 +92,13 @@ const MainUI = () => {
 	const [horiLayout, setHoriLayout] = useState(
 		window.__initialConfig?.horizontalLayout ?? "",
 	);
+	const [temporaryVerticalLayout, setTemporaryVerticalLayout] = useState<
+		boolean | null
+	>(null);
 	const [saveVisible, setSaveVisible] = useState(false);
 	const [loadingApp, setLoadingApp] = useState(true);
+	const isVerticalLayout =
+		temporaryVerticalLayout ?? (layout !== "Horizontal Split");
 
 	const onSaved = useCallback(() => setSaveVisible(true), []);
 	const onSetVarId = useCallback((id: string) => setVarId(id), []);
@@ -102,6 +107,11 @@ const MainUI = () => {
 		dispatch(Actions.SetLinkedVariableAction(false));
 	}, [dispatch]);
 	const onEnvironmentChanged = useCallback((id: string) => setEnvId(id), []);
+	const onToggleResponseLayout = useCallback(() => {
+		setTemporaryVerticalLayout(
+			(current) => !(current ?? (layout !== "Horizontal Split")),
+		);
+	}, [layout]);
 
 	useWindowMessages(
 		dispatch,
@@ -381,9 +391,10 @@ const MainUI = () => {
 				</>
 			) : (
 				<>
-					{layout === "Horizontal Split" ? (
+					{!isVerticalLayout ? (
 						horiLayout === "Split Style" ? (
 							<Split
+								key="split-stacked"
 								className="split split-horizontal"
 								gutterSize={2}
 								direction="vertical"
@@ -405,7 +416,11 @@ const MainUI = () => {
 								</div>
 								<div>
 									<React.Suspense fallback={<div>loading...</div>}>
-										<ReponsePanel isVerticalLayout={false} isCurl={false} />
+										<ReponsePanel
+											isVerticalLayout={false}
+											isCurl={false}
+											onToggleLayout={onToggleResponseLayout}
+										/>
 									</React.Suspense>
 								</div>
 							</Split>
@@ -457,7 +472,11 @@ const MainUI = () => {
 									</h2>
 									<div className={resBorderClass + " content"}>
 										<React.Suspense fallback={<div>loading...</div>}>
-											<ReponsePanel isVerticalLayout={false} isCurl={false} />
+											<ReponsePanel
+												isVerticalLayout={false}
+												isCurl={false}
+												onToggleLayout={onToggleResponseLayout}
+											/>
 										</React.Suspense>
 									</div>
 								</section>
@@ -465,6 +484,7 @@ const MainUI = () => {
 						)
 					) : (
 						<Split
+							key="split-side-by-side"
 							className="split split-vertical"
 							gutterSize={1}
 							cursor="ew-resize"
@@ -485,7 +505,11 @@ const MainUI = () => {
 							</div>
 							<div>
 								<React.Suspense fallback={<div>loading...</div>}>
-									<ReponsePanel isVerticalLayout={true} isCurl={false} />
+									<ReponsePanel
+										isVerticalLayout={true}
+										isCurl={false}
+										onToggleLayout={onToggleResponseLayout}
+									/>
 								</React.Suspense>
 							</div>
 						</Split>
