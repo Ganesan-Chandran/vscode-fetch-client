@@ -2,6 +2,23 @@
 
 All notable changes to the "Fetch Client" extension will be documented in this file.
 
+**## 🚀 v2.4.0 - 31 October 2026**
+
+This update introduces several UI/UX improvements to enhance the overall Fetch Client experience.
+
+## ✨ Improvements
+
+- Added an editor **Copy Content** button with visual feedback and accessibility support.
+- Improved Developer Tools item alignment and handling of long labels.
+- Added the ability to switch between **Horizontal and Vertical Response Layouts** directly from the response toolbar, with temporary layout switching.
+- Improved sidebar responsiveness for narrow VS Code panels, introducing vertical section navigation and optimized content layout.
+
+## 🎯 Overall Improvements
+
+- Enhanced editor usability and accessibility.
+- Improved response panel flexibility.
+- Optimized sidebar navigation for smaller VS Code windows.
+
 **## 🚀 v2.3.0 - 05 September 2026**
 
 This release introduces **Data-Driven Test Template Generation**, **Fake Data Generation**, **Collection & Variable Shortcuts**, an improved **Multi-line Text Editor**, and a new set of built-in **Developer Tools** to make API development and testing faster and more convenient.
