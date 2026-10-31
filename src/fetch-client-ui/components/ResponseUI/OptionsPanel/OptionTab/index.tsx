@@ -222,7 +222,22 @@ export const ResponseOptionsTab = (props: any) => {
 				))}
 				{!isVerticalLayout ? responseParamsRender() : <></>}
 				<div className="menu-panel">
-					<div>
+					<div className="response-toolbar-actions">
+						{props.onToggleLayout && (
+							<button
+								type="button"
+								className="response-layout-toggle"
+								onClick={props.onToggleLayout}
+								title={`Switch to ${
+									isVerticalLayout ? "horizontal" : "vertical"
+								} view for this window`}
+								aria-label={`Switch to ${
+									isVerticalLayout ? "horizontal" : "vertical"
+								} view for this window`}
+							>
+								{isVerticalLayout ? "⬒" : "◧"}
+							</button>
+						)}
 						<div className="dropdown" ref={codeWrapperRef}>
 							<CodeLogo
 								title="Code Snippet"

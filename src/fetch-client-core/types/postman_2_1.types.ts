@@ -1,5 +1,4 @@
 // generated from https://schema.getpostman.com/json/collection/v2.1.0/collection.json
-/* eslint-disable */
 export const POSTMAN_SCHEMA_V2_1 =
 	"https://schema.getpostman.com/json/collection/v2.1.0/collection.json";
 

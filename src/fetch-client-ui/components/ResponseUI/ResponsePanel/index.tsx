@@ -14,6 +14,7 @@ import JsonSchemaGenerator from "../../Common/JsonSchemaGenerator";
 export interface ResponsePanelProps {
 	isVerticalLayout: boolean;
 	isCurl: boolean;
+	onToggleLayout?: () => void;
 }
 
 const CodeSnippetGenerator = React.lazy(
@@ -81,6 +82,7 @@ export const ReponsePanel = (props: ResponsePanelProps) => {
 					setSelectedTab={setSelectedTab}
 					isVerticalLayout={props.isVerticalLayout}
 					isCurl={props.isCurl}
+					onToggleLayout={props.onToggleLayout}
 				/>
 				<div
 					className={

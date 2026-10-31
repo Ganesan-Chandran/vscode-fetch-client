@@ -1,35 +1,49 @@
+# VS Code development
 .vscode/**
 .vscode-test/**
 .github/**
 
+# Source code
 src/**
 out/**
 images/**
+cli/**
 
-*.vsix
-
-.gitignore
-.yarnrc
-vsc-extension-quickstart.md
-
+# Build configuration
 tsconfig.json
 **/tsconfig.json
-.eslintrc.json
-**/.eslintrc.json
-
 webpack.config.js
+webpack.cli.config.js
 esbuild.js
 
-**/*.map
-**/*.ts
-
-node_modules/**
-node_modules
-
-webpack.cli.config.js
+# Linting and formatting
+.eslintrc.json
+**/.eslintrc.json
+eslint.config.mjs
 .prettierignore
 .markdownlint.json
 .editorconfig-checker.json
 dictionary.txt
 
-cli/**
+# TypeScript and source maps
+**/*.ts
+**/*.map
+
+# Dependencies
+node_modules/**
+node_modules
+
+# Git and package management
+.gitignore
+.gitattributes
+gitattributes
+.yarnrc
+.npmignore
+
+# Documentation not required at runtime
+vsc-extension-quickstart.md
+
+# Development files
+.vscode-test/**
+
+docs/*
