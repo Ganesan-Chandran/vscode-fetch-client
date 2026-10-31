@@ -2,7 +2,7 @@
   "name": "fetch-client",
   "displayName": "Fetch Client",
   "description": "REST API Client and GraphQL Client for VS Code. Test, automate, and validate REST, GraphQL, SOAP, and HTTP APIs with collections, environments, API testing, mock server, performance testing, data-driven testing, and CLI support.",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "publisher": "GanesanChandran",
   "author": {
     "name": "Ganesan Chandran <https://ganesan-chandran.github.io/>"
@@ -493,6 +493,7 @@
     "package": "npm run pre-commit && npm run lint && webpack --mode production",
     "lint-check": "editorconfig-checker",
     "lint": "eslint src --ext .ts,.tsx",
+    "lint-fix": "npx eslint src --ext .ts,.tsx --fix",
     "md-lint": "markdownlint *.md ./**/*.md ./**/**/*.md --ignore node_modules --ignore CHANGELOG.md",
     "md-lint-fix": "markdownlint *.md ./**/*.md ./**/**/*.md --ignore node_modules --ignore CHANGELOG.md --fix",
     "md-spellcheck": "spellchecker -f *.md ./**/*.md -d dictionary.txt --language en-GB",

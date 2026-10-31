@@ -59,7 +59,6 @@ import { writeConsoleLog, wrtieConsleError } from "./utils/logger";
 
 // - Version / package info -
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const VERSION: string = require("./package.json").version;
 
 // - Help text -

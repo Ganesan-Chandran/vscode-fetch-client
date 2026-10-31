@@ -463,7 +463,6 @@ class RefResolver {
 			return null;
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		let node: any = this.doc;
 		for (const raw of ref.slice(2).split("/")) {
 			const key = raw.replace(/~1/g, "/").replace(/~0/g, "~");
