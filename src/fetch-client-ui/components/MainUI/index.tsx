@@ -98,7 +98,7 @@ const MainUI = () => {
 	const [saveVisible, setSaveVisible] = useState(false);
 	const [loadingApp, setLoadingApp] = useState(true);
 	const isVerticalLayout =
-		temporaryVerticalLayout ?? (layout !== "Horizontal Split");
+		temporaryVerticalLayout ?? layout !== "Horizontal Split";
 
 	const onSaved = useCallback(() => setSaveVisible(true), []);
 	const onSetVarId = useCallback((id: string) => setVarId(id), []);
@@ -109,7 +109,7 @@ const MainUI = () => {
 	const onEnvironmentChanged = useCallback((id: string) => setEnvId(id), []);
 	const onToggleResponseLayout = useCallback(() => {
 		setTemporaryVerticalLayout(
-			(current) => !(current ?? (layout !== "Horizontal Split")),
+			(current) => !(current ?? layout !== "Horizontal Split"),
 		);
 	}, [layout]);
 

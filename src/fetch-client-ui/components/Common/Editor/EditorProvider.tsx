@@ -171,8 +171,16 @@ const EditorProvider = (props: EditorProps) => {
 					className={
 						copyText === "Copied" ? "copy-button copied" : "copy-button"
 					}
-					title={copyText === "Copied" ? "Copied to clipboard" : "Copy editor content"}
-					aria-label={copyText === "Copied" ? "Copied to clipboard" : "Copy editor content"}
+					title={
+						copyText === "Copied"
+							? "Copied to clipboard"
+							: "Copy editor content"
+					}
+					aria-label={
+						copyText === "Copied"
+							? "Copied to clipboard"
+							: "Copy editor content"
+					}
 				>
 					<span className="copy-button-icon" aria-hidden="true">
 						{copyText === "Copied" ? (
