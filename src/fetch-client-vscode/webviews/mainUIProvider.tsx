@@ -1,6 +1,6 @@
 import { apiFetch, FetchConfig } from "../../fetch-client-core/utils/fetchUtil";
 import { buildWebviewHtml, saveToFile } from "./webviewUtils";
-import { ExecuteAPIRequest } from "./helper";
+import { ExecuteAPIRequest, ShowInformationDialog } from "./helper";
 import { formatDate } from "../../fetch-client-core/helpers/dateTime.helper";
 import {
 	GetAllCollectionName,
@@ -272,6 +272,20 @@ export class WebAppPanel {
 							this._panel.webview.postMessage({
 								type: responseTypes.selectFileResponse,
 								path: value,
+								fileData: data,
+							});
+						}
+					} else if (message.type === requestTypes.showMessageRequest) {
+						ShowInformationDialog(message.data);
+					} else if (message.type === requestTypes.importTestCasesRequest) {
+						const uris = await vscode.window.showOpenDialog({
+							canSelectMany: false,
+							filters: { JSON: ["json"] },
+						});
+						if (uris && uris.length > 0) {
+							const data = await fs.promises.readFile(uris[0].fsPath, "utf8");
+							this._panel.webview.postMessage({
+								type: responseTypes.importTestCasesResponse,
 								fileData: data,
 							});
 						}

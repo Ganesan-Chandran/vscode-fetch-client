@@ -14,15 +14,18 @@
 }
 
 .request-method-drop-down {
-	border-radius: 2px;
+	border-radius: 4px;
 	cursor: pointer;
-	font-weight: bolder;
+	font-size: var(--font-size);
+	font-weight: 600;
+	height: 36px;
+	box-sizing: border-box;
 	outline: none;
-	padding: 9px;
+	padding: 0 8px;
 	width: 90px;
 	color: var(--text-color);
 	background-color: var(--background-color);
-	border: var(--border-size) solid var(--border-color);
+	border: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
 }
 
 .request-method-drop-down option {
@@ -33,6 +36,7 @@
 .request-method-drop-down:focus,
 .request-method-drop-down:hover {
 	outline: none;
+	border-color: var(--focus-border-color);
 }
 
 .request-url-panel {
@@ -52,9 +56,14 @@
 }
 
 .request-url-panel .DraftEditor-editorContainer {
-	border: var(--border-size) solid var(--border-color);
-	border-radius: 2px;
-	padding: 9px !important;
+	border: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
+	border-radius: 4px;
+	min-height: 36px;
+	padding: 7px 10px !important;
+}
+
+.request-url-panel:focus-within .DraftEditor-editorContainer {
+	border-color: var(--focus-border-color);
 }
 
 mark {
@@ -69,20 +78,30 @@ mark {
 
 .request-send-panel {
 	margin-left: 10px;
-	width: 80px;
+	width: 90px;
 }
 
 .request-send-button {
 	background-color: var(--button-background-color);
 	border: 0;
-	border-radius: 3px;
+	border-radius: 4px;
 	color: var(--button-text-color);
 	cursor: pointer;
-	display: inline-block;
-	font-weight: bold;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	font-size: var(--font-size);
+	font-weight: 600;
+	height: 36px;
 	outline: none;
-	padding: 11px;
-	width: 75px;
+	padding: 0;
+	width: 85px;
+}
+
+.request-send-button:focus-visible {
+	outline: 1px solid var(--focus-border-color);
+	outline-offset: 2px;
 }
 
 .request-send-button:disabled,
@@ -96,6 +115,24 @@ mark {
 
 .request-send-button:hover {
 	background-color: var(--button-hover-color);
+}
+
+/* Narrow panels: URL moves to its own full-width row. */
+@media (max-width: 480px) {
+	.request-container {
+		flex-wrap: wrap;
+		row-gap: 8px;
+	}
+
+	.request-url-panel {
+		order: 3;
+		flex: 1 1 100%;
+		width: 100%;
+	}
+
+	.request-send-panel {
+		margin-left: auto;
+	}
 }
 
 #custom-url-editor {

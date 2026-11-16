@@ -1,0 +1,73 @@
+.ai-prompt-panel {
+	display: flex;
+	flex-direction: column;
+	height: calc(100% - 15px);
+}
+
+.ai-prompt-notice {
+	background: rgba(255, 152, 0, 0.08);
+	border: 1px solid #ff9800;
+	border-radius: 6px;
+	font-size: var(--font-size);
+	margin: 0 10px 10px 10px;
+	padding: 8px 12px;
+}
+
+.ai-prompt-select-panel {
+	align-items: center;
+	display: flex;
+	padding: 10px;
+}
+
+.ai-prompt-field {
+	align-items: center;
+	display: flex;
+	margin-right: 10px;
+}
+
+.ai-prompt-field-grow {
+	flex: 1;
+	margin-right: 0;
+	min-width: 0;
+}
+
+.ai-prompt-label {
+	margin-right: 10px;
+}
+
+.ai-prompt-select,
+.ai-prompt-notes {
+	background-color: var(--background-color);
+	border-radius: 3px;
+	color: var(--text-color);
+	height: 25px;
+	outline: none;
+}
+
+.ai-prompt-select {
+	width: 150px;
+}
+
+.ai-prompt-notes {
+	border: var(--border-size) solid var(--border-color);
+	box-sizing: border-box;
+	flex: 1;
+	min-width: 0;
+	padding: 0 6px;
+}
+
+.ai-prompt-select:focus,
+.ai-prompt-notes:focus {
+	outline: none;
+}
+
+.ai-prompt-select option {
+	background-color: var(--background-color);
+	color: var(--text-color);
+}
+
+.ai-prompt-editor {
+	flex: 1;
+	min-height: 185px;
+	padding-top: 10px;
+}

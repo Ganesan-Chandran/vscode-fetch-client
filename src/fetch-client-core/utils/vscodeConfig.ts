@@ -169,11 +169,24 @@ export function getVariableEncryptionKey(): string {
 	);
 }
 
-export function getExportCollectionConfiguration(): boolean {
-	return getFetchClientConfiguration().get<boolean>(
+export type ExportVariableMode =
+	| "Without Variable"
+	| "Variable with value"
+	| "Variable without value";
+
+export function getExportCollectionConfiguration(): ExportVariableMode {
+	const value = getFetchClientConfiguration().get<string | boolean>(
 		"exportCollectionWithVariables",
-		false,
+		"Without Variable",
 	);
+	// Legacy boolean setting values
+	if (value === true) {
+		return "Variable with value";
+	}
+	if (value === "Variable with value" || value === "Variable without value") {
+		return value;
+	}
+	return "Without Variable";
 }
 
 export function getSecretCacheTtlMs(): number {

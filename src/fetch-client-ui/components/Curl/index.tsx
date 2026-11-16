@@ -428,7 +428,6 @@ const CurlUI = () => {
 			{curlOption === "import" && getCollectionSelectionUI()}
 			{curlOption === "run" && (
 				<>
-					<hr />{" "}
 					<div className="curl-res-panel">
 						<ReponsePanel isVerticalLayout={false} isCurl={true} />
 					</div>

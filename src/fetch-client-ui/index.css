@@ -111,6 +111,152 @@ code {
 	font-family: var(--editor-font-family);
 }
 
+button,
+select,
+input,
+textarea {
+	font-family: inherit;
+}
+
+/* Shared data-table look; "html body" outranks each component's own table rules. */
+html
+	body
+	:is(
+		.option-table,
+		.test-result-table,
+		.test-table,
+		.runall-tbl,
+		.dd-results-table,
+		.dev-tool-table,
+		.ms-header-table,
+		.qg-requests-tbl,
+		.qg-summary-tbl,
+		.aws-results-table
+	) {
+	border-collapse: separate;
+	border-spacing: 0;
+	border: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
+}
+
+html
+	body
+	:is(
+		.option-table,
+		.test-result-table,
+		.test-table,
+		.runall-tbl,
+		.dd-results-table,
+		.dev-tool-table,
+		.ms-header-table,
+		.qg-requests-tbl,
+		.qg-summary-tbl,
+		.aws-results-table
+	)
+	:is(thead, tbody, tr) {
+	border: 0;
+}
+
+html
+	body
+	:is(
+		.option-table,
+		.test-result-table,
+		.test-table,
+		.runall-tbl,
+		.dd-results-table,
+		.dev-tool-table,
+		.ms-header-table,
+		.qg-requests-tbl,
+		.qg-summary-tbl,
+		.aws-results-table
+	)
+	:is(th, td) {
+	border: 0;
+	border-bottom: 1px solid
+		color-mix(in srgb, var(--border-color) 40%, transparent);
+	border-right: 1px solid
+		color-mix(in srgb, var(--border-color) 40%, transparent);
+}
+
+html
+	body
+	:is(
+		.option-table,
+		.test-result-table,
+		.test-table,
+		.runall-tbl,
+		.dd-results-table,
+		.dev-tool-table,
+		.ms-header-table,
+		.qg-requests-tbl,
+		.qg-summary-tbl,
+		.aws-results-table
+	)
+	thead
+	:is(th, td) {
+	background-color: var(--list-hover-background-color);
+	font-weight: 600;
+	padding: 8px 10px;
+}
+
+html
+	body
+	:is(
+		.option-table,
+		.test-result-table,
+		.test-table,
+		.runall-tbl,
+		.dd-results-table,
+		.dev-tool-table,
+		.ms-header-table,
+		.qg-requests-tbl,
+		.qg-summary-tbl,
+		.aws-results-table
+	)
+	tbody
+	tr:last-child
+	:is(th, td) {
+	border-bottom: 0;
+}
+
+html
+	body
+	:is(
+		.option-table,
+		.test-result-table,
+		.test-table,
+		.runall-tbl,
+		.dd-results-table,
+		.dev-tool-table,
+		.ms-header-table,
+		.qg-requests-tbl,
+		.qg-summary-tbl,
+		.aws-results-table
+	)
+	tr
+	> :is(th, td):last-child {
+	border-right: 0;
+}
+
+html
+	body
+	:is(
+		.option-table,
+		.test-result-table,
+		.test-table,
+		.runall-tbl,
+		.dd-results-table,
+		.dev-tool-table,
+		.ms-header-table,
+		.qg-requests-tbl,
+		.qg-summary-tbl,
+		.aws-results-table
+	)
+	tbody
+	tr:hover {
+	background-color: var(--list-hover-background-color);
+}
+
 .spinner.loading {
 	padding: 50px;
 	text-align: center;

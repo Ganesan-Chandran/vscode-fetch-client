@@ -6,30 +6,117 @@
 }
 
 .options-container {
+	display: flex;
+	flex-direction: column;
 	overflow-x: auto;
 	width: 100%;
 	height: 100%;
 }
 
+.options-container > .tab-options {
+	flex: none;
+}
+
 .tab-options {
 	display: flex;
+	gap: 2px;
+	border-bottom: 1px solid var(--border-color);
 }
 
 .option {
+	position: relative;
 	cursor: pointer;
+	flex-shrink: 0;
+	white-space: nowrap;
+	min-height: 32px;
+	padding: 6px 12px;
 	background-color: transparent;
 	color: var(--text-color);
+	opacity: 0.8;
+	font-size: var(--font-size);
 	outline: none;
-	border: 3px solid transparent;
-	border-radius: 0;
-	padding-bottom: 5px;
+	border: 0;
+	border-radius: 4px 4px 0 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.option {
+		transition:
+			background-color 0.15s,
+			opacity 0.15s;
+	}
+}
+
+.option:hover {
+	background-color: var(--list-hover-background-color);
+	opacity: 1;
+}
+
+.option:focus-visible {
+	outline: 1px solid var(--focus-border-color);
+	outline-offset: -2px;
 }
 
 .option-selected {
-	border-bottom: 2px solid var(--button-background-color);
+	opacity: 1;
+	font-weight: 600;
+}
+
+.option-selected::after {
+	content: "";
+	position: absolute;
+	left: 8px;
+	right: 8px;
+	bottom: -1px;
+	height: 2px;
+	background: var(--button-background-color);
+}
+
+@media (max-width: 600px) {
+	.option {
+		padding: 6px 8px;
+	}
+}
+
+/* Secondary (inner) tabs: segmented control, visually subordinate to primary underline tabs. */
+.tab-options-secondary {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2px;
+	width: fit-content;
+	max-width: 100%;
+	margin: 6px 0;
+	padding: 2px;
+	border: 1px solid var(--border-color);
+	border-radius: 6px;
+}
+
+.tab-options-secondary .option {
+	min-height: 26px;
+	padding: 3px 12px;
+	border-radius: 4px;
+	font-size: var(--font-size);
+}
+
+.tab-options-secondary .option-selected {
+	background-color: var(--button-background-color);
+	color: var(--button-text-color);
+	font-weight: 600;
+}
+
+.tab-options-secondary .option-selected::after {
+	display: none;
+}
+
+/* Invert so the badge stands out on the filled active chip. */
+.tab-options-secondary .option-selected .header-count {
+	background: var(--button-text-color);
+	color: var(--button-background-color);
 }
 
 .options-tab-panel {
+	flex: 1 1 auto;
+	min-height: 0;
 	height: calc(100% - 30px);
 	overflow-x: hidden;
 	padding: 1px 10px 5px 0;
@@ -38,13 +125,22 @@
 
 .header-count {
 	margin-left: 4px;
-	color: #f05348;
+	min-width: 18px;
+	padding: 1px 6px;
+	border-radius: 10px;
+	background: var(--button-background-color);
+	color: var(--button-text-color);
+	font-size: calc(var(--font-size) - 2px);
+	font-weight: 600;
+	line-height: 14px;
+	text-align: center;
 }
 
 .settings-menu-panel {
+	display: flex;
+	align-items: center;
 	margin-left: auto;
 	padding-right: 5px;
-	margin-top: 2px;
 }
 
 .settings-menu {
