@@ -493,7 +493,7 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run package",
-		"compile": "npm run lint && webpack --mode development --progress --watch",
+		"compile": "npm run lint && webpack --mode development --progress",
 		"watch": "npm run lint && webpack --mode development --progress --watch",
 		"package": "npm run pre-commit && npm run lint && webpack --mode production",
 		"lint-check": "editorconfig-checker",

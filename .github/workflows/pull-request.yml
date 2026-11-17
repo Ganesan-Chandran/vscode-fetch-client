@@ -41,3 +41,4 @@ jobs:
 
       - name: Compile extension
         run: npm run compile
+        timeout-minutes: 5
