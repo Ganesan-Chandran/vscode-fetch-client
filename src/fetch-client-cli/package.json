@@ -33,7 +33,7 @@
 		"watch": "npx webpack --mode development --watch --config ../../webpack.cli.config.js"
 	},
 	"dependencies": {
-		"axios": "1.17.0",
+		"axios": "1.20.0",
 		"aws4": "1.13.2",
 		"form-data": "4.0.6",
 		"lokijs": "1.5.12",
