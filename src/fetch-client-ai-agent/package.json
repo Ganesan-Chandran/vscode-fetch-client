@@ -1,0 +1,16 @@
+{
+	"name": "fetch-client-ai-agent",
+	"version": "0.1.0",
+	"private": true,
+	"description": "AI Agent for Fetch Client",
+	"scripts": {
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"typecheck": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@types/node": "22.19.19",
+		"typescript": "7.0.2",
+		"vitest": "4.1.12"
+	}
+}

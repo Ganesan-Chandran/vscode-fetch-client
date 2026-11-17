@@ -21,7 +21,8 @@ This update introduces several UI/UX improvements to enhance the overall Fetch C
 
 **## 🚀 v2.3.0 - 05 September 2026**
 
-This release introduces **Data-Driven Test Template Generation**, **Fake Data Generation**, **Collection & Variable Shortcuts**, an improved **Multi-line Text Editor**, and a new set of built-in **Developer Tools** to make API development and testing faster and more convenient.
+This release introduces **Data-Driven Test Template Generation**, **Fake Data Generation**, **Collection & Variable Shortcuts**, an improved **Multi-line Text Editor**, and a new set of built-in **Developer Tools** to make API development and testing
+faster and more convenient.
 
 **## ✨ Major Features**
 

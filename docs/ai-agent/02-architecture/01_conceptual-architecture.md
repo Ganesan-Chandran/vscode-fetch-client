@@ -1,15 +1,13 @@
 # Day 3 — Conceptual Architecture of the AI Agent Platform
 
-**Phase:** 0 — Product goal and preparation  
-**Session:** Day 3  
-**Primary deliverable:** `docs/ai-agent/02-architecture/conceptual-architecture.md`  
-**Related follow-up:** `docs/ai-agent/01-foundations/llm-basics.md`
+**Phase:** 0 — Product goal and preparation **Session:** Day 3 **Primary deliverable:** `docs/ai-agent/02-architecture/conceptual-architecture.md` **Related follow-up:** `docs/ai-agent/01-foundations/llm-basics.md`
 
 ## 1. Purpose
 
 This document defines the conceptual architecture of the AI Agent Platform.
 
-The goal is to build an independent, extensible platform that can use different language-model providers and integrate with different applications. Fetch Client will be the first application integration, but the platform must not depend on Fetch Client to operate.
+The goal is to build an independent, extensible platform that can use different language-model providers and integrate with different applications. Fetch Client will be the first application integration, but the platform must not depend on Fetch
+Client to operate.
 
 This is a conceptual design. Detailed component design, security architecture, data-flow design, technology selection, and deployment decisions are intentionally deferred to later sessions.
 
@@ -249,17 +247,17 @@ The model should not directly access the Fetch Client database. Application oper
 
 ## 7. Initial architecture decisions
 
-| ID | Decision | Reason |
-|---|---|---|
-| D01 | Keep the AI Agent Platform independent of Fetch Client. | Reusability |
-| D02 | Use a common model-provider interface. | Reduce provider lock-in |
-| D03 | Keep provider-specific behavior inside provider adapters. | Isolate API differences |
-| D04 | Make tools modular and discoverable through a tool registry. | Extensibility |
-| D05 | Connect applications through dedicated adapters. | Loose coupling |
-| D06 | Use Fetch Client as the first application integration. | Validate the platform with a real use case |
-| D07 | Keep detailed security design separate. | Allow focused security design |
-| D08 | Keep detailed data-flow and storage design separate. | Avoid premature implementation decisions |
-| D09 | Leave deployment architecture undecided for now. | Preserve implementation flexibility |
+| ID  | Decision                                                     | Reason                                     |
+| --- | ------------------------------------------------------------ | ------------------------------------------ |
+| D01 | Keep the AI Agent Platform independent of Fetch Client.      | Reusability                                |
+| D02 | Use a common model-provider interface.                       | Reduce provider lock-in                    |
+| D03 | Keep provider-specific behavior inside provider adapters.    | Isolate API differences                    |
+| D04 | Make tools modular and discoverable through a tool registry. | Extensibility                              |
+| D05 | Connect applications through dedicated adapters.             | Loose coupling                             |
+| D06 | Use Fetch Client as the first application integration.       | Validate the platform with a real use case |
+| D07 | Keep detailed security design separate.                      | Allow focused security design              |
+| D08 | Keep detailed data-flow and storage design separate.         | Avoid premature implementation decisions   |
+| D09 | Leave deployment architecture undecided for now.             | Preserve implementation flexibility        |
 
 ## 8. Out of scope for this session
 

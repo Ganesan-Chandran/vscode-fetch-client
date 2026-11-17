@@ -1,11 +1,6 @@
 # Fetch Client AI Agent – Product Goal
 
-**Document:** `docs/ai-agent/00-product/ai-agent-product-goal.md`  
-**Version:** 1.2  
-**Phase:** Phase 0 – Product Goal and Preparation  
-**Status:** Final – Product Direction Approved  
-**Project:** Fetch Client  
-**Date:** 9 November 2026
+**Document:** `docs/ai-agent/00-product/ai-agent-product-goal.md` **Version:** 1.2 **Phase:** Phase 0 – Product Goal and Preparation **Status:** Final – Product Direction Approved **Project:** Fetch Client **Date:** 9 November 2026
 
 ---
 
@@ -35,12 +30,14 @@ The platform must support multiple LLM providers, specialized agents, reusable t
 ## 2. Target Users
 
 ### Primary Users
+
 - Backend developers.
 - API developers.
 - Software testers and QA engineers.
 - Automation engineers.
 
 ### Secondary Users
+
 - DevOps engineers.
 - Technical leads.
 - Development teams.
@@ -49,18 +46,18 @@ The platform must support multiple LLM providers, specialized agents, reusable t
 
 ## 3. Problems We Want to Solve
 
-| Problem | Proposed AI Solution |
-|---|---|
-| Manually creating API requests | Generate requests from natural language |
-| Understanding complex API responses | Explain and analyze responses |
-| Troubleshooting API failures | Identify possible causes and suggest fixes |
-| Writing test scenarios manually | Generate API test cases |
-| Repeating API testing workflows | Assist with automated execution |
-| Understanding performance results | Analyze bottlenecks and performance trends |
-| Managing API documentation | Generate and explain API documentation |
-| Creating pre-request scripts | Assist with variable and token preparation |
-| Identifying API security vulnerabilities | Perform authorized security assessments |
-| Uncertainty about AI data handling | Provide transparent privacy and security controls |
+| Problem                                  | Proposed AI Solution                              |
+| ---------------------------------------- | ------------------------------------------------- |
+| Manually creating API requests           | Generate requests from natural language           |
+| Understanding complex API responses      | Explain and analyze responses                     |
+| Troubleshooting API failures             | Identify possible causes and suggest fixes        |
+| Writing test scenarios manually          | Generate API test cases                           |
+| Repeating API testing workflows          | Assist with automated execution                   |
+| Understanding performance results        | Analyze bottlenecks and performance trends        |
+| Managing API documentation               | Generate and explain API documentation            |
+| Creating pre-request scripts             | Assist with variable and token preparation        |
+| Identifying API security vulnerabilities | Perform authorized security assessments           |
+| Uncertainty about AI data handling       | Provide transparent privacy and security controls |
 
 ## 4. Core Agent Capabilities
 
@@ -157,20 +154,20 @@ Independent deployment and remote API integration can be implemented when there 
 
 ### 5.3 Core Components
 
-| Component | Responsibility |
-|---|---|
-| Agent Orchestrator | Controls agent execution and coordination |
-| Agent Registry | Registers and discovers available agents |
-| LLM Provider Layer | Supports multiple LLM providers |
-| Tool Registry | Provides reusable tools to agents |
-| Memory Manager | Manages conversation and task context |
-| Workflow Engine | Supports multi-step operations |
-| Context Manager | Supplies relevant application context |
-| Permission Manager | Controls user, agent and tool permissions |
-| Security Policy Engine | Evaluates and enforces execution security policies |
-| Privacy Manager | Controls data sharing and retention |
-| Audit Manager | Records relevant security and execution activities |
-| Observability | Tracks execution, errors, token usage and performance |
+| Component              | Responsibility                                        |
+| ---------------------- | ----------------------------------------------------- |
+| Agent Orchestrator     | Controls agent execution and coordination             |
+| Agent Registry         | Registers and discovers available agents              |
+| LLM Provider Layer     | Supports multiple LLM providers                       |
+| Tool Registry          | Provides reusable tools to agents                     |
+| Memory Manager         | Manages conversation and task context                 |
+| Workflow Engine        | Supports multi-step operations                        |
+| Context Manager        | Supplies relevant application context                 |
+| Permission Manager     | Controls user, agent and tool permissions             |
+| Security Policy Engine | Evaluates and enforces execution security policies    |
+| Privacy Manager        | Controls data sharing and retention                   |
+| Audit Manager          | Records relevant security and execution activities    |
+| Observability          | Tracks execution, errors, token usage and performance |
 
 ### 5.4 Provider Independence
 
@@ -251,6 +248,7 @@ An important design principle:
 The platform must not blindly block legitimate security-testing payloads based only on suspicious patterns.
 
 For example, a SQL injection payload might be used for:
+
 - Unauthorized attacks.
 - Authorized penetration testing.
 - Testing a deliberately vulnerable application.
@@ -262,12 +260,12 @@ The system must evaluate the execution context, not just the payload.
 
 The Security Policy Engine should support four decisions:
 
-| Decision | Description |
-|---|---|
-| Allow | Operation is permitted |
-| Warn | Operation can proceed with a security warning |
-| Require Approval | Explicit user authorization is required |
-| Block | Operation is prohibited |
+| Decision         | Description                                   |
+| ---------------- | --------------------------------------------- |
+| Allow            | Operation is permitted                        |
+| Warn             | Operation can proceed with a security warning |
+| Require Approval | Explicit user authorization is required       |
+| Block            | Operation is prohibited                       |
 
 ### 7.2 Policy Evaluation
 
@@ -303,6 +301,7 @@ The following responsibilities must remain distinct:
 **AI Platform Security**
 
 Protects:
+
 - LLM interactions.
 - Credentials.
 - Memory.
@@ -314,6 +313,7 @@ Protects:
 **API Security Testing**
 
 Evaluates:
+
 - API vulnerabilities.
 - Authentication and authorization.
 - Input validation.
@@ -333,24 +333,28 @@ The objective is not simply to tell users their data is safe. It is to demonstra
 The dashboard should eventually communicate:
 
 **Data Protection**
+
 - Sensitive data masking status.
 - Credential handling approach.
 - Local versus external processing.
 - Encryption and storage configuration.
 
 **Privacy**
+
 - Configured LLM provider.
 - Data-sharing preferences.
 - Conversation retention settings.
 - Data deletion options.
 
 **Execution Safety**
+
 - Agent permission settings.
 - Tool access permissions.
 - Approval requirements.
 - Restricted operations.
 
 **Security Testing**
+
 - Latest security test results.
 - Vulnerability assessment status.
 - Dependency scanning results.
@@ -360,36 +364,40 @@ The dashboard should eventually communicate:
 
 Every important security claim must have supporting evidence.
 
-| Security Claim | Supporting Evidence |
-|---|---|
-| Secrets are masked | Automated secret-masking tests |
-| Unauthorized tools cannot execute | Permission enforcement tests |
-| Sensitive data is not unnecessarily shared | LLM payload inspection tests |
-| Destructive actions require approval | Execution policy tests |
-| Data retention follows configured policies | Retention and deletion tests |
-| Dependencies are monitored | Dependency vulnerability reports |
-| Security issues are tracked | Security assessment reports |
+| Security Claim                             | Supporting Evidence              |
+| ------------------------------------------ | -------------------------------- |
+| Secrets are masked                         | Automated secret-masking tests   |
+| Unauthorized tools cannot execute          | Permission enforcement tests     |
+| Sensitive data is not unnecessarily shared | LLM payload inspection tests     |
+| Destructive actions require approval       | Execution policy tests           |
+| Data retention follows configured policies | Retention and deletion tests     |
+| Dependencies are monitored                 | Dependency vulnerability reports |
+| Security issues are tracked                | Security assessment reports      |
 
 ### 8.3 Security Assurance Levels
 
 Introduce progressive assurance levels.
 
 **Level 1 – Basic**
+
 - Security controls implemented.
 - Automated security tests available.
 - Basic privacy documentation.
 
 **Level 2 – Verified**
+
 - Additional security tests.
 - Dependency scanning.
 - Documented threat assessments.
 - Evidence-based control validation.
 
 **Level 3 – Independently Assessed**
+
 - External security assessment or penetration testing completed.
 - Findings documented and remediated according to policy.
 
 **Level 4 – Certified**
+
 - Applicable independent certification achieved and maintained.
 
 These levels must have documented criteria. They must never be awarded simply because a feature has been implemented.
@@ -402,16 +410,16 @@ Security and safety must be measurable throughout development.
 
 ### Initial Proposed Metrics
 
-| Metric | Initial Target |
-|---|---|
-| Automated secret-masking test pass rate | 100% |
-| Unauthorized tool execution | 0 successful executions |
-| Destructive operations without required approval | 0 |
-| Known sensitive data exposure in application logs | 0 |
-| Critical security test failures | 0 before release |
-| Security-relevant actions with audit records | 100% |
-| Defined data-sharing behavior for each provider | 100% |
-| Production dependencies monitored | 100% |
+| Metric                                            | Initial Target          |
+| ------------------------------------------------- | ----------------------- |
+| Automated secret-masking test pass rate           | 100%                    |
+| Unauthorized tool execution                       | 0 successful executions |
+| Destructive operations without required approval  | 0                       |
+| Known sensitive data exposure in application logs | 0                       |
+| Critical security test failures                   | 0 before release        |
+| Security-relevant actions with audit records      | 100%                    |
+| Defined data-sharing behavior for each provider   | 100%                    |
+| Production dependencies monitored                 | 100%                    |
 
 Additional measurements:
 

@@ -498,12 +498,13 @@
 		"package": "npm run pre-commit && npm run lint && webpack --mode production",
 		"lint-check": "editorconfig-checker",
 		"lint": "eslint src --ext .ts,.tsx",
-		"lint-fix": "npx eslint src --ext .ts,.tsx --fix",
-		"md-lint": "markdownlint *.md ./**/*.md ./**/**/*.md --ignore node_modules --ignore CHANGELOG.md",
-		"md-lint-fix": "markdownlint *.md ./**/*.md ./**/**/*.md --ignore node_modules --ignore CHANGELOG.md --fix",
+		"lint-fix": "eslint src --ext .ts,.tsx --fix",
+		"md-lint": "markdownlint \"**/*.md\"",
+		"md-fix-spaces": "node scripts/fix-markdown-spaces.js",
+		"md-lint-fix": "prettier --write \"**/*.md\" --prose-wrap always --print-width 250 && markdownlint \"**/*.md\" --fix && npm run md-fix-spaces",
 		"md-spellcheck": "spellchecker -f *.md ./**/*.md -d dictionary.txt --language en-GB",
 		"pre-commit": "npm run lint-check && npm run md-lint && npm run md-spellcheck",
-		"format": "npx prettier --write ."
+		"format": "prettier --write . && npm run md-lint-fix"
 	},
 	"devDependencies": {
 		"@svgr/webpack": "8.1.0",

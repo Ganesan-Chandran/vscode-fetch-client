@@ -122,9 +122,8 @@ Side-by-side Local vs Remote values, user edits the merged result and saves. Int
 
 ## Why One File Per Collection?
 
-A single `collections.db` means every change touches the same file → large diffs, frequent conflicts. Exporting
-one JSON per collection (`Customer.json`, `Order.json`, `Payment.json`)
-lets Git track each independently → better reviews, better history, easier merges, smaller commits.
+A single `collections.db` means every change touches the same file → large diffs, frequent conflicts. Exporting one JSON per collection (`Customer.json`, `Order.json`, `Payment.json`) lets Git track each independently → better reviews, better
+history, easier merges, smaller commits.
 
 ## Advantages
 

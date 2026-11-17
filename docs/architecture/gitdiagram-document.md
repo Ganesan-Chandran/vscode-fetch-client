@@ -24,18 +24,18 @@ Create or import requests, organize them into collections, execute them, inspect
 
 ## Features
 
-| Area | Capability |
-|------|------------|
-| **Requests & Collections** | Create or import requests and organize them into collections |
-| **Execution** | Run requests with variable resolution and pre-request scripts |
-| **Response Inspection** | View and test responses in a dedicated response panel |
-| **Quality Checks** | Quality-gate checks on API behavior |
-| **Data-driven Tests** | Run requests against datasets |
-| **Performance Tests** | Load and performance testing |
-| **Mock Server** | Start a mock server from within VS Code |
-| **Scheduling** | Schedule requests to run automatically |
-| **Interoperability** | Import collections from other tools and export reports/collections |
-| **CLI Automation** | Run requests, checks, datasets, and load tests from the terminal, using the same local data as the extension |
+| Area                       | Capability                                                                                                   |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **Requests & Collections** | Create or import requests and organize them into collections                                                 |
+| **Execution**              | Run requests with variable resolution and pre-request scripts                                                |
+| **Response Inspection**    | View and test responses in a dedicated response panel                                                        |
+| **Quality Checks**         | Quality-gate checks on API behavior                                                                          |
+| **Data-driven Tests**      | Run requests against datasets                                                                                |
+| **Performance Tests**      | Load and performance testing                                                                                 |
+| **Mock Server**            | Start a mock server from within VS Code                                                                      |
+| **Scheduling**             | Schedule requests to run automatically                                                                       |
+| **Interoperability**       | Import collections from other tools and export reports/collections                                           |
+| **CLI Automation**         | Run requests, checks, datasets, and load tests from the terminal, using the same local data as the extension |
 
 ---
 
@@ -139,93 +139,93 @@ class node_quality,node_datadriven,node_performance,node_mockserver,node_schedul
 
 #### VS Code Extension
 
-| Component | Source |
-|-----------|--------|
-| Extension Host | [`src/extension.ts`](src/extension.ts) |
-| Webview Providers | [`src/fetch-client-vscode/webviews/index.ts`](src/fetch-client-vscode/webviews/index.ts) |
-| API Workspace | [`src/fetch-client-ui/App.tsx`](src/fetch-client-ui/App.tsx) |
-| Request Editor | [`src/fetch-client-ui/components/RequestUI/RequestPanel/index.tsx`](src/fetch-client-ui/components/RequestUI/RequestPanel/index.tsx) |
-| Response Viewer | [`src/fetch-client-ui/components/ResponseUI/ResponsePanel/index.tsx`](src/fetch-client-ui/components/ResponseUI/ResponsePanel/index.tsx) |
-| Window Messages | [`src/fetch-client-ui/components/MainUI/hooks/useWindowMessages.ts`](src/fetch-client-ui/components/MainUI/hooks/useWindowMessages.ts) |
+| Component         | Source                                                                                                                                   |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Extension Host    | [`src/extension.ts`](src/extension.ts)                                                                                                   |
+| Webview Providers | [`src/fetch-client-vscode/webviews/index.ts`](src/fetch-client-vscode/webviews/index.ts)                                                 |
+| API Workspace     | [`src/fetch-client-ui/App.tsx`](src/fetch-client-ui/App.tsx)                                                                             |
+| Request Editor    | [`src/fetch-client-ui/components/RequestUI/RequestPanel/index.tsx`](src/fetch-client-ui/components/RequestUI/RequestPanel/index.tsx)     |
+| Response Viewer   | [`src/fetch-client-ui/components/ResponseUI/ResponsePanel/index.tsx`](src/fetch-client-ui/components/ResponseUI/ResponsePanel/index.tsx) |
+| Window Messages   | [`src/fetch-client-ui/components/MainUI/hooks/useWindowMessages.ts`](src/fetch-client-ui/components/MainUI/hooks/useWindowMessages.ts)   |
 
 #### Request Core
 
-| Component | Source |
-|-----------|--------|
-| Request Model | [`src/fetch-client-core/types/request.types.ts`](src/fetch-client-core/types/request.types.ts) |
-| HTTP Execution | [`src/fetch-client-core/utils/fetchUtil.ts`](src/fetch-client-core/utils/fetchUtil.ts) |
-| Variable Services | [`src/fetch-client-core/helpers/variable.helper.ts`](src/fetch-client-core/helpers/variable.helper.ts) |
+| Component          | Source                                                                                                                           |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| Request Model      | [`src/fetch-client-core/types/request.types.ts`](src/fetch-client-core/types/request.types.ts)                                   |
+| HTTP Execution     | [`src/fetch-client-core/utils/fetchUtil.ts`](src/fetch-client-core/utils/fetchUtil.ts)                                           |
+| Variable Services  | [`src/fetch-client-core/helpers/variable.helper.ts`](src/fetch-client-core/helpers/variable.helper.ts)                           |
 | Pre-request Runner | [`src/fetch-client-core/utils/preFetchService/preFetchRunner.ts`](src/fetch-client-core/utils/preFetchService/preFetchRunner.ts) |
 
 #### Local Data
 
-| Component | Source |
-|-----------|--------|
+| Component             | Source                                                                                                       |
+| --------------------- | ------------------------------------------------------------------------------------------------------------ |
 | Collection Repository | [`src/fetch-client-core/db/collectionDB.repository.ts`](src/fetch-client-core/db/collectionDB.repository.ts) |
-| Local Database | [`src/fetch-client-core/db/dbManager.ts`](src/fetch-client-core/db/dbManager.ts) |
+| Local Database        | [`src/fetch-client-core/db/dbManager.ts`](src/fetch-client-core/db/dbManager.ts)                             |
 
 #### CLI Automation
 
-| Component | Source |
-|-----------|--------|
-| CLI Commands | [`src/fetch-client-cli/index.ts`](src/fetch-client-cli/index.ts) |
+| Component            | Source                                                                                                       |
+| -------------------- | ------------------------------------------------------------------------------------------------------------ |
+| CLI Commands         | [`src/fetch-client-cli/index.ts`](src/fetch-client-cli/index.ts)                                             |
 | Collection Importers | [`src/fetch-client-core/helpers/importers/collections`](src/fetch-client-core/helpers/importers/collections) |
-| Collection Exporters | [`src/fetch-client-core/helpers/exporters`](src/fetch-client-core/helpers/exporters) |
+| Collection Exporters | [`src/fetch-client-core/helpers/exporters`](src/fetch-client-core/helpers/exporters)                         |
 
 #### Testing Features
 
-| Component | Source |
-|-----------|--------|
-| Quality Checks | [`src/fetch-client-core/helpers/qualityGate/qualityGateEngine.ts`](src/fetch-client-core/helpers/qualityGate/qualityGateEngine.ts) |
+| Component         | Source                                                                                                                                           |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Quality Checks    | [`src/fetch-client-core/helpers/qualityGate/qualityGateEngine.ts`](src/fetch-client-core/helpers/qualityGate/qualityGateEngine.ts)               |
 | Data-driven Tests | [`src/fetch-client-core/utils/dataDrivenTestService/dataDrivenRunner.ts`](src/fetch-client-core/utils/dataDrivenTestService/dataDrivenRunner.ts) |
-| Performance Tests | [`src/fetch-client-core/utils/performanceTestService/perfEngine.ts`](src/fetch-client-core/utils/performanceTestService/perfEngine.ts) |
-| Mock Server | [`src/fetch-client-vscode/utils/mockServerRunner.ts`](src/fetch-client-vscode/utils/mockServerRunner.ts) |
-| Request Scheduler | [`src/fetch-client-vscode/utils/scheduler.ts`](src/fetch-client-vscode/utils/scheduler.ts) |
+| Performance Tests | [`src/fetch-client-core/utils/performanceTestService/perfEngine.ts`](src/fetch-client-core/utils/performanceTestService/perfEngine.ts)           |
+| Mock Server       | [`src/fetch-client-vscode/utils/mockServerRunner.ts`](src/fetch-client-vscode/utils/mockServerRunner.ts)                                         |
+| Request Scheduler | [`src/fetch-client-vscode/utils/scheduler.ts`](src/fetch-client-vscode/utils/scheduler.ts)                                                       |
 
 ### Connections
 
 Relationships marked **inferred** are based on README statements rather than a specific source file.
 
-| From | Relationship | To | Evidence |
-|------|--------------|----|----------|
-| Developer | uses | Extension Host | inferred |
-| Developer | runs | CLI Commands | inferred |
-| Extension Host | registers | Webview Providers | `src/extension.ts` |
-| Webview Providers | hosts | API Workspace | inferred |
-| API Workspace | presents | Request Editor | `src/fetch-client-ui/App.tsx` |
-| API Workspace | presents | Response Viewer | `src/fetch-client-ui/App.tsx` |
-| Request Editor | sends requests | Window Messages | `useWindowMessages.ts` |
-| Window Messages | bridges messages | Webview Providers | `useWindowMessages.ts` |
-| Request Editor | edits | Request Model | inferred |
-| Extension Host | executes requests | HTTP Execution | inferred |
-| HTTP Execution | returns responses | Response Viewer | inferred |
-| HTTP Execution | resolves variables | Variable Services | inferred |
-| HTTP Execution | runs pre-requests | Pre-request Runner | inferred |
-| Collection Repository | reads and writes | Local Database | `collectionDB.repository.ts` |
-| Extension Host | initializes stores | Local Database | `src/extension.ts` |
-| CLI Commands | uses shared data | Local Database | inferred |
-| CLI Commands | runs requests | HTTP Execution | inferred |
-| CLI Commands | runs checks | Quality Checks | `src/fetch-client-cli/index.ts` |
-| CLI Commands | runs datasets | Data-driven Tests | inferred |
-| CLI Commands | runs load tests | Performance Tests | `src/fetch-client-cli/index.ts` |
-| CLI Commands | imports collections | Collection Importers | inferred |
-| CLI Commands | exports reports | Collection Exporters | inferred |
-| Extension Host | checks API quality | Quality Checks | inferred |
-| Extension Host | runs data tests | Data-driven Tests | inferred |
-| Extension Host | runs load tests | Performance Tests | inferred |
-| Extension Host | starts mock server | Mock Server | `src/extension.ts` |
-| Extension Host | schedules requests | Request Scheduler | `src/extension.ts` |
+| From                  | Relationship        | To                   | Evidence                        |
+| --------------------- | ------------------- | -------------------- | ------------------------------- |
+| Developer             | uses                | Extension Host       | inferred                        |
+| Developer             | runs                | CLI Commands         | inferred                        |
+| Extension Host        | registers           | Webview Providers    | `src/extension.ts`              |
+| Webview Providers     | hosts               | API Workspace        | inferred                        |
+| API Workspace         | presents            | Request Editor       | `src/fetch-client-ui/App.tsx`   |
+| API Workspace         | presents            | Response Viewer      | `src/fetch-client-ui/App.tsx`   |
+| Request Editor        | sends requests      | Window Messages      | `useWindowMessages.ts`          |
+| Window Messages       | bridges messages    | Webview Providers    | `useWindowMessages.ts`          |
+| Request Editor        | edits               | Request Model        | inferred                        |
+| Extension Host        | executes requests   | HTTP Execution       | inferred                        |
+| HTTP Execution        | returns responses   | Response Viewer      | inferred                        |
+| HTTP Execution        | resolves variables  | Variable Services    | inferred                        |
+| HTTP Execution        | runs pre-requests   | Pre-request Runner   | inferred                        |
+| Collection Repository | reads and writes    | Local Database       | `collectionDB.repository.ts`    |
+| Extension Host        | initializes stores  | Local Database       | `src/extension.ts`              |
+| CLI Commands          | uses shared data    | Local Database       | inferred                        |
+| CLI Commands          | runs requests       | HTTP Execution       | inferred                        |
+| CLI Commands          | runs checks         | Quality Checks       | `src/fetch-client-cli/index.ts` |
+| CLI Commands          | runs datasets       | Data-driven Tests    | inferred                        |
+| CLI Commands          | runs load tests     | Performance Tests    | `src/fetch-client-cli/index.ts` |
+| CLI Commands          | imports collections | Collection Importers | inferred                        |
+| CLI Commands          | exports reports     | Collection Exporters | inferred                        |
+| Extension Host        | checks API quality  | Quality Checks       | inferred                        |
+| Extension Host        | runs data tests     | Data-driven Tests    | inferred                        |
+| Extension Host        | runs load tests     | Performance Tests    | inferred                        |
+| Extension Host        | starts mock server  | Mock Server          | `src/extension.ts`              |
+| Extension Host        | schedules requests  | Request Scheduler    | `src/extension.ts`              |
 
 ---
 
 ## Entry Points
 
-| Entry point | File | Purpose |
-|-------------|------|---------|
-| Extension Host | [`src/extension.ts`](src/extension.ts) | Activates the VS Code extension, registers webviews, initializes stores, starts the mock server and scheduler |
-| CLI Commands | [`src/fetch-client-cli/index.ts`](src/fetch-client-cli/index.ts) | Terminal interface for running requests, checks, datasets, and load tests |
-| HTTP Execution | [`src/fetch-client-core/utils/fetchUtil.ts`](src/fetch-client-core/utils/fetchUtil.ts) | Shared request execution engine |
-| API Workspace | [`src/fetch-client-ui/App.tsx`](src/fetch-client-ui/App.tsx) | Root of the webview UI |
+| Entry point    | File                                                                                   | Purpose                                                                                                       |
+| -------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Extension Host | [`src/extension.ts`](src/extension.ts)                                                 | Activates the VS Code extension, registers webviews, initializes stores, starts the mock server and scheduler |
+| CLI Commands   | [`src/fetch-client-cli/index.ts`](src/fetch-client-cli/index.ts)                       | Terminal interface for running requests, checks, datasets, and load tests                                     |
+| HTTP Execution | [`src/fetch-client-core/utils/fetchUtil.ts`](src/fetch-client-core/utils/fetchUtil.ts) | Shared request execution engine                                                                               |
+| API Workspace  | [`src/fetch-client-ui/App.tsx`](src/fetch-client-ui/App.tsx)                           | Root of the webview UI                                                                                        |
 
 ---
 

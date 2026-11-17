@@ -1,11 +1,7 @@
 # 03 — Reusable Services and AI Agent Boundaries
 
-**Project:** Fetch Client AI Agent  
-**Phase:** Phase 0 — Product Goal and Preparation  
-**Session:** Day 4  
-**Document type:** Architecture Analysis and Design Decision  
-**Status:** Initial analysis completed; proposed interfaces and boundaries require implementation validation  
-**Location:** `docs/ai-agent/02-architecture/03-reusable-services-and-agent-boundaries.md`
+**Project:** Fetch Client AI Agent **Phase:** Phase 0 — Product Goal and Preparation **Session:** Day 4 **Document type:** Architecture Analysis and Design Decision **Status:** Initial analysis completed; proposed interfaces and boundaries require
+implementation validation **Location:** `docs/ai-agent/02-architecture/03-reusable-services-and-agent-boundaries.md`
 
 ---
 
@@ -20,7 +16,8 @@ The purpose of this document is to identify existing Fetch Client services that 
 
 The objective is to avoid duplicating functionality that Fetch Client already provides.
 
-For example, the AI Agent should not implement a new HTTP client when Fetch Client already has `apiFetch()`. Instead, it should understand the user's request, prepare an execution plan, and invoke the existing request execution capability through a controlled interface.
+For example, the AI Agent should not implement a new HTTP client when Fetch Client already has `apiFetch()`. Instead, it should understand the user's request, prepare an execution plan, and invoke the existing request execution capability through a
+controlled interface.
 
 This approach will help us:
 
@@ -66,15 +63,15 @@ These capabilities should remain independent of the AI Agent.
 
 ### 2.2 Separation of responsibilities
 
-| Component | Primary responsibility |
-|---|---|
-| AI Agent | Understand, reason, plan and orchestrate |
-| Security Manager | Validate permissions, policies and risks |
-| Tool Registry | Define available Agent capabilities |
-| Existing Fetch Client services | Execute established business functionality |
-| Database repositories | Persist and retrieve application data |
-| Platform adapters | Connect Agent capabilities to VS Code, CLI and other platforms |
-| LLM provider | Interpret instructions and generate proposed actions |
+| Component                      | Primary responsibility                                         |
+| ------------------------------ | -------------------------------------------------------------- |
+| AI Agent                       | Understand, reason, plan and orchestrate                       |
+| Security Manager               | Validate permissions, policies and risks                       |
+| Tool Registry                  | Define available Agent capabilities                            |
+| Existing Fetch Client services | Execute established business functionality                     |
+| Database repositories          | Persist and retrieve application data                          |
+| Platform adapters              | Connect Agent capabilities to VS Code, CLI and other platforms |
+| LLM provider                   | Interpret instructions and generate proposed actions           |
 
 **Important:** The LLM is not the authority for deciding whether an operation is safe. The Security Manager must independently validate every operation before execution.
 
@@ -82,16 +79,16 @@ These capabilities should remain independent of the AI Agent.
 
 The following files were inspected to understand the existing implementation.
 
-| File | Existing responsibility |
-|---|---|
-| `fetch-client-core/utils/fetchUtil.ts` | HTTP request execution |
-| `fetch-client-core/db/dbManager.ts` | LokiJS database caching and persistence infrastructure |
-| `fetch-client-vscode/webviews/mainUIProvider.tsx` | VS Code webview and message handling |
-| `fetch-client-vscode/helper.ts` | VS Code request execution orchestration |
-| `fetch-client-vscode/db/collectionDB.repository.ts` | Collection operations and some request execution |
-| `fetch-client-vscode/db/variableDB.repository.ts` | Variable storage and encryption |
-| `fetch-client-core/helpers/variable.server.helper.ts` | Variable replacement and AWS secret resolution |
-| `fetch-client-core/utils/preFetchService/preFetchRunner.ts` | Pre-request execution |
+| File                                                        | Existing responsibility                                |
+| ----------------------------------------------------------- | ------------------------------------------------------ |
+| `fetch-client-core/utils/fetchUtil.ts`                      | HTTP request execution                                 |
+| `fetch-client-core/db/dbManager.ts`                         | LokiJS database caching and persistence infrastructure |
+| `fetch-client-vscode/webviews/mainUIProvider.tsx`           | VS Code webview and message handling                   |
+| `fetch-client-vscode/helper.ts`                             | VS Code request execution orchestration                |
+| `fetch-client-vscode/db/collectionDB.repository.ts`         | Collection operations and some request execution       |
+| `fetch-client-vscode/db/variableDB.repository.ts`           | Variable storage and encryption                        |
+| `fetch-client-core/helpers/variable.server.helper.ts`       | Variable replacement and AWS secret resolution         |
+| `fetch-client-core/utils/preFetchService/preFetchRunner.ts` | Pre-request execution                                  |
 
 The reviewed implementation already contains useful reusable functionality. However, some services have dependencies on VS Code configuration, extension infrastructure or other platform-specific components.
 
@@ -288,17 +285,17 @@ For example:
 
 ```text
 AI Agent
-   |
-   v
+    |
+    v
 Collection Service
-   |
-   v
+    |
+    v
 Collection Repository
-   |
-   v
+    |
+    v
 DB Cache
-   |
-   v
+    |
+    v
 LokiJS
 ```
 
@@ -424,11 +421,11 @@ This means the repository must not be exposed directly as an unrestricted Agent 
 
 **Recommended variable access levels:**
 
-| Access level | Description |
-|---|---|
-| Metadata | Variable name, ID, active status and scope |
-| Resolve | Resolve a specific variable for an approved operation |
-| Write | Create or update a variable after permission checks |
+| Access level  | Description                                               |
+| ------------- | --------------------------------------------------------- |
+| Metadata      | Variable name, ID, active status and scope                |
+| Resolve       | Resolve a specific variable for an approved operation     |
+| Write         | Create or update a variable after permission checks       |
 | Secret access | Restricted resolution through a secure execution boundary |
 
 The LLM should not receive the complete decrypted variable collection.
@@ -595,11 +592,11 @@ However, the Agent core must not know about:
 
 ```text
 VS Code Webview
-       |
-       v
+        |
+        v
 Agent UI Adapter
-       |
-       v
+        |
+        v
 AI Agent Application Service
 ```
 
@@ -633,21 +630,21 @@ Instead, identify the reusable capabilities it coordinates and expose them throu
 
 ## 6. Consolidated reuse decision
 
-| Existing component | Reuse decision | Required action |
-|---|---|---|
-| `apiFetch()` | Reuse | Add execution adapter and security checks |
-| `dbManager.ts` | Reuse indirectly | Access through repositories |
-| Collection repository | Reuse selectively | Add collection service/adapter |
-| Variable repository | Reuse selectively | Add controlled variable access |
-| `replaceValueWithVariable()` | Reuse | Protect secrets and clone mutable input |
-| `PreFetchRunner` | Reuse with improvements | Introduce dependency injection |
-| `mainUIProvider.tsx` | Keep independent | Add a separate Agent UI adapter |
-| `ExecuteAPIRequest()` | Do not reuse directly | Retain as VS Code-specific orchestration |
-| AWS secret service | Reuse indirectly | Keep secret values outside the LLM |
-| Existing Quality Gate | Reuse | Invoke through a controlled tool interface |
-| Existing performance engine | Reuse | Invoke through a controlled tool interface |
-| Existing data-driven testing | Reuse | Invoke through a controlled tool interface |
-| LokiJS repositories | Reuse indirectly | Keep persistence behind application services |
+| Existing component           | Reuse decision          | Required action                              |
+| ---------------------------- | ----------------------- | -------------------------------------------- |
+| `apiFetch()`                 | Reuse                   | Add execution adapter and security checks    |
+| `dbManager.ts`               | Reuse indirectly        | Access through repositories                  |
+| Collection repository        | Reuse selectively       | Add collection service/adapter               |
+| Variable repository          | Reuse selectively       | Add controlled variable access               |
+| `replaceValueWithVariable()` | Reuse                   | Protect secrets and clone mutable input      |
+| `PreFetchRunner`             | Reuse with improvements | Introduce dependency injection               |
+| `mainUIProvider.tsx`         | Keep independent        | Add a separate Agent UI adapter              |
+| `ExecuteAPIRequest()`        | Do not reuse directly   | Retain as VS Code-specific orchestration     |
+| AWS secret service           | Reuse indirectly        | Keep secret values outside the LLM           |
+| Existing Quality Gate        | Reuse                   | Invoke through a controlled tool interface   |
+| Existing performance engine  | Reuse                   | Invoke through a controlled tool interface   |
+| Existing data-driven testing | Reuse                   | Invoke through a controlled tool interface   |
+| LokiJS repositories          | Reuse indirectly        | Keep persistence behind application services |
 
 The last three existing capabilities are identified as reuse candidates from the existing Fetch Client feature set. Their detailed internal interfaces have not yet been inspected as part of this Day 4 code review.
 
@@ -814,18 +811,18 @@ For example:
 Agent Tool:
     ExecuteRequest
 
-       |
-       v
+        |
+        v
 
 Request Execution Adapter
 
-       |
-       v
+        |
+        v
 
 Existing Request Execution Service
 
-       |
-       v
+        |
+        v
 
 apiFetch()
 ```
@@ -842,26 +839,23 @@ The following interfaces are initial design proposals. They are not existing imp
 
 ```ts
 interface IRequestExecutionService {
-    execute(
-        request: IRequestModel,
-        context: RequestExecutionContext
-    ): Promise<RequestExecutionResult>;
+  execute(request: IRequestModel, context: RequestExecutionContext): Promise<RequestExecutionResult>;
 }
 
 interface RequestExecutionContext {
-    collectionId?: string;
-    folderId?: string;
-    environmentId?: string;
-    cancellationSignal?: AbortSignal;
+  collectionId?: string;
+  folderId?: string;
+  environmentId?: string;
+  cancellationSignal?: AbortSignal;
 }
 
 interface RequestExecutionResult {
-    status: number;
-    statusText: string;
-    duration: number;
-    responseData?: unknown;
-    headers: Record<string, string>;
-    isError: boolean;
+  status: number;
+  statusText: string;
+  duration: number;
+  responseData?: unknown;
+  headers: Record<string, string>;
+  isError: boolean;
 }
 ```
 
@@ -871,17 +865,11 @@ The execution result is illustrative. The final contract must preserve Fetch Cli
 
 ```ts
 interface ICollectionService {
-    getCollection(id: string): Promise<ICollections | null>;
+  getCollection(id: string): Promise<ICollections | null>;
 
-    getRequests(
-        collectionId: string,
-        folderId?: string
-    ): Promise<IRequestModel[]>;
+  getRequests(collectionId: string, folderId?: string): Promise<IRequestModel[]>;
 
-    saveRequest(
-        collectionId: string,
-        request: IRequestModel
-    ): Promise<void>;
+  saveRequest(collectionId: string, request: IRequestModel): Promise<void>;
 }
 ```
 
@@ -897,18 +885,11 @@ Responsibilities:
 
 ```ts
 interface IVariableService {
-    listMetadata(
-        context: VariableContext
-    ): Promise<VariableMetadata[]>;
+  listMetadata(context: VariableContext): Promise<VariableMetadata[]>;
 
-    resolve(
-        expression: string,
-        context: VariableContext
-    ): Promise<ResolvedVariable>;
+  resolve(expression: string, context: VariableContext): Promise<ResolvedVariable>;
 
-    save(
-        variable: VariableInput
-    ): Promise<void>;
+  save(variable: VariableInput): Promise<void>;
 }
 ```
 
@@ -920,10 +901,7 @@ Secret resolution should be handled separately through a protected execution con
 
 ```ts
 interface IPreRequestService {
-    run(
-        request: IRequestModel,
-        context: PreRequestContext
-    ): Promise<PreRequestResult>;
+  run(request: IRequestModel, context: PreRequestContext): Promise<PreRequestResult>;
 }
 ```
 
@@ -933,17 +911,14 @@ This interface should delegate to the existing pre-request engine.
 
 ```ts
 interface ISecurityManager {
-    evaluate(
-        action: AgentAction,
-        context: SecurityContext
-    ): Promise<SecurityDecision>;
+  evaluate(action: AgentAction, context: SecurityContext): Promise<SecurityDecision>;
 }
 
 interface SecurityDecision {
-    allowed: boolean;
-    requiresApproval: boolean;
-    reason: string;
-    riskLevel: "low" | "medium" | "high" | "critical";
+  allowed: boolean;
+  requiresApproval: boolean;
+  reason: string;
+  riskLevel: "low" | "medium" | "high" | "critical";
 }
 ```
 
@@ -953,17 +928,12 @@ This is a conceptual starting point. The final policy model must define prohibit
 
 ```ts
 interface IAgentTool {
-    name: string;
-    description: string;
+  name: string;
+  description: string;
 
-    validateInput(
-        input: unknown
-    ): ValidationResult;
+  validateInput(input: unknown): ValidationResult;
 
-    execute(
-        input: unknown,
-        context: AgentToolContext
-    ): Promise<AgentToolResult>;
+  execute(input: unknown, context: AgentToolContext): Promise<AgentToolResult>;
 }
 ```
 
@@ -983,16 +953,16 @@ Not all of this information should be sent to an LLM.
 
 A proposed classification:
 
-| Data category | Examples | LLM access |
-|---|---|---|
-| Public metadata | HTTP method, request name | Allowed when needed |
-| Non-sensitive request data | Public API paths, non-secret parameters | Allowed when needed |
-| Configuration metadata | Authentication type, variable name | Allowed when needed |
-| Sensitive request data | Personal data, private API responses | Restricted; require policy evaluation |
-| Credentials | Passwords, tokens, API keys | Never expose by default |
-| Secret Manager values | AWS secret values | Never expose |
-| Encryption keys | Fetch Client encryption key | Never expose |
-| Internal security configuration | Security policies and protected configuration | Restricted |
+| Data category                   | Examples                                      | LLM access                            |
+| ------------------------------- | --------------------------------------------- | ------------------------------------- |
+| Public metadata                 | HTTP method, request name                     | Allowed when needed                   |
+| Non-sensitive request data      | Public API paths, non-secret parameters       | Allowed when needed                   |
+| Configuration metadata          | Authentication type, variable name            | Allowed when needed                   |
+| Sensitive request data          | Personal data, private API responses          | Restricted; require policy evaluation |
+| Credentials                     | Passwords, tokens, API keys                   | Never expose by default               |
+| Secret Manager values           | AWS secret values                             | Never expose                          |
+| Encryption keys                 | Fetch Client encryption key                   | Never expose                          |
+| Internal security configuration | Security policies and protected configuration | Restricted                            |
 
 The classification is a proposed policy and must be implemented with explicit rules.
 
@@ -1167,17 +1137,17 @@ src/
 
 ### 11.1 Folder responsibilities
 
-| Folder | Responsibility |
-|---|---|
-| `domain` | Agent domain models, action definitions and core policies |
-| `application` | Agent workflows and orchestration |
-| `application/ports` | Interfaces for required dependencies |
-| `tools` | Capabilities exposed to the Agent |
-| `security` | Policy validation, permissions and audit |
-| `infrastructure/llm` | Model provider implementations |
-| `infrastructure/adapters` | Implementations of Fetch Client service interfaces |
-| `infrastructure/persistence` | Agent-specific persistence, if required |
-| `types` | Shared Agent-specific types |
+| Folder                       | Responsibility                                            |
+| ---------------------------- | --------------------------------------------------------- |
+| `domain`                     | Agent domain models, action definitions and core policies |
+| `application`                | Agent workflows and orchestration                         |
+| `application/ports`          | Interfaces for required dependencies                      |
+| `tools`                      | Capabilities exposed to the Agent                         |
+| `security`                   | Policy validation, permissions and audit                  |
+| `infrastructure/llm`         | Model provider implementations                            |
+| `infrastructure/adapters`    | Implementations of Fetch Client service interfaces        |
+| `infrastructure/persistence` | Agent-specific persistence, if required                   |
+| `types`                      | Shared Agent-specific types                               |
 
 Do not create all these folders immediately. Start with the minimum required structure and introduce modules as responsibilities become clear.
 
@@ -1187,19 +1157,20 @@ Do not create all these folders immediately. Start with the minimum required str
 
 The proposed architecture should follow these dependency rules.
 
-| Module | Can depend on | Should not depend on |
-|---|---|---|
-| Agent domain | Agent domain types | VS Code, LokiJS, Axios, LLM SDK |
-| Agent application | Domain and application ports | Concrete database or platform implementations |
-| Tool implementations | Application ports and contracts | Direct UI message handlers |
-| Security Manager | Action and security contracts | LLM-generated authorization decisions |
-| LLM adapters | LLM provider SDKs and adapter contracts | LokiJS repositories |
-| VS Code adapter | Agent application interfaces and VS Code APIs | Agent internals implemented as UI logic |
-| Repository adapters | Existing repositories and application contracts | Agent reasoning logic |
+| Module               | Can depend on                                   | Should not depend on                          |
+| -------------------- | ----------------------------------------------- | --------------------------------------------- |
+| Agent domain         | Agent domain types                              | VS Code, LokiJS, Axios, LLM SDK               |
+| Agent application    | Domain and application ports                    | Concrete database or platform implementations |
+| Tool implementations | Application ports and contracts                 | Direct UI message handlers                    |
+| Security Manager     | Action and security contracts                   | LLM-generated authorization decisions         |
+| LLM adapters         | LLM provider SDKs and adapter contracts         | LokiJS repositories                           |
+| VS Code adapter      | Agent application interfaces and VS Code APIs   | Agent internals implemented as UI logic       |
+| Repository adapters  | Existing repositories and application contracts | Agent reasoning logic                         |
 
 The dependency direction should be inward: the Agent application defines what it needs, and external adapters provide those capabilities.
 
-This is consistent with the Ports and Adapters approach. It also supports independent testing and multiple entry points. See [AWS Prescriptive Guidance — Hexagonal Architecture](https://docs.aws.amazon.com/pdfs/prescriptive-guidance/latest/cloud-design-patterns/cloud-design-patterns.pdf).
+This is consistent with the Ports and Adapters approach. It also supports independent testing and multiple entry points. See
+[AWS Prescriptive Guidance — Hexagonal Architecture](https://docs.aws.amazon.com/pdfs/prescriptive-guidance/latest/cloud-design-patterns/cloud-design-patterns.pdf).
 
 ---
 
@@ -1331,18 +1302,18 @@ Do not attempt to refactor all existing services in one step.
 
 A gradual approach is safer.
 
-| Step | Activity | Expected outcome |
-|---|---|---|
-| 1 | Document existing service responsibilities | Reuse inventory |
-| 2 | Define Agent application contracts | Stable boundaries |
-| 3 | Create request execution adapter | Agent can use existing HTTP execution |
-| 4 | Create collection adapter | Agent can retrieve and save requests |
-| 5 | Create controlled variable adapter | Safe variable access |
-| 6 | Refactor pre-request dependencies | Platform-independent execution |
-| 7 | Implement Security Manager | Controlled tool execution |
-| 8 | Add LLM provider adapter | Provider-independent model access |
-| 9 | Integrate VS Code entry point | Agent accessible from extension |
-| 10 | Add CLI entry point | Reuse Agent from CLI |
+| Step | Activity                                   | Expected outcome                      |
+| ---- | ------------------------------------------ | ------------------------------------- |
+| 1    | Document existing service responsibilities | Reuse inventory                       |
+| 2    | Define Agent application contracts         | Stable boundaries                     |
+| 3    | Create request execution adapter           | Agent can use existing HTTP execution |
+| 4    | Create collection adapter                  | Agent can retrieve and save requests  |
+| 5    | Create controlled variable adapter         | Safe variable access                  |
+| 6    | Refactor pre-request dependencies          | Platform-independent execution        |
+| 7    | Implement Security Manager                 | Controlled tool execution             |
+| 8    | Add LLM provider adapter                   | Provider-independent model access     |
+| 9    | Integrate VS Code entry point              | Agent accessible from extension       |
+| 10   | Add CLI entry point                        | Reuse Agent from CLI                  |
 
 The order may change after the tool contracts and security policies are finalized.
 
@@ -1350,18 +1321,18 @@ The order may change after the tool contracts and security policies are finalize
 
 ## 16. Architectural risks and mitigation
 
-| Risk | Impact | Mitigation |
-|---|---|---|
-| Agent directly calls `apiFetch()` everywhere | Tight coupling | Centralize execution through an adapter |
-| Agent directly accesses LokiJS | Database dependency | Use repository interfaces |
-| Decrypted variables reach the LLM | Credential exposure | Controlled variable service |
-| AWS secrets enter prompts | Secret leakage | Resolve secrets only in secure execution |
-| VS Code APIs enter Agent core | Platform lock-in | Platform adapters |
-| Collection repository mixes responsibilities | Difficult maintenance | Gradual separation of persistence and execution |
-| Pre-request engine depends on VS Code configuration | Reuse limitations | Dependency injection |
-| LLM decides whether an action is safe | Security bypass | Independent Security Manager |
-| AI-generated request executes automatically | Unexpected external side effects | Separate generation and execution permissions |
-| Agent changes existing requests unexpectedly | Data corruption | Clone inputs and require approved writes |
+| Risk                                                | Impact                           | Mitigation                                      |
+| --------------------------------------------------- | -------------------------------- | ----------------------------------------------- |
+| Agent directly calls `apiFetch()` everywhere        | Tight coupling                   | Centralize execution through an adapter         |
+| Agent directly accesses LokiJS                      | Database dependency              | Use repository interfaces                       |
+| Decrypted variables reach the LLM                   | Credential exposure              | Controlled variable service                     |
+| AWS secrets enter prompts                           | Secret leakage                   | Resolve secrets only in secure execution        |
+| VS Code APIs enter Agent core                       | Platform lock-in                 | Platform adapters                               |
+| Collection repository mixes responsibilities        | Difficult maintenance            | Gradual separation of persistence and execution |
+| Pre-request engine depends on VS Code configuration | Reuse limitations                | Dependency injection                            |
+| LLM decides whether an action is safe               | Security bypass                  | Independent Security Manager                    |
+| AI-generated request executes automatically         | Unexpected external side effects | Separate generation and execution permissions   |
+| Agent changes existing requests unexpectedly        | Data corruption                  | Clone inputs and require approved writes        |
 
 ---
 
@@ -1369,18 +1340,18 @@ The order may change after the tool contracts and security policies are finalize
 
 The following decisions are proposed for the Fetch Client AI Agent.
 
-| ID | Decision | Reason |
-|---|---|---|
-| D-001 | Agent will be an orchestration layer | Prevent duplication of existing functionality |
-| D-002 | Existing HTTP engine will be reused | Avoid a second request execution engine |
-| D-003 | Agent core will not directly access LokiJS | Preserve database independence |
+| ID    | Decision                                                         | Reason                                        |
+| ----- | ---------------------------------------------------------------- | --------------------------------------------- |
+| D-001 | Agent will be an orchestration layer                             | Prevent duplication of existing functionality |
+| D-002 | Existing HTTP engine will be reused                              | Avoid a second request execution engine       |
+| D-003 | Agent core will not directly access LokiJS                       | Preserve database independence                |
 | D-004 | Variable resolution will use existing Fetch Client functionality | Preserve current variable syntax and behavior |
-| D-005 | Secrets will not be exposed to the LLM by default | Protect credentials |
-| D-006 | Pre-request engine will be reused | Preserve existing behavior |
-| D-007 | VS Code UI will remain outside Agent core | Support future CLI and web integrations |
-| D-008 | Security Manager will validate every tool action | Prevent unsafe operations |
-| D-009 | Agent-facing services will use interfaces | Support testing and future replacement |
-| D-010 | Existing features will be refactored incrementally | Reduce regression risk |
+| D-005 | Secrets will not be exposed to the LLM by default                | Protect credentials                           |
+| D-006 | Pre-request engine will be reused                                | Preserve existing behavior                    |
+| D-007 | VS Code UI will remain outside Agent core                        | Support future CLI and web integrations       |
+| D-008 | Security Manager will validate every tool action                 | Prevent unsafe operations                     |
+| D-009 | Agent-facing services will use interfaces                        | Support testing and future replacement        |
+| D-010 | Existing features will be refactored incrementally               | Reduce regression risk                        |
 
 These are architectural proposals for the project. They should be confirmed as implementation decisions when the corresponding designs are approved.
 
@@ -1439,7 +1410,8 @@ Instead, it should coordinate existing capabilities through controlled applicati
 
 **Final architectural statement:**
 
-> The Fetch Client AI Agent will act as an orchestration and reasoning layer. It will reuse existing Fetch Client services through controlled adapters and interfaces. Request execution, database persistence, variable resolution, authentication, pre-request execution and platform-specific integrations will remain independent of the Agent's core. All Agent-initiated tool operations will pass through the Security Manager before execution.
+> The Fetch Client AI Agent will act as an orchestration and reasoning layer. It will reuse existing Fetch Client services through controlled adapters and interfaces. Request execution, database persistence, variable resolution, authentication,
+> pre-request execution and platform-specific integrations will remain independent of the Agent's core. All Agent-initiated tool operations will pass through the Security Manager before execution.
 
 ---
 
@@ -1485,5 +1457,5 @@ The following files were used for this architecture investigation:
 7. `fetch-client-core/helpers/variable.server.helper.ts`
 8. `fetch-client-core/utils/preFetchService/preFetchRunner.ts`
 
-**Scope limitation:** This document records findings from the inspected files and proposes future architecture. It is not a complete audit of every Fetch Client service, every call site or every platform integration. The Quality Gate, performance testing, data-driven testing and OpenAPI importer have not been fully inspected in this Day 4 review.
-
+**Scope limitation:** This document records findings from the inspected files and proposes future architecture. It is not a complete audit of every Fetch Client service, every call site or every platform integration. The Quality Gate, performance
+testing, data-driven testing and OpenAPI importer have not been fully inspected in this Day 4 review.

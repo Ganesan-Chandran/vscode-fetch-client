@@ -23,7 +23,8 @@ Many development workflows need API testing outside an IDE. Fetch Client CLI let
 - 🤖 CI/CD friendly with appropriate exit codes
 - 🚀 Lightweight with no additional server or services required
 
-You don't need separate collections for your IDE and your automation. The CLI works directly with your existing Fetch Client database. The CLI and the VS Code extension share the same database. Any change you make in one shows up in the other right away.
+You don't need separate collections for your IDE and your automation. The CLI works directly with your existing Fetch Client database. The CLI and the VS Code extension share the same database. Any change you make in one shows up in the other right
+away.
 
 ### NEW FEATURE
 
