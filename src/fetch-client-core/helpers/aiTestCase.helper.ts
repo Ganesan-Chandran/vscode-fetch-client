@@ -1,6 +1,6 @@
 import Ajv, { ErrorObject, ValidateFunction } from "ajv";
 import { ActionsParametersMapping } from "../consts/test.consts";
-import testCaseSchema from "../schemas/fetch-client-testcases.schema.json";
+import testCaseSchema from "../schemas/fetchClient_Testcases_schema_1_0.json";
 import {
 	AI_TESTCASE_SCHEMA,
 	AI_TESTCASE_VERSION,
