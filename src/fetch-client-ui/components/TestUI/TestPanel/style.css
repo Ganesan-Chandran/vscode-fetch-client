@@ -19,7 +19,7 @@
 	color: var(--text-color);
 	font-size: var(--font-size);
 	outline: none;
-	padding: 10px;
+	padding: 5px 10px;
 	width: 100%;
 }
 
@@ -50,11 +50,6 @@ option[value=""][disabled] {
 .test-action-cell {
 	text-align: center;
 	width: 50px;
-}
-
-.test-table > tbody > tr:hover .DraftEditor-editorContainer,
-.test-table > tbody > tr:focus .DraftEditor-editorContainer {
-	background-color: var(--list-hover-background-color) !important;
 }
 
 .value-cell-wrapper {
@@ -117,4 +112,27 @@ option[value=""][disabled] {
 
 .test-import-button:hover {
 	background-color: var(--list-hover-background-color);
+}
+
+.test-rows-loading {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px;
+	color: var(--description-text-color);
+}
+
+.test-rows-spinner {
+	width: 14px;
+	height: 14px;
+	border: 2px solid var(--border-color);
+	border-top-color: var(--button-background-color);
+	border-radius: 50%;
+	animation: test-rows-spin 0.8s linear infinite;
+}
+
+@keyframes test-rows-spin {
+	to {
+		transform: rotate(360deg);
+	}
 }

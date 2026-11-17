@@ -194,9 +194,9 @@ html
 	)
 	thead
 	:is(th, td) {
-	background-color: var(--list-hover-background-color);
+	background-color: color-mix(in srgb, var(--text-color) 12%, var(--background-color));
 	font-weight: 600;
-	padding: 8px 10px;
+	padding: 4px 10px;
 }
 
 html
@@ -255,6 +255,28 @@ html
 	tbody
 	tr:hover {
 	background-color: var(--list-hover-background-color);
+}
+
+/* Compact rows: read-only tables get cell padding; editable tables get it via their inputs. */
+html body :is(
+		.runall-tbl,
+		.dd-results-table,
+		.dev-tool-table,
+		.ms-header-table,
+		.qg-requests-tbl,
+		.qg-summary-tbl,
+		.aws-results-table
+	) tbody td {
+	padding: 4px 10px;
+}
+
+html body :is(.option-table, .test-table) .DraftEditor-editorContainer {
+	background-color: transparent;
+	padding: 5px 10px !important;
+}
+
+html body :is(.option-table, .test-table) .public-DraftEditorPlaceholder-inner {
+	padding: 5px 10px;
 }
 
 .spinner.loading {

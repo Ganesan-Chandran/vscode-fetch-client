@@ -23,6 +23,8 @@ import {
 } from "../../../../fetch-client-core/consts/requestTypes.consts";
 import vscode from "../../Common/vscodeAPI";
 
+const ROW_CHUNK_SIZE = 8;
+
 export const TestPanel = () => {
 	const dispatch = useDispatch<AppDispatch>();
 
@@ -33,7 +35,7 @@ export const TestPanel = () => {
 		(state: IRootState) => state.variableData,
 	);
 
-	const [editingField, setEditingField] = useState<{
+	const [editingField, setEditingField] = useState<{  
 		index: number;
 		type: "customParameter" | "expectedValue";
 	} | null>(null);
@@ -48,6 +50,20 @@ export const TestPanel = () => {
 	function closeValueEditor() {
 		setEditingField(null);
 	}
+
+	const [renderCount, setRenderCount] = useState(ROW_CHUNK_SIZE);
+
+	// Each row mounts editors, so mounting all rows at once blocks the tab switch.
+	useEffect(() => {
+		if (renderCount >= tests.length) {
+			return undefined;
+		}
+		const timer = setTimeout(
+			() => setRenderCount((count) => count + ROW_CHUNK_SIZE),
+			0,
+		);
+		return () => clearTimeout(timer);
+	}, [renderCount, tests.length]);
 
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
@@ -192,7 +208,7 @@ export const TestPanel = () => {
 								}
 								onChange={(val) => onSelectItem(val, index, "customParameter")}
 								value={row.customParameter}
-								focus={true}
+								focus={false}
 							/>
 							{getEditButton(index, "customParameter")}
 						</div>
@@ -314,7 +330,7 @@ export const TestPanel = () => {
 	};
 
 	const makeTable = (data: ITest[]) => {
-		return data.map((item: ITest, index: number) => {
+		return data.slice(0, renderCount).map((item: ITest, index: number) => {
 			return tableRow(item, index);
 		});
 	};
@@ -342,6 +358,12 @@ export const TestPanel = () => {
 				</thead>
 				<tbody>{makeTable(tests)}</tbody>
 			</table>
+			{renderCount < tests.length && (
+				<div className="test-rows-loading" role="status">
+					<span className="test-rows-spinner" />
+					Loading {tests.length - renderCount} more rows...
+				</div>
+			)}
 			<ValueEditorModal
 				show={editingField !== null}
 				value={
