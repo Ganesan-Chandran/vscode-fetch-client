@@ -2,6 +2,7 @@ import "./style.css";
 import { Actions } from "../../RequestUI/redux";
 import { AppDispatch } from "../../../store/appStore";
 import { Autocomplete } from "../../Common/Autocomplete/Autocomplete";
+import { convertAITestCases } from "../../../../fetch-client-core/helpers/aiTestCase.helper";
 import { HerdersValues } from "../../../../fetch-client-core/consts/headers.consts";
 import { IRootState } from "../../../reducer/combineReducer";
 import { ITest } from "../../../../fetch-client-core/types/prefetch.types";
@@ -15,12 +16,21 @@ import {
 import { TextEditor } from "../../Common/TextEditor/TextEditor";
 import { ValueEditorModal } from "../../Common/ValueEditorModal";
 import { useDispatch, useSelector } from "react-redux";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import {
+	requestTypes,
+	responseTypes,
+} from "../../../../fetch-client-core/consts/requestTypes.consts";
+import vscode from "../../Common/vscodeAPI";
+
+const ROW_CHUNK_SIZE = 8;
 
 export const TestPanel = () => {
 	const dispatch = useDispatch<AppDispatch>();
 
-	const { tests } = useSelector((state: IRootState) => state.requestData);
+	const { tests, method, url } = useSelector(
+		(state: IRootState) => state.requestData,
+	);
 	const { selectedVariable } = useSelector(
 		(state: IRootState) => state.variableData,
 	);
@@ -39,6 +49,62 @@ export const TestPanel = () => {
 
 	function closeValueEditor() {
 		setEditingField(null);
+	}
+
+	const [renderCount, setRenderCount] = useState(ROW_CHUNK_SIZE);
+
+	// Each row mounts editors, so mounting all rows at once blocks the tab switch.
+	useEffect(() => {
+		if (renderCount >= tests.length) {
+			return undefined;
+		}
+		const timer = setTimeout(
+			() => setRenderCount((count) => count + ROW_CHUNK_SIZE),
+			0,
+		);
+		return () => clearTimeout(timer);
+	}, [renderCount, tests.length]);
+
+	useEffect(() => {
+		const handleMessage = (event: MessageEvent) => {
+			if (event.data?.type !== responseTypes.importTestCasesResponse) {
+				return;
+			}
+
+			const result = convertAITestCases(event.data.fileData, { method, url });
+			if (result.error) {
+				vscode.postMessage({
+					type: requestTypes.showMessageRequest,
+					data: result.error,
+				});
+				return;
+			}
+
+			const existing = tests.filter((t) => t.parameter !== "");
+			dispatch(
+				Actions.SetTestAction([
+					...existing,
+					...result.tests,
+					{ parameter: "", action: "", expectedValue: "", customParameter: "" },
+				]),
+			);
+
+			vscode.postMessage({
+				type: requestTypes.showMessageRequest,
+				data:
+					`Imported ${result.tests.length} test(s).` +
+					(result.warnings.length > 0
+						? `\n\nSkipped:\n${result.warnings.join("\n")}`
+						: ""),
+			});
+		};
+
+		window.addEventListener("message", handleMessage);
+		return () => window.removeEventListener("message", handleMessage);
+	}, [tests, method, url]);
+
+	function onImportTestCases() {
+		vscode.postMessage({ type: requestTypes.importTestCasesRequest });
 	}
 
 	function saveValueEditor(value: string) {
@@ -142,7 +208,7 @@ export const TestPanel = () => {
 								}
 								onChange={(val) => onSelectItem(val, index, "customParameter")}
 								value={row.customParameter}
-								focus={true}
+								focus={false}
 							/>
 							{getEditButton(index, "customParameter")}
 						</div>
@@ -264,13 +330,23 @@ export const TestPanel = () => {
 	};
 
 	const makeTable = (data: ITest[]) => {
-		return data.map((item: ITest, index: number) => {
+		return data.slice(0, renderCount).map((item: ITest, index: number) => {
 			return tableRow(item, index);
 		});
 	};
 
 	return (
 		<>
+			<div className="test-import-bar">
+				<button
+					className="test-import-button"
+					title="Import AI test cases (JSON)"
+					aria-label="Import AI test cases"
+					onClick={onImportTestCases}
+				>
+					📥
+				</button>
+			</div>
 			<table className="test-table">
 				<thead>
 					<tr>
@@ -282,6 +358,12 @@ export const TestPanel = () => {
 				</thead>
 				<tbody>{makeTable(tests)}</tbody>
 			</table>
+			{renderCount < tests.length && (
+				<div className="test-rows-loading" role="status">
+					<span className="test-rows-spinner" />
+					Loading {tests.length - renderCount} more rows...
+				</div>
+			)}
 			<ValueEditorModal
 				show={editingField !== null}
 				value={

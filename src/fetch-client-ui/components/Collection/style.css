@@ -1,10 +1,41 @@
 .tab-menu {
-	padding: 10px;
+	position: relative;
+	min-height: 32px;
+	padding: 6px 12px;
 	background-color: transparent;
 	color: var(--text-color);
+	font-size: var(--font-size);
+	opacity: 0.8;
 	border: 0;
+	border-radius: 4px 4px 0 0;
 	cursor: pointer;
 	margin-left: 10px;
+}
+
+.tab-menu:hover {
+	background-color: var(--list-hover-background-color);
+	opacity: 1;
+}
+
+.tab-menu:focus-visible {
+	outline: 1px solid var(--focus-border-color);
+	outline-offset: -2px;
+}
+
+.tab-menu.selected {
+	opacity: 1;
+	font-weight: 600;
+	border-bottom: 0 !important; /* cancels the global .selected underline in SideBar/style.css */
+}
+
+.tab-menu.selected::after {
+	content: "";
+	position: absolute;
+	left: 8px;
+	right: 8px;
+	bottom: 0;
+	height: 2px;
+	background: var(--button-background-color);
 }
 
 .addto-header {
@@ -36,6 +67,7 @@
 
 .addto-table {
 	width: 50%;
+	border: 0px;
 }
 
 .addto-table tr {
@@ -194,37 +226,18 @@
 	max-height: calc(100% - 40px);
 }
 
-.runall-tbl tbody,
-.runall-tbl td {
-	border: var(--border-size) solid var(--border-color);
-	border-top: none !important;
+.runall-tbl tbody {
+	cursor: pointer;
 }
 
 .runall-tbl th {
 	padding: 7px;
-	background-color: var(--list-hover-background-color);
-}
-
-.runall-tbl > tbody > tr:first-child > td {
-	border-top: none !important;
-	border-right: var(--border-size) solid var(--border-color) !important;
-	border-left: var(--border-size) solid var(--border-color) !important;
 }
 
 .runall-tbl-panel thead th {
 	position: sticky;
 	top: 0;
 	z-index: 1;
-	border-top: none !important;
-	border-bottom: none !important;
-	border-right: var(--border-size) solid var(--border-color) !important;
-	border-left: var(--border-size) solid var(--border-color) !important;
-	box-shadow:
-		inset 0 1px 0 var(--border-color),
-		inset 0 -1px 0 var(--border-color);
-	box-shadow:
-		inset 0 1px 0 var(--border-color),
-		inset 0 -1px 0 var(--border-color);
 }
 
 .runall-tbl td {
@@ -272,17 +285,14 @@
 
 .runall-col-0 {
 	width: 5%;
-	border: var(--border-size) solid var(--border-color) !important;
 }
 
 .runall-col-1 {
 	width: 10%;
-	border: var(--border-size) solid var(--border-color) !important;
 }
 
 .runall-col-2 {
 	width: 30%;
-	border: var(--border-size) solid var(--border-color) !important;
 }
 
 .runall-col-5 {
@@ -376,27 +386,41 @@
 .runall-test-pass,
 .runall-test-fail,
 .runall-test-disabled {
-	color: #fff;
 	display: inline-block;
 	padding: 2px 8px;
-	font-weight: 500;
-	border-radius: 3px;
+	font-weight: 600;
+	border-radius: 999px;
 	width: 100%;
 	word-break: break-word;
 	box-sizing: border-box;
-	font-size: 12px;
+	font-size: calc(var(--font-size) - 1px);
 }
 
 .runall-test-normal {
-	background-color: #555;
+	background-color: color-mix(
+		in srgb,
+		var(--description-text-color) 16%,
+		transparent
+	);
+	color: var(--description-text-color);
 }
 
 .runall-test-pass {
-	background-color: green;
+	background-color: color-mix(
+		in srgb,
+		var(--test-passed-color) 16%,
+		transparent
+	);
+	color: var(--test-passed-color);
 }
 
 .runall-test-fail {
-	background-color: red;
+	background-color: color-mix(
+		in srgb,
+		var(--test-failed-color) 16%,
+		transparent
+	);
+	color: var(--test-failed-color);
 }
 
 .runall-test-disabled {
@@ -424,7 +448,8 @@
 .col-settings-panel-tabs {
 	display: flex;
 	justify-content: start;
-	border-bottom: 1px solid #555;
+	border-bottom: 1px solid
+		color-mix(in srgb, var(--border-color) 40%, transparent);
 }
 
 .col-settings-panel {
@@ -494,9 +519,9 @@
 
 .runall-order-select {
 	background-color: transparent;
-	color: var(--button-text-color);
+	color: var(--text-color);
 	width: 95%;
-	font-size: large;
+	font-size: var(--font-size);
 }
 
 select.runall-order-select option {

@@ -15,7 +15,6 @@ export const ResponseCookies = () => {
 
 	return (
 		<>
-			{cookies?.length === 0 && <hr />}
 			<div className="manage-cookie-btn-panel">
 				<button
 					onClick={onOpenCookies}

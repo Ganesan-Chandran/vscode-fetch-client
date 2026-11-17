@@ -33,6 +33,7 @@ export async function ExecuteAPIRequest(
 	webview: vscode.Webview,
 ) {
 	try {
+		const startedAt = Date.now();
 		let request = message.data.reqData as IRequestModel;
 		let settings = message.data.settings as ISettings;
 		let reqSettings = message.data.reqSettings as IReqSettings;
@@ -114,7 +115,13 @@ export async function ExecuteAPIRequest(
 			});
 		}
 
-		_executeAPIRequest(message, updatedVariable, fetchConfig, webview);
+		_executeAPIRequest(
+			message,
+			updatedVariable,
+			fetchConfig,
+			webview,
+			isVariableUpdated ? Date.now() - startedAt : 0,
+		);
 	} catch (err) {
 		writeLog("error::helper::ExecuteAPIRequest()" + err);
 		throw err;
@@ -180,6 +187,7 @@ function _executeAPIRequest(
 	variable: IVariable,
 	fetchConfig: FetchConfig,
 	webview: vscode.Webview,
+	preRequestDuration: number,
 ) {
 	apiFetch(
 		message.data.reqData,
@@ -189,6 +197,7 @@ function _executeAPIRequest(
 		fetchConfig,
 	).then((data) => {
 		fetchConfig.source = null;
+		Object.assign(data.response, { preRequestDuration });
 		webview.postMessage(data);
 
 		let item: IHistory = {

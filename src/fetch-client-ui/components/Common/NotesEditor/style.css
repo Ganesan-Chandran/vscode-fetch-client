@@ -5,29 +5,40 @@
 
 .rsw-editor {
 	height: 100% !important;
-	border: 1px solid var(--border-color) !important;
-	border-radius: 0 !important;
+	border: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent) !important;
+	border-radius: 4px !important;
+	overflow: hidden;
+}
+
+.rsw-editor:focus-within {
+	border-color: var(--focus-border-color) !important;
 }
 
 .rsw-toolbar {
-	background-color: var(--background-color) !important;
-	border-bottom: 1px solid var(--border-color) !important;
+	background-color: var(--list-hover-background-color) !important;
+	border-bottom: 1px solid
+		color-mix(in srgb, var(--border-color) 40%, transparent) !important;
 }
 
 .rsw-separator {
-	border-right: 1px solid var(--border-color) !important;
+	border-right: 1px solid
+		color-mix(in srgb, var(--border-color) 40%, transparent) !important;
 }
 
 .rsw-btn {
 	color: var(--text-color) !important;
-	height: 35px !important;
-	width: 35px !important;
-	font-size: 15px !important;
+	height: 30px !important;
+	width: 30px !important;
+	font-size: var(--font-size) !important;
+	border-radius: 4px !important;
 }
 
 .rsw-btn:hover {
-	background-color: var(--button-hover-color) !important;
-	color: var(--button-text-color) !important;
+	background-color: color-mix(
+		in srgb,
+		var(--text-color) 15%,
+		transparent
+	) !important;
 }
 
 .rsw-dd {
@@ -35,16 +46,24 @@
 }
 
 .rsw-btn[data-active="true"] {
-	background-color: var(--button-hover-color) !important;
+	background-color: var(--button-background-color) !important;
 	color: var(--button-text-color) !important;
 }
 
 .rsw-ce {
-	font-size: 15px !important;
+	font-size: var(--font-size) !important;
+	font-family: var(--font-family) !important;
 	color: var(--text-color) !important;
+	padding: 10px 12px !important;
 }
 
 .notes-text {
-	padding-top: 5px;
-	font-size: initial;
+	padding-top: 6px;
+	font-size: calc(var(--font-size) - 1px);
+	color: var(--description-text-color);
+	text-align: right;
+}
+
+.notes-text.error-text {
+	color: var(--error-foreground-color);
 }

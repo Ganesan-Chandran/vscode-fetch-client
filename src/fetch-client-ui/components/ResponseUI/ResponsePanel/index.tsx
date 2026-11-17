@@ -21,6 +21,10 @@ const CodeSnippetGenerator = React.lazy(
 	() => import("../../Common/CodeGenerator"),
 );
 
+const AIPromptGenerator = React.lazy(
+	() => import("../../Common/AIPromptGenerator"),
+);
+
 export const ReponsePanel = (props: ResponsePanelProps) => {
 	const { loading } = useSelector((state: IRootState) => state.responseData);
 	const { runItem } = useSelector((state: IRootState) => state.uiData);
@@ -51,6 +55,12 @@ export const ReponsePanel = (props: ResponsePanelProps) => {
 				);
 			case "prefetchresults":
 				return <PreFetchResponse />;
+			case "aiprompt":
+				return (
+					<React.Suspense fallback={<div>loading...</div>}>
+						<AIPromptGenerator />
+					</React.Suspense>
+				);
 			case "jsonschema":
 				return (
 					<React.Suspense fallback={<div>loading...</div>}>

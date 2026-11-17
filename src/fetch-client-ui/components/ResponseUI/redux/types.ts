@@ -17,6 +17,8 @@ export const FETCH_CLIENT_SET_TEST_RESULT: "FETCH_CLIENT_SET_TEST_RESULT" =
 	"FETCH_CLIENT_SET_TEST_RESULT";
 export const FETCH_CLIENT_SET_RES_PREFETCH_RESPONSE: "FETCH_CLIENT_SET_RES_PREFETCH_RESPONSE" =
 	"FETCH_CLIENT_SET_RES_PREFETCH_RESPONSE";
+export const FETCH_CLIENT_SET_POST_FETCH_DURATION: "FETCH_CLIENT_SET_POST_FETCH_DURATION" =
+	"FETCH_CLIENT_SET_POST_FETCH_DURATION";
 
 export interface ISetResponse {
 	type: typeof FETCH_CLIENT_SET_RES_RESPONSE;
@@ -60,10 +62,18 @@ export interface ISetPreFetchResult {
 	};
 }
 
+export interface ISetPostFetchDuration {
+	type: typeof FETCH_CLIENT_SET_POST_FETCH_DURATION;
+	payload: {
+		postFetchDuration: number;
+	};
+}
+
 export type ResponseActionTypes =
 	| ISetResponse
 	| ISetHeaders
 	| ISetCookies
 	| ISetLoading
 	| ISetTestResult
-	| ISetPreFetchResult;
+	| ISetPreFetchResult
+	| ISetPostFetchDuration;

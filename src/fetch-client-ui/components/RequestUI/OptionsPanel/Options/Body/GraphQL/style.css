@@ -35,7 +35,7 @@
 
 .graphql-query-head,
 .graphql-variable-head {
-	font-size: small;
+	font-size: var(--font-size);
 	padding-bottom: 5px;
 	font-weight: 600;
 	margin-bottom: 5px;

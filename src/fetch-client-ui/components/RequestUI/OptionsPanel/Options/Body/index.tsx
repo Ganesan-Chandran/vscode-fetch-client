@@ -81,11 +81,16 @@ export const Body = () => {
 
 	return (
 		<>
-			<div className="reqest-body-options-panel">
+			<div
+				className="reqest-body-options-panel tab-options-secondary"
+				role="tablist"
+			>
 				{requestBodyTypes.map(({ name, value }) => (
 					<div key={value} className="reqest-body-options">
 						<button
 							key={value}
+							role="tab"
+							aria-selected={bodyType === value}
 							onClick={() => setBodyType(value)}
 							className={
 								bodyType === value ? "option option-selected" : "option"

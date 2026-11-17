@@ -2,6 +2,10 @@ import { ITableData } from "./common.types";
 
 export interface IResponse {
 	duration: number;
+	// Pre-request stage time (ms), set by the extension host.
+	preRequestDuration?: number;
+	// Tests and set-variable run time (ms), set by the UI after the response arrives.
+	postFetchDuration?: number;
 	isError: boolean;
 	responseData: any;
 	responseType?: {

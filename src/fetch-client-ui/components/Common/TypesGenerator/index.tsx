@@ -70,7 +70,6 @@ const TypesGenerator = () => {
 
 	return (
 		<div className="code-snippet-panel">
-			<hr />
 			{codeTypes && (
 				<>
 					<div className="code-snippet-select-panel">

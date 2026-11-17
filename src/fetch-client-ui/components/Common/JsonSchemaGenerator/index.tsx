@@ -40,7 +40,6 @@ const JsonSchemaGenerator = ({ mode }: JsonSchemaGeneratorProps) => {
 
 	return (
 		<div className="code-snippet-panel">
-			<hr />
 			{error && <div className="error-text">{error}</div>}
 			{output && (
 				<>

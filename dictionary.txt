@@ -14,12 +14,16 @@ Chandran
 Changelog
 CLI
 CLI-invocation
+CodeQL
 colorized
+config
 CSV
 Customization
 customize
 Customize
+CVEs
 dateISO
+Dependabot
 Dev
 DevOps
 dialogs
@@ -30,10 +34,12 @@ formdata
 formurlencoded
 Ganesan
 GitLab
+Gitleaks
 GraphQL
 guid
 HMAC
 Http
+IaC
 isJson
 JetBrains
 JS
@@ -55,6 +61,9 @@ NUnit
 OAuth
 OAuth2
 OpenAPI
+OpenSSF
+Optimized
+optimized
 organization
 Organize
 Param
@@ -70,6 +79,7 @@ rdate
 re-init
 repo
 Repo
+Semgrep
 SSL
 str
 strnum
@@ -79,7 +89,9 @@ synchronization
 Synchronization
 Synchronize
 TLS
+Trivy
 UI
+UI/UX
 unmerged
 unsynced
 upserts

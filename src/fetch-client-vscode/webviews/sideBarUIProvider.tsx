@@ -145,11 +145,13 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					});
 					break;
 				case requestTypes.renameHistoryRequest:
-					this.showInputBox().then((data: any) => {
-						if (data) {
-							RenameHistory(webviewView, reqData.data, data);
-						}
-					});
+					this.showInputBox(undefined, undefined, true, reqData.name).then(
+						(data: any) => {
+							if (data) {
+								RenameHistory(webviewView, reqData.data, data);
+							}
+						},
+					);
 					break;
 				case requestTypes.openHistoryItemRequest:
 					OpenExistingItem(
@@ -180,18 +182,20 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					GetAllCollections(webviewView.webview);
 					break;
 				case requestTypes.renameCollectionItemRequest:
-					this.showInputBox().then((name: any) => {
-						if (name) {
-							RenameCollectionItem(
-								webviewView,
-								reqData.data.colId,
-								reqData.data.historyId,
-								reqData.data.folderId,
-								reqData.data.isFolder,
-								name,
-							);
-						}
-					});
+					this.showInputBox(undefined, undefined, true, reqData.data.name).then(
+						(name: any) => {
+							if (name) {
+								RenameCollectionItem(
+									webviewView,
+									reqData.data.colId,
+									reqData.data.historyId,
+									reqData.data.folderId,
+									reqData.data.isFolder,
+									name,
+								);
+							}
+						},
+					);
 					break;
 				case requestTypes.deleteCollectionItemRequest:
 					this.showConfirmationBox(
@@ -209,11 +213,13 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					});
 					break;
 				case requestTypes.renameCollectionRequest:
-					this.showInputBox().then((name: any) => {
-						if (name) {
-							RenameCollection(webviewView, reqData.data, name);
-						}
-					});
+					this.showInputBox(undefined, undefined, true, reqData.name).then(
+						(name: any) => {
+							if (name) {
+								RenameCollection(webviewView, reqData.data, name);
+							}
+						},
+					);
 					break;
 				case requestTypes.deleteCollectionRequest:
 					this.showConfirmationBox(
@@ -340,11 +346,13 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					GetAllMockServers(webviewView.webview);
 					break;
 				case requestTypes.renameMockServerRequest:
-					this.showInputBox(reqData.name).then((name: any) => {
-						if (name) {
-							RenameMockServer(reqData.data, name, webviewView);
-						}
-					});
+					this.showInputBox(undefined, undefined, true, reqData.name).then(
+						(name: any) => {
+							if (name) {
+								RenameMockServer(reqData.data, name, webviewView);
+							}
+						},
+					);
 					break;
 				case requestTypes.deleteMockServerRequest:
 					this.showConfirmationBox(
@@ -356,11 +364,13 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 					});
 					break;
 				case requestTypes.renameVariableRequest:
-					this.showInputBox().then((name: any) => {
-						if (name) {
-							RenameVariable(webviewView, reqData.data, name);
-						}
-					});
+					this.showInputBox(undefined, undefined, true, reqData.name).then(
+						(name: any) => {
+							if (name) {
+								RenameVariable(webviewView, reqData.data, name);
+							}
+						},
+					);
 					break;
 				case requestTypes.deleteVariableRequest:
 					this.showConfirmationBox(
@@ -633,9 +643,11 @@ export class SideBarProvider implements vscode.WebviewViewProvider {
 		prompt: string = "Enter name",
 		placeHolder: string = "Enter name",
 		validate: boolean = true,
+		value: string = "",
 	) {
 		const res = await vscode.window.showInputBox({
-			value: "",
+			value: value,
+			valueSelection: value ? [value.length, value.length] : undefined,
 			prompt: prompt,
 			placeHolder: placeHolder,
 			ignoreFocusOut: false,

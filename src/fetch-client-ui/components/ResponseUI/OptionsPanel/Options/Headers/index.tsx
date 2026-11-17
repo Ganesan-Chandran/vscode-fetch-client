@@ -18,7 +18,6 @@ export const ResponseHeaders = () => {
 				/>
 			) : (
 				<>
-					<hr />
 					<div className="auth-header-label">
 						<label>{"No Headers Available."}</label>
 					</div>
