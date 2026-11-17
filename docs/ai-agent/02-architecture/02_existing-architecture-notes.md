@@ -32,7 +32,7 @@
 
 ## 6. Database Architecture
 
-- LokiJS initialization
+- LokiJS initialisation
 - Database location
 - Collection names
 - Insert / Update / Read operations

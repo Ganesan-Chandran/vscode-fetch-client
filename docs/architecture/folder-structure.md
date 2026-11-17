@@ -205,7 +205,7 @@ vscode-fetch-client
 |   |   |-- expression.helper.ts
 |   |   |-- json.helper.ts
 |   |   |-- mockGeneratorHelper.ts
-|   |   |-- qualityGateAnalyzer.ts
+|   |   |-- qualityGateAnalyser.ts
 |   |   |-- settings.helper.ts
 |   |   |-- systemVariable.helper.ts
 |   |   |-- tests.helper.ts
@@ -590,7 +590,7 @@ vscode-fetch-client
 |   |   |-- sideBarUIProvider.tsx
 |   |   |-- variableUIProvider.tsx
 |   -   \-webviewUtils.ts
-|   \-oauthAuthorizationService.ts
+|   \-oauthAuthorisationService.ts
 |   \-extension.ts
 |-- .editorconfig
 |-- .editorconfig-checker.json

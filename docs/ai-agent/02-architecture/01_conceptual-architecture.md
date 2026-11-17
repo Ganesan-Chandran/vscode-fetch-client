@@ -18,7 +18,7 @@ By the end of this session, you should be able to explain:
 - The difference between a model, an agent, an orchestrator, and a tool.
 - The boundaries between the agent platform, model providers, and application integrations.
 - How an agent task moves from a user request to a completed result.
-- Why application adapters and provider interfaces help keep the platform extensible.
+- Why application adaptors and provider interfaces help keep the platform extensible.
 
 ## 3. Core concepts
 
@@ -37,7 +37,7 @@ An application generally communicates with a hosted model or a local model runti
 
 A response typically contains generated content and may also include metadata such as completion status, token usage, finish reason, or tool-call information. Exact request and response formats vary by provider.
 
-The platform should hide provider-specific differences behind a common model-provider interface. Provider-specific adapters translate the platform's common request into the provider's API format and normalize the response.
+The platform should hide provider-specific differences behind a common model-provider interface. Provider-specific adaptors translate the platform's common request into the provider's API format and normalise the response.
 
 **Related learning document:** `docs/ai-agent/01-foundations/llm-basics.md` should contain the detailed exploration of LLM APIs, providers, request/response structures, tokens, and context windows.
 
@@ -111,13 +111,13 @@ The model provider boundary allows the platform to work with different model run
 - Google Gemini API.
 - Other compatible providers.
 
-A provider adapter handles provider-specific authentication, request formatting, response parsing, and supported capabilities. The platform should not assume that all providers support identical features.
+A provider adaptor handles provider-specific authentication, request formatting, response parsing, and supported capabilities. The platform should not assume that all providers support identical features.
 
 Changing the model provider should not require rewriting the agent's core execution logic, although model capabilities and configuration may differ.
 
 ### 4.3 Application Integration Boundary
 
-Application integrations connect the platform to external applications through adapters.
+Application integrations connect the platform to external applications through adaptors.
 
 Initial integration:
 
@@ -129,7 +129,7 @@ Potential future integrations:
 - Development tools.
 - Other applications and services.
 
-An application adapter translates between the platform's tool contracts and the target application's supported operations. Some integrations may also contribute application-specific tools.
+An application adaptor translates between the platform's tool contracts and the target application's supported operations. Some integrations may also contribute application-specific tools.
 
 ## 5. Conceptual platform architecture
 
@@ -158,8 +158,8 @@ flowchart TB
     end
 
     subgraph INT[Application Integrations]
-        FC[Fetch Client Adapter]
-        FUT[Future Application Adapters]
+        FC[Fetch Client adaptor]
+        FUT[Future Application adaptors]
     end
 
     subgraph APP[Fetch Client]
@@ -191,8 +191,8 @@ flowchart TB
 3. The agent uses the common model interface and registered tools.
 4. The model interface communicates with the selected provider.
 5. The tool registry exposes approved capabilities to the agent.
-6. The Fetch Client adapter connects the platform to Fetch Client.
-7. Future application adapters can be added without making the agent core depend on those applications.
+6. The Fetch Client adaptor connects the platform to Fetch Client.
+7. Future application adaptors can be added without making the agent core depend on those applications.
 
 The diagram represents logical responsibilities and relationships. It does not decide whether the platform is deployed as a library, local process, service, or another deployment shape.
 
@@ -224,7 +224,7 @@ sequenceDiagram
     A->>T: Validate test cases
     T-->>A: Validation result
     A->>T: Request save operation
-    T->>F: Save through Fetch Client adapter
+    T->>F: Save through Fetch Client adaptor
     F-->>T: Save result
     T-->>A: Tool result
     A-->>O: Task outcome
@@ -240,7 +240,7 @@ This is a conceptual happy path. Real execution may include multiple model calls
 - **Agent:** Uses model output and tools to pursue the task.
 - **Orchestrator:** Coordinates the execution lifecycle.
 - **Tool:** Performs a defined operation or retrieves information.
-- **Application adapter:** Translates a platform operation into an application-specific operation.
+- **Application adaptor:** Translates a platform operation into an application-specific operation.
 - **Fetch Client:** Performs the requested supported application operation.
 
 The model should not directly access the Fetch Client database. Application operations should go through controlled integration capabilities.
@@ -251,9 +251,9 @@ The model should not directly access the Fetch Client database. Application oper
 | --- | ------------------------------------------------------------ | ------------------------------------------ |
 | D01 | Keep the AI Agent Platform independent of Fetch Client.      | Reusability                                |
 | D02 | Use a common model-provider interface.                       | Reduce provider lock-in                    |
-| D03 | Keep provider-specific behavior inside provider adapters.    | Isolate API differences                    |
+| D03 | Keep provider-specific behavior inside provider adaptors.    | Isolate API differences                    |
 | D04 | Make tools modular and discoverable through a tool registry. | Extensibility                              |
-| D05 | Connect applications through dedicated adapters.             | Loose coupling                             |
+| D05 | Connect applications through dedicated adaptors.             | Loose coupling                             |
 | D06 | Use Fetch Client as the first application integration.       | Validate the platform with a real use case |
 | D07 | Keep detailed security design separate.                      | Allow focused security design              |
 | D08 | Keep detailed data-flow and storage design separate.         | Avoid premature implementation decisions   |
@@ -280,9 +280,9 @@ The architecture should allow future capabilities to be added without changing i
 
 Examples include:
 
-- Multiple specialized agents.
+- Multiple specialised agents.
 - Additional model providers.
-- Additional application adapters.
+- Additional application adaptors.
 - New reusable tools.
 - Different agent-execution strategies.
 - Additional user interfaces.
@@ -294,7 +294,7 @@ Extensibility does not mean every provider or application will support every cap
 
 The Fetch Client AI Agent initiative will follow an independent-platform approach.
 
-The AI Agent Platform will own orchestration, agent execution, model-provider abstraction, and tool management. Model providers will be replaceable behind a common interface. External applications will connect through dedicated integration adapters.
+The AI Agent Platform will own orchestration, agent execution, model-provider abstraction, and tool management. Model providers will be replaceable behind a common interface. External applications will connect through dedicated integration adaptors.
 
 Fetch Client is the first integration, not the foundation or dependency of the AI Agent Platform.
 

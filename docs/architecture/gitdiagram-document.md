@@ -2,7 +2,7 @@
 
 **A VS Code API-testing extension plus a CLI that shares its local data model.**
 
-Create or import requests, organize them into collections, execute them, inspect and test the responses, then save or export the results, from the editor or from the command line.
+Create or import requests, organise them into collections, execute them, inspect and test the responses, then save or export the results, from the editor or from the command line.
 
 ---
 
@@ -26,7 +26,7 @@ Create or import requests, organize them into collections, execute them, inspect
 
 | Area                       | Capability                                                                                                   |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| **Requests & Collections** | Create or import requests and organize them into collections                                                 |
+| **Requests & Collections** | Create or import requests and organise them into collections                                                 |
 | **Execution**              | Run requests with variable resolution and pre-request scripts                                                |
 | **Response Inspection**    | View and test responses in a dedicated response panel                                                        |
 | **Quality Checks**         | Quality-gate checks on API behavior                                                                          |
@@ -42,7 +42,7 @@ Create or import requests, organize them into collections, execute them, inspect
 ## Core Workflow
 
 1. **Create or import** requests.
-2. **Organize** them into collections.
+2. **Organise** them into collections.
 3. **Execute** requests.
 4. **Inspect and test** responses.
 5. **Save or export** results.
@@ -109,7 +109,7 @@ node_httpengine -->|"returns responses"| node_responseui
 node_httpengine -.->|"resolves variables"| node_variables
 node_httpengine -->|"runs pre-requests"| node_prefetch
 node_collectionrepo -->|"reads and writes"| node_localdb
-node_extension -->|"initializes stores"| node_localdb
+node_extension -->|"initialises stores"| node_localdb
 node_cli -->|"uses shared data"| node_localdb
 node_cli -->|"runs requests"| node_httpengine
 node_cli -->|"runs checks"| node_quality
@@ -202,7 +202,7 @@ Relationships marked **inferred** are based on README statements rather than a s
 | HTTP Execution        | resolves variables  | Variable Services    | inferred                        |
 | HTTP Execution        | runs pre-requests   | Pre-request Runner   | inferred                        |
 | Collection Repository | reads and writes    | Local Database       | `collectionDB.repository.ts`    |
-| Extension Host        | initializes stores  | Local Database       | `src/extension.ts`              |
+| Extension Host        | initialises stores  | Local Database       | `src/extension.ts`              |
 | CLI Commands          | uses shared data    | Local Database       | inferred                        |
 | CLI Commands          | runs requests       | HTTP Execution       | inferred                        |
 | CLI Commands          | runs checks         | Quality Checks       | `src/fetch-client-cli/index.ts` |
@@ -222,7 +222,7 @@ Relationships marked **inferred** are based on README statements rather than a s
 
 | Entry point    | File                                                                                   | Purpose                                                                                                       |
 | -------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| Extension Host | [`src/extension.ts`](src/extension.ts)                                                 | Activates the VS Code extension, registers webviews, initializes stores, starts the mock server and scheduler |
+| Extension Host | [`src/extension.ts`](src/extension.ts)                                                 | Activates the VS Code extension, registers webviews, initialises stores, starts the mock server and scheduler |
 | CLI Commands   | [`src/fetch-client-cli/index.ts`](src/fetch-client-cli/index.ts)                       | Terminal interface for running requests, checks, datasets, and load tests                                     |
 | HTTP Execution | [`src/fetch-client-core/utils/fetchUtil.ts`](src/fetch-client-core/utils/fetchUtil.ts) | Shared request execution engine                                                                               |
 | API Workspace  | [`src/fetch-client-ui/App.tsx`](src/fetch-client-ui/App.tsx)                           | Root of the webview UI                                                                                        |

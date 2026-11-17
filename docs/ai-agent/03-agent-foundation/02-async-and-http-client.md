@@ -112,7 +112,7 @@ For example:
 | 200 OK                    | Promise fulfilled |
 | 201 Created               | Promise fulfilled |
 | 400 Bad Request           | Promise fulfilled |
-| 401 Unauthorized          | Promise fulfilled |
+| 401 Unauthorised          | Promise fulfilled |
 | 404 Not Found             | Promise fulfilled |
 | 500 Internal Server Error | Promise fulfilled |
 | Network failure           | Promise rejected  |
@@ -202,7 +202,7 @@ We introduced separate error types to distinguish different failure scenarios.
 | `timeout`  | Request exceeded the configured timeout      |
 | `aborted`  | Caller cancelled the request                 |
 | `parse`    | Response parsing or custom parsing failed    |
-| `request`  | Request construction or serialization failed |
+| `request`  | Request construction or serialisation failed |
 
 ### Why distinguish these errors?
 
@@ -300,7 +300,7 @@ This makes the intended body format explicit.
 
 For multipart FormData, the HTTP client must not manually set the `Content-Type` header. The runtime needs to generate the multipart boundary.
 
-We also handle JSON serialization failures, including circular references.
+We also handle JSON serialisation failures, including circular references.
 
 ## 11. Response Handling
 
@@ -354,7 +354,7 @@ The HTTP client test suite covers these scenarios:
 | 10  | Caller aborts an in-flight request         |
 | 11  | HTTP 204 No Content                        |
 | 12  | Invalid timeout values                     |
-| 13  | Circular JSON serialization failure        |
+| 13  | Circular JSON serialisation failure        |
 | 14  | JSON Content-Type and request body         |
 | 15  | FormData multipart Content-Type handling   |
 | 16  | Error description for each error type      |
@@ -420,7 +420,7 @@ It should not contain:
 
 The HTTP client is a generic infrastructure component.
 
-Future agent modules can use it through a provider or adapter layer.
+Future agent modules can use it through a provider or adaptor layer.
 
 Example:
 
@@ -428,7 +428,7 @@ Example:
 AI Agent
     |
     v
-Provider Adapter
+Provider adaptor
     |
     v
 Core HTTP Client
@@ -437,7 +437,7 @@ Core HTTP Client
 External API / LLM Provider
 ```
 
-The provider adapter should decide whether retrying is appropriate. The generic HTTP client should not automatically retry requests.
+The provider adaptor should decide whether retrying is appropriate. The generic HTTP client should not automatically retry requests.
 
 This separation makes the HTTP client reusable and easier to test.
 

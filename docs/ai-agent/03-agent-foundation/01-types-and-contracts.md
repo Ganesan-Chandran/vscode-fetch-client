@@ -312,7 +312,7 @@ Finding Current observation Planned consideration
 
 Destructive-operation Risk levels and approval Ensure destructive approval fields exist operations cannot bypass required approval
 
-Approval bound to Request references a Ensure approval applies arguments `toolCallId` and has a only to the exact tool summary name and arguments presented to the user
+Approval bound to Request references ensure approval applies arguments `toolCallId` and has only to the exact tool summary name and arguments presented to the user
 
 Runtime argument Tool arguments are typed as Validate incoming data validation `Record<string, unknown>` against the registered tool schema before execution
 

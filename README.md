@@ -18,7 +18,7 @@
 
 ## 🚀 VS Code Extension
 
-The Fetch Client extension lets you build, test, organize, and debug REST APIs without leaving VS Code. It stores all data locally and provides a fast, native experience for API development.
+The Fetch Client extension lets you build, test, organise, and debug REST APIs without leaving VS Code. It stores all data locally and provides a fast, native experience for API development.
 
 ## ✨ Key Features
 

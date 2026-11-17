@@ -74,7 +74,7 @@ The CLI reads the same database as the VS Code extension. This means you can swi
 | Run Requests           |              | Create Requests       |
 | Run Collections        |              | Edit Requests         |
 | Run Performance Tests  |              | Manage Variables      |
-| Generate Reports       |              | Organize Collections  |
+| Generate Reports       |              | Organise Collections  |
 +------------------------+              +-----------------------+
 
 ---
@@ -139,7 +139,7 @@ Topics include:
 
 ## VS Code Extension
 
-Create, organize, and test APIs visually using the Fetch Client VS Code extension.
+Create, organise, and test APIs visually using the Fetch Client VS Code extension.
 
 Marketplace:
 

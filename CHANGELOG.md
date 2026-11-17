@@ -11,13 +11,13 @@ This update introduces several UI/UX improvements to enhance the overall Fetch C
 - Added an editor **Copy Content** button with visual feedback and accessibility support.
 - Improved Developer Tools item alignment and handling of long labels.
 - Added the ability to switch between **Horizontal and Vertical Response Layouts** directly from the response toolbar, with temporary layout switching.
-- Improved sidebar responsiveness for narrow VS Code panels, introducing vertical section navigation and optimized content layout.
+- Improved sidebar responsiveness for narrow VS Code panels, introducing vertical section navigation and optimised content layout.
 
 ## 🎯 Overall Improvements
 
 - Enhanced editor usability and accessibility.
 - Improved response panel flexibility.
-- Optimized sidebar navigation for smaller VS Code windows.
+- Optimised sidebar navigation for smaller VS Code windows.
 
 **## 🚀 v2.3.0 - 05 September 2026**
 
@@ -191,10 +191,10 @@ A major release introducing the **Fetch Client CLI**, **Performance Testing**, i
 - Improved the **Pre-request** user interface.
 - Added **Search** in JSON/XML Viewer.
 - Added **Folder Sorting** in Collections.
-- Added **Collection Item Realignment** for better organization.
+- Added **Collection Item Realignment** for better organisation.
 - Sidebar now **remembers its expanded/collapsed state** (Quick Access).
 - Improved **cURL Import** compatibility.
-- Enhanced **Logger Output** with colorized messages.
+- Enhanced **Logger Output** with colourised messages.
 - Added support for a **custom database path**.
 
 ### 🔒 Security Improvements
@@ -318,7 +318,7 @@ A major release introducing the **Fetch Client CLI**, **Performance Testing**, i
 ### 🎉 New Features
 
 - Import Postman collection (Postman Collection v2.1).
-- OAuth2 added for request authorization.
+- OAuth2 added for request authorisation.
 - Pre-requests(Pre-Fetch) and conditions are added for Request execution.
 - Tests and Variables are moved to PostFetch section.
 - Types generation added for JSON response.
@@ -404,7 +404,7 @@ A major release introducing the **Fetch Client CLI**, **Performance Testing**, i
 
 ### 🎉 New Features
 
-- UI Customization and support VSCode Themes.
+- UI Customisation and support VSCode Themes.
 - Test Rest API request with GET, POST, PUT, PATCH, DELETE, HEAD and OPTIONS methods.
 - Various authentications which are Basic Auth, Bearer Token and API Key.
 - Various post body which are Form, Form-Encoded, Raw (Json, Plain Text, XML), Binary File and GraphQL.

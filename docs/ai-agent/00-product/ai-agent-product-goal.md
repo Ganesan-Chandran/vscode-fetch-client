@@ -8,13 +8,13 @@
 
 Build an independent, extensible, secure and trustworthy AI Agent platform, with Fetch Client as its first integration.
 
-The platform will help developers design, execute, analyze, troubleshoot, test and improve API workflows using natural language and intelligent agents.
+The platform will help developers design, execute, analyse, troubleshoot, test and improve API workflows using natural language and intelligent agents.
 
 The AI Agent platform should complement existing Fetch Client capabilities rather than replace them.
 
 The long-term vision is to create a reusable AI Agent platform that can integrate with multiple applications through SDKs, APIs and independent deployment.
 
-The platform must support multiple LLM providers, specialized agents, reusable tools, configurable workflows, memory management and future integrations without requiring major architectural changes.
+The platform must support multiple LLM providers, specialised agents, reusable tools, configurable workflows, memory management and future integrations without requiring major architectural changes.
 
 ### Core Product Principles
 
@@ -22,7 +22,7 @@ The platform must support multiple LLM providers, specialized agents, reusable t
 2. **Extensibility:** Allow new agents, tools and capabilities.
 3. **Security:** Protect credentials, API data and user information.
 4. **Privacy:** Give users control over data sharing and retention.
-5. **Safety:** Prevent unauthorized and unintended operations.
+5. **Safety:** Prevent unauthorised and unintended operations.
 6. **Transparency:** Make agent activities understandable and traceable.
 7. **Measurability:** Provide evidence that security and safety controls work.
 8. **User Control:** Keep users in control of important operations and decisions.
@@ -49,19 +49,19 @@ The platform must support multiple LLM providers, specialized agents, reusable t
 | Problem                                  | Proposed AI Solution                              |
 | ---------------------------------------- | ------------------------------------------------- |
 | Manually creating API requests           | Generate requests from natural language           |
-| Understanding complex API responses      | Explain and analyze responses                     |
+| Understanding complex API responses      | Explain and analyse responses                     |
 | Troubleshooting API failures             | Identify possible causes and suggest fixes        |
 | Writing test scenarios manually          | Generate API test cases                           |
 | Repeating API testing workflows          | Assist with automated execution                   |
-| Understanding performance results        | Analyze bottlenecks and performance trends        |
+| Understanding performance results        | Analyse bottlenecks and performance trends        |
 | Managing API documentation               | Generate and explain API documentation            |
 | Creating pre-request scripts             | Assist with variable and token preparation        |
-| Identifying API security vulnerabilities | Perform authorized security assessments           |
+| Identifying API security vulnerabilities | Perform authorised security assessments           |
 | Uncertainty about AI data handling       | Provide transparent privacy and security controls |
 
 ## 4. Core Agent Capabilities
 
-The platform will progressively support specialized agents.
+The platform will progressively support specialised agents.
 
 ### 4.1 API Assistant Agent
 
@@ -74,7 +74,7 @@ The platform will progressively support specialized agents.
 ### 4.2 API Testing Agent
 
 - Generate API test cases.
-- Analyze API responses.
+- Analyse API responses.
 - Identify potential API issues.
 - Suggest assertions.
 - Assist with data-driven testing.
@@ -82,7 +82,7 @@ The platform will progressively support specialized agents.
 
 ### 4.3 API Troubleshooting Agent
 
-- Analyze HTTP errors.
+- Analyse HTTP errors.
 - Investigate request and response details.
 - Identify possible configuration issues.
 - Recommend debugging steps.
@@ -90,11 +90,11 @@ The platform will progressively support specialized agents.
 
 ### 4.4 Performance Analysis Agent
 
-- Analyze performance test reports.
+- Analyse performance test reports.
 - Identify slow endpoints.
 - Explain response-time distributions.
-- Analyze throughput and error rates.
-- Suggest areas for optimization.
+- Analyse throughput and error rates.
+- Suggest areas for optimisation.
 
 ### 4.5 API Security Testing Agent
 
@@ -104,7 +104,7 @@ Capabilities:
 
 - SQL injection testing.
 - Cross-site scripting (XSS) testing.
-- Authentication and authorization checks.
+- Authentication and authorisation checks.
 - Broken access control testing.
 - Rate-limiting checks.
 - Input validation testing.
@@ -113,7 +113,7 @@ Capabilities:
 - Security findings and recommendations.
 - Security assessment report generation.
 
-Security testing must operate within explicitly authorized target boundaries and configured testing policies.
+Security testing must operate within explicitly authorised target boundaries and configured testing policies.
 
 The agent must be able to perform legitimate security tests without being incorrectly blocked merely because a test payload resembles a malicious request.
 
@@ -137,7 +137,7 @@ Fetch Client will be its first integration, not its permanent architectural depe
 
 The initial implementation will be a modular TypeScript library/SDK.
 
-Fetch Client will consume the platform through integration adapters and registered tools.
+Fetch Client will consume the platform through integration adaptors and registered tools.
 
 The platform must not directly depend on Fetch Client-specific database structures, UI components or internal business logic.
 
@@ -243,14 +243,14 @@ The Security Policy Engine is responsible for evaluating whether an agent or too
 
 An important design principle:
 
-**Security protection and authorized security testing must be treated differently.**
+**Security protection and authorised security testing must be treated differently.**
 
 The platform must not blindly block legitimate security-testing payloads based only on suspicious patterns.
 
 For example, a SQL injection payload might be used for:
 
-- Unauthorized attacks.
-- Authorized penetration testing.
+- Unauthorised attacks.
+- Authorised penetration testing.
 - Testing a deliberately vulnerable application.
 - Validating API input handling.
 
@@ -264,7 +264,7 @@ The Security Policy Engine should support four decisions:
 | ---------------- | --------------------------------------------- |
 | Allow            | Operation is permitted                        |
 | Warn             | Operation can proceed with a security warning |
-| Require Approval | Explicit user authorization is required       |
+| Require Approval | Explicit user authorisation is required       |
 | Block            | Operation is prohibited                       |
 
 ### 7.2 Policy Evaluation
@@ -274,25 +274,25 @@ The engine should consider:
 - User permissions.
 - Agent permissions.
 - Tool permissions.
-- Target authorization.
+- Target authorisation.
 - Target environment.
 - Operation type.
 - Potential impact.
 - Security testing configuration.
-- Organizational security policies.
+- Organisational security policies.
 
-### 7.3 Authorized Security Testing
+### 7.3 Authorised Security Testing
 
 When a user performs API security testing:
 
-- The target must be explicitly authorized.
+- The target must be explicitly authorised.
 - Testing scope must be defined.
 - Testing intensity and execution limits must be configurable.
 - Potentially destructive operations must require additional approval.
 - Security testing activity must be auditable.
 - Production environments must have stricter safeguards.
 
-Security Testing Mode must not bypass platform security, privacy or authorization controls.
+Security Testing Mode must not bypass platform security, privacy or authorisation controls.
 
 ### 7.4 Separation of Responsibilities
 
@@ -315,7 +315,7 @@ Protects:
 Evaluates:
 
 - API vulnerabilities.
-- Authentication and authorization.
+- Authentication and authorisation.
 - Input validation.
 - Security configurations.
 - API attack surfaces.
@@ -367,7 +367,7 @@ Every important security claim must have supporting evidence.
 | Security Claim                             | Supporting Evidence              |
 | ------------------------------------------ | -------------------------------- |
 | Secrets are masked                         | Automated secret-masking tests   |
-| Unauthorized tools cannot execute          | Permission enforcement tests     |
+| Unauthorised tools cannot execute          | Permission enforcement tests     |
 | Sensitive data is not unnecessarily shared | LLM payload inspection tests     |
 | Destructive actions require approval       | Execution policy tests           |
 | Data retention follows configured policies | Retention and deletion tests     |
@@ -413,7 +413,7 @@ Security and safety must be measurable throughout development.
 | Metric                                            | Initial Target          |
 | ------------------------------------------------- | ----------------------- |
 | Automated secret-masking test pass rate           | 100%                    |
-| Unauthorized tool execution                       | 0 successful executions |
+| Unauthorised tool execution                       | 0 successful executions |
 | Destructive operations without required approval  | 0                       |
 | Known sensitive data exposure in application logs | 0                       |
 | Critical security test failures                   | 0 before release        |
@@ -425,7 +425,7 @@ Additional measurements:
 
 - Number of identified security vulnerabilities.
 - Mean time to resolve security issues.
-- Number of blocked unauthorized operations.
+- Number of blocked unauthorised operations.
 - Number of prompt-injection test cases passed.
 - Percentage of tool executions with correct permission checks.
 - Privacy configuration coverage.
@@ -441,7 +441,7 @@ A 100% test pass rate only describes the tested scenarios. It does not prove tha
 - Users should be able to select or configure supported LLM providers.
 - API credentials and secrets must not be exposed to LLM prompts unnecessarily.
 - Sensitive information must be masked wherever possible.
-- API execution and potentially destructive operations must follow appropriate authorization policies.
+- API execution and potentially destructive operations must follow appropriate authorisation policies.
 - Agents must not execute arbitrary local commands without explicit permission.
 - Agents must not modify collections, variables or requests silently.
 - AI-generated scripts and configurations should be reviewed before execution.
@@ -449,7 +449,7 @@ A 100% test pass rate only describes the tested scenarios. It does not prove tha
 - Users must be able to understand what actions an agent performed.
 - Security and privacy claims must be supported by evidence.
 - The platform must clearly disclose limitations and residual risks.
-- Authorized API security testing must remain possible within configured boundaries.
+- Authorised API security testing must remain possible within configured boundaries.
 
 ## 11. Non-Goals for the Initial Version
 
@@ -475,7 +475,7 @@ We will consider the initial AI Agent implementation successful when:
 2. The assistant can understand API-related natural language instructions.
 3. The assistant can use at least one registered tool.
 4. The assistant can generate a valid API request.
-5. The assistant can analyze an API response.
+5. The assistant can analyse an API response.
 6. The user has control over API execution.
 7. The LLM provider can be replaced without rewriting agent logic.
 8. New agents and tools can be registered without modifying core orchestration logic.
@@ -483,7 +483,7 @@ We will consider the initial AI Agent implementation successful when:
 10. The implementation has basic logging, error handling and usage tracking.
 11. Sensitive information is protected through tested controls.
 12. Users can understand what information is shared with an external LLM.
-13. Unauthorized tool operations are blocked.
+13. Unauthorised tool operations are blocked.
 14. Security-relevant actions are auditable.
 15. Security and privacy documentation is available.
 16. The architecture supports future integration with applications other than Fetch Client.
@@ -539,7 +539,7 @@ The API Security Testing Agent must be included in the platform architecture and
 
 Fetch Client will be the first application to use the independent AI Agent platform.
 
-The platform should eventually support an ecosystem of specialized agents:
+The platform should eventually support an ecosystem of specialised agents:
 
 - API Assistant Agent.
 - API Testing Agent.
@@ -556,7 +556,7 @@ Future platform capabilities:
 - Advanced agent orchestration.
 - Configurable security policies.
 - Enterprise permission management.
-- Centralized audit and monitoring.
+- Centralised audit and monitoring.
 - Security assessment reports.
 - Advanced privacy controls.
 - Optional independent deployment.

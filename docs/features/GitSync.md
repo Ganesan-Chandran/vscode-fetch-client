@@ -1,4 +1,4 @@
-# Git Synchronization Design for Fetch Client
+# Git Synchronisation Design for Fetch Client
 
 ## Overview
 
@@ -9,8 +9,8 @@ Fetch Client uses LokiJS as the local runtime database. The VS Code extension an
 ## Goals
 
 - Keep LokiJS as the primary local database
-- Synchronize collections with Git repositories
-- Minimize merge conflicts
+- Synchronise collections with Git repositories
+- Minimise merge conflicts
 - Support future Git providers (GitHub, GitLab, Azure DevOps, Bitbucket)
 - Reuse the same sync engine for VS Code and CLI
 
@@ -83,7 +83,7 @@ User edits collection → Collection Service → update `collections.db` → don
 3. Import Service updates Loki DB
 4. Refresh UI
 
-## Synchronization Rules
+## Synchronisation Rules
 
 - **Local Database**: the working database, always used by VS Code and CLI
 - **Git Repository**: the collaboration layer only, never accessed during request execution
@@ -108,7 +108,7 @@ No custom merge UI.
 Conflict Detected → Stop Push → Show Message → Resolve using Git Client → Retry Sync
 ```
 
-> Synchronization failed. Collection: **Order API**. The collection has conflicts with the remote repository. Please resolve the conflict using your preferred Git client and retry synchronization.
+> Synchronisation failed. Collection: **Order API**. The collection has conflicts with the remote repository. Please resolve the conflict using your preferred Git client and retry synchronisation.
 
 **Advantages:** small implementation, reliable, uses Git's mature conflict resolution.
 
@@ -136,7 +136,7 @@ history, easier merges, smaller commits.
 
 ## Future Enhancements
 
-Automatic synchronization, branch management, PR creation, Git history viewer, collection comparison/version history, visual merge editor, team collaboration dashboard, conflict resolution wizard, repository templates.
+Automatic synchronisation, branch management, PR creation, Git history viewer, collection comparison/version history, visual merge editor, team collaboration dashboard, conflict resolution wizard, repository templates.
 
 ## Recommended Implementation Phases
 
@@ -146,7 +146,7 @@ Automatic synchronization, branch management, PR creation, Git history viewer, c
 
 ---
 
-## Version 2 — Finalized Decisions
+## Version 2 — Finalised Decisions
 
 Refinements agreed after design review. Supersedes conflicting details above; original sections kept for history.
 

@@ -235,7 +235,7 @@ A request may already exist in the selected collection.
 A useful initial duplicate candidate key is:
 
 - HTTP method.
-- Normalized URL/path.
+- Normalised URL/path.
 
 This is only a candidate match. Query parameters, request body, authentication, headers, and other configuration may differ.
 
@@ -317,7 +317,7 @@ Existing request:
 GET /users
   Headers
   Query Parameters
-  Authorization
+  Authorisation
   Pre-request
   Test Cases
     - Status code is 200
@@ -460,7 +460,7 @@ For appending test cases, also consider how duplicate test cases within the same
 | AC-06 | Request timeout                    | Operation terminates according to timeout policy; no partial output is saved                    |
 | AC-07 | Application closes before approval | No unapproved changes are persisted                                                             |
 | AC-08 | Network failure                    | No partial model output is persisted                                                            |
-| AC-09 | User rejects approval              | Zero collection modifications                                                                   |
+| AC-09 | User rejects approval              | zero collection modifications                                                                   |
 | AC-10 | Database save fails                | No partial batch remains, or the documented recovery mechanism restores consistency             |
 | AC-11 | Duplicate detection                | Potential matching method/URL candidates are shown before approval                              |
 | AC-12 | Append test cases                  | Existing request configuration and existing tests are preserved                                 |
@@ -473,7 +473,7 @@ For appending test cases, also consider how duplicate test cases within the same
 | AC-19 | Read-only preview                  | Preview does not allow request execution or collection-changing actions                         |
 | AC-20 | Existing UI reuse                  | Preview can reuse existing presentation components without invoking their persistence behaviour |
 | AC-21 | Existing-data change review        | Append/replace/update previews show the impact before approval                                  |
-| AC-22 | Proposal changes after approval    | Previous approval cannot authorize a changed proposal/version                                   |
+| AC-22 | Proposal changes after approval    | Previous approval cannot authorise a changed proposal/version                                   |
 | AC-23 | Preview abandoned or rejected      | Closing or rejecting preview leaves collection data unchanged                                   |
 
 These criteria should become automated tests as the workflow is implemented. Where a criterion says "all" or "zero", tests should verify the complete batch and collection state, not only a sample item.
@@ -513,7 +513,7 @@ Instead, it should request narrowly defined operations through an allowlisted to
 | Approval controller               | Record the user's explicit decision for a specific proposal       | Treat model output as user approval                 |
 | Persistence service/repositories  | Save approved changes using existing application patterns         | Accept unvalidated or unapproved model output       |
 
-This is a logical responsibility split. Reuse existing services where their contracts fit; introduce adapters only where a clear boundary is missing. Do not duplicate existing Fetch Client business logic inside the agent.
+This is a logical responsibility split. Reuse existing services where their contracts fit; introduce adaptors only where a clear boundary is missing. Do not duplicate existing Fetch Client business logic inside the agent.
 
 ### 11.3 Initial allowlisted tool surface
 
@@ -545,7 +545,7 @@ Every tool should have:
 - Defined timeout and cancellation behaviour where applicable.
 - Structured error codes and safe user-facing messages.
 - A trace/session/operation identifier for diagnostics.
-- Tests for invalid inputs, unauthorized calls, and failure behaviour.
+- Tests for invalid inputs, unauthorised calls, and failure behaviour.
 
 Tool outputs should return only the data needed for the next workflow step. Avoid returning secrets, unrelated collection data, or unnecessary personal/project data.
 
@@ -562,7 +562,7 @@ The approval record should identify, as appropriate:
 - Target collection.
 - Save operation ID.
 
-If the proposal changes after preview—for example, because the user regenerates content—the previous approval must no longer authorize the changed proposal. A new preview and approval are required.
+If the proposal changes after preview—for example, because the user regenerates content—the previous approval must no longer authorise the changed proposal. A new preview and approval are required.
 
 ## 12. Security and Safety Policy
 
@@ -578,7 +578,7 @@ The following are untrusted inputs:
 - User prompts and additional instructions.
 - AI model responses.
 
-OpenAPI descriptions and examples may contain prompt-injection text. Such text must be treated as API documentation data, not as instructions that can change agent policy or authorize tool use.
+OpenAPI descriptions and examples may contain prompt-injection text. Such text must be treated as API documentation data, not as instructions that can change agent policy or authorise tool use.
 
 ### 12.2 Least privilege and tool allowlisting
 
@@ -587,7 +587,7 @@ OpenAPI descriptions and examples may contain prompt-injection text. Such text m
 - Tools receive only the minimum data and permissions required.
 - The model must not be given direct database credentials or unrestricted application services.
 - Read-only operations and write operations must be distinguishable.
-- A model-generated tool call is a proposal, not authorization.
+- A model-generated tool call is a proposal, not authorisation.
 
 ### 12.3 Approval and destructive-operation safeguards
 
@@ -600,7 +600,7 @@ OpenAPI descriptions and examples may contain prompt-injection text. Such text m
 
 ### 12.4 Secrets and sensitive data
 
-- Do not include API keys, passwords, access tokens, private certificates, or secret-manager values in prompts unless a specific, justified workflow requires them and the user has authorized it.
+- Do not include API keys, passwords, access tokens, private certificates, or secret-manager values in prompts unless a specific, justified workflow requires them and the user has authorised it.
 - Redact sensitive values from logs, diagnostics, previews, and model context where possible.
 - Do not ask the model to retrieve or reveal secrets.
 - Reuse Fetch Client's existing variable and secret-handling mechanisms rather than creating a parallel secret store.
@@ -618,7 +618,7 @@ If remote references or external URLs are supported:
 - Apply size, depth, redirect, and timeout limits.
 - Do not let model output bypass these checks.
 
-Actual API execution should be a separate, explicitly authorized workflow with its own security controls.
+Actual API execution should be a separate, explicitly authorised workflow with its own security controls.
 
 ### 12.6 Output validation and safe rendering
 
