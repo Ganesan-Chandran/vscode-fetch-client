@@ -7,25 +7,25 @@
 
 We take security seriously. This project is automatically checked for vulnerabilities on every push, every pull request, and weekly.
 
-| Check | Tool | What it covers |
-|---|---|---|
-| Dependency vulnerabilities | Dependabot, Trivy | Known CVEs in libraries |
-| Static code analysis | Semgrep / CodeQL | Insecure code patterns |
-| Secret detection | Gitleaks | Leaked keys, tokens, passwords |
-| Container / IaC scan | Trivy | Docker images and config files |
+| Check                      | Tool              | What it covers                 |
+| -------------------------- | ----------------- | ------------------------------ |
+| Dependency vulnerabilities | Dependabot, Trivy | Known CVEs in libraries        |
+| Static code analysis       | Semgrep / CodeQL  | Insecure code patterns         |
+| Secret detection           | Gitleaks          | Leaked keys, tokens, passwords |
+| Container / IaC scan       | Trivy             | Docker images and config files |
 
-# Security Policy
+## Security Policy
 
-## Supported Versions
+### Supported Versions
 
 Only the latest version maintained on the `main` branch receives security fixes.
 
-| Version | Supported |
-|---|---|
-| Latest (`main`) | ✅ |
-| Older releases | ❌ |
+| Version         | Supported |
+| --------------- | --------- |
+| Latest (`main`) | ✅        |
+| Older releases  | ❌        |
 
-## Reporting a Vulnerability
+### Reporting a Vulnerability
 
 Please **do not open a public GitHub issue** to report security vulnerabilities.
 
@@ -40,7 +40,7 @@ When reporting a vulnerability, please include:
 - The potential security impact.
 - Any proof of concept or relevant screenshots, if available.
 
-## Response Process
+### Response Process
 
 - Security reports will be reviewed privately.
 - The issue will be investigated and its severity assessed.
@@ -49,7 +49,7 @@ When reporting a vulnerability, please include:
 
 Please allow reasonable time for investigation and remediation before publicly disclosing the vulnerability.
 
-## Security Scanning
+### Security Scanning
 
 Fetch Client uses automated security tools to improve code and dependency security:
 

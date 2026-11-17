@@ -35,7 +35,7 @@ export const TestPanel = () => {
 		(state: IRootState) => state.variableData,
 	);
 
-	const [editingField, setEditingField] = useState<{  
+	const [editingField, setEditingField] = useState<{
 		index: number;
 		type: "customParameter" | "expectedValue";
 	} | null>(null);

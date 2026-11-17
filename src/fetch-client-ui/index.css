@@ -194,7 +194,11 @@ html
 	)
 	thead
 	:is(th, td) {
-	background-color: color-mix(in srgb, var(--text-color) 12%, var(--background-color));
+	background-color: color-mix(
+		in srgb,
+		var(--text-color) 12%,
+		var(--background-color)
+	);
 	font-weight: 600;
 	padding: 4px 10px;
 }
@@ -258,7 +262,9 @@ html
 }
 
 /* Compact rows: read-only tables get cell padding; editable tables get it via their inputs. */
-html body :is(
+html
+	body
+	:is(
 		.runall-tbl,
 		.dd-results-table,
 		.dev-tool-table,
@@ -266,7 +272,9 @@ html body :is(
 		.qg-requests-tbl,
 		.qg-summary-tbl,
 		.aws-results-table
-	) tbody td {
+	)
+	tbody
+	td {
 	padding: 4px 10px;
 }
 
