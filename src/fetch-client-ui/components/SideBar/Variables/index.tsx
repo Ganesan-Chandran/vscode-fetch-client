@@ -53,8 +53,12 @@ export const VariableSection = (props: IVariableProps) => {
 		setCurrentIndex(index);
 	}
 
-	function onRename(evt: React.MouseEvent<HTMLElement>, id: string) {
-		performOperation(evt, requestTypes.renameVariableRequest, id);
+	function onRename(
+		evt: React.MouseEvent<HTMLElement>,
+		id: string,
+		name: string,
+	) {
+		performOperation(evt, requestTypes.renameVariableRequest, id, name);
 	}
 
 	function onDelete(
@@ -211,7 +215,9 @@ export const VariableSection = (props: IVariableProps) => {
 						<DropdownPortal id={item.id} open={index === currentIndex}>
 							{index !== 0 && (
 								<>
-									<button onClick={(e) => onRename(e, item.id)}>Rename</button>
+									<button onClick={(e) => onRename(e, item.id, item.name)}>
+										Rename
+									</button>
 									<button onClick={(e) => onDelete(e, item.id, item.name)}>
 										Delete
 									</button>

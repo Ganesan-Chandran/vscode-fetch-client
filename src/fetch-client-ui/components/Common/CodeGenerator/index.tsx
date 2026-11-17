@@ -188,7 +188,6 @@ const CodeSnippetGenerator = () => {
 
 	return (
 		<div className="code-snippet-panel">
-			<hr />
 			{codeSnippet && (
 				<>
 					<div className="code-snippet-select-panel">

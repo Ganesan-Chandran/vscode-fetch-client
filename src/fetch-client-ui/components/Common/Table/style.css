@@ -15,15 +15,6 @@
 	background-color: var(--list-hover-background-color);
 }
 
-.option-table,
-.option-table thead,
-.option-table tbody,
-.option-table th,
-.option-table tr,
-.option-table td {
-	border: var(--border-size) solid var(--border-color) !important;
-}
-
 .table-input {
 	background-color: transparent;
 	border: 0;
@@ -31,7 +22,7 @@
 	color: var(--text-color);
 	font-size: var(--font-size);
 	outline: none;
-	padding: 10px;
+	padding: 5px 10px;
 	width: 100%;
 }
 
@@ -72,6 +63,8 @@
 
 .option-names {
 	display: flex;
+	align-items: center;
+	white-space: nowrap;
 }
 
 .disabled {
@@ -80,12 +73,6 @@
 
 .option-table > tbody > tr:hover,
 .option-table > tbody > tr:focus {
-	background-color: var(--list-hover-background-color);
-	border: var(--border-size) solid var(--border-color);
-}
-
-.option-table > tbody > tr:hover .DraftEditor-editorContainer,
-.option-table > tbody > tr:focus .DraftEditor-editorContainer {
 	background-color: var(--list-hover-background-color);
 }
 
@@ -96,7 +83,7 @@
 	color: var(--text-color);
 	font-size: var(--font-size);
 	outline: none;
-	padding: 10px;
+	padding: 5px 10px;
 	width: 100%;
 	word-break: break-word;
 }

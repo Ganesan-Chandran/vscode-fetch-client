@@ -3,7 +3,7 @@
 	flex-wrap: wrap;
 	padding: 20px 10px;
 	width: 100%;
-	border-top: 1px solid #5e5e5e;
+	/* border-top: 1px solid #5e5e5e; */
 	margin-top: 5px;
 }
 
@@ -24,7 +24,7 @@
 	box-sizing: border-box;
 	color: var(--text-color);
 	padding: 5px;
-	font-size: small;
+	font-size: var(--font-size);
 	outline: none;
 	width: 50%;
 }

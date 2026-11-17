@@ -70,6 +70,30 @@ function getRequestCollection(db: loki): Collection<IRequestModel> {
 	return db.getCollection("apiRequests");
 }
 
+async function getExportVariable(
+	variableId: string | undefined,
+	key: string,
+): Promise<IVariable | null> {
+	const mode = getExportCollectionConfiguration();
+	if (mode === "Without Variable" || !variableId) {
+		return null;
+	}
+
+	const variables = await Var_Repository_FindById(variableId, false, key);
+	if (variables.length === 0) {
+		return null;
+	}
+
+	const variable = variables[0];
+	if (mode === "Variable without value") {
+		variable.data = (variable.data ?? []).map((item) => ({
+			...item,
+			value: "",
+		}));
+	}
+	return variable;
+}
+
 function findItem(source: { data: any[] }, id: string): any | null {
 	for (const entry of source.data) {
 		if (entry.id === id) {
@@ -440,18 +464,8 @@ export async function Main_Repository_BuildExport_V2(
 		.find({ id: colId })
 		.data({ forceClones: true, removeMeta: true });
 
-	const linkedVariables = getExportCollectionConfiguration();
-	const variableId = linkedVariables ? cols[0].variableId : "";
-	const variables = variableId
-		? await Var_Repository_FindById(variableId, false, key)
-		: [];
-	return ExportBuilderV2(
-		cols[0],
-		apiRequests,
-		hisId,
-		folderId,
-		variables.length > 0 ? variables[0] : null,
-	);
+	const variable = await getExportVariable(cols[0].variableId, key);
+	return ExportBuilderV2(cols[0], apiRequests, hisId, folderId, variable);
 }
 
 export async function Main_Repository_BuildExport_Postman(
@@ -469,17 +483,13 @@ export async function Main_Repository_BuildExport_Postman(
 		.find({ id: colId })
 		.data({ forceClones: true, removeMeta: true });
 
-	const linkedVariables = getExportCollectionConfiguration();
-	const variableId = linkedVariables ? cols[0].variableId : "";
-	const variables = variableId
-		? await Var_Repository_FindById(variableId, false, key)
-		: [];
+	const variable = await getExportVariable(cols[0].variableId, key);
 	return ExportBuilderPostman2_1(
 		cols[0] as ICollections,
 		apiRequests,
 		hisId,
 		folderId,
-		variables.length > 0 ? variables[0] : null,
+		variable,
 	);
 }
 
@@ -512,7 +522,6 @@ export async function Main_Repository_BuildBulkExportV2(
 	const [db, colDB] = await Promise.all([getMainDB(), getCollectionDB()]);
 	const apiRequests = getRequestCollection(db);
 
-	const linkedVariables = getExportCollectionConfiguration();
 	const result: (IFetchClientExportV2 | PostmanSchema_2_1)[] = [];
 
 	for (const colId of selectedCols) {
@@ -522,29 +531,12 @@ export async function Main_Repository_BuildBulkExportV2(
 			.find({ id: colId })
 			.data({ forceClones: true, removeMeta: true });
 
-		const variableId = linkedVariables ? cols[0].variableId : "";
-		const variables = variableId
-			? await Var_Repository_FindById(variableId, false, key)
-			: [];
+		const variable = await getExportVariable(cols[0].variableId, key);
 		if (formatType === "fetchclient") {
-			result.push(
-				ExportBuilderV2(
-					cols[0],
-					apiRequests,
-					"",
-					"",
-					variables.length > 0 ? variables[0] : null,
-				),
-			);
+			result.push(ExportBuilderV2(cols[0], apiRequests, "", "", variable));
 		} else {
 			result.push(
-				ExportBuilderPostman2_1(
-					cols[0],
-					apiRequests,
-					"",
-					"",
-					variables.length > 0 ? variables[0] : null,
-				),
+				ExportBuilderPostman2_1(cols[0], apiRequests, "", "", variable),
 			);
 		}
 	}

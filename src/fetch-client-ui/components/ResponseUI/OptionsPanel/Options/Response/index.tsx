@@ -295,10 +295,7 @@ export const ResponseSection = (props: any) => {
 			{response.isError ? (
 				getErrorSection()
 			) : response.status === 0 ? (
-				<>
-					<hr />
-					{loading === true ? getLoadingSection() : getIdealSection()}
-				</>
+				<>{loading === true ? getLoadingSection() : getIdealSection()}</>
 			) : response.responseData ? (
 				response.responseType.isBinaryFile ? (
 					getBinaryResponseSection()

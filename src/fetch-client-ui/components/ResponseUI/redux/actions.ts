@@ -6,6 +6,7 @@ import {
 } from "../../../../fetch-client-core/types/response.types";
 import {
 	FETCH_CLIENT_SET_LOADING,
+	FETCH_CLIENT_SET_POST_FETCH_DURATION,
 	FETCH_CLIENT_SET_RES_COOKIES,
 	FETCH_CLIENT_SET_RES_HEADERS,
 	FETCH_CLIENT_SET_RES_PREFETCH_RESPONSE,
@@ -63,6 +64,17 @@ export const SetTestResultAction = (
 		type: FETCH_CLIENT_SET_TEST_RESULT,
 		payload: {
 			testResults: value,
+		},
+	};
+};
+
+export const SetPostFetchDurationAction = (
+	value: number,
+): ResponseActionTypes => {
+	return {
+		type: FETCH_CLIENT_SET_POST_FETCH_DURATION,
+		payload: {
+			postFetchDuration: value,
 		},
 	};
 };

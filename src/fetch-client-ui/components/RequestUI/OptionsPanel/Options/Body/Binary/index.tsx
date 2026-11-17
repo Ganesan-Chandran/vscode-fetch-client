@@ -138,9 +138,6 @@ export const Binary = () => {
 
 	return (
 		<div className="binary-panel">
-			<div className="hr-container">
-				<hr />
-			</div>
 			<div className="file-upload-panel">
 				<button className="file-upload-text" onClick={onSelectFile}>
 					Select file
