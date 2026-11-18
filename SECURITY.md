@@ -1,7 +1,7 @@
 # 🔒 Security
 
-[![Security Scan](https://github.com/Ganesan-Chandran/vscode-fetch-client/actions/workflows/security.yml/badge.svg)](https://github.com/Ganesan-Chandran/vscode-fetch-client/actions/workflows/security.yml)
-[![CodeQL](https://img.shields.io/badge/CodeQL-Enabled-blue?logo=github)](https://github.com/Ganesan-Chandran/vscode-fetch-client/security/code-scanning)
+[![Security Scan](https://github.com/fetchclient/vscode-fetch-client/actions/workflows/security.yml/badge.svg)](https://github.com/fetchclient/vscode-fetch-client/actions/workflows/security.yml)
+[![CodeQL](https://img.shields.io/badge/CodeQL-Enabled-blue?logo=github)](https://github.com/fetchclient/vscode-fetch-client/security/code-scanning)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/Ganesan-Chandran/vscode-fetch-client/badge)](https://securityscorecards.dev/viewer/?uri=github.com/Ganesan-Chandran/vscode-fetch-client)
 [![Known Vulnerabilities](https://snyk.io/test/github/Ganesan-Chandran/vscode-fetch-client/badge.svg)](https://snyk.io/test/github/Ganesan-Chandran/vscode-fetch-client)
 
@@ -31,7 +31,7 @@ Please **do not open a public GitHub issue** to report security vulnerabilities.
 
 Instead, use GitHub's private vulnerability reporting:
 
-[Report a Security Vulnerability](https://github.com/Ganesan-Chandran/vscode-fetch-client/security/advisories/new)
+[Report a Security Vulnerability](https://github.com/fetchclient/vscode-fetch-client/security/advisories/new)
 
 When reporting a vulnerability, please include:
 
