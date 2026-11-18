@@ -2,8 +2,8 @@
 
 [![Security Scan](https://github.com/fetchclient/vscode-fetch-client/actions/workflows/security.yml/badge.svg)](https://github.com/fetchclient/vscode-fetch-client/actions/workflows/security.yml)
 [![CodeQL](https://img.shields.io/badge/CodeQL-Enabled-blue?logo=github)](https://github.com/fetchclient/vscode-fetch-client/security/code-scanning)
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/Ganesan-Chandran/vscode-fetch-client/badge)](https://securityscorecards.dev/viewer/?uri=github.com/Ganesan-Chandran/vscode-fetch-client)
-[![Known Vulnerabilities](https://snyk.io/test/github/Ganesan-Chandran/vscode-fetch-client/badge.svg)](https://snyk.io/test/github/Ganesan-Chandran/vscode-fetch-client)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/fetchclient/vscode-fetch-client/badge)](https://securityscorecards.dev/viewer/?uri=github.com/fetchclient/vscode-fetch-client)
+[![Known Vulnerabilities](https://snyk.io/test/github/fetchclient/vscode-fetch-client/badge.svg)](https://snyk.io/test/github/fetchclient/vscode-fetch-client)
 
 We take security seriously. This project is automatically checked for vulnerabilities on every push, every pull request, and weekly.
 
