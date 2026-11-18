@@ -296,14 +296,14 @@ A major release introducing the **Fetch Client CLI**, **Performance Testing**, i
 
 ### 🎉 New Features
 
-- Import Postman environment ([#7](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/7))
-- Save all requests data into custom workspace([#10](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/10))
-- Set the response limit as configurable([#11](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/11))
+- Import Postman environment ([#7](https://github.com/fetchclient/vscode-fetch-client/issues/7))
+- Save all requests data into custom workspace([#10](https://github.com/fetchclient/vscode-fetch-client/issues/10))
+- Set the response limit as configurable([#11](https://github.com/fetchclient/vscode-fetch-client/issues/11))
 
 ### 🐛 Bug Fixes
 
-- import from Curl ([#5](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/5)).
-- POST method not properly set just after creating new Http Request in a collection ([#8](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/8))
+- import from Curl ([#5](https://github.com/fetchclient/vscode-fetch-client/issues/5)).
+- POST method not properly set just after creating new Http Request in a collection ([#8](https://github.com/fetchclient/vscode-fetch-client/issues/8))
 - Bug fix in "Run All" section
 - Bug fix in filter search in collection section in the sidebar
 
@@ -336,9 +336,9 @@ A major release introducing the **Fetch Client CLI**, **Performance Testing**, i
 
 ### 🐛 Bug Fixes
 
-- import from Curl ([#5](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/5)).
-- Clicking on collection item opens a new window every time instead of switching to existing window ([#6](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/6))
-- import/export postman collections and environment ([#7](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/7))
+- import from Curl ([#5](https://github.com/fetchclient/vscode-fetch-client/issues/5)).
+- Clicking on collection item opens a new window every time instead of switching to existing window ([#6](https://github.com/fetchclient/vscode-fetch-client/issues/6))
+- import/export postman collections and environment ([#7](https://github.com/fetchclient/vscode-fetch-client/issues/7))
 
 ### Requirements
 
@@ -355,7 +355,7 @@ A major release introducing the **Fetch Client CLI**, **Performance Testing**, i
 
 ### 🐛 Bug Fixes
 
-- import from Curl ([#5](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/5)).
+- import from Curl ([#5](https://github.com/fetchclient/vscode-fetch-client/issues/5)).
 - Not able to Duplicate the item in the folder.
 
 ## v1.2.0 - July, 2022
@@ -364,7 +364,7 @@ A major release introducing the **Fetch Client CLI**, **Performance Testing**, i
 
 - Support nested folder to the Collection.
 - Run curl request (Under collection in the side bar).
-- Import curl request (Under collection in the side bar) ([#5](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/5)).
+- Import curl request (Under collection in the side bar) ([#5](https://github.com/fetchclient/vscode-fetch-client/issues/5)).
 - Support settings(Auth) for collection and folders.
 - "Inherit auth from parent" option added in the Auth section.
 - Support Reorder and disable the request in the "Run All" Collection.
@@ -373,7 +373,7 @@ A major release introducing the **Fetch Client CLI**, **Performance Testing**, i
 
 ### 🐛 Bug Fixes
 
-- Bearer Token as a variable does not work due to max length restriction ([#4](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/4)).
+- Bearer Token as a variable does not work due to max length restriction ([#4](https://github.com/fetchclient/vscode-fetch-client/issues/4)).
 
 ## v1.1.0 - June, 2022
 
@@ -382,9 +382,9 @@ A major release introducing the **Fetch Client CLI**, **Performance Testing**, i
 - Folder added to the Collection.
 - Set environment variable from json response, headers and cookies.
 - Support AWS Signature auth type.
-- Support Cookies and Manage cookies feature ([#1](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/1)) added.
+- Support Cookies and Manage cookies feature ([#1](https://github.com/fetchclient/vscode-fetch-client/issues/1)) added.
 - Support Copy and Paste the item between Collection/Folder.
-- Support Variables highlight ([#3](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/3)).
+- Support Variables highlight ([#3](https://github.com/fetchclient/vscode-fetch-client/issues/3)).
 - New test case options (Length and Type) are added.
 - Content-Type header will be added automatically based on request body type.
 - Support `ctrl+s` to save request.

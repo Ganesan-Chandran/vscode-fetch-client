@@ -13,10 +13,10 @@
 	"icon": "icons/fetch-client.png",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Ganesan-Chandran/vscode-fetch-client.git"
+		"url": "https://github.com/fetchclient/vscode-fetch-client.git"
 	},
 	"license": "MIT",
-	"homepage": "https://github.com/Ganesan-Chandran/vscode-fetch-client",
+	"homepage": "https://github.com/fetchclient/vscode-fetch-client",
 	"categories": [
 		"Programming Languages",
 		"Testing",

@@ -80,7 +80,7 @@ function ErrorFallback({ error }) {
 			</div>
 			<div className="issue-raise-button-panel">
 				<a
-					href="https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/new/choose"
+					href="https://github.com/fetchclient/vscode-fetch-client/issues/new/choose"
 					className="request-send-button issue-raise-button"
 				>
 					Raise Issue
