@@ -519,7 +519,7 @@
 		"@types/react-dom": "18.3.7",
 		"@types/vscode": "1.118.0",
 		"@types/yargs-parser": "21.0.3",
-		"@typescript-eslint/eslint-plugin": "^8.72.1",
+		"@typescript-eslint/eslint-plugin": "^8.72.2",
 		"@typescript-eslint/parser": "^8.72.1",
 		"@vscode/vsce": "4.1.1",
 		"assert": "2.1.0",
