@@ -51,11 +51,6 @@ jobs:
             exit 1
           fi
 
-          if git ls-remote --exit-code --tags origin "refs/tags/v$RELEASE_VERSION" >/dev/null 2>&1; then
-            echo "Tag v$RELEASE_VERSION already exists"
-            exit 1
-          fi
-
       - name: Package VSIX
         run: npx --no-install vsce package --no-dependencies -o fetch-client.vsix
 

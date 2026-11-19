@@ -51,27 +51,27 @@ This update introduces several UI/UX improvements to enhance the overall Fetch C
 - Improved response panel flexibility.
 - Optimized sidebar navigation for smaller VS Code windows.
 
-**## 🚀 v2.3.0 - 05 September 2026**
+## 🚀 v2.3.0 - 05 September 2026
 
 This release introduces **Data-Driven Test Template Generation**, **Fake Data Generation**, **Collection & Variable Shortcuts**, an improved **Multi-line Text Editor**, and a new set of built-in **Developer Tools** to make API development and testing faster and more convenient.
 
-**## ✨ Major Features**
+## ✨ Major Features
 
-**### 🧪 Data-Driven Test Improvements**
+### 🧪 Data-Driven Test Improvements
 
 - Added **Template Generation** for Data-Driven Testing to quickly create test data templates based on the request and test requirements.
 
 - Added **Fake Data Generation based on Templates**, allowing users to generate realistic test data automatically from a defined template.
 
-**### ⚡ Collection & Variable Shortcuts**
+### ⚡ Collection & Variable Shortcuts
 
 - Added **shortcut menus (Create Collection/Variable, Sort Items)** for Collections and Variables to provide quick access to commonly used actions.
 
-**### 📝 Multi-line Text Editing**
+### 📝 Multi-line Text Editing
 
 - Improved text editing support with a dedicated **Multi-line Text Editor** for easier editing of larger request bodies, variables, and other multi-line content.
 
-**### 🛠️ Developer Tools**
+### 🛠️ Developer Tools
 
 - Added a built-in **Developer Tools** section with utilities for encoding, JSON, data generation, API inspection, security, and testing.
 
@@ -111,7 +111,7 @@ This release introduces **Data-Driven Test Template Generation**, **Fake Data Ge
 
   - Regex Tester
 
-**## 🎯 Improvements**
+## 🎯 Improvements
 
 - Improved the overall workflow for creating and managing **Data-Driven Tests**.
 - Added convenient utilities to perform common API development and testing tasks directly within Fetch Client.
