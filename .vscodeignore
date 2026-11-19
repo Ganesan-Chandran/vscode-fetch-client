@@ -47,3 +47,4 @@ vsc-extension-quickstart.md
 .vscode-test/**
 
 docs/*
+SECURITY.md
