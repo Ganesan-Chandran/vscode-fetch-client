@@ -52,6 +52,17 @@ The Fetch Client extension lets you build, test, organize, and debug REST APIs w
 - 🖥️ Cross-platform support (Windows, macOS, and Linux)
 - 🆓 Free and open source
 
+### \***\* NEW FEATURE \*\***
+
+### 🤖 AI Prompt Integration
+
+- Added a new **AI Prompt** tab in the Response panel.
+- Added prompt generation options for:
+  - **Create Test Cases** – Generate prompts to create test cases in Fetch Client's JSON format.
+  - **Create Documentation** – Generate prompts to create API documentation.
+- Prompts can be used with any AI chat assistant, including **ChatGPT, Claude, Gemini**, and others.
+- Generated test cases can be copied from the AI chat and saved as a JSON file for importing into Fetch Client.
+
 ## Download
 
 https://marketplace.visualstudio.com/items?itemName=GanesanChandran.fetch-client

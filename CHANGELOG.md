@@ -2,7 +2,39 @@
 
 All notable changes to the "Fetch Client" extension will be documented in this file.
 
-**## 🚀 v2.4.0 - 31 October 2026**
+## 🚀 v2.5.0 - 19 November 2026
+
+This release introduces **AI-assisted Test Case Generation**, an improved test case import workflow, and UI enhancements to make API testing and documentation easier.
+
+## ✨ Major Features
+
+### 🤖 AI Prompt Integration
+
+- Added a new **AI Prompt** tab in the Response panel.
+- Added prompt generation options for:
+  - **Create Test Cases** – Generate prompts to create test cases in Fetch Client's JSON format.
+  - **Create Documentation** – Generate prompts to create API documentation.
+- Prompts can be used with any AI chat assistant, including **ChatGPT, Claude, Gemini**, and others.
+- Generated test cases can be copied from the AI chat and saved as a JSON file for importing into Fetch Client.
+
+### 🧪 Test Case Import
+
+- Added a new **Import Test Cases** button in **PostFetch → Test**.
+- Added support for uploading JSON test case files generated using AI.
+- Test cases are automatically imported and attached to the corresponding request.
+
+## 🎨 UI/UX Improvements
+
+- Updated the overall UI styling for a refreshed and improved user experience.
+- Improved the visual consistency of the extension interface.
+
+## 🎯 Overall Improvements
+
+- Simplified test case creation using AI assistants.
+- Reduced manual effort when creating and importing API test cases.
+- Improved the workflow for API test creation and documentation.
+
+## 🚀 v2.4.0 - 31 October 2026
 
 This update introduces several UI/UX improvements to enhance the overall Fetch Client experience.
 
