@@ -12,6 +12,7 @@ Bitbucket
 bool
 Chandran
 Changelog
+ChatGPT
 CLI
 CLI-invocation
 CodeQL
@@ -62,8 +63,8 @@ OAuth
 OAuth2
 OpenAPI
 OpenSSF
-Optimized
 optimized
+Optimized
 organization
 Organize
 Param
