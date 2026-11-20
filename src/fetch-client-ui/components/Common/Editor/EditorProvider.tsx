@@ -165,7 +165,33 @@ const EditorProvider = (props: EditorProps) => {
 	return (
 		<div className={"editor" + " " + (props.className || "")}>
 			{props.copyButtonVisible && (
-				<button onClick={onCopyClick} className="copy-button">
+				<button
+					type="button"
+					onClick={onCopyClick}
+					className={
+						copyText === "Copied" ? "copy-button copied" : "copy-button"
+					}
+					title={
+						copyText === "Copied"
+							? "Copied to clipboard"
+							: "Copy editor content"
+					}
+					aria-label={
+						copyText === "Copied"
+							? "Copied to clipboard"
+							: "Copy editor content"
+					}
+				>
+					<span className="copy-button-icon" aria-hidden="true">
+						{copyText === "Copied" ? (
+							"✓"
+						) : (
+							<svg viewBox="0 0 16 16" fill="none">
+								<rect x="5" y="2" width="8" height="10" rx="1" />
+								<path d="M3 5v8a1 1 0 0 0 1 1h6" />
+							</svg>
+						)}
+					</span>
 					{copyText}
 				</button>
 			)}

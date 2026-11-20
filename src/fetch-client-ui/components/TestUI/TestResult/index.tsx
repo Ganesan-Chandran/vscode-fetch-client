@@ -76,13 +76,13 @@ export const TestResult = () => {
 				<>
 					<span className="test-result-title-panel">
 						<span className="test-result-title">
-							Total : {testResults.length}
+							{testResults.length} total
 						</span>
-						<span className="test-result-title">
-							Passed : {testResults.filter((i) => i.result === true).length}
+						<span className="test-result-title test-result-title-pass">
+							{testResults.filter((i) => i.result === true).length} passed
 						</span>
-						<span className="test-result-title">
-							Failed : {testResults.filter((i) => i.result === false).length}
+						<span className="test-result-title test-result-title-fail">
+							{testResults.filter((i) => i.result === false).length} failed
 						</span>
 					</span>
 					<div className="test-result-panel">
@@ -100,7 +100,6 @@ export const TestResult = () => {
 				</>
 			) : (
 				<>
-					<hr />
 					<div className="auth-header-label">
 						<label>{"No Test Results Available."}</label>
 					</div>

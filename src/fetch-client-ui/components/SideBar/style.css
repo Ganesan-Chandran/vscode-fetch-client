@@ -59,18 +59,6 @@
 	border-bottom: 1px solid var(--sidebar-section-header-border-color);
 }
 
-/* Narrow sidebar: collapse tabs to icon-only and spread evenly */
-@media (max-width: 240px) {
-	.sidebar-tab-label {
-		display: none;
-	}
-
-	.sidebar-tab-menu {
-		flex: 1 1 0;
-		padding: 8px 4px;
-	}
-}
-
 .sidebar-panel {
 	height: 100vh;
 	width: 100%;
@@ -434,6 +422,7 @@
 	flex: 1 1 auto;
 	min-height: 0;
 	overflow: hidden;
+	position: relative;
 }
 
 .selected-item {
@@ -573,4 +562,66 @@
 .hamburger-menu:active {
 	background-color: var(--button-background-color);
 	color: var(--button-text-color);
+}
+
+/*
+ * Keep the section navigation above the content while there is room for all
+ * labels. In a narrow VS Code sidebar it moves to its own left-hand column,
+ * leaving the remaining width to the active section's list.
+ */
+@media (max-width: 400px) {
+	.sidebar-panel {
+		display: grid;
+		grid-template-columns: 62px minmax(0, 1fr);
+		grid-template-rows: auto auto minmax(0, 1fr);
+	}
+
+	.environment-panel,
+	.new-request-panel {
+		grid-column: 1 / -1;
+	}
+
+	.sidebar-panel-tabs {
+		grid-column: 1;
+		grid-row: 3;
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items: stretch;
+		border-right: 1px solid var(--sidebar-section-header-border-color);
+		border-bottom: 0;
+		margin-top: 9px;
+	}
+
+	.sidebar-tab-menu {
+		flex: 0 0 52px;
+		flex-direction: column;
+		gap: 2px;
+		padding: 5px 3px;
+	}
+
+	.sidebar-tab-label {
+		display: block;
+		font-size: 10px;
+		line-height: 13px;
+		text-align: center;
+		white-space: normal;
+		overflow-wrap: anywhere;
+	}
+
+	.sidebar-panel-body {
+		grid-column: 2;
+		grid-row: 3;
+		min-width: 0;
+	}
+
+	.sidebar-tab-menu.selected {
+		border-bottom: 0 !important;
+		border-left: 2.5px solid var(--button-background-color) !important;
+		background-color: var(--list-hover-background-color);
+	}
+
+	.sidebar-tab-menu:hover {
+		background-color: var(--list-hover-background-color);
+		color: var(--text-color);
+	}
 }

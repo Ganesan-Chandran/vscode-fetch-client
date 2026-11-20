@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-redeclare */
 import { ReactChild, ReactPortal, Children } from "react";
 
 type Children = ReactChild | Array<Children> | ReactPortal;

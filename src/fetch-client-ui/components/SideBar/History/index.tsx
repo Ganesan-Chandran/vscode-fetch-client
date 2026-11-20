@@ -161,10 +161,18 @@ export const HistoryBar = (props: IHistoryProps) => {
 		setCurrentIndex(-1);
 	}
 
-	function onRename(evt: React.MouseEvent<HTMLElement>, id: string) {
+	function onRename(
+		evt: React.MouseEvent<HTMLElement>,
+		id: string,
+		name: string,
+	) {
 		evt.preventDefault();
 		evt.stopPropagation();
-		vscode.postMessage({ type: requestTypes.renameHistoryRequest, data: id });
+		vscode.postMessage({
+			type: requestTypes.renameHistoryRequest,
+			data: id,
+			name: name,
+		});
 		setCurrentIndex(-1);
 	}
 
@@ -317,7 +325,9 @@ export const HistoryBar = (props: IHistoryProps) => {
 							<button onClick={(e) => onSaveToCollection(e, history.id)}>
 								Save to Collection
 							</button>
-							<button onClick={(e) => onRename(e, history.id)}>Rename</button>
+							<button onClick={(e) => onRename(e, history.id, history.name)}>
+								Rename
+							</button>
 							<button onClick={(e) => onDelete(e, history.id, history.name)}>
 								Delete
 							</button>

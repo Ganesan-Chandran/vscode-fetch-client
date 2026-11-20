@@ -23,6 +23,7 @@ export const PostFetch = () => {
 				setSelectedTab={setSelectedTab}
 				options={postFetchOptions}
 				settings={false}
+				secondary
 			/>
 			<div className="options-tab-panel">{renderOptionsUI(selectedTab)}</div>
 		</div>

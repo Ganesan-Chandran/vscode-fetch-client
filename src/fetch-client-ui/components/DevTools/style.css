@@ -49,13 +49,13 @@
 	background: var(--vscode-list-hoverBackground);
 }
 
-.dev-tools-item>span:first-child {
+.dev-tools-item > span:first-child {
 	width: 18px;
 	min-width: 18px;
 	text-align: center;
 }
 
-.dev-tools-item>span:last-child {
+.dev-tools-item > span:last-child {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;

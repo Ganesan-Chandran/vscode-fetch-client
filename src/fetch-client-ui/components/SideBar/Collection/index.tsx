@@ -158,12 +158,17 @@ export const CollectionBar = (props: ICollectionProps) => {
 		}
 	}
 
-	function onRenameCollection(evt: React.MouseEvent<HTMLElement>, id: string) {
+	function onRenameCollection(
+		evt: React.MouseEvent<HTMLElement>,
+		id: string,
+		name: string,
+	) {
 		evt.preventDefault();
 		evt.stopPropagation();
 		vscode.postMessage({
 			type: requestTypes.renameCollectionRequest,
 			data: id,
+			name: name,
 		});
 		setCurrentHeadIndex("");
 	}
@@ -189,6 +194,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 		historyId: string,
 		folderId: string,
 		isFolder: boolean,
+		name: string,
 	) {
 		evt.preventDefault();
 		evt.stopPropagation();
@@ -199,6 +205,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 				historyId: historyId,
 				folderId: folderId,
 				isFolder: isFolder,
+				name: name,
 			},
 		});
 		setCurrentIndex("");
@@ -983,7 +990,11 @@ export const CollectionBar = (props: ICollectionProps) => {
 								Arrange Items
 							</button>
 							<div className="divider"></div>
-							<button onClick={(e) => onRename(e, cols.id, "", item.id, true)}>
+							<button
+								onClick={(e) =>
+									onRename(e, cols.id, "", item.id, true, item.name)
+								}
+							>
 								Rename
 							</button>
 							<button
@@ -1178,6 +1189,7 @@ export const CollectionBar = (props: ICollectionProps) => {
 																	listItem.id,
 																	item.id,
 																	false,
+																	listItem.name,
 																)
 															}
 														>
@@ -1378,7 +1390,9 @@ export const CollectionBar = (props: ICollectionProps) => {
 							{index !== 0 && <div className="divider"></div>}
 							{index !== 0 && (
 								<>
-									<button onClick={(e) => onRenameCollection(e, item.id)}>
+									<button
+										onClick={(e) => onRenameCollection(e, item.id, item.name)}
+									>
 										Rename
 									</button>
 									<button
@@ -1570,7 +1584,14 @@ export const CollectionBar = (props: ICollectionProps) => {
 															<div className="divider"></div>
 															<button
 																onClick={(e) =>
-																	onRename(e, item.id, listItem.id, "", false)
+																	onRename(
+																		e,
+																		item.id,
+																		listItem.id,
+																		"",
+																		false,
+																		listItem.name,
+																	)
 																}
 															>
 																Rename
