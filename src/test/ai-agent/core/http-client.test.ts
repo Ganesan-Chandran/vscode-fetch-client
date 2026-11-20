@@ -1,7 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { describeError, get, jsonBody, post, request } from "../core/http";
-import type { HttpClientError } from "../core/http";
+import {
+	describeError,
+	get,
+	jsonBody,
+	post,
+	request,
+} from "../../../fetch-client-ai-agent/core/http";
+import type { HttpClientError } from "../../../fetch-client-ai-agent/core/http";
 
 function jsonResponse(
 	data: unknown,
@@ -150,7 +156,9 @@ describe("HTTP client", () => {
 		expect(result.ok).toBe(false);
 		if (!result.ok) {
 			expect(result.error.kind).toBe("network");
-			expect(result.error.message).toBe("Failed to fetch");
+			if (result.error.kind === "network") {
+				expect(result.error.message).toBe("Failed to fetch");
+			}
 		}
 	});
 

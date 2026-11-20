@@ -504,7 +504,9 @@
 		"md-lint-fix": "prettier --write \"**/*.md\" --prose-wrap always --print-width 250 && markdownlint \"**/*.md\" --fix && npm run md-fix-spaces",
 		"md-spellcheck": "spellchecker -f *.md ./**/*.md -d dictionary.txt --language en-GB",
 		"pre-commit": "npm run lint-check && npm run md-lint && npm run md-spellcheck",
-		"format": "prettier --write . && npm run md-lint-fix"
+		"format": "prettier --write . && npm run md-lint-fix",
+		"test": "vitest run --passWithNoTests",
+		"test:watch": "vitest"
 	},
 	"devDependencies": {
 		"@svgr/webpack": "8.1.0",
@@ -548,6 +550,7 @@
 		"url": "0.11.4",
 		"url-loader": "4.1.1",
 		"util": "0.12.5",
+		"vitest": "5.1.1",
 		"webpack": "5.107.2",
 		"webpack-bundle-analyzer": "4.10.2",
 		"webpack-cli": "5.1.4",

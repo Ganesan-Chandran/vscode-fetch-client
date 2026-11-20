@@ -85,7 +85,9 @@ export type ToolErrorCode =
 	| "NETWORK"
 	| "PERMISSION_DENIED"
 	| "REJECTED_BY_USER"
-	| "UNKNOWN";
+	| "UNKNOWN_TOOL" // toolName is not in the registry
+	| "TOOL_EXECUTION_FAILED" // tool threw an unexpected exception
+	| "UNKNOWN"; // not classified; should be rare
 
 /** ToolError: structured failure information for a tool execution. */
 export interface ToolError {
