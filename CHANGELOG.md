@@ -2,7 +2,39 @@
 
 All notable changes to the "Fetch Client" extension will be documented in this file.
 
-**## 🚀 v2.4.0 - 31 October 2026**
+## 🚀 v2.5.0 - 19 November 2026
+
+This release introduces **AI-assisted Test Case Generation**, an improved test case import workflow, and UI enhancements to make API testing and documentation easier.
+
+## ✨ Major Features
+
+### 🤖 AI Prompt Integration
+
+- Added a new **AI Prompt** tab in the Response panel.
+- Added prompt generation options for:
+  - **Create Test Cases** – Generate prompts to create test cases in Fetch Client's JSON format.
+  - **Create Documentation** – Generate prompts to create API documentation.
+- Prompts can be used with any AI chat assistant, including **ChatGPT, Claude, Gemini**, and others.
+- Generated test cases can be copied from the AI chat and saved as a JSON file for importing into Fetch Client.
+
+### 🧪 Test Case Import
+
+- Added a new **Import Test Cases** button in **PostFetch → Test**.
+- Added support for uploading JSON test case files generated using AI.
+- Test cases are automatically imported and attached to the corresponding request.
+
+## 🎨 UI/UX Improvements
+
+- Updated the overall UI styling for a refreshed and improved user experience.
+- Improved the visual consistency of the extension interface.
+
+## 🎯 Overall Improvements
+
+- Simplified test case creation using AI assistants.
+- Reduced manual effort when creating and importing API test cases.
+- Improved the workflow for API test creation and documentation.
+
+## 🚀 v2.4.0 - 31 October 2026
 
 This update introduces several UI/UX improvements to enhance the overall Fetch Client experience.
 
@@ -19,27 +51,27 @@ This update introduces several UI/UX improvements to enhance the overall Fetch C
 - Improved response panel flexibility.
 - Optimized sidebar navigation for smaller VS Code windows.
 
-**## 🚀 v2.3.0 - 05 September 2026**
+## 🚀 v2.3.0 - 05 September 2026
 
 This release introduces **Data-Driven Test Template Generation**, **Fake Data Generation**, **Collection & Variable Shortcuts**, an improved **Multi-line Text Editor**, and a new set of built-in **Developer Tools** to make API development and testing faster and more convenient.
 
-**## ✨ Major Features**
+## ✨ Major Features
 
-**### 🧪 Data-Driven Test Improvements**
+### 🧪 Data-Driven Test Improvements
 
 - Added **Template Generation** for Data-Driven Testing to quickly create test data templates based on the request and test requirements.
 
 - Added **Fake Data Generation based on Templates**, allowing users to generate realistic test data automatically from a defined template.
 
-**### ⚡ Collection & Variable Shortcuts**
+### ⚡ Collection & Variable Shortcuts
 
 - Added **shortcut menus (Create Collection/Variable, Sort Items)** for Collections and Variables to provide quick access to commonly used actions.
 
-**### 📝 Multi-line Text Editing**
+### 📝 Multi-line Text Editing
 
 - Improved text editing support with a dedicated **Multi-line Text Editor** for easier editing of larger request bodies, variables, and other multi-line content.
 
-**### 🛠️ Developer Tools**
+### 🛠️ Developer Tools
 
 - Added a built-in **Developer Tools** section with utilities for encoding, JSON, data generation, API inspection, security, and testing.
 
@@ -79,7 +111,7 @@ This release introduces **Data-Driven Test Template Generation**, **Fake Data Ge
 
   - Regex Tester
 
-**## 🎯 Improvements**
+## 🎯 Improvements
 
 - Improved the overall workflow for creating and managing **Data-Driven Tests**.
 - Added convenient utilities to perform common API development and testing tasks directly within Fetch Client.
@@ -296,14 +328,14 @@ A major release introducing the **Fetch Client CLI**, **Performance Testing**, i
 
 ### 🎉 New Features
 
-- Import Postman environment ([#7](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/7))
-- Save all requests data into custom workspace([#10](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/10))
-- Set the response limit as configurable([#11](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/11))
+- Import Postman environment ([#7](https://github.com/fetchclient/vscode-fetch-client/issues/7))
+- Save all requests data into custom workspace([#10](https://github.com/fetchclient/vscode-fetch-client/issues/10))
+- Set the response limit as configurable([#11](https://github.com/fetchclient/vscode-fetch-client/issues/11))
 
 ### 🐛 Bug Fixes
 
-- import from Curl ([#5](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/5)).
-- POST method not properly set just after creating new Http Request in a collection ([#8](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/8))
+- import from Curl ([#5](https://github.com/fetchclient/vscode-fetch-client/issues/5)).
+- POST method not properly set just after creating new Http Request in a collection ([#8](https://github.com/fetchclient/vscode-fetch-client/issues/8))
 - Bug fix in "Run All" section
 - Bug fix in filter search in collection section in the sidebar
 
@@ -336,9 +368,9 @@ A major release introducing the **Fetch Client CLI**, **Performance Testing**, i
 
 ### 🐛 Bug Fixes
 
-- import from Curl ([#5](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/5)).
-- Clicking on collection item opens a new window every time instead of switching to existing window ([#6](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/6))
-- import/export postman collections and environment ([#7](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/7))
+- import from Curl ([#5](https://github.com/fetchclient/vscode-fetch-client/issues/5)).
+- Clicking on collection item opens a new window every time instead of switching to existing window ([#6](https://github.com/fetchclient/vscode-fetch-client/issues/6))
+- import/export postman collections and environment ([#7](https://github.com/fetchclient/vscode-fetch-client/issues/7))
 
 ### Requirements
 
@@ -355,7 +387,7 @@ A major release introducing the **Fetch Client CLI**, **Performance Testing**, i
 
 ### 🐛 Bug Fixes
 
-- import from Curl ([#5](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/5)).
+- import from Curl ([#5](https://github.com/fetchclient/vscode-fetch-client/issues/5)).
 - Not able to Duplicate the item in the folder.
 
 ## v1.2.0 - July, 2022
@@ -364,7 +396,7 @@ A major release introducing the **Fetch Client CLI**, **Performance Testing**, i
 
 - Support nested folder to the Collection.
 - Run curl request (Under collection in the side bar).
-- Import curl request (Under collection in the side bar) ([#5](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/5)).
+- Import curl request (Under collection in the side bar) ([#5](https://github.com/fetchclient/vscode-fetch-client/issues/5)).
 - Support settings(Auth) for collection and folders.
 - "Inherit auth from parent" option added in the Auth section.
 - Support Reorder and disable the request in the "Run All" Collection.
@@ -373,7 +405,7 @@ A major release introducing the **Fetch Client CLI**, **Performance Testing**, i
 
 ### 🐛 Bug Fixes
 
-- Bearer Token as a variable does not work due to max length restriction ([#4](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/4)).
+- Bearer Token as a variable does not work due to max length restriction ([#4](https://github.com/fetchclient/vscode-fetch-client/issues/4)).
 
 ## v1.1.0 - June, 2022
 
@@ -382,9 +414,9 @@ A major release introducing the **Fetch Client CLI**, **Performance Testing**, i
 - Folder added to the Collection.
 - Set environment variable from json response, headers and cookies.
 - Support AWS Signature auth type.
-- Support Cookies and Manage cookies feature ([#1](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/1)) added.
+- Support Cookies and Manage cookies feature ([#1](https://github.com/fetchclient/vscode-fetch-client/issues/1)) added.
 - Support Copy and Paste the item between Collection/Folder.
-- Support Variables highlight ([#3](https://github.com/Ganesan-Chandran/vscode-fetch-client/issues/3)).
+- Support Variables highlight ([#3](https://github.com/fetchclient/vscode-fetch-client/issues/3)).
 - New test case options (Length and Type) are added.
 - Content-Type header will be added automatically based on request body type.
 - Support `ctrl+s` to save request.

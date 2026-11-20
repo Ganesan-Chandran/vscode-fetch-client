@@ -474,7 +474,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
 		vscode.commands.registerCommand("fetch-client.raiseRequest", () => {
 			vscode.env.openExternal(
 				vscode.Uri.parse(
-					"https://github.com/Ganesan-Chandran/vscode-fetch-client/issues",
+					"https://github.com/fetchclient/vscode-fetch-client/issues",
 				),
 			);
 		}),
