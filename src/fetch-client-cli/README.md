@@ -178,7 +178,7 @@ Example:
 ## Support
 
 - Documentation: https://fetchclient.github.io/
-- Issues: https://github.com/Ganesan-Chandran/vscode-fetch-client/issues
+- Issues: https://github.com/fetchclient/vscode-fetch-client/issues
 
 ---
 
@@ -195,7 +195,7 @@ Contributions are welcome!
 
 ## 📜 License
 
-See the [license](https://github.com/Ganesan-Chandran/vscode-fetch-client/src/fetch-client-cli/blob/main/LICENSE) details.
+See the [license](https://github.com/fetchclient/vscode-fetch-client/src/fetch-client-cli/blob/main/LICENSE) details.
 
 ---
 

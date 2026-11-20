@@ -36,6 +36,7 @@ centralized
 Centralized
 Chandran
 Changelog
+ChatGPT
 CLI
 CLI-invocation
 CodeQL

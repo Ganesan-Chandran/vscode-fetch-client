@@ -2,7 +2,7 @@
 	"name": "fetch-client",
 	"displayName": "Fetch Client",
 	"description": "REST API Client and GraphQL Client for VS Code. Test, automate, and validate REST, GraphQL, SOAP, and HTTP APIs with collections, environments, API testing, mock server, performance testing, data-driven testing, and CLI support.",
-	"version": "2.4.0",
+	"version": "2.5.0",
 	"publisher": "GanesanChandran",
 	"author": {
 		"name": "Ganesan Chandran <https://ganesan-chandran.github.io/>"
@@ -13,10 +13,10 @@
 	"icon": "icons/fetch-client.png",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Ganesan-Chandran/vscode-fetch-client.git"
+		"url": "https://github.com/fetchclient/vscode-fetch-client.git"
 	},
 	"license": "MIT",
-	"homepage": "https://github.com/Ganesan-Chandran/vscode-fetch-client",
+	"homepage": "https://github.com/fetchclient/vscode-fetch-client",
 	"categories": [
 		"Programming Languages",
 		"Testing",
@@ -522,6 +522,7 @@
 		"@types/yargs-parser": "21.0.3",
 		"@typescript-eslint/eslint-plugin": "^8.72.1",
 		"@typescript-eslint/parser": "^8.72.1",
+		"@vscode/vsce": "4.1.1",
 		"assert": "2.1.0",
 		"buffer": "6.0.3",
 		"cross-env": "10.1.0",
@@ -565,7 +566,7 @@
 		"axios": "1.20.0",
 		"chance": "1.1.13",
 		"cron": "3.5.0",
-		"fast-xml-parser": "5.8.0",
+		"fast-xml-parser": "5.12.0",
 		"find-my-way": "^9.7.0",
 		"form-data": "4.0.6",
 		"httpsnippet": "3.0.10",

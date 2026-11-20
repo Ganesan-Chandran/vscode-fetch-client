@@ -1,7 +1,7 @@
 # Fetch Client
 
 <div>
-  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/icons/fetch-client.png?raw=true" alt="Fetch Client Icon" width="120" height="120">
+  <img src="https://github.com/fetchclient/vscode-fetch-client/blob/main/icons/fetch-client.png?raw=true" alt="Fetch Client Icon" width="120" height="120">
   <br/>
 </div>
 
@@ -12,7 +12,7 @@
 [![Visual Studio Version](https://vsmarketplacebadges.dev/version-short/GanesanChandran.fetch-client.svg)](https://marketplace.visualstudio.com/items?itemName=GanesanChandran.fetch-client)
 
 <div>
-  <img src="https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/images/fetch-client-intro.gif?raw=true" alt="Fetch Client">
+  <img src="https://github.com/fetchclient/vscode-fetch-client/blob/main/images/fetch-client-intro.gif?raw=true" alt="Fetch Client">
   <br/>
 </div>
 
@@ -51,6 +51,17 @@ The Fetch Client extension lets you build, test, organise, and debug REST APIs w
 - 🔍 Search and filter requests, collections, and variables
 - 🖥️ Cross-platform support (Windows, macOS, and Linux)
 - 🆓 Free and open source
+
+### \***\* NEW FEATURE \*\***
+
+### 🤖 AI Prompt Integration
+
+- Added a new **AI Prompt** tab in the Response panel.
+- Added prompt generation options for:
+  - **Create Test Cases** – Generate prompts to create test cases in Fetch Client's JSON format.
+  - **Create Documentation** – Generate prompts to create API documentation.
+- Prompts can be used with any AI chat assistant, including **ChatGPT, Claude, Gemini**, and others.
+- Generated test cases can be copied from the AI chat and saved as a JSON file for importing into Fetch Client.
 
 ## Download
 
@@ -101,7 +112,7 @@ https://fetchclient.github.io/
 
 ## 🖥️ Running the extension locally for development
 
-- Clone the [vscode-fetch-client](https://github.com/Ganesan-Chandran/vscode-fetch-client) repo.
+- Clone the [vscode-fetch-client](https://github.com/fetchclient/vscode-fetch-client) repo.
 - Run `npm install` command to install dependencies.
 - Press `F5` to open an extension development window with `fetch-client` extension loaded.
 
@@ -112,7 +123,7 @@ https://fetchclient.github.io/
 
 ## 📝 Changelog
 
-See the [release notes](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/CHANGELOG.md) for the full set of changes.
+See the [release notes](https://github.com/fetchclient/vscode-fetch-client/blob/main/CHANGELOG.md) for the full set of changes.
 
 ## ✒️ Author
 
@@ -120,7 +131,7 @@ See the [release notes](https://github.com/Ganesan-Chandran/vscode-fetch-client/
 
 ## 📜 License
 
-See the [license](https://github.com/Ganesan-Chandran/vscode-fetch-client/blob/main/LICENSE) details.
+See the [license](https://github.com/fetchclient/vscode-fetch-client/blob/main/LICENSE) details.
 
 ## 👍 Contribution
 
