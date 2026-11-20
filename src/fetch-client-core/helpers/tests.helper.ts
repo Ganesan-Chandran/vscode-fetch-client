@@ -382,6 +382,10 @@ function findCookie(cookies: ITableData[], cookieValue: string): string {
 
 function findValueInResponse(responseValue: any, path: string) {
 	try {
+		path = path.replace(/^\$\.?/, "");
+		if (path === "") {
+			return responseValue;
+		}
 		path = path.replace(/\[(\w+)\]/g, ".$1");
 		path = path.replace(/^\./, "");
 		var a = path.split(".");

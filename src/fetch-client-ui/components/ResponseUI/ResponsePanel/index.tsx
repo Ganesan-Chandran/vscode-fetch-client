@@ -14,10 +14,15 @@ import JsonSchemaGenerator from "../../Common/JsonSchemaGenerator";
 export interface ResponsePanelProps {
 	isVerticalLayout: boolean;
 	isCurl: boolean;
+	onToggleLayout?: () => void;
 }
 
 const CodeSnippetGenerator = React.lazy(
 	() => import("../../Common/CodeGenerator"),
+);
+
+const AIPromptGenerator = React.lazy(
+	() => import("../../Common/AIPromptGenerator"),
 );
 
 export const ReponsePanel = (props: ResponsePanelProps) => {
@@ -50,6 +55,12 @@ export const ReponsePanel = (props: ResponsePanelProps) => {
 				);
 			case "prefetchresults":
 				return <PreFetchResponse />;
+			case "aiprompt":
+				return (
+					<React.Suspense fallback={<div>loading...</div>}>
+						<AIPromptGenerator />
+					</React.Suspense>
+				);
 			case "jsonschema":
 				return (
 					<React.Suspense fallback={<div>loading...</div>}>
@@ -81,6 +92,7 @@ export const ReponsePanel = (props: ResponsePanelProps) => {
 					setSelectedTab={setSelectedTab}
 					isVerticalLayout={props.isVerticalLayout}
 					isCurl={props.isCurl}
+					onToggleLayout={props.onToggleLayout}
 				/>
 				<div
 					className={

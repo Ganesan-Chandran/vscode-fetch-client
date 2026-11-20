@@ -133,7 +133,11 @@ export const RequestPanel = () => {
 
 	useEffect(() => {
 		if (responseData.loading === false && responseData.response.status !== 0) {
+			const postFetchStart = performance.now();
+			let postFetchRan = false;
+
 			if (requestData.tests.length - 1 > 0) {
+				postFetchRan = true;
 				let testResult = executeTests(
 					requestData.tests,
 					responseData,
@@ -143,6 +147,7 @@ export const RequestPanel = () => {
 			}
 
 			if (requestData.setvar.length - 1 > 0) {
+				postFetchRan = true;
 				let variable = setVariable(
 					selectedVariable,
 					requestData.setvar,
@@ -152,6 +157,14 @@ export const RequestPanel = () => {
 					type: requestTypes.updateVariableRequest,
 					data: variable,
 				});
+			}
+
+			if (postFetchRan) {
+				dispatch(
+					ResponseActions.SetPostFetchDurationAction(
+						performance.now() - postFetchStart,
+					),
+				);
 			}
 		}
 	}, [responseData.headers]);
@@ -253,7 +266,7 @@ export const RequestPanel = () => {
 						onClick={onSendClick}
 						disabled={isEnabled() ? false : true}
 					>
-						Send
+						Send <span aria-hidden="true">➤</span>
 					</button>
 				</div>
 			</div>

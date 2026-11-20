@@ -90,7 +90,7 @@
 	padding: 15px 5px 5px 0;
 	display: block;
 	color: #ea5b5b;
-	font-size: medium;
+	font-size: var(--font-size);
 }
 
 .note-text {

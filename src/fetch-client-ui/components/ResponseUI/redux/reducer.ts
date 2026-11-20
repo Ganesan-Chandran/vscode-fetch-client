@@ -2,6 +2,7 @@ import { InitialResponse } from "../../../../fetch-client-core/consts/initialVal
 import { IReponseModel } from "../../../../fetch-client-core/types/response.types";
 import {
 	FETCH_CLIENT_SET_LOADING,
+	FETCH_CLIENT_SET_POST_FETCH_DURATION,
 	FETCH_CLIENT_SET_RES_COOKIES,
 	FETCH_CLIENT_SET_RES_HEADERS,
 	FETCH_CLIENT_SET_RES_PREFETCH_RESPONSE,
@@ -65,6 +66,15 @@ export const ResponseReducer: (
 			return {
 				...state,
 				preFetchResponse: action.payload.preFetchResponse,
+			};
+		}
+		case FETCH_CLIENT_SET_POST_FETCH_DURATION: {
+			return {
+				...state,
+				response: {
+					...state.response,
+					postFetchDuration: action.payload.postFetchDuration,
+				},
 			};
 		}
 		default: {

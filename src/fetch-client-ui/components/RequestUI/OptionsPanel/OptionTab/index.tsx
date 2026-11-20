@@ -4,7 +4,7 @@ import { ReactComponent as MenuLogo } from "../../../../../../icons/settings.svg
 import { IRootState } from "../../../../reducer/combineReducer";
 
 export const OptionsTab = (props: any) => {
-	const { selectedTab, setSelectedTab, options, settings } = props;
+	const { selectedTab, setSelectedTab, options, settings, secondary } = props;
 
 	const { headers } = useSelector((state: IRootState) => state.requestData);
 
@@ -14,11 +14,42 @@ export const OptionsTab = (props: any) => {
 			: "settings-menu";
 	};
 
+	const onKeyDown = (evt: React.KeyboardEvent) => {
+		const keys = ["ArrowLeft", "ArrowRight", "Home", "End"];
+		if (!keys.includes(evt.key)) {
+			return;
+		}
+		evt.preventDefault();
+		const idx = options.findIndex((o) => o.value === selectedTab);
+		const last = options.length - 1;
+		const next =
+			evt.key === "Home"
+				? 0
+				: evt.key === "End"
+					? last
+					: evt.key === "ArrowRight"
+						? (idx + 1) % options.length
+						: (idx - 1 + options.length) % options.length;
+		setSelectedTab(options[next].value);
+		(
+			evt.currentTarget.querySelectorAll("[role=tab]")[next] as HTMLElement
+		)?.focus();
+	};
+
 	return (
-		<div className="tab-options">
+		<div
+			className={
+				secondary ? "tab-options tab-options-secondary" : "tab-options"
+			}
+			role="tablist"
+			onKeyDown={onKeyDown}
+		>
 			{options.map((option) => (
 				<button
 					key={option.value}
+					role="tab"
+					aria-selected={selectedTab === option.value}
+					tabIndex={selectedTab === option.value ? 0 : -1}
 					onClick={() => setSelectedTab(option.value)}
 					className={
 						selectedTab === option.value ? "option option-selected" : "option"
