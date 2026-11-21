@@ -1,9 +1,9 @@
 import type {
 	AgentMessage,
-	AssistantMessage,
-	Tool,
-	ToolCall,
-	ToolContext,
+	IAssistantMessage,
+	ITool,
+	IToolCall,
+	IToolContext,
 	ToolDefinition,
 	ToolResult,
 } from "./agent-contracts";
@@ -15,19 +15,27 @@ import type { ApprovalGate } from "../security/approval-gate";
 //  - Serializes only `id`, `toolName` and `arguments` from tool calls.
 //    Internal fields such as `status` are not part of the wire format.
 //  - Must not mutate `messages` or `tools`.
-export interface LLMProvider {
+export interface ILLMProvider {
 	generateResponse(
 		messages: readonly AgentMessage[],
 		tools: readonly ToolDefinition[],
 		signal?: AbortSignal,
-	): Promise<AssistantMessage>;
+	): Promise<LLMAssistantOutput>;
 }
+
+export type LLMToolRequest = Pick<IToolCall, "id" | "toolName" | "arguments">;
+export type LLMAssistantOutput = Omit<
+	IAssistantMessage,
+	"id" | "timestamp" | "taskId" | "toolCalls"
+> & {
+	readonly toolCalls?: readonly LLMToolRequest[];
+};
 
 // 2. Tool Registry
 // lookup: returns the executable tool, keyed by definition name.
 // definitions: returns the tool descriptions exposed to the LLM.
-export interface ToolRegistry {
-	lookup(name: string): Tool | undefined;
+export interface IToolRegistry {
+	lookup(name: string): ITool | undefined;
 	definitions(): readonly ToolDefinition[];
 }
 
@@ -42,35 +50,35 @@ export type PolicyDecision =
 	| { action: "approve"; reason: string }
 	| { action: "block"; reason: string };
 
-export interface SecurityPolicy {
-	evaluate(call: ToolCall): Promise<PolicyDecision>;
+export interface ISecurityPolicy {
+	evaluate(call: IToolCall): Promise<PolicyDecision>;
 }
 
 // 4. Agent State
 // Currently used only for warning records.
 // Conversation history is held by the orchestrator, not persisted here.
-export interface AgentState {
+export interface IAgentState {
 	get(key: string): unknown;
 	set(key: string, value: unknown): void;
 }
 
 // 5. Collection Writer
 // Accepts only changes that have passed the approval gate.
-export interface CollectionOperation {
+export interface ICollectionOperation {
 	readonly op: "create" | "update";
 	readonly path: string;
 	readonly value: unknown;
 }
 
-export interface ApprovedChanges {
+export interface IApprovedChanges {
 	readonly proposalId: string;
 	readonly proposalHash: string;
 	readonly collectionId: string;
-	readonly operations: readonly CollectionOperation[];
+	readonly operations: readonly ICollectionOperation[];
 }
 
-export interface CollectionWriter {
-	save(changes: ApprovedChanges): Promise<void>;
+export interface ICollectionWriter {
+	save(changes: IApprovedChanges): Promise<void>;
 }
 
 // 6. Approved Tool Call
@@ -78,23 +86,23 @@ export interface CollectionWriter {
 // Authorization is enforced by the orchestrator's control flow, not by this brand.
 export declare const approvedToolCallBrand: unique symbol;
 
-export type ApprovedToolCall = ToolCall & {
+export type ApprovedToolCall = IToolCall & {
 	readonly [approvedToolCallBrand]: true;
 };
 
 // 7. Tool Executor
 // Dispatches an already-authorized call. Makes no policy or approval decisions.
-export interface ToolExecutor {
-	execute(call: ApprovedToolCall, context: ToolContext): Promise<ToolResult>;
+export interface IToolExecutor {
+	execute(call: ApprovedToolCall, context: IToolContext): Promise<ToolResult>;
 }
 
 // 8. Agent Dependencies
 // Provided once by the composition root.
-export interface AgentDependencies {
-	readonly provider: LLMProvider;
-	readonly registry: ToolRegistry;
-	readonly executor: ToolExecutor;
-	readonly policy: SecurityPolicy;
+export interface IAgentDependencies {
+	readonly provider: ILLMProvider;
+	readonly registry: IToolRegistry;
+	readonly executor: IToolExecutor;
+	readonly policy: ISecurityPolicy;
 	readonly approvals: ApprovalGate;
-	readonly state: AgentState;
+	readonly state: IAgentState;
 }

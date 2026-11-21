@@ -63,55 +63,50 @@ These are three separate responsibilities.
 import { z } from "zod";
 
 export const AgentRequestSchema = z
-    .object({
-        method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE"]),
-        url: z
-            .string()
-            .url()
-            .refine((u) => /^https?:\/\//i.test(u), {
-                message: "URL must use http or https",
-            }),
-        headers: z.record(z.string(), z.string()).optional(),
-        body: z.unknown().optional(),
-    })
-    .strict();
+  .object({
+  method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE"]),
+  url: z
+    .string()
+    .url()
+    .refine((u) => /^https?:\/\//i.test(u), {
+    message: "URL must use http or https",
+    }),
+  headers: z.record(z.string(), z.string()).optional(),
+  body: z.unknown().optional(),
+  })
+  .strict();
 
 export type AgentRequest = z.infer<typeof AgentRequestSchema>;
 
 /**
- * Validates an unknown JavaScript value against AgentRequestSchema.
- * Throws when validation fails.
- */
+  * Validates an unknown JavaScript value against AgentRequestSchema.
+  * Throws when validation fails.
+  */
 export function parseAgentRequest(raw: unknown): AgentRequest {
-    const result = AgentRequestSchema.safeParse(raw);
+  const result = AgentRequestSchema.safeParse(raw);
 
-    if (!result.success) {
-        const details = result.error.issues
-            .map(
-                (issue) =>
-                    `${issue.path.join(".") || "(root)"}: ${issue.message}`,
-            )
-            .join("; ");
+  if (!result.success) {
+  const details = result.error.issues.map((issue) => `${issue.path.join(".") || "(root)"}: ${issue.message}`).join("; ");
 
-        throw new Error(`Invalid AgentRequest: ${details}`);
-    }
+  throw new Error(`Invalid AgentRequest: ${details}`);
+  }
 
-    return result.data;
+  return result.data;
 }
 
 /**
- * Parses external JSON text and validates the resulting value.
- */
+  * Parses external JSON text and validates the resulting value.
+  */
 export function parseAgentRequestJson(json: string): AgentRequest {
-    let raw: unknown;
+  let raw: unknown;
 
-    try {
-        raw = JSON.parse(json) as unknown;
-    } catch {
-        throw new Error("Invalid AgentRequest JSON: malformed JSON");
-    }
+  try {
+  raw = JSON.parse(json) as unknown;
+  } catch {
+  throw new Error("Invalid AgentRequest JSON: malformed JSON");
+  }
 
-    return parseAgentRequest(raw);
+  return parseAgentRequest(raw);
 }
 ```
 
@@ -136,27 +131,27 @@ Expected results are defined before running the tests.
 
 If a test fails, change the code or the expectation only with a documented reason. Do not change expectations simply to make tests pass.
 
-| ID | Scenario | Input summary | Expected |
-|---|---|---|---|
-| TC01 | Valid GET | `method: GET`, URL only | PASS |
-| TC02 | Valid POST with headers and body | Object body | PASS |
-| TC03 | Invalid method | `INVALID` | FAIL |
-| TC04 | Invalid URL | `not-a-valid-url` | FAIL |
-| TC05 | Headers as string | String instead of object | FAIL |
-| TC06 | Unexpected property | `unknownProperty: true` | FAIL |
-| TC07 | JavaScript URL | `javascript:alert(1)` | FAIL |
-| TC08 | File URL | `file:///etc/passwd` | FAIL |
-| TC09 | Lowercase method | `get` | FAIL |
-| TC10 | Empty URL | `""` | FAIL |
-| TC11 | Non-string header value | `{ "X-Retry": 3 }` | FAIL |
-| TC12 | Top-level null | `null` | FAIL |
-| TC13 | Top-level string | `"text"` | FAIL |
-| TC14 | Top-level array | `[]` | FAIL |
-| TC15 | String body | `body: "raw text"` | PASS |
-| TC16 | Localhost URL | `http://localhost:3000` | PASS at schema level |
-| TC17 | Missing required URL | `method: GET` only | FAIL |
-| TC18 | Malformed JSON text | Incomplete JSON string | FAIL at JSON parsing |
-| TC19 | Validation error details | Invalid method | Error identifies `method` |
+| ID   | Scenario                         | Input summary            | Expected                  |
+| ---- | -------------------------------- | ------------------------ | ------------------------- |
+| TC01 | Valid GET                        | `method: GET`, URL only  | PASS                      |
+| TC02 | Valid POST with headers and body | Object body              | PASS                      |
+| TC03 | Invalid method                   | `INVALID`                | FAIL                      |
+| TC04 | Invalid URL                      | `not-a-valid-url`        | FAIL                      |
+| TC05 | Headers as string                | String instead of object | FAIL                      |
+| TC06 | Unexpected property              | `unknownProperty: true`  | FAIL                      |
+| TC07 | JavaScript URL                   | `javascript:alert(1)`    | FAIL                      |
+| TC08 | File URL                         | `file:///etc/passwd`     | FAIL                      |
+| TC09 | Lowercase method                 | `get`                    | FAIL                      |
+| TC10 | Empty URL                        | `""`                     | FAIL                      |
+| TC11 | Non-string header value          | `{ "X-Retry": 3 }`       | FAIL                      |
+| TC12 | Top-level null                   | `null`                   | FAIL                      |
+| TC13 | Top-level string                 | `"text"`                 | FAIL                      |
+| TC14 | Top-level array                  | `[]`                     | FAIL                      |
+| TC15 | String body                      | `body: "raw text"`       | PASS                      |
+| TC16 | Localhost URL                    | `http://localhost:3000`  | PASS at schema level      |
+| TC17 | Missing required URL             | `method: GET` only       | FAIL                      |
+| TC18 | Malformed JSON text              | Incomplete JSON string   | FAIL at JSON parsing      |
+| TC19 | Validation error details         | Invalid method           | Error identifies `method` |
 
 **Important decisions:**
 
@@ -170,117 +165,101 @@ If a test fails, change the code or the expectation only with a documented reaso
 
 ```typescript
 import { describe, it, expect } from "vitest";
-import {
-    parseAgentRequest,
-    parseAgentRequestJson,
-} from "./agent-request.validator";
+import { parseAgentRequest, parseAgentRequestJson } from "./agent-request.validator";
 
 describe("parseAgentRequest", () => {
-    it("TC01 accepts a valid GET", () => {
-        expect(
-            parseAgentRequest({
-                method: "GET",
-                url: "https://api.example.com/users",
-            }),
-        ).toMatchObject({ method: "GET" });
-    });
+  it("TC01 accepts a valid GET", () => {
+  expect(
+    parseAgentRequest({
+    method: "GET",
+    url: "https://api.example.com/users",
+    }),
+  ).toMatchObject({ method: "GET" });
+  });
 
-    it("TC02 accepts a POST with headers and body", () => {
-        expect(() =>
-            parseAgentRequest({
-                method: "POST",
-                url: "https://api.example.com/users",
-                headers: { "Content-Type": "application/json" },
-                body: { name: "John" },
-            }),
-        ).not.toThrow();
-    });
+  it("TC02 accepts a POST with headers and body", () => {
+  expect(() =>
+    parseAgentRequest({
+    method: "POST",
+    url: "https://api.example.com/users",
+    headers: { "Content-Type": "application/json" },
+    body: { name: "John" },
+    }),
+  ).not.toThrow();
+  });
 
-    it.each([
-        ["TC03 invalid method", { method: "INVALID", url: "https://a.com" }],
-        ["TC04 invalid URL", { method: "GET", url: "not-a-valid-url" }],
-        [
-            "TC05 headers as string",
-            {
-                method: "POST",
-                url: "https://a.com",
-                headers: "Content-Type: x",
-            },
-        ],
-        [
-            "TC06 unexpected property",
-            {
-                method: "GET",
-                url: "https://a.com",
-                unknownProperty: true,
-            },
-        ],
-        [
-            "TC07 javascript URL",
-            { method: "GET", url: "javascript:alert(1)" },
-        ],
-        [
-            "TC08 file URL",
-            { method: "GET", url: "file:///etc/passwd" },
-        ],
-        [
-            "TC09 lowercase method",
-            { method: "get", url: "https://a.com" },
-        ],
-        ["TC10 empty URL", { method: "GET", url: "" }],
-        [
-            "TC11 non-string header value",
-            {
-                method: "GET",
-                url: "https://a.com",
-                headers: { "X-Retry": 3 },
-            },
-        ],
-        ["TC12 null", null],
-        ["TC13 string", "text"],
-        ["TC14 array", []],
-        ["TC17 missing URL", { method: "GET" }],
-    ])("rejects: %s", (_name, input) => {
-        expect(() => parseAgentRequest(input)).toThrow(
-            /Invalid AgentRequest/,
-        );
-    });
+  it.each([
+  ["TC03 invalid method", { method: "INVALID", url: "https://a.com" }],
+  ["TC04 invalid URL", { method: "GET", url: "not-a-valid-url" }],
+  [
+    "TC05 headers as string",
+    {
+    method: "POST",
+    url: "https://a.com",
+    headers: "Content-Type: x",
+    },
+  ],
+  [
+    "TC06 unexpected property",
+    {
+    method: "GET",
+    url: "https://a.com",
+    unknownProperty: true,
+    },
+  ],
+  ["TC07 javascript URL", { method: "GET", url: "javascript:alert(1)" }],
+  ["TC08 file URL", { method: "GET", url: "file:///etc/passwd" }],
+  ["TC09 lowercase method", { method: "get", url: "https://a.com" }],
+  ["TC10 empty URL", { method: "GET", url: "" }],
+  [
+    "TC11 non-string header value",
+    {
+    method: "GET",
+    url: "https://a.com",
+    headers: { "X-Retry": 3 },
+    },
+  ],
+  ["TC12 null", null],
+  ["TC13 string", "text"],
+  ["TC14 array", []],
+  ["TC17 missing URL", { method: "GET" }],
+  ])("rejects: %s", (_name, input) => {
+  expect(() => parseAgentRequest(input)).toThrow(/Invalid AgentRequest/);
+  });
 
-    it("TC15 accepts a string body", () => {
-        expect(() =>
-            parseAgentRequest({
-                method: "POST",
-                url: "https://a.com",
-                body: "raw text",
-            }),
-        ).not.toThrow();
-    });
+  it("TC15 accepts a string body", () => {
+  expect(() =>
+    parseAgentRequest({
+    method: "POST",
+    url: "https://a.com",
+    body: "raw text",
+    }),
+  ).not.toThrow();
+  });
 
-    it("TC16 accepts localhost at schema level", () => {
-        expect(() =>
-            parseAgentRequest({
-                method: "GET",
-                url: "http://localhost:3000",
-            }),
-        ).not.toThrow();
-    });
+  it("TC16 accepts localhost at schema level", () => {
+  expect(() =>
+    parseAgentRequest({
+    method: "GET",
+    url: "http://localhost:3000",
+    }),
+  ).not.toThrow();
+  });
 
-    it("TC18 rejects malformed JSON text", () => {
-        const malformedJson = '{"method":"GET","url":';
+  it("TC18 rejects malformed JSON text", () => {
+  const malformedJson = '{"method":"GET","url":';
 
-        expect(() => parseAgentRequestJson(malformedJson)).toThrow(
-            /Invalid AgentRequest JSON/,
-        );
-    });
+  expect(() => parseAgentRequestJson(malformedJson)).toThrow(/Invalid AgentRequest JSON/);
+  });
 
-    it("TC19 error message names the failing field", () => {
-        expect(() =>
-            parseAgentRequest({
-                method: "INVALID",
-                url: "https://a.com",
-            }),
-        ).toThrow(/method/);
-    });
+  it("TC19 error message names the failing field", () => {
+  expect(() =>
+    parseAgentRequest({
+    method: "INVALID",
+    url: "https://a.com",
+    }),
+  ).toThrow(/method/);
+  });
 });
 ```
 
@@ -288,15 +267,15 @@ Adjust the import and test runner if the repository uses Jest or Mocha instead o
 
 ## 6. Decisions and Reasons
 
-| Decision | Choice | Reason |
-|---|---|---|
-| Extra fields | Reject using `.strict()` | LLM output will later be used for execution. Unknown properties should not silently pass. |
-| URL scheme | HTTP/HTTPS only | Rejects unsupported schemes at the schema level. |
-| Method case | Case-sensitive | Maintains one canonical HTTP method representation. |
-| Body type | `unknown` | Body structure varies by endpoint. Detailed validation can happen later using the endpoint's schema. |
-| Private/localhost URLs | Allowed at schema level | Network safety belongs to the Security Manager. |
-| JSON parsing | Separate from Zod | Malformed JSON and structurally invalid JSON are different failure types. |
-| Validation errors | Throw descriptive errors | Allows the caller to handle failures consistently through the parsing contract. |
+| Decision               | Choice                   | Reason                                                                                               |
+| ---------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------- |
+| Extra fields           | Reject using `.strict()` | LLM output will later be used for execution. Unknown properties should not silently pass.            |
+| URL scheme             | HTTP/HTTPS only          | Rejects unsupported schemes at the schema level.                                                     |
+| Method case            | Case-sensitive           | Maintains one canonical HTTP method representation.                                                  |
+| Body type              | `unknown`                | Body structure varies by endpoint. Detailed validation can happen later using the endpoint's schema. |
+| Private/localhost URLs | Allowed at schema level  | Network safety belongs to the Security Manager.                                                      |
+| JSON parsing           | Separate from Zod        | Malformed JSON and structurally invalid JSON are different failure types.                            |
+| Validation errors      | Throw descriptive errors | Allows the caller to handle failures consistently through the parsing contract.                      |
 
 ### Important architectural consideration
 

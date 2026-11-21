@@ -505,8 +505,9 @@
 		"md-spellcheck": "spellchecker -f *.md ./**/*.md -d dictionary.txt --language en-GB",
 		"pre-commit": "npm run lint-check && npm run md-lint && npm run md-spellcheck",
 		"format": "prettier --write . && npm run md-lint-fix",
-		"test": "vitest run --passWithNoTests",
-		"test:watch": "vitest"
+		"test:watch": "vitest",
+		"test": "vitest run --exclude '**/*.integration.test.ts'",
+		"test:integration": "vitest run --config vitest.integration.config.ts"
 	},
 	"devDependencies": {
 		"@svgr/webpack": "8.1.0",

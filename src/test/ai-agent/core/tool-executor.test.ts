@@ -3,21 +3,21 @@ import { RegistryToolExecutor } from "../../../fetch-client-ai-agent/core/tool-e
 import { InMemoryToolRegistry } from "../test-doubles/in-memory-registry";
 import type { ApprovedToolCall } from "../../../fetch-client-ai-agent/types/agent-dependencies";
 import type {
-	JSONSchema,
-	Tool,
-	ToolContext,
+	IJSONSchema,
+	ITool,
+	IToolContext,
 } from "../../../fetch-client-ai-agent/types/agent-contracts";
 
-const ctx: ToolContext = { taskId: "task-1" };
+const ctx: IToolContext = { taskId: "task-1" };
 
-const echoSchema: JSONSchema = {
+const echoSchema: IJSONSchema = {
 	type: "object",
 	properties: { text: { type: "string" } },
 	required: ["text"],
 	additionalProperties: false,
 };
 
-function makeEchoTool(execute: Tool["execute"]): Tool {
+function makeEchoTool(execute: ITool["execute"]): ITool {
 	return {
 		definition: {
 			name: "echo",
@@ -48,7 +48,7 @@ function approvedCall(
 
 describe("RegistryToolExecutor", () => {
 	it("returns success for valid input", async () => {
-		const execute = vi.fn<Tool["execute"]>(async (args) => ({
+		const execute = vi.fn<ITool["execute"]>(async (args) => ({
 			toolCallId: "call-1",
 			success: true,
 			data: args,
@@ -59,12 +59,14 @@ describe("RegistryToolExecutor", () => {
 		const result = await executor.execute(approvedCall(), ctx);
 
 		expect(result.success).toBe(true);
-		if (result.success) expect(result.data).toEqual({ text: "hi" });
+		if (result.success) {
+			expect(result.data).toEqual({ text: "hi" });
+		}
 		expect(execute).toHaveBeenCalledTimes(1);
 	});
 
 	it("returns INVALID_ARGUMENTS and never runs the tool for invalid input", async () => {
-		const execute = vi.fn<Tool["execute"]>(async (args) => ({
+		const execute = vi.fn<ITool["execute"]>(async (args) => ({
 			toolCallId: "call-1",
 			success: true,
 			data: args,
@@ -86,7 +88,7 @@ describe("RegistryToolExecutor", () => {
 	});
 
 	it("converts a thrown error into TOOL_EXECUTION_FAILED without leaking details", async () => {
-		const execute = vi.fn<Tool["execute"]>(async () => {
+		const execute = vi.fn<ITool["execute"]>(async () => {
 			throw new Error("boom at /secret/path");
 		});
 		const registry = new InMemoryToolRegistry().register(makeEchoTool(execute));

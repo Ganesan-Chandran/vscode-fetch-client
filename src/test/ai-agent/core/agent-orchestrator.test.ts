@@ -818,9 +818,13 @@ describe("AgentOrchestrator - Integration Tests", () => {
 			execute: async (args) => {
 				const { a, b, op } = args as { a: number; b: number; op: string };
 				let val: number;
-				if (op === "add") val = a + b;
-				else if (op === "multiply") val = a * b;
-				else throw new Error(`Unknown operator: ${op}`);
+				if (op === "add") {
+					val = a + b;
+				} else if (op === "multiply") {
+					val = a * b;
+				} else {
+					throw new Error(`Unknown operator: ${op}`);
+				}
 				return {
 					toolCallId: "calc-res",
 					success: true,

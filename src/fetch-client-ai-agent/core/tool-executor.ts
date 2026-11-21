@@ -1,20 +1,20 @@
 import Ajv, { type ValidateFunction } from "ajv";
-import type { Tool, ToolContext, ToolResult } from "../types/agent-contracts";
+import type { ITool, IToolContext, ToolResult } from "../types/agent-contracts";
 import type {
 	ApprovedToolCall,
-	ToolExecutor,
-	ToolRegistry,
+	IToolExecutor,
+	IToolRegistry,
 } from "../types/agent-dependencies";
 
-export class RegistryToolExecutor implements ToolExecutor {
+export class RegistryToolExecutor implements IToolExecutor {
 	private readonly ajv = new Ajv({ allErrors: false });
 	private readonly validators = new Map<string, ValidateFunction>();
 
-	constructor(private readonly registry: ToolRegistry) {}
+	constructor(private readonly registry: IToolRegistry) {}
 
 	async execute(
 		call: ApprovedToolCall,
-		context: ToolContext,
+		context: IToolContext,
 	): Promise<ToolResult> {
 		const tool = this.registry.lookup(call.toolName);
 		if (!tool) {
@@ -57,7 +57,7 @@ export class RegistryToolExecutor implements ToolExecutor {
 		}
 	}
 
-	private validatorFor(tool: Tool): ValidateFunction {
+	private validatorFor(tool: ITool): ValidateFunction {
 		let validate = this.validators.get(tool.definition.name);
 		if (!validate) {
 			validate = this.ajv.compile(tool.definition.inputSchema);

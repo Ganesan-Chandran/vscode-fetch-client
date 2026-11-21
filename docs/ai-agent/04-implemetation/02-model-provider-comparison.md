@@ -1,9 +1,6 @@
 # Model Provider Comparison
 
-**Session:** 11  
-**Phase:** 2 — Model Providers and First Model Call  
-**Status:** Draft — Architecture and evaluation criteria defined  
-**Last reviewed:** 21 November 2026
+**Session:** 11 **Phase:** 2 — Model Providers and First Model Call **Status:** Draft — Architecture and evaluation criteria defined **Last reviewed:** 21 November 2026
 
 ## 1. Objective
 
@@ -26,12 +23,12 @@ Our goal is to implement our own agent orchestration and provider integration us
 
 ## 2. Providers in Scope
 
-| Provider | Type | Examples |
-|---|---|---|
-| Anthropic | Hosted API | Claude models |
-| OpenAI | Hosted API | GPT models |
-| Google | Hosted API | Gemini models |
-| Ollama | Local model runtime | Qwen, Gemma, Llama |
+| Provider  | Type                    | Examples               |
+| --------- | ----------------------- | ---------------------- |
+| Anthropic | Hosted API              | Claude models          |
+| OpenAI    | Hosted API              | GPT models             |
+| Google    | Hosted API              | Gemini models          |
+| Ollama    | Local model runtime     | Qwen, Gemma, Llama     |
 | llama.cpp | Local inference runtime | GGUF-compatible models |
 
 **Note:** Ollama and llama.cpp are runtimes, not model developers. Their capabilities depend on the selected model and runtime implementation.
@@ -40,23 +37,23 @@ OpenRouter and other model-routing services are excluded from the first-party pr
 
 ## 3. Provider Comparison Matrix
 
-| Criterion | Anthropic | OpenAI | Google Gemini | Local Models |
-|---|---|---|---|---|
-| Deployment | Hosted | Hosted | Hosted | Local |
-| Privacy | Depends on API policies and configuration | Depends on API policies and configuration | Depends on API tier and configuration | Can keep inference data local |
-| Input pricing | Per model | Per model | Per model | Hardware and electricity |
-| Output pricing | Per model | Per model | Per model | Hardware and electricity |
-| Cached input | Supported; model-dependent | Supported; model-dependent | Supported; model-dependent | Runtime-dependent |
-| Batch processing | Supported | Supported | Supported | Application-managed |
-| Latency | Network and model-dependent | Network and model-dependent | Network and model-dependent | Hardware and model-dependent |
-| Context window | Model-dependent | Model-dependent | Model-dependent | Model-dependent |
-| Output limit | Model-dependent | Model-dependent | Model-dependent | Model-dependent |
-| Structured output | Supported; model-dependent | Supported; model-dependent | Supported; model-dependent | Runtime/model-dependent |
-| Tool calling | Supported | Supported | Supported | Model/runtime-dependent |
-| Parallel tool calls | Verify per model/API | Verify per model/API | Verify per model/API | Model/runtime-dependent |
-| Streaming | Supported | Supported | Supported | Runtime-dependent |
-| Rate limits | API tier-dependent | API tier-dependent | API tier-dependent | No vendor API limits for local inference |
-| Operational maintenance | Provider-managed | Provider-managed | Provider-managed | Application and infrastructure managed |
+| Criterion               | Anthropic                                 | OpenAI                                    | Google Gemini                         | Local Models                             |
+| ----------------------- | ----------------------------------------- | ----------------------------------------- | ------------------------------------- | ---------------------------------------- |
+| Deployment              | Hosted                                    | Hosted                                    | Hosted                                | Local                                    |
+| Privacy                 | Depends on API policies and configuration | Depends on API policies and configuration | Depends on API tier and configuration | Can keep inference data local            |
+| Input pricing           | Per model                                 | Per model                                 | Per model                             | Hardware and electricity                 |
+| Output pricing          | Per model                                 | Per model                                 | Per model                             | Hardware and electricity                 |
+| Cached input            | Supported; model-dependent                | Supported; model-dependent                | Supported; model-dependent            | Runtime-dependent                        |
+| Batch processing        | Supported                                 | Supported                                 | Supported                             | Application-managed                      |
+| Latency                 | Network and model-dependent               | Network and model-dependent               | Network and model-dependent           | Hardware and model-dependent             |
+| Context window          | Model-dependent                           | Model-dependent                           | Model-dependent                       | Model-dependent                          |
+| Output limit            | Model-dependent                           | Model-dependent                           | Model-dependent                       | Model-dependent                          |
+| Structured output       | Supported; model-dependent                | Supported; model-dependent                | Supported; model-dependent            | Runtime/model-dependent                  |
+| Tool calling            | Supported                                 | Supported                                 | Supported                             | Model/runtime-dependent                  |
+| Parallel tool calls     | Verify per model/API                      | Verify per model/API                      | Verify per model/API                  | Model/runtime-dependent                  |
+| Streaming               | Supported                                 | Supported                                 | Supported                             | Runtime-dependent                        |
+| Rate limits             | API tier-dependent                        | API tier-dependent                        | API tier-dependent                    | No vendor API limits for local inference |
+| Operational maintenance | Provider-managed                          | Provider-managed                          | Provider-managed                      | Application and infrastructure managed   |
 
 **Important:** This is a capability overview, not a claim that every model supports every feature. Exact capabilities must be verified against the selected model and API version.
 
@@ -102,25 +99,25 @@ Hosted providers generally charge based on token consumption.
 
 ### Pricing Components
 
-| Component | Description |
-|---|---|
-| Input tokens | Tokens sent to the model |
-| Output tokens | Tokens generated by the model |
-| Cached input | Reduced cost for eligible cached input |
-| Cache creation | Cost associated with creating cached content, where applicable |
-| Batch processing | Discounted processing for eligible batch requests |
-| Additional services | Other provider-specific charges |
+| Component           | Description                                                    |
+| ------------------- | -------------------------------------------------------------- |
+| Input tokens        | Tokens sent to the model                                       |
+| Output tokens       | Tokens generated by the model                                  |
+| Cached input        | Reduced cost for eligible cached input                         |
+| Cache creation      | Cost associated with creating cached content, where applicable |
+| Batch processing    | Discounted processing for eligible batch requests              |
+| Additional services | Other provider-specific charges                                |
 
 ### Pricing Verification Table
 
 Exact prices should be maintained separately because pricing changes frequently.
 
-| Provider | Model ID | Input price / 1M tokens | Output price / 1M tokens | Last verified |
-|---|---|---:|---:|---|
-| Anthropic | To be selected | VERIFY | VERIFY | Pending |
-| OpenAI | To be selected | VERIFY | VERIFY | Pending |
-| Gemini | To be selected | VERIFY | VERIFY | Pending |
-| Local | To be selected | Hardware cost | Hardware cost | Pending |
+| Provider  | Model ID       | Input price / 1M tokens | Output price / 1M tokens | Last verified |
+| --------- | -------------- | ----------------------: | -----------------------: | ------------- |
+| Anthropic | To be selected |                  VERIFY |                   VERIFY | Pending       |
+| OpenAI    | To be selected |                  VERIFY |                   VERIFY | Pending       |
+| Gemini    | To be selected |                  VERIFY |                   VERIFY | Pending       |
+| Local     | To be selected |           Hardware cost |            Hardware cost | Pending       |
 
 ### Rate Limits
 
@@ -148,13 +145,13 @@ For Fetch Client, context usage can increase because of:
 
 Evaluate the following:
 
-| Metric | Purpose |
-|---|---|
-| Maximum input context | Maximum supported input context |
-| Maximum output tokens | Maximum generated response |
-| Context utilization | Percentage of available context consumed |
-| Token estimation | Estimate request size before submission |
-| Context management | Summarize or truncate old conversation history |
+| Metric                | Purpose                                        |
+| --------------------- | ---------------------------------------------- |
+| Maximum input context | Maximum supported input context                |
+| Maximum output tokens | Maximum generated response                     |
+| Context utilization   | Percentage of available context consumed       |
+| Token estimation      | Estimate request size before submission        |
+| Context management    | Summarize or truncate old conversation history |
 
 The agent should not assume that every provider supports the same context size.
 
@@ -164,13 +161,7 @@ Structured output allows the model to generate predictable responses, such as JS
 
 Example:
 
-\`\`\`json
-{
-  "taskType": "generate_test_cases",
-  "confidence": 0.95,
-  "requiresApproval": true
-}
-\`\`\`
+\`\`\`json { "taskType": "generate_test_cases", "confidence": 0.95, "requiresApproval": true } \`\`\`
 
 ### Why It Matters
 
@@ -212,14 +203,7 @@ Example user request:
 
 The model may return a tool request:
 
-\`\`\`json
-{
-  "name": "read_openapi_file",
-  "arguments": {
-    "filePath": "swagger.json"
-  }
-}
-\`\`\`
+\`\`\`json { "name": "read_openapi_file", "arguments": { "filePath": "swagger.json" } } \`\`\`
 
 The model does not execute our TypeScript function directly.
 
@@ -239,15 +223,15 @@ Our orchestrator handles execution.
 
 ### Tool Calling Evaluation
 
-| Capability | Evaluation |
-|---|---|
-| Tool selection | Does the model select the correct tool? |
-| Argument generation | Are arguments valid? |
-| Required properties | Are required fields populated? |
-| Multiple tool calls | Can it request multiple tools? |
-| Parallel execution | Can independent tools execute concurrently? |
-| Error handling | Can it recover from tool failures? |
-| Tool result interpretation | Can it correctly use execution results? |
+| Capability                 | Evaluation                                  |
+| -------------------------- | ------------------------------------------- |
+| Tool selection             | Does the model select the correct tool?     |
+| Argument generation        | Are arguments valid?                        |
+| Required properties        | Are required fields populated?              |
+| Multiple tool calls        | Can it request multiple tools?              |
+| Parallel execution         | Can independent tools execute concurrently? |
+| Error handling             | Can it recover from tool failures?          |
+| Tool result interpretation | Can it correctly use execution results?     |
 
 Tool execution must always remain under application control.
 
@@ -259,36 +243,11 @@ Streaming allows the application to receive model output incrementally rather th
 
 ### Without Streaming
 
-\`\`\`text
-Request sent
-     |
-     v
-Model processes request
-     |
-     v
-Wait for completion
-     |
-     v
-Complete response received
-\`\`\`
+\`\`\`text Request sent | v Model processes request | v Wait for completion | v Complete response received \`\`\`
 
 ### With Streaming
 
-\`\`\`text
-Request sent
-     |
-     v
-First response chunk
-     |
-     v
-Additional response chunks
-     |
-     v
-More response chunks
-     |
-     v
-Stream completed
-\`\`\`
+\`\`\`text Request sent | v First response chunk | v Additional response chunks | v More response chunks | v Stream completed \`\`\`
 
 ### Benefits
 
@@ -314,16 +273,16 @@ Streaming support does not mean that incomplete JSON should be executed. Structu
 
 ## 10. Local vs Hosted Models
 
-| Area | Local Models | Hosted Models |
-|---|---|---|
-| Privacy | Can keep inference local | Depends on provider policies |
-| Cost | Hardware and electricity | Token-based pricing |
-| Initial setup | Requires installation and configuration | Requires API configuration |
-| Performance | Depends on local hardware | Depends on network and provider infrastructure |
-| Scalability | Limited by available resources | Provider infrastructure |
-| Maintenance | User/application responsibility | Mostly provider-managed |
-| Internet | Not required for local inference after setup | Required |
-| Model selection | Open-weight model availability | Provider model availability |
+| Area            | Local Models                                 | Hosted Models                                  |
+| --------------- | -------------------------------------------- | ---------------------------------------------- |
+| Privacy         | Can keep inference local                     | Depends on provider policies                   |
+| Cost            | Hardware and electricity                     | Token-based pricing                            |
+| Initial setup   | Requires installation and configuration      | Requires API configuration                     |
+| Performance     | Depends on local hardware                    | Depends on network and provider infrastructure |
+| Scalability     | Limited by available resources               | Provider infrastructure                        |
+| Maintenance     | User/application responsibility              | Mostly provider-managed                        |
+| Internet        | Not required for local inference after setup | Required                                       |
+| Model selection | Open-weight model availability               | Provider model availability                    |
 
 ### Local Model Considerations
 
@@ -339,38 +298,38 @@ All providers should receive the same prompts, tool definitions and expected out
 
 ### Test Cases
 
-| Test ID | Test | Expected Result |
-|---|---|---|
-| TC-01 | Tool calling | Correct tool selection and arguments |
-| TC-02 | Structured output | Valid JSON matching expected schema |
-| TC-03 | Long context | Correct handling of supplied context |
-| TC-04 | Streaming | Incremental response received |
-| TC-05 | Repeated execution | Consistent results across five runs |
+| Test ID | Test               | Expected Result                      |
+| ------- | ------------------ | ------------------------------------ |
+| TC-01   | Tool calling       | Correct tool selection and arguments |
+| TC-02   | Structured output  | Valid JSON matching expected schema  |
+| TC-03   | Long context       | Correct handling of supplied context |
+| TC-04   | Streaming          | Incremental response received        |
+| TC-05   | Repeated execution | Consistent results across five runs  |
 
 ### Metrics to Record
 
-| Metric | Description |
-|---|---|
-| Model ID | Exact model identifier |
-| Provider | Provider name |
-| Test date | Date of execution |
-| Time to first token | Time until first streamed content |
-| Total latency | Total response time |
-| Input tokens | Number of input tokens |
-| Output tokens | Number of output tokens |
-| Tool-call accuracy | Correct tool and arguments |
-| Schema validation | Ajv validation success |
-| Success rate | Successful executions / total executions |
-| Error details | Provider or application errors |
+| Metric              | Description                              |
+| ------------------- | ---------------------------------------- |
+| Model ID            | Exact model identifier                   |
+| Provider            | Provider name                            |
+| Test date           | Date of execution                        |
+| Time to first token | Time until first streamed content        |
+| Total latency       | Total response time                      |
+| Input tokens        | Number of input tokens                   |
+| Output tokens       | Number of output tokens                  |
+| Tool-call accuracy  | Correct tool and arguments               |
+| Schema validation   | Ajv validation success                   |
+| Success rate        | Successful executions / total executions |
+| Error details       | Provider or application errors           |
 
 ### Benchmark Result Template
 
-| Provider | Model | Tool Calling | Structured Output | Long Context | Streaming | Avg. Latency |
-|---|---|---|---|---|---|---|
-| Gemini | Pending | Pending | Pending | Pending | Pending | Pending |
-| Ollama | Pending | Pending | Pending | Pending | Pending | Pending |
-| OpenAI | Pending | Pending | Pending | Pending | Pending | Pending |
-| Anthropic | Pending | Pending | Pending | Pending | Pending | Pending |
+| Provider  | Model   | Tool Calling | Structured Output | Long Context | Streaming | Avg. Latency |
+| --------- | ------- | ------------ | ----------------- | ------------ | --------- | ------------ |
+| Gemini    | Pending | Pending      | Pending           | Pending      | Pending   | Pending      |
+| Ollama    | Pending | Pending      | Pending           | Pending      | Pending   | Pending      |
+| OpenAI    | Pending | Pending      | Pending           | Pending      | Pending   | Pending      |
+| Anthropic | Pending | Pending      | Pending           | Pending      | Pending   | Pending      |
 
 Use five repeated runs for reliability testing. Record latency and token usage separately for each run before calculating averages.
 
@@ -422,13 +381,11 @@ The orchestrator should communicate through our own TypeScript provider contract
 
 Conceptual interface:
 
-\`\`\`typescript
+```typescript
 interface LLMProvider {
-  generateResponse(
-    messages: AgentMessage[]
-  ): Promise<AgentMessage>;
+  generateResponse(messages: AgentMessage[]): Promise<AgentMessage>;
 }
-\`\`\`
+```
 
 This is the initial conceptual contract, not the final implementation.
 
@@ -505,14 +462,14 @@ Provider selection must not weaken our existing application security boundaries.
 
 ## 16. Session 11 Deliverables
 
-| Deliverable | Status |
-|---|---|
-| Understand model providers | Completed |
-| Compare hosted and local models | Completed |
-| Understand tool calling | Completed |
-| Understand structured output | Completed |
-| Understand streaming | Completed |
+| Deliverable                         | Status    |
+| ----------------------------------- | --------- |
+| Understand model providers          | Completed |
+| Compare hosted and local models     | Completed |
+| Understand tool calling             | Completed |
+| Understand structured output        | Completed |
+| Understand streaming                | Completed |
 | Understand context and token limits | Completed |
-| Provider comparison documentation | Completed |
+| Provider comparison documentation   | Completed |
 
 **Architecture principle:** We own the agent, orchestration, validation and tool execution. External providers supply model inference only.

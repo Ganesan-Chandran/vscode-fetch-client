@@ -44,6 +44,33 @@ export type TaskStatus =
 	| "cancelled";
 
 /* ========================================================================== */
+/* LLM                                                                   */
+/* ========================================================================== */
+export type LLMErrorKind =
+	| "network"
+	| "timeout"
+	| "rate_limit"
+	| "aborted"
+	| "invalid_response"
+	| "unknown";
+
+export class LLMProviderError extends Error {
+	readonly kind: LLMErrorKind;
+	readonly cause?: unknown;
+
+	constructor(
+		kind: LLMErrorKind,
+		message: string,
+		options?: { cause?: unknown },
+	) {
+		super(message);
+		this.name = "LLMProviderError";
+		this.kind = kind;
+		this.cause = options?.cause;
+	}
+}
+
+/* ========================================================================== */
 /* ToolCall                                                                   */
 /* ========================================================================== */
 
@@ -61,7 +88,7 @@ export type ToolCallStatus =
  * ToolCall: a request, produced by the LLM, to execute a named tool.
  * Arguments are untrusted LLM output and must be validated before execution.
  */
-export interface ToolCall {
+export interface IToolCall {
 	/** Unique id; ToolResult.toolCallId points back to it. */
 	id: string;
 	/** Must match a registered ToolDefinition.name. */
@@ -90,7 +117,7 @@ export type ToolErrorCode =
 	| "UNKNOWN"; // not classified; should be rare
 
 /** ToolError: structured failure information for a tool execution. */
-export interface ToolError {
+export interface IToolError {
 	code: ToolErrorCode;
 	/** Human-readable message (also safe to show to the LLM). */
 	message: string;
@@ -99,7 +126,7 @@ export interface ToolError {
 }
 
 /** Fields shared by every tool result. */
-interface ToolResultBase {
+interface IToolResultBase {
 	/** Id of the ToolCall this result answers. */
 	toolCallId: string;
 	/** Execution time in milliseconds. */
@@ -107,29 +134,29 @@ interface ToolResultBase {
 }
 
 /** Successful execution. `data` is mandatory here; `error` cannot exist. */
-export interface ToolSuccess extends ToolResultBase {
+export interface IToolSuccess extends IToolResultBase {
 	success: true;
 	data: unknown;
 }
 
 /** Failed execution. `error` is mandatory here; `data` cannot exist. */
-export interface ToolFailure extends ToolResultBase {
+export interface IToolFailure extends IToolResultBase {
 	success: false;
-	error: ToolError;
+	error: IToolError;
 }
 
 /**
  * ToolResult: the outcome of a ToolCall.
  * Discriminated on `success`, so invalid combinations do not compile.
  */
-export type ToolResult = ToolSuccess | ToolFailure;
+export type ToolResult = IToolSuccess | IToolFailure;
 
 /* ========================================================================== */
 /* AgentMessage                                                               */
 /* ========================================================================== */
 
 /** Fields shared by every message. */
-interface AgentMessageBase {
+interface IAgentMessageBase {
 	id: string;
 	timestamp: Timestamp;
 	/** Task this message belongs to, if any. */
@@ -137,26 +164,26 @@ interface AgentMessageBase {
 }
 
 /** Text typed by the user. */
-export interface UserMessage extends AgentMessageBase {
+export interface IUserMessage extends IAgentMessageBase {
 	role: "user";
 	content: string;
 }
 
 /** Instructions injected by the application (system prompt, context). */
-export interface SystemMessage extends AgentMessageBase {
+export interface ISystemMessage extends IAgentMessageBase {
 	role: "system";
 	content: string;
 }
 
 /** Output from the LLM: text, optionally with tool requests. */
-export interface AssistantMessage extends AgentMessageBase {
+export interface IAssistantMessage extends IAgentMessageBase {
 	role: "assistant";
 	content: string;
-	toolCalls?: ToolCall[];
+	toolCalls?: IToolCall[];
 }
 
 /** A tool's output fed back to the LLM. */
-export interface ToolMessage extends AgentMessageBase {
+export interface IToolMessage extends IAgentMessageBase {
 	role: "tool";
 	toolResult: ToolResult;
 }
@@ -166,10 +193,10 @@ export interface ToolMessage extends AgentMessageBase {
  * Discriminated on `role`.
  */
 export type AgentMessage =
-	| UserMessage
-	| SystemMessage
-	| AssistantMessage
-	| ToolMessage;
+	| IUserMessage
+	| ISystemMessage
+	| IAssistantMessage
+	| IToolMessage;
 
 /* ========================================================================== */
 /* AgentTask                                                                  */
@@ -179,7 +206,7 @@ export type AgentMessage =
  * AgentTask: a unit of work assigned to the agent (e.g. "Create a collection
  * for the GitHub API and test every endpoint").
  */
-export interface AgentTask {
+export interface IAgentTask {
 	id: string;
 	/** What the user asked for. */
 	description: string;
@@ -211,17 +238,17 @@ export type JSONSchemaType =
 	| "array";
 
 /** Schema for a single tool parameter. */
-export interface JSONSchemaProperty {
+export interface IJSONSchemaProperty {
 	type: JSONSchemaType;
 	description?: string;
 	enum?: readonly string[];
-	items?: JSONSchemaProperty;
+	items?: IJSONSchemaProperty;
 }
 
 /** JSON Schema describing a tool's arguments. */
-export interface JSONSchema {
+export interface IJSONSchema {
 	type: "object";
-	properties: Record<string, JSONSchemaProperty>;
+	properties: Record<string, IJSONSchemaProperty>;
 	required?: string[];
 	additionalProperties?: boolean;
 }
@@ -234,14 +261,14 @@ export interface ToolDefinition {
 	name: string;
 	/** Explains to the LLM when and how to use the tool. */
 	description: string;
-	inputSchema: JSONSchema;
+	inputSchema: IJSONSchema;
 	riskLevel: RiskLevel;
 	/** Overrides the default policy derived from riskLevel. */
 	requiresApproval?: boolean;
 }
 
 /** Runtime information given to a tool when it executes. */
-export interface ToolContext {
+export interface IToolContext {
 	taskId: string;
 	/** Aborts long-running work when the user cancels. */
 	signal?: AbortSignal;
@@ -253,11 +280,11 @@ export interface ToolContext {
  * Tool: an executable capability. Pairs a ToolDefinition with its
  * implementation. Implementations must validate args before use.
  */
-export interface Tool {
+export interface ITool {
 	definition: ToolDefinition;
 	execute(
 		args: Record<string, unknown>,
-		context: ToolContext,
+		context: IToolContext,
 	): Promise<ToolResult>;
 }
 
@@ -266,7 +293,7 @@ export interface Tool {
 /* ========================================================================== */
 
 /** ApprovalRequest: asks the user to allow a specific tool call. */
-export interface ApprovalRequest {
+export interface IApprovalRequest {
 	id: string;
 	toolCallId: string;
 	/** Human-readable, e.g. "DELETE https://api.example.com/users/42". */
@@ -277,7 +304,7 @@ export interface ApprovalRequest {
 }
 
 /** ApprovalResponse: the user's answer to an ApprovalRequest. */
-export interface ApprovalResponse {
+export interface IApprovalResponse {
 	requestId: string;
 	decision: "approve" | "reject";
 	/** Optional explanation, forwarded to the LLM on rejection. */
@@ -290,7 +317,7 @@ export interface ApprovalResponse {
 /* ========================================================================== */
 
 /** Payload for errors surfaced to the UI. */
-export interface AgentErrorInfo {
+export interface IAgentErrorInfo {
 	code: string;
 	message: string;
 }
@@ -301,13 +328,13 @@ export interface AgentErrorInfo {
  */
 export type AgentEvent =
 	| { type: "status_changed"; status: AgentStatus }
-	| { type: "task_updated"; task: AgentTask }
+	| { type: "task_updated"; task: IAgentTask }
 	| { type: "message_added"; message: AgentMessage }
 	| { type: "message_delta"; messageId: string; delta: string }
-	| { type: "tool_call_started"; toolCall: ToolCall }
+	| { type: "tool_call_started"; toolCall: IToolCall }
 	| { type: "tool_call_finished"; result: ToolResult }
-	| { type: "approval_requested"; request: ApprovalRequest }
-	| { type: "error"; error: AgentErrorInfo };
+	| { type: "approval_requested"; request: IApprovalRequest }
+	| { type: "error"; error: IAgentErrorInfo };
 
 /* ========================================================================== */
 /* Agent                                                                      */
@@ -323,10 +350,10 @@ export type AgentEventListener = (event: AgentEvent) => void;
  * Agent: the public API of the agent runtime. The UI only talks to this
  * interface: start tasks, cancel them, answer approvals, observe events.
  */
-export interface Agent {
+export interface IAgent {
 	readonly status: AgentStatus;
-	run(description: string): Promise<AgentTask>;
+	run(description: string): Promise<IAgentTask>;
 	cancel(taskId: string): void;
-	respondToApproval(response: ApprovalResponse): void;
+	respondToApproval(response: IApprovalResponse): void;
 	onEvent(listener: AgentEventListener): Unsubscribe;
 }

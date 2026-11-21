@@ -1,27 +1,27 @@
 import type {
-	Agent,
+	IAgent,
 	AgentEvent,
 	AgentEventListener,
 	AgentMessage,
 	AgentStatus,
-	AgentTask,
-	ApprovalRequest,
-	ApprovalResponse,
-	AssistantMessage,
+	IAgentTask,
+	IApprovalRequest,
+	IApprovalResponse,
+	IAssistantMessage,
 	RiskLevel,
-	ToolCall,
+	IToolCall,
 	ToolCallStatus,
-	ToolContext,
+	IToolContext,
 	ToolErrorCode,
-	ToolFailure,
-	ToolMessage,
+	IToolFailure,
+	IToolMessage,
 	ToolResult,
 	Unsubscribe,
-	UserMessage,
+	IUserMessage,
 } from "../types/agent-contracts";
 
 import type {
-	AgentDependencies,
+	IAgentDependencies,
 	ApprovedToolCall,
 } from "../types/agent-dependencies";
 
@@ -33,7 +33,7 @@ type TaskOutcome = "completed" | "failed" | "cancelled";
 // --------------------------------------------------------------------------
 // Authorization marker
 // --------------------------------------------------------------------------
-function markApproved(call: ToolCall): ApprovedToolCall {
+function markApproved(call: IToolCall): ApprovedToolCall {
 	return call as ApprovedToolCall;
 }
 
@@ -49,7 +49,7 @@ function failure(
 	toolCallId: string,
 	code: ToolErrorCode,
 	message: string,
-): ToolFailure {
+): IToolFailure {
 	return {
 		toolCallId,
 		success: false,
@@ -59,7 +59,7 @@ function failure(
 
 // Returns a frozen copy with a different status. Used for event payloads,
 // so the status shown to the UI never mutates the call being executed.
-function withStatus(call: ToolCall, status: ToolCallStatus): ToolCall {
+function withStatus(call: IToolCall, status: ToolCallStatus): IToolCall {
 	return Object.freeze({ ...call, status });
 }
 
@@ -134,7 +134,7 @@ function deepFreeze<T>(value: T): T {
 
 // Builds the immutable snapshot used for policy, hashing, approval display
 // and execution. This is the only place arguments are cloned and frozen.
-function snapshotCall(call: ToolCall): ToolCall {
+function snapshotCall(call: IToolCall): IToolCall {
 	assertJsonValue(call.arguments);
 
 	const argumentsCopy = deepFreeze(
@@ -152,14 +152,14 @@ function snapshotCall(call: ToolCall): ToolCall {
 
 // Validates and snapshots untrusted LLM tool calls.
 // LLM-supplied status and requiresApproval are ignored.
-function validateToolCalls(calls: unknown): ToolCall[] {
+function validateToolCalls(calls: unknown): IToolCall[] {
 	if (!Array.isArray(calls)) {
 		throw new Error("Malformed tool calls.");
 	}
 
 	const ids = new Set<string>();
 
-	return calls.map((raw): ToolCall => {
+	return calls.map((raw): IToolCall => {
 		if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
 			throw new Error("Malformed tool call.");
 		}
@@ -195,7 +195,7 @@ function validateToolCalls(calls: unknown): ToolCall[] {
 }
 
 // Validates the basic shape of an LLM assistant response.
-function validateAssistantMessage(value: unknown): AssistantMessage {
+function validateAssistantMessage(value: unknown): IAssistantMessage {
 	if (typeof value !== "object" || value === null || Array.isArray(value)) {
 		throw new Error("Malformed assistant response.");
 	}
@@ -255,7 +255,7 @@ function canonical(value: unknown): string {
 }
 
 // Covers tool name and arguments only. Status is excluded on purpose.
-function hashCall(call: ToolCall): string {
+function hashCall(call: IToolCall): string {
 	return canonical({
 		toolName: call.toolName,
 		arguments: call.arguments,
@@ -266,10 +266,10 @@ function hashCall(call: ToolCall): string {
 // Agent Orchestrator
 // --------------------------------------------------------------------------
 
-export class AgentOrchestrator implements Agent {
+export class AgentOrchestrator implements IAgent {
 	private currentStatus: AgentStatus = "idle";
 
-	private activeTask: AgentTask | undefined;
+	private activeTask: IAgentTask | undefined;
 	private activeAbort: AbortController | undefined;
 
 	private readonly listeners = new Set<AgentEventListener>();
@@ -278,10 +278,10 @@ export class AgentOrchestrator implements Agent {
 	// Keyed by an orchestrator-generated ID, never by the LLM's tool call ID.
 	private readonly pending = new Map<
 		string,
-		(response: ApprovalResponse) => void
+		(response: IApprovalResponse) => void
 	>();
 
-	constructor(private readonly deps: AgentDependencies) {}
+	constructor(private readonly deps: IAgentDependencies) {}
 
 	get status(): AgentStatus {
 		return this.currentStatus;
@@ -291,14 +291,14 @@ export class AgentOrchestrator implements Agent {
 	// Public Agent API
 	// ----------------------------------------------------------------------
 
-	async run(description: string): Promise<AgentTask> {
+	async run(description: string): Promise<IAgentTask> {
 		if (this.activeTask) {
 			throw new Error("Agent is already running a task.");
 		}
 
 		const now = Date.now();
 
-		const task: AgentTask = {
+		const task: IAgentTask = {
 			id: newId(),
 			description,
 			status: "running",
@@ -312,7 +312,7 @@ export class AgentOrchestrator implements Agent {
 
 		this.emitTask(task);
 
-		const userMessage: UserMessage = {
+		const userMessage: IUserMessage = {
 			id: newId(),
 			role: "user",
 			content: description,
@@ -362,7 +362,7 @@ export class AgentOrchestrator implements Agent {
 		}
 	}
 
-	respondToApproval(response: ApprovalResponse): void {
+	respondToApproval(response: IApprovalResponse): void {
 		const resolve = this.pending.get(response.requestId);
 
 		if (!resolve) {
@@ -392,7 +392,7 @@ export class AgentOrchestrator implements Agent {
 	// ----------------------------------------------------------------------
 
 	private async loop(
-		task: AgentTask,
+		task: IAgentTask,
 		history: AgentMessage[],
 		signal: AbortSignal,
 	): Promise<string> {
@@ -424,7 +424,7 @@ export class AgentOrchestrator implements Agent {
 
 				const result = await this.handleCall(task, call, signal);
 
-				const toolMessage: ToolMessage = {
+				const toolMessage: IToolMessage = {
 					id: newId(),
 					role: "tool",
 					toolResult: result,
@@ -447,8 +447,8 @@ export class AgentOrchestrator implements Agent {
 	// `call` is already an immutable snapshot from validateToolCalls.
 	// Policy, approval, hashing and execution all use this same object.
 	private async handleCall(
-		task: AgentTask,
-		call: ToolCall,
+		task: IAgentTask,
+		call: IToolCall,
 		signal: AbortSignal,
 	): Promise<ToolResult> {
 		this.throwIfAborted(signal);
@@ -544,8 +544,8 @@ export class AgentOrchestrator implements Agent {
 	// ----------------------------------------------------------------------
 
 	private async dispatch(
-		task: AgentTask,
-		call: ToolCall,
+		task: IAgentTask,
+		call: IToolCall,
 		signal: AbortSignal,
 	): Promise<ToolResult> {
 		this.throwIfAborted(signal);
@@ -557,7 +557,7 @@ export class AgentOrchestrator implements Agent {
 			toolCall: withStatus(call, "running"),
 		});
 
-		const context: ToolContext = {
+		const context: IToolContext = {
 			taskId: task.id,
 			signal,
 		};
@@ -572,12 +572,12 @@ export class AgentOrchestrator implements Agent {
 	// The approval request shows the full arguments that will be executed,
 	// so the user approves the actual call and not a label.
 	private waitForApproval(
-		task: AgentTask,
-		call: ToolCall,
+		task: IAgentTask,
+		call: IToolCall,
 		approvalId: string,
 		policyReason: string,
-	): Promise<ApprovalResponse> {
-		const request: ApprovalRequest = {
+	): Promise<IApprovalResponse> {
+		const request: IApprovalRequest = {
 			id: approvalId,
 			toolCallId: call.id,
 			summary: `${call.toolName}: ${policyReason}\n\n${JSON.stringify(
@@ -602,7 +602,7 @@ export class AgentOrchestrator implements Agent {
 	}
 
 	// Unknown tools default to the stricter level.
-	private riskOf(call: ToolCall): Exclude<RiskLevel, "read"> {
+	private riskOf(call: IToolCall): Exclude<RiskLevel, "read"> {
 		const risk = this.deps.registry
 			.definitions()
 			.find((definition) => definition.name === call.toolName)?.riskLevel;
@@ -615,7 +615,7 @@ export class AgentOrchestrator implements Agent {
 	// ----------------------------------------------------------------------
 
 	private finish(
-		task: AgentTask,
+		task: IAgentTask,
 		outcome: TaskOutcome,
 		details: { result?: string; error?: string },
 	): void {
@@ -633,7 +633,7 @@ export class AgentOrchestrator implements Agent {
 		this.setStatus("idle");
 	}
 
-	private setTaskStatus(task: AgentTask, status: AgentTask["status"]): void {
+	private setTaskStatus(task: IAgentTask, status: IAgentTask["status"]): void {
 		task.status = status;
 		task.updatedAt = Date.now();
 		this.emitTask(task);
@@ -660,7 +660,7 @@ export class AgentOrchestrator implements Agent {
 
 	// Listeners receive copies. A listener cannot change the task, a message,
 	// or the call being executed.
-	private emitTask(task: AgentTask): void {
+	private emitTask(task: IAgentTask): void {
 		this.emit({ type: "task_updated", task: { ...task } });
 	}
 
