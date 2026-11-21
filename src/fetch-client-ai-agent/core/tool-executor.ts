@@ -1,4 +1,5 @@
-import type { ToolContext, ToolResult } from "../types/agent-contracts";
+import Ajv, { type ValidateFunction } from "ajv";
+import type { Tool, ToolContext, ToolResult } from "../types/agent-contracts";
 import type {
 	ApprovedToolCall,
 	ToolExecutor,
@@ -6,6 +7,9 @@ import type {
 } from "../types/agent-dependencies";
 
 export class RegistryToolExecutor implements ToolExecutor {
+	private readonly ajv = new Ajv({ allErrors: false });
+	private readonly validators = new Map<string, ValidateFunction>();
+
 	constructor(private readonly registry: ToolRegistry) {}
 
 	async execute(
@@ -25,9 +29,22 @@ export class RegistryToolExecutor implements ToolExecutor {
 			};
 		}
 
+		const validate = this.validatorFor(tool);
+		if (!validate(call.arguments)) {
+			return {
+				toolCallId: call.id,
+				success: false,
+				error: {
+					code: "INVALID_ARGUMENTS",
+					message: "Tool arguments do not match the schema.",
+					retryable: false,
+				},
+			};
+		}
+
 		try {
 			return await tool.execute(call.arguments, context);
-		} catch (err) {
+		} catch {
 			return {
 				toolCallId: call.id,
 				success: false,
@@ -38,5 +55,14 @@ export class RegistryToolExecutor implements ToolExecutor {
 				},
 			};
 		}
+	}
+
+	private validatorFor(tool: Tool): ValidateFunction {
+		let validate = this.validators.get(tool.definition.name);
+		if (!validate) {
+			validate = this.ajv.compile(tool.definition.inputSchema);
+			this.validators.set(tool.definition.name, validate);
+		}
+		return validate;
 	}
 }
